@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -26,7 +25,7 @@ Var NameOfMessageToSend Export;
 
 // For FTP
 Var SendGetDataTimeout; // Timeout for exchanging data with a FTP server.
-Var ConnectionCheckTimeout; // FTP connection check timeout.
+Var PingTimeout; // FTP connection check timeout.
 Var FTPServerName; // FTP server name or IP address.
 Var DirectoryAtFTPServer; // Directory on server for storing and receiving exchange messages.
 
@@ -140,7 +139,7 @@ Function ConnectionIsSet() Export
 	TextWriter.Close();
 	
 	// Copying a file to the external resource from the temporary directory.
-	Result = CopyFileToFTPServer(TempConnectionTestFileName, FileNameForDestination, ConnectionCheckTimeout);
+	Result = CopyFileToFTPServer(TempConnectionTestFileName, FileNameForDestination, PingTimeout);
 	
 	// Deleting a file from the external resource.
 	If Result Then
@@ -367,7 +366,7 @@ Function CopyFileToFTPServer(Val SourceFileName, ReceiverFileName, Val Timeout)
 		
 	EndTry;
 	
-	If Timeout = ConnectionCheckTimeout 
+	If Timeout = PingTimeout 
 		And FTPConnection.PassiveMode 
 		And Not PassiveConnection Then
 		
@@ -462,7 +461,7 @@ Function DeleteFileAtFTPServer(Val FileName, ConnectionCheckUp = False)
 	DirectoryAtServer = ServerAndDirectoryAtServer.DirectoryName;
 	
 	Try
-		FTPConnection = GetFTPConnection(ConnectionCheckTimeout);
+		FTPConnection = GetFTPConnection(PingTimeout);
 	Except
 		
 		ErrorMessage = NStr("en = 'An occurred when initializing connection to the FTP server.'");
@@ -529,7 +528,7 @@ FTPServerName = Undefined;
 DirectoryAtFTPServer = Undefined;
 
 SendGetDataTimeout = 12*60*60;
-ConnectionCheckTimeout = 10;
+PingTimeout = 10;
 
 #EndRegion
 

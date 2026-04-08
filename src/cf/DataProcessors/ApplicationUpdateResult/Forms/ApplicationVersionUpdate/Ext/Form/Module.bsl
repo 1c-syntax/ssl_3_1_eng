@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Variables
@@ -753,8 +752,10 @@ Function StartDeferredHandlerFillingProcedures()
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
 	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Manage multi-threaded registration of deferred update data'");
 	
-	ProcedureName = "InfobaseUpdateInternal.StartDeferredHandlerDataRegistration";
-	ExecutionResult = TimeConsumingOperations.ExecuteInBackground(ProcedureName, UUID, ExecutionParameters);
+	ExecutionResult = TimeConsumingOperations.ExecuteInBackground(
+		"InfobaseUpdateInternal.StartDeferredHandlerDataRegistration",
+		UUID,
+		ExecutionParameters);
 	
 	Return CheckDeferredHandlerFillingProcedures(ExecutionResult);
 	
@@ -822,7 +823,7 @@ EndProcedure
 &AtClient
 Procedure FailedUpdateMessage(AdditionalParameters, UpdateEndTime)
 	
-	NotifyDescription = New CallbackDescription("UpdateInfobaseActionsOnError", ThisObject);
+	CallbackDescription = New CallbackDescription("UpdateInfobaseActionsOnError", ThisObject);
 	
 	FormParameters = New Structure;
 	FormParameters.Insert("ErrorInfo",         AdditionalParameters.ErrorInfo);
@@ -842,7 +843,7 @@ Procedure FailedUpdateMessage(AdditionalParameters, UpdateEndTime)
 	
 	EndIf;
 	
-	OpenForm(NameOfFormToOpen_, FormParameters,,,,,NotifyDescription);
+	OpenForm(NameOfFormToOpen_, FormParameters,,,,,CallbackDescription);
 	
 EndProcedure
 

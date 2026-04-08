@@ -23,10 +23,10 @@
 				</Title>
 				<ExtendedTooltip name="FormWriteAndCloseExtendedTooltip" id="11"/>
 			</Button>
-			<Button name="FormHelp" id="110">
+			<Button name="FormHelp_SSLyf" id="110">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.StandardCommand.Help</CommandName>
-				<ExtendedTooltip name="FormHelpExtendedTooltip" id="111"/>
+				<ExtendedTooltip name="FormHelp_SSLyfExtendedTooltip" id="111"/>
 			</Button>
 		</ChildItems>
 	</AutoCommandBar>
@@ -285,7 +285,7 @@ lowercase letters, numbers, and special characters
 																<Presentation>
 																	<v8:item>
 																		<v8:lang>en</v8:lang>
-																		<v8:content>Prompt password change</v8:content>
+																		<v8:content>Prompt for password change</v8:content>
 																	</v8:item>
 																</Presentation>
 																<Value xsi:type="xs:string">SuggestPasswordChange</Value>
@@ -298,7 +298,7 @@ lowercase letters, numbers, and special characters
 																<Presentation>
 																	<v8:item>
 																		<v8:lang>en</v8:lang>
-																		<v8:content>Demand password change</v8:content>
+																		<v8:content>Require password change</v8:content>
 																	</v8:item>
 																</Presentation>
 																<Value xsi:type="xs:string">RequirePasswordChange</Value>
@@ -644,7 +644,7 @@ Not applicable to administrators.</v8:content>
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="SettingsGroup12ExtendedTooltip" id="166"/>
+							<ExtendedTooltip name="GroupSettings2ExtendedTooltip" id="166"/>
 							<ChildItems>
 								<UsualGroup name="PasswordComplexityGroup2" id="167">
 									<Title>
@@ -819,7 +819,7 @@ lowercase letters, numbers, and special characters
 																<Presentation>
 																	<v8:item>
 																		<v8:lang>en</v8:lang>
-																		<v8:content>Prompt password change</v8:content>
+																		<v8:content>Prompt for password change</v8:content>
 																	</v8:item>
 																</Presentation>
 																<Value xsi:type="xs:string">SuggestPasswordChange</Value>
@@ -832,7 +832,7 @@ lowercase letters, numbers, and special characters
 																<Presentation>
 																	<v8:item>
 																		<v8:lang>en</v8:lang>
-																		<v8:content>Demand password change</v8:content>
+																		<v8:content>Require password change</v8:content>
 																	</v8:item>
 																</Presentation>
 																<Value xsi:type="xs:string">RequirePasswordChange</Value>
@@ -1157,14 +1157,14 @@ Not applicable to administrators.</v8:content>
 						</UsualGroup>
 					</ChildItems>
 				</Page>
-				<Page name="Additional" id="140">
+				<Page name="Additional_SSLyf" id="140">
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
 							<v8:content>Additional</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="AdditionalExtendedTooltip" id="141"/>
+					<ExtendedTooltip name="Additional_SSLyfExtendedTooltip" id="141"/>
 					<ChildItems>
 						<UsualGroup name="GroupNotificationLeadTimeBeforeAccessExpire" id="289">
 							<Title>
@@ -1544,8 +1544,8 @@ the app without requiring manual password entry each time.</v8:content>
 								</LabelDecoration>
 								<LabelDecoration name="Vspace4" id="430">
 									<Height>2</Height>
-									<ContextMenu name="Vspace4ContextMenu" id="431"/>
-									<ExtendedTooltip name="Vspace4ExtendedTooltip" id="432"/>
+									<ContextMenu name="VerticalIndent4ContextMenu" id="431"/>
+									<ExtendedTooltip name="VerticalIndent4ExtendedTooltip" id="432"/>
 								</LabelDecoration>
 							</ChildItems>
 						</UsualGroup>
@@ -1670,8 +1670,8 @@ the app without requiring manual password entry each time.</v8:content>
 								</LabelDecoration>
 								<LabelDecoration name="Vspace3" id="408">
 									<Height>2</Height>
-									<ContextMenu name="Vspace3ContextMenu" id="409"/>
-									<ExtendedTooltip name="Vspace3ExtendedTooltip" id="410"/>
+									<ContextMenu name="VerticalIndent3ContextMenu" id="409"/>
+									<ExtendedTooltip name="VerticalIndent3ExtendedTooltip" id="410"/>
 								</LabelDecoration>
 							</ChildItems>
 						</UsualGroup>
@@ -2823,7 +2823,7 @@ the app without requiring manual password entry each time.</v8:content>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Check whether the confirmation code
+					<v8:content>Check whether the verification code
 was sent to the current user's email.</v8:content>
 				</v8:item>
 			</ToolTip>

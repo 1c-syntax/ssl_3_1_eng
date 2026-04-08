@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -276,7 +275,7 @@ EndFunction
 //    associated with relevant exchange plan nodes, and so on. If a permission is logically
 //    isolated (for example, if granting of a permission is controlled by the constant value with the Boolean type),
 //    it is recommended that you use a reference to the MetadataObjectIDs catalog item.
-//  ReplacementMode - Boolean - defines the replacement mode of permissions previously granted for this owner. If the
+//  Var_ReplacementMode - Boolean - defines the replacement mode of permissions previously granted for this owner. If the
 //    value is True, in addition to granting the requested permissions,
 //    clearing all permissions that were previously requested for the owner are added to the request.
 //
@@ -285,11 +284,11 @@ EndFunction
 //    all requests for permission changes are created, the changes must be applied by calling the SafeModeManagerClient.ApplyExternalResourcesRequests 
 //    procedure.
 //
-Function RequestToUseExternalResources(Val NewPermissions, Val Owner = Undefined, Val ReplacementMode = True) Export
+Function RequestToUseExternalResources(Val NewPermissions, Val Owner = Undefined, Val Var_ReplacementMode = True) Export
 	
 	Return SafeModeManagerInternal.PermissionChangeRequest(
 		Owner,
-		ReplacementMode,
+		Var_ReplacementMode,
 		NewPermissions);
 	
 EndFunction
@@ -452,7 +451,8 @@ Function InfobaseSecurityProfile(CheckForUsage = False) Export
 	
 	SecurityProfile = Constants.InfobaseSecurityProfile.Get();
 	
-	If SecurityProfile = False Then
+	If TypeOf(SecurityProfile) <> Type("String")
+	 Or Not ValueIsFilled(SecurityProfile) Then
 		Return "";
 	EndIf;
 	

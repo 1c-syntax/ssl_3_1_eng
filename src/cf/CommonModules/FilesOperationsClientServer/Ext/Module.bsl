@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -24,6 +23,8 @@
 //                                     The default value is False.
 //    * RaiseException1             - Boolean - if you specify False, the function will not raise
 //                                     exceptions in exceptional situations and will return Undefined. The default value is True.
+//    * FileGettingParameters		   - See FilesOperationsClientServer.FileGettingParameters. 
+//    								   Default is Undefined.
 //
 Function FileDataParameters() Export
 	
@@ -32,7 +33,29 @@ Function FileDataParameters() Export
 	DataParameters.Insert("FormIdentifier",             Undefined);
 	DataParameters.Insert("RaiseException1",             True);
 	DataParameters.Insert("GetBinaryDataRef", True);
+	DataParameters.Insert("FileGettingParameters",		   Undefined);
 	Return DataParameters;
+	
+EndFunction
+
+// Initializes a structure of parameters for getting file data. See FilesOperationsInternalServerCall.FileDataToSave.
+//
+// Returns:
+//  Structure:
+//    * FileVersion             - CatalogRef.FilesVersions - a file version.
+//    * FormIdentifier      - UUID - a form UUID.
+//    * OwnerWorkingDirectory	- String - a working directory of the file owner.
+//    * FileGettingParameters	- See FilesOperationsClientServer.FileGettingParameters
+//
+Function AdditionalParametersFileDataToSave() Export
+	
+	AdditionalParameters = New Structure;
+	AdditionalParameters.Insert("FileVersion"				,Undefined);
+	AdditionalParameters.Insert("FormIdentifier"		,Undefined);
+	AdditionalParameters.Insert("OwnerWorkingDirectory"	,Undefined);
+	AdditionalParameters.Insert("FileGettingParameters"	,Undefined);
+	
+	Return AdditionalParameters;
 	
 EndFunction
 
@@ -171,6 +194,29 @@ Function FileInfo1(Val Mode, Val SourceFile = Undefined) Export
 	EndIf;
 	Return Result;
 	
+EndFunction
+
+Function FileGettingParameters() Export
+
+	Result = New Structure;
+	Result.Insert("AddressInParentSession");
+	Result.Insert("AddressOfCurrentVersionInParentSession");
+	Result.Insert("CheckPresenceOfFileInArchive"			, True);
+	Result.Insert("FileInArchive"							, False);
+
+	Return Result;
+
+EndFunction
+
+// Returns a flag indicating whether files can be stored in disk volumes.
+//
+// Returns:
+//  Boolean
+//
+Function ShouldStoreFilesInVolumes(FilesStorageMethod) Export
+
+	Return FilesStorageMethod = "InVolumesOnHardDrive" Or FilesStorageMethod = "InInfobaseAndVolumesOnHardDrive";
+
 EndFunction
 
 #EndRegion

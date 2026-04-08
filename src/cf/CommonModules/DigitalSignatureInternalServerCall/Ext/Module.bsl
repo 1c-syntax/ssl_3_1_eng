@@ -1,12 +1,61 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+
+#Region Internal
+
+// Adds a signature. If it fails, it returns an error message.
+// 
+// Parameters:
+//  ObjectReference Object reference
+//  SignatureProperties - See DigitalSignatureInternalClientServer.SignatureProperties
+//  FormIdentifier Form ID
+//  ObjectVersion - Undefined - Object version
+// 
+// Returns:
+//  String 
 //
+Function AddSignature(Val ObjectReference,Val SignatureProperties,Val FormIdentifier,Val ObjectVersion) Export
+	
+	DataElement = New Structure;
+	DataElement.Insert("SignatureProperties",     SignatureProperties);
+	DataElement.Insert("DataPresentation", ObjectReference);
+	
+	DigitalSignatureInternal.RegisterDataSigningInLog(DataElement);
+	
+	ErrorPresentation = "";
+	Try
+		DigitalSignature.AddSignature(ObjectReference, SignatureProperties, FormIdentifier, ObjectVersion);
+	Except
+		ErrorInfo = ErrorInfo();
+		ErrorPresentation = NStr("en = 'Cannot save the signature due to:'")
+			+ Chars.LF + ErrorProcessing.BriefErrorDescription(ErrorInfo);
+	EndTry;
+	
+	Return ErrorPresentation;
+	
+EndFunction
+
+// Binary data of the certificate from the catalog
+// 
+// Parameters:
+//  Certificate - CatalogRef.DigitalSignatureAndEncryptionKeysCertificates
+// 
+// Returns:
+//  BinaryData, Undefined 
+//
+Function CertificateData(Certificate) Export
+	
+	Return Common.ObjectAttributeValue(Certificate, "CertificateData").Get();
+	
+EndFunction
+
+#EndRegion
 
 #Region Private
 
@@ -106,7 +155,7 @@ Function ProcessPersonalCertificates(CertificatesPropertiesTable, Filter)
 		|;
 		|
 		|////////////////////////////////////////////////////////////////////////////////
-		|SELECT
+		|SELECT ALLOWED
 		|	Thumbprints.Thumbprint AS Thumbprint,
 		|	Certificates.Description AS Description,
 		|	Certificates.Organization AS Organization,
@@ -240,7 +289,7 @@ Function CertificateRef(Thumbprint, CertificateAddress) Export
 	Query = New Query;
 	Query.SetParameter("Thumbprint", Thumbprint);
 	Query.Text =
-	"SELECT
+	"SELECT ALLOWED
 	|	Certificates.Ref AS Ref
 	|FROM
 	|	Catalog.DigitalSignatureAndEncryptionKeysCertificates AS Certificates
@@ -409,7 +458,7 @@ Function ExecuteAtServerSide(Val Parameters, ResultAddress, OperationStarted, Er
 		CertificateProperties.Insert("BinaryData", CertificateBinaryData);
 
 		If DigitalSignatureInternalClientServer.AreCertificateAdditionalPropertiesAvailable() Then
-			CertificateAlgorithm = CertificateProperties.AlgorithmOfPublicKey;
+			CertificateAlgorithm = CertificateProperties.PublicKeyAlgorithm;
 		Else
 			CertificateAlgorithm = DigitalSignatureInternalClientServer.CertificateSignAlgorithm(
 				CertificateBinaryData, False, True);
@@ -669,28 +718,6 @@ EndFunction
 Function XMLEnvelopeProperties(Val XMLEnvelope, Val XMLDSigParameters, Val CheckSignature) Export
 	
 	Return DigitalSignatureInternal.XMLEnvelopeProperties(XMLEnvelope, XMLDSigParameters, CheckSignature);
-	
-EndFunction
-
-// For internal use only.
-Function AddSignature(ObjectReference, SignatureProperties, FormIdentifier, ObjectVersion) Export
-	
-	DataElement = New Structure;
-	DataElement.Insert("SignatureProperties",     SignatureProperties);
-	DataElement.Insert("DataPresentation", ObjectReference);
-	
-	DigitalSignatureInternal.RegisterDataSigningInLog(DataElement);
-	
-	ErrorPresentation = "";
-	Try
-		DigitalSignature.AddSignature(ObjectReference, SignatureProperties, FormIdentifier, ObjectVersion);
-	Except
-		ErrorInfo = ErrorInfo();
-		ErrorPresentation = NStr("en = 'Cannot save the signature due to:'")
-			+ Chars.LF + ErrorProcessing.BriefErrorDescription(ErrorInfo);
-	EndTry;
-	
-	Return ErrorPresentation;
 	
 EndFunction
 
@@ -955,15 +982,11 @@ Function SupplementErrorClassifierSolutionWithDetails(Val ClassifierError,
 		
 EndFunction
 
-Function CertificateData(Certificate) Export
+Function ClassifierError(Val ErrorText, Val ErrorAtServer = False, Val SignatureVerificationError = False,
+		IsCertificateSpecified = False) Export
 	
-	Return Common.ObjectAttributeValue(Certificate, "CertificateData").Get();
-	
-EndFunction
-
-Function ClassifierError(ErrorText) Export
-	
-	Return DigitalSignatureInternal.ClassifierError(ErrorText);
+	Return DigitalSignatureInternal.ClassifierError(ErrorText, ErrorAtServer, SignatureVerificationError,
+		IsCertificateSpecified);
 	
 EndFunction
 
@@ -1030,6 +1053,14 @@ Procedure AddADescriptionOfAdditionalData(AdditionalData, FilesDetails, Informat
 		AddASignatureDescription(Signatures, FilesDetails, Text, 1);
 	EndIf;
 	
+	AdditionalFiles = Undefined;
+	AdditionalData.Property("AdditionalFiles", AdditionalFiles);
+	If TypeOf(AdditionalFiles) = Type("Array") Then
+		For Each File In AdditionalFiles Do
+			FilesDetails.Add(File);
+		EndDo;
+	EndIf;
+	
 	
 	If ValueIsFilled(Text) Then
 		InformationRecords = InformationRecords + Text + Chars.LF;
@@ -1073,7 +1104,7 @@ Procedure AddADescriptionOfTheCertificate(Certificate, FilesDetails, Information
 				CertificatePresentation = CertificateProperties.Presentation;
 				If DigitalSignatureInternalClientServer.AreCertificateAdditionalPropertiesAvailable() Then
 					SignAlgorithm = DigitalSignatureInternalClientServer.SignAlgorithmPresentation(
-						CertificateProperties.AlgorithmOfPublicKey, True, True);
+						CertificateProperties.PublicKeyAlgorithm, True, True);
 				EndIf;
 			Except
 				CertificatePresentation = "";

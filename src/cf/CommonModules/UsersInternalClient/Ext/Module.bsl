@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Internal
@@ -74,12 +73,12 @@ Procedure ExpandRoleSubsystems(Form, Unconditionally = True) Export
 EndProcedure
 
 // For internal use only.
-Procedure SelectPurpose(FormData1, Title, SelectUsersAllowed = True, IsFilter = False, NotifyDescription = Undefined) Export
+Procedure SelectPurpose(FormData1, Title, SelectUsersAllowed = True, IsFilter = False, CallbackDescription = Undefined) Export
 	
 	AdditionalParameters = New Structure;
 	AdditionalParameters.Insert("FormData1", FormData1);
 	AdditionalParameters.Insert("IsFilter", IsFilter);
-	AdditionalParameters.Insert("NotifyDescription", NotifyDescription);
+	AdditionalParameters.Insert("CallbackDescription", CallbackDescription);
 	
 	OnCloseNotifyDescription = New CallbackDescription("AfterAssignmentChoice", ThisObject, AdditionalParameters);
 	
@@ -346,7 +345,7 @@ EndProcedure
 //        ** Items - FormAllItems:
 //              *** SelectPurpose - FormButton
 //    * IsFilter - Boolean
-//    * NotifyDescription - CallbackDescription
+//    * CallbackDescription - CallbackDescription
 //
 Procedure AfterAssignmentChoice(ClosingResult, AdditionalParameters) Export
 	
@@ -383,8 +382,8 @@ Procedure AfterAssignmentChoice(ClosingResult, AdditionalParameters) Export
 		AdditionalParameters.FormData1.Items.SelectPurpose.Title = ItemTitle;
 	EndIf;
 	
-	If AdditionalParameters.NotifyDescription <> Undefined Then
-		RunCallback(AdditionalParameters.NotifyDescription, TypesArray);
+	If AdditionalParameters.CallbackDescription <> Undefined Then
+		RunCallback(AdditionalParameters.CallbackDescription, TypesArray);
 	EndIf;
 	
 EndProcedure
@@ -731,8 +730,8 @@ Procedure AskOnTermination(QueryText)
 		Return;
 	EndIf;
 	
-	NotifyDescription = New CallbackDescription("AskOnTerminationCompletion", ThisObject);
-	ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.YesNo, 30, DialogReturnCode.Yes);
+	CallbackDescription = New CallbackDescription("AskOnTerminationCompletion", ThisObject);
+	ShowQueryBox(CallbackDescription, QueryText, QuestionDialogMode.YesNo, 30, DialogReturnCode.Yes);
 	
 EndProcedure
 

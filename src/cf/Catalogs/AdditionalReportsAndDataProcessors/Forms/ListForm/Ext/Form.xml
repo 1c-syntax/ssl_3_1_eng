@@ -274,7 +274,7 @@ For further assistance, contact provider's technical support.</v8:content>
 							<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
 							<ExtendedTooltip name="DebugModeExtendedTooltip" id="77"/>
 						</Button>
-						<Button name="isDisabled" id="74">
+						<Button name="TurnedOff" id="74">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.PublicationDisabled</CommandName>
 							<Title>

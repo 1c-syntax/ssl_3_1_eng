@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -34,7 +33,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If Selection.Next() Then
 		
-		CurrentStep = Selection.MigrationToWebService_Step + 1;
+		CurrentStep_SSLyf = Selection.MigrationToWebService_Step + 1;
 		FillPropertyValues(ThisForm, Selection, "DataArea,Endpoint,CorrespondentEndpoint");
 		
 	EndIf;
@@ -69,7 +68,7 @@ EndProcedure
 Procedure OnClose(Exit)
 	
 	If Not Exit
-		And CurrentStep > 0 Then
+		And CurrentStep_SSLyf > 0 Then
 		
 		Notify("FormMigrationToExchangeOverInternetWizardClosed");
 		
@@ -386,13 +385,13 @@ EndFunction
 &AtClient
 Function Attachable_NavigationPage_OnOpen(Cancel, SkipPage, Val IsMoveNext)
 	
-	If CurrentStep = 1 Then
+	If CurrentStep_SSLyf = 1 Then
 		OnStartGetApplicationList();
-	ElsIf CurrentStep = 2 Then
+	ElsIf CurrentStep_SSLyf = 2 Then
 		OnStartDisconnectingFromSM();
-	ElsIf CurrentStep = 3 Then
+	ElsIf CurrentStep_SSLyf = 3 Then
 		OnStartSettingUpPeerNode();
-	ElsIf CurrentStep = 4 Then
+	ElsIf CurrentStep_SSLyf = 4 Then
 		OnStartNodeSetup();
 	EndIf;
 	
@@ -477,7 +476,7 @@ Procedure OnCompleteGettingApplicationsList()
 	OnCompleteGettingApplicationsListAtServer(GoToNext);
 	
 	If GoToNext Then
-		CurrentStep = CurrentStep + 1;
+		CurrentStep_SSLyf = CurrentStep_SSLyf + 1;
 		RefreshStepsDisplay();
 		OnStartDisconnectingFromSM();
 	Else
@@ -520,7 +519,7 @@ Procedure OnCompleteGettingApplicationsListAtServer(GoToNext)
 			RecordStructure.Insert("MigrationToWebService_PeerEndpoint"	, CorrespondentEndpoint);
 			RecordStructure.Insert("MigrationToWebService_DataArea"				, DataAreaRow);
 			RecordStructure.Insert("MigrationToWebService_Endpoint"				, Endpoint);
-			RecordStructure.Insert("MigrationToWebService_Step"							, CurrentStep);
+			RecordStructure.Insert("MigrationToWebService_Step"							, CurrentStep_SSLyf);
 			
 			DataExchangeInternal.UpdateInformationRegisterRecord(RecordStructure, "CommonInfobasesNodesSettings");
 			
@@ -601,7 +600,7 @@ Procedure OnCompleteDisconnectingFromSM()
 	OnCompleteDisconnectingFromSMAtServer(GoToNext, ErrorMessage);
 	
 	If GoToNext Then
-		CurrentStep = CurrentStep + 1;
+		CurrentStep_SSLyf = CurrentStep_SSLyf + 1;
 		RefreshStepsDisplay();
 		OnStartSettingUpPeerNode();
 	Else
@@ -689,7 +688,7 @@ Procedure NodePeerInfobaseSetupCompletion(Result, AdditionalParameters) Export
 		CommonClient.MessageToUser(Result.BriefErrorDescription);
 		SetNavigationNumber(1);
 	Else	
-		CurrentStep = CurrentStep + 1;
+		CurrentStep_SSLyf = CurrentStep_SSLyf + 1;
 		RefreshStepsDisplay();
 		CommitTransitionStep();
 		OnStartNodeSetup();
@@ -733,7 +732,7 @@ Procedure NodeSetupCompletion(Result, AdditionalParameters) Export
 		CommonClient.MessageToUser(Result.BriefErrorDescription);
 		SetNavigationNumber(1);
 	Else	
-		CurrentStep = CurrentStep + 1;
+		CurrentStep_SSLyf = CurrentStep_SSLyf + 1;
 		RefreshStepsDisplay();
 		ClearUpTransitionStepsInRegister();
 		AttachIdleHandler("AfterAllStepsCompleted",1,True); // Required for displaying the last stage.
@@ -755,7 +754,7 @@ Procedure CommitTransitionStep()
 	
 	RecordStructure = New Structure;
 	RecordStructure.Insert("InfobaseNode"		, ExchangeNode);
-	RecordStructure.Insert("MigrationToWebService_Step"				, CurrentStep);
+	RecordStructure.Insert("MigrationToWebService_Step"				, CurrentStep_SSLyf);
 	DataExchangeInternal.UpdateInformationRegisterRecord(RecordStructure, "CommonInfobasesNodesSettings");
 
 EndProcedure
@@ -864,10 +863,10 @@ Procedure RefreshStepsDisplay()
 		
 		Panel = Items[String.Panel];
 		
-		If LineNumber = CurrentStep Then
+		If LineNumber = CurrentStep_SSLyf Then
 			Items[String.Panel].CurrentPage = Items[String.PageCurrent];
 			Items[String.Label].Font = New Font(,,True);
-		ElsIf LineNumber < CurrentStep Then
+		ElsIf LineNumber < CurrentStep_SSLyf Then
 			Items[String.Panel].CurrentPage = Items[String.PageSuccessfully];
 			Items[String.Label].Font = New Font;
 		Else

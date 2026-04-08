@@ -103,10 +103,10 @@
 					<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 					<ExtendedTooltip name="ShowMarkedFilesExtendedTooltip" id="75"/>
 				</Button>
-				<Button name="FormHelp" id="14">
+				<Button name="FormHelp_SSLyf" id="14">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.StandardCommand.Help</CommandName>
-					<ExtendedTooltip name="FormHelpExtendedTooltip" id="34"/>
+					<ExtendedTooltip name="FormHelp_SSLyfExtendedTooltip" id="34"/>
 				</Button>
 				<SearchStringAddition name="SearchString" id="78">
 					<AdditionSource>

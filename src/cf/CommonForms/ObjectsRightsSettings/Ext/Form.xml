@@ -82,12 +82,12 @@
 					</Button>
 				</ChildItems>
 			</ButtonGroup>
-			<Button name="FormHelp" id="30">
+			<Button name="FormHelp_SSLyf" id="30">
 				<Type>CommandBarButton</Type>
 				<Visible>false</Visible>
 				<SkipOnInput>false</SkipOnInput>
 				<CommandName>Form.StandardCommand.Help</CommandName>
-				<ExtendedTooltip name="FormHelpExtendedTooltip" id="48"/>
+				<ExtendedTooltip name="FormHelp_SSLyfExtendedTooltip" id="48"/>
 			</Button>
 			<Button name="FormCustomizeForm" id="36">
 				<Type>CommandBarButton</Type>

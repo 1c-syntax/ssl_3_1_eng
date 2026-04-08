@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -16,7 +15,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	AdditionalData = Parameters.AdditionalData;
 	
 	If ValueIsFilled(AdditionalData) Then
-		SignatureVerificationError = CommonClientServer.StructureProperty(AdditionalData, "SignatureData", False) = True;
+		SignatureVerificationError = CommonClientServer.StructureProperty(AdditionalData, "SignatureData", False) <> False;
 	EndIf;
 	
 	DigitalSignatureInternal.ToSetTheTitleOfTheBug(ThisObject,
@@ -62,24 +61,24 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.AdditionalLink.Visible = False;
 	EndIf;
 	
-	// 
-	If Common.SubsystemExists("StandardSubsystems.ContactingTechnicalSupport") Then
+	// StandardSubsystems.SupportRequests
+	If Common.SubsystemExists("StandardSubsystems.SupportRequests") Then
 		
-		ModuleForContactingTechnicalSupportService = Common.CommonModule(
-			"ContactingTechnicalSupportInternal");
+		ModuleSupportRequestsInternal = Common.CommonModule(
+			"SupportRequestsInternal");
 		
-		ModuleForContactingTechnicalSupportService.OnCreateAtServer(ThisObject);
+		ModuleSupportRequestsInternal.OnCreateAtServer(ThisObject);
 		
 		If Parameters.ShowInstruction Then
-			ModuleForContactingTechnicalSupportService.ShowHelpNeededSection(Items);
+			ModuleSupportRequestsInternal.ShowNeedHelpSection(Items);
 		Else
-			ModuleForContactingTechnicalSupportService.HideHelpNeededSection(Items);
+			ModuleSupportRequestsInternal.HideNeedHelpSection(Items);
 		EndIf;
 		
 	Else
 		Items.AssistanceRequiredGroup.Visible = False;
 	EndIf;
-	// End StandardSubsystems.ContactingTechnicalSupport
+	// End StandardSubsystems.SupportRequests
 	
 EndProcedure
 
@@ -183,14 +182,14 @@ Procedure InstallExtension(Command)
 EndProcedure
 
 &AtClient
-Procedure QuestionInSupport(Command)
+Procedure SupportTicket(Command)
 	
 	ExportTechnicalInfo(False);
 	
 EndProcedure
 
 &AtClient
-Procedure InformationToSendToSupport(Command)
+Procedure InfoForSupport(Command)
 	
 	Items.AssistanceRequiredGroup.Hide();
 	ExportTechnicalInfo(True);
@@ -316,6 +315,7 @@ Procedure SetItems(ErrorText, TwoMistakes, ErrorLocation)
 		
 		ReasonsAndDecisionsGroup.Visible = IsKnownError;
 		
+		ExpandTechnicalInformation = True;
 		If IsKnownError Then
 			If ValueIsFilled(ClassifierError.RemedyActions) Then
 				ClassifierError = DigitalSignatureInternal.SupplementErrorClassifierSolutionWithDetails(
@@ -323,6 +323,7 @@ Procedure SetItems(ErrorText, TwoMistakes, ErrorLocation)
 			EndIf;
 			
 			If ValueIsFilled(ClassifierError.Cause) Then
+				ExpandTechnicalInformation = False;
 				If TypeOf(ReasonItemText) = Type("FormDecoration") Then
 					CommonClientServer.SetFormItemProperty(Items,
 					ReasonItemText.Name, "Title", ClassifierError.Cause);
@@ -335,6 +336,7 @@ Procedure SetItems(ErrorText, TwoMistakes, ErrorLocation)
 			EndIf;
 			
 			If ValueIsFilled(ClassifierError.Decision) Then
+				ExpandTechnicalInformation = False;
 				CommonClientServer.SetFormItemProperty(Items,
 					ItemDecisionText.Name, "Title", ClassifierError.Decision);
 			Else
@@ -349,9 +351,11 @@ Procedure SetItems(ErrorText, TwoMistakes, ErrorLocation)
 			Else
 				ErrorAnchor = ClassifierError.Ref;
 			EndIf;
-			
-		Else
+		EndIf;
+		
+		If ExpandTechnicalInformation Then
 			GroupTechnicalDetails.Show();
+			GroupTechnicalDetails.ShowTitle = False;
 		EndIf;
 		
 		CommonClientServer.SetFormItemProperty(Items,

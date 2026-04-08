@@ -78,10 +78,10 @@
 					</ButtonGroup>
 				</ChildItems>
 			</Popup>
-			<Button name="FormHelp" id="355">
+			<Button name="FormHelp_SSLyf" id="355">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.StandardCommand.Help</CommandName>
-				<ExtendedTooltip name="FormHelpExtendedTooltip" id="356"/>
+				<ExtendedTooltip name="FormHelp_SSLyfExtendedTooltip" id="356"/>
 			</Button>
 		</ChildItems>
 	</AutoCommandBar>
@@ -502,7 +502,7 @@ by the external user list owner (not by the administrator).</v8:content>
 					</Title>
 					<ExtendedTooltip name="Main_PageExtendedTooltip" id="284"/>
 					<ChildItems>
-						<UsualGroup name="GroupName" id="374">
+						<UsualGroup name="GroupName_SSLyf" id="374">
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
@@ -512,7 +512,7 @@ by the external user list owner (not by the administrator).</v8:content>
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="GroupNameExtendedTooltip" id="375"/>
+							<ExtendedTooltip name="GroupName_SSLyfExtendedTooltip" id="375"/>
 							<ChildItems>
 								<InputField name="IBUserName" id="242">
 									<DataPath>IBUserName</DataPath>
@@ -664,7 +664,7 @@ username and password.</v8:content>
 																	<Title>
 																		<v8:item>
 																			<v8:lang>en</v8:lang>
-																			<v8:content>Demand password change on next login</v8:content>
+																			<v8:content>Require password change on next login</v8:content>
 																		</v8:item>
 																	</Title>
 																	<TitleLocation>Right</TitleLocation>
@@ -715,6 +715,9 @@ changing their password.</v8:content>
 																	<CheckBoxType>Auto</CheckBoxType>
 																	<ContextMenu name="IBUserCannotRecoveryPasswordContextMenu" id="362"/>
 																	<ExtendedTooltip name="IBUserCannotRecoveryPasswordExtendedTooltip" id="363"/>
+																	<Events>
+																		<Event name="OnChange">IBUserCannotRecoveryPasswordOnChange</Event>
+																	</Events>
 																</CheckBoxField>
 															</ChildItems>
 														</UsualGroup>
@@ -1448,16 +1451,11 @@ It is widely used by many public digital services.</v8:content>
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>
 		</Attribute>
-		<Attribute name="CanSignInDirectChangeValue" id="28">
-			<Type>
-				<v8:Type>xs:boolean</v8:Type>
-			</Type>
-		</Attribute>
 		<Attribute name="UserMustChangePasswordOnAuthorization" id="33">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Demand password change on next login</v8:content>
+					<v8:content>Require password change on next login</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -1492,15 +1490,6 @@ It is widely used by many public digital services.</v8:content>
 				</v8:NumberQualifiers>
 			</Type>
 		</Attribute>
-		<Attribute name="IBUserNameDirectChangeValue" id="37">
-			<Type>
-				<v8:Type>xs:string</v8:Type>
-				<v8:StringQualifiers>
-					<v8:Length>0</v8:Length>
-					<v8:AllowedLength>Variable</v8:AllowedLength>
-				</v8:StringQualifiers>
-			</Type>
-		</Attribute>
 		<Attribute name="IBUserPassword" id="38">
 			<Type/>
 			<SavedData>true</SavedData>
@@ -1517,11 +1506,6 @@ It is widely used by many public digital services.</v8:content>
 				</v8:StringQualifiers>
 			</Type>
 			<SavedData>true</SavedData>
-		</Attribute>
-		<Attribute name="IBUserStandardAuthenticationDirectChangeValue" id="3">
-			<Type>
-				<v8:Type>xs:boolean</v8:Type>
-			</Type>
 		</Attribute>
 		<Attribute name="IBUserEmailAddress" id="4">
 			<Type>
@@ -1590,6 +1574,14 @@ It is widely used by many public digital services.</v8:content>
 		</Attribute>
 		<Attribute name="PropertiesParameters" id="46">
 			<Type/>
+		</Attribute>
+		<Attribute name="DirectChangeValues" id="47">
+			<Type/>
+		</Attribute>
+		<Attribute name="UserMustChangePasswordOnAuthorizationPrevious" id="3">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
 		</Attribute>
 	</Attributes>
 	<Commands>

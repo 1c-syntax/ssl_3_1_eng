@@ -118,6 +118,20 @@
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="FormShowAutoPopulatedAttributesExtendedTooltip" id="220"/>
 			</Button>
+			<Button name="FormClearPersonalSettings" id="334">
+				<Type>CommandBarButton</Type>
+				<Visible>false</Visible>
+				<CommandName>Form.Command.ClearPersonalSettings</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Reset personal settings</v8:content>
+					</v8:item>
+				</Title>
+				<ToolTipRepresentation>Balloon</ToolTipRepresentation>
+				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+				<ExtendedTooltip name="FormClearPersonalSettingsExtendedTooltip" id="335"/>
+			</Button>
 			<Button name="FormShowCertificateApplication" id="265">
 				<Type>CommandBarButton</Type>
 				<Enabled>false</Enabled>
@@ -136,15 +150,16 @@
 				<CommandName>Form.StandardCommand.CustomizeForm</CommandName>
 				<ExtendedTooltip name="FormCustomizeFormExtendedTooltip" id="234"/>
 			</Button>
-			<Button name="FormHelp" id="74">
+			<Button name="FormHelp_SSLyf" id="74">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.StandardCommand.Help</CommandName>
-				<ExtendedTooltip name="FormHelpExtendedTooltip" id="95"/>
+				<ExtendedTooltip name="FormHelp_SSLyfExtendedTooltip" id="95"/>
 			</Button>
 		</ChildItems>
 	</AutoCommandBar>
 	<Events>
 		<Event name="AfterWrite">AfterWrite</Event>
+		<Event name="AfterWriteAtServer">AfterWriteAtServer</Event>
 		<Event name="NotificationProcessing">NotificationProcessing</Event>
 		<Event name="OnReadAtServer">OnReadAtServer</Event>
 		<Event name="OnOpen">OnOpen</Event>
@@ -153,7 +168,7 @@
 		<Event name="FillCheckProcessingAtServer">FillCheckProcessingAtServer</Event>
 	</Events>
 	<ChildItems>
-		<UsualGroup name="Header_Group" id="325">
+		<UsualGroup name="Header_Group" id="325" DisplayImportance="Usual">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
@@ -514,16 +529,16 @@
 											<ContextMenu name="MiddleNameContextMenu" id="181"/>
 											<ExtendedTooltip name="MiddleNameExtendedTooltip" id="182"/>
 										</InputField>
-										<Button name="EditFirstNameAndPatronymic" id="308">
+										<Button name="EditNameAndMiddleName" id="308">
 											<Type>UsualButton</Type>
-											<CommandName>Form.Command.EditFirstNameAndPatronymic</CommandName>
+											<CommandName>Form.Command.EditNameAndMiddleName</CommandName>
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
 													<v8:content>Edit first name and middle name</v8:content>
 												</v8:item>
 											</Title>
-											<ExtendedTooltip name="EditFirstNameAndPatronymicExtendedTooltip" id="309"/>
+											<ExtendedTooltip name="EditNameAndMiddleNameExtendedTooltip" id="309"/>
 										</Button>
 									</ChildItems>
 								</UsualGroup>
@@ -1017,7 +1032,7 @@ the purpose description is used instead of the certificate presentation, for exa
 			</ToolTip>
 			<Action>ResetPassword</Action>
 		</Command>
-		<Command name="EditFirstNameAndPatronymic" id="10">
+		<Command name="EditNameAndMiddleName" id="10">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
@@ -1028,7 +1043,7 @@ the purpose description is used instead of the certificate presentation, for exa
 				<xr:Ref>StdPicture.Change</xr:Ref>
 				<xr:LoadTransparent>true</xr:LoadTransparent>
 			</Picture>
-			<Action>EditFirstNameAndPatronymic</Action>
+			<Action>EditNameAndMiddleName</Action>
 			<Representation>Picture</Representation>
 		</Command>
 		<Command name="PickIndividual" id="11">
@@ -1050,6 +1065,21 @@ the purpose description is used instead of the certificate presentation, for exa
 			</Picture>
 			<Action>PickIndividual</Action>
 			<ModifiesSavedData>true</ModifiesSavedData>
+		</Command>
+		<Command name="ClearPersonalSettings" id="12">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Reset personal settings</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Resets personal certificate settings, including signing with an unverified certificate, the selected power of attorney, and the chosen certificate for signing.</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Action>ClearPersonalSettings</Action>
 		</Command>
 	</Commands>
 	<CommandInterface>

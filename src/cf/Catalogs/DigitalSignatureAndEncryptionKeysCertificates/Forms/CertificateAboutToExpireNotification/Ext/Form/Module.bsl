@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -109,8 +108,8 @@ Procedure DecorationReissuedURLProcessing(Item, FormattedStringURL, StandardProc
 	If IssuedCertificates.Count() = 1 Then
 		OpenCertificateAfterSelectionFromList(IssuedCertificates[0], Undefined);
 	Else	
-		NotifyDescription = New CallbackDescription("OpenCertificateAfterSelectionFromList", ThisObject, Item);
-		ShowChooseFromList(NotifyDescription, IssuedCertificates);
+		CallbackDescription = New CallbackDescription("OpenCertificateAfterSelectionFromList", ThisObject, Item);
+		ShowChooseFromList(CallbackDescription, IssuedCertificates);
 	EndIf;
 	
 EndProcedure

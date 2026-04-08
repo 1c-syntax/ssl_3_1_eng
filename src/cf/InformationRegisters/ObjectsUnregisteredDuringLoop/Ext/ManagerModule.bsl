@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -101,10 +100,33 @@ Procedure RegisterAndDeleteRecords(Parameters)
 						
 	EndIf;
 	
-	Record = InformationRegisters.ObjectsUnregisteredDuringLoop.CreateRecordManager();
-	FillPropertyValues(Record, Parameters, "InfobaseNode,Object,InformationRegisterKey");
-	Record.Read();
-	Record.Delete();
+	BeginTransaction();
+
+	Try
+		DataLock = New DataLock;
+		DataLockItem = DataLock.Add("InformationRegister.ObjectsUnregisteredDuringLoop");
+		DataLockItem.SetValue("InfobaseNode", Parameters.InfobaseNode);
+		DataLockItem.SetValue("Object", Parameters.Object);
+		DataLockItem.SetValue("InformationRegisterKey", Parameters.InformationRegisterKey);
+		DataLockItem.Mode = DataLockMode.Exclusive;
+		DataLock.Lock();
+
+		Record = InformationRegisters.ObjectsUnregisteredDuringLoop.CreateRecordManager();
+		FillPropertyValues(Record, Parameters, "InfobaseNode,Object,InformationRegisterKey");
+		Record.Read();
+		Record.Delete();
+
+		CommitTransaction();
+	Except
+		RollbackTransaction();
+
+		ErrorMessage = ErrorProcessing.DetailErrorDescription(ErrorInfo());
+
+		Event = NStr("en = 'Loop control.Remove record'", Common.DefaultLanguageCode());
+
+		WriteLogEvent(Event, EventLogLevel.Error,
+			Metadata.InformationRegisters.ObjectsUnregisteredDuringLoop, , ErrorMessage);
+	EndTry;
 	
 EndProcedure
 

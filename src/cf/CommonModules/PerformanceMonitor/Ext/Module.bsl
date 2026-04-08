@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -137,7 +136,7 @@ Procedure CreateKeyOperations(KeyOperations) Export
 
 	While Selection.Next() Do
 		If Selection.Ref.IsEmpty() Then
-			CreateKeyOperation(Selection.KeyOperationName, Selection.ResponseTimeThreshold); // @skip-check query-in-loop - создание ключевой операции в случае отсутствия.
+			CreateKeyOperation(Selection.KeyOperationName, Selection.ResponseTimeThreshold); // @skip-check query-in-loop - 
 		EndIf;
 	EndDo;
 EndProcedure
@@ -966,7 +965,7 @@ Procedure ClearTimeMeasurementsRegisters() Export
 		If DeletionRequired Then
 			DeletionRequired = False;
 
-			Result = TimeMeasurementsQuery.Execute(); // @skip-check query-in-loop .
+			Result = TimeMeasurementsQuery.Execute(); // @skip-check query-in-loop - 
 			Selection = Result.Select();
 			Selection.Next();
 			RecordDateBegOfHour = Selection.RecordDateBegOfHour;
@@ -980,7 +979,7 @@ Procedure ClearTimeMeasurementsRegisters() Export
 
 		If TechnologicalDeletionRequired Then
 			TechnologicalDeletionRequired = False;
-			Result = TechnologicalTimeMeasurementsQuery.Execute(); // @skip-check query-in-loop .
+			Result = TechnologicalTimeMeasurementsQuery.Execute(); // @skip-check query-in-loop - 
 			Selection = Result.Select();
 			Selection.Next();
 			RecordDateBegOfHour = Selection.RecordDateBegOfHour;
@@ -1316,7 +1315,7 @@ Procedure LoadPerformanceMonitorFile(FileName, StorageAddress) Export
 			XMLReader.OpenFile(File.FullName);
 			XMLReader.MoveToContent();
 
-			// @skip-check query-in-loop .
+			// @skip-check query-in-loop - 
 			LoadPerformanceMonitorFileApdexExport(XMLReader, AvailableKeyOperations,
 				KeyOperationsToWrite, RawMeasurementsToWrite);  
 			XMLReader.Close();
@@ -1452,5 +1451,13 @@ Function AddLastPathSeparator(Val DirectoryPath, Val Platform = Undefined)
 		Return DirectoryPath + CharToAdd;
 	EndIf;
 EndFunction
+
+// See StandardSubsystemsServer.WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode
+Procedure WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode(Methods) Export
+	
+	Methods.Insert("PerformanceMonitorDataExport", True);
+	Methods.Insert("ClearTimeMeasurementsRegisters", True);
+	
+EndProcedure
 
 #EndRegion

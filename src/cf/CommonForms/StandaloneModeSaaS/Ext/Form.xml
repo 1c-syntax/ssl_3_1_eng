@@ -73,7 +73,7 @@
 												<v8:item>
 													<v8:lang>en</v8:lang>
 													<v8:content>Standalone workstation is not configured.
-If you have no stable Internet connection (for example, in a business trip), you can download data to your computer and work offline. You can synchronize your data any time you gain access to the .</v8:content>
+If you don't have a stable Internet connection (for example, on a business trip), you can download data to your computer and work offline. You can synchronize your data any time you have Internet access.</v8:content>
 												</v8:item>
 											</Title>
 											<ContextMenu name="Decoration1ContextMenu" id="57"/>

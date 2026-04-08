@@ -13,7 +13,7 @@
 		<HorizontalAlign>Right</HorizontalAlign>
 		<Autofill>false</Autofill>
 		<ChildItems>
-			<Button name="FormOkCommand" id="11">
+			<Button name="FormOKCommand" id="11">
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.OkCommand</CommandName>
@@ -25,10 +25,10 @@
 				</Title>
 				<ExtendedTooltip name="FormOKCommandExtendedTooltip" id="17"/>
 			</Button>
-			<Button name="FormHelp" id="4">
+			<Button name="FormHelp_SSLyf" id="4">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.StandardCommand.Help</CommandName>
-				<ExtendedTooltip name="FormHelpExtendedTooltip" id="18"/>
+				<ExtendedTooltip name="FormHelp_SSLyfExtendedTooltip" id="18"/>
 			</Button>
 			<Button name="FormCancel" id="5">
 				<Type>CommandBarButton</Type>

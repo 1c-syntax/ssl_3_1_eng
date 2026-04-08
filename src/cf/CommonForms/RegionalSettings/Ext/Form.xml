@@ -129,7 +129,7 @@
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Time in the selected time zone</v8:content>
+											<v8:content>Time of the selected time zone</v8:content>
 										</v8:item>
 									</Title>
 									<ContextMenu name="TimeZoneTimeContextMenu" id="83"/>
@@ -311,8 +311,8 @@
 										</v8:item>
 									</Title>
 									<VerticalAlign>Center</VerticalAlign>
-									<ContextMenu name="DecorationCompletionContextMenu" id="73"/>
-									<ExtendedTooltip name="DecorationCompletionExtendedTooltip" id="74"/>
+									<ContextMenu name="CompletionDecorationContextMenu" id="73"/>
+									<ExtendedTooltip name="CompletionDecorationExtendedTooltip" id="74"/>
 								</LabelDecoration>
 							</ChildItems>
 						</UsualGroup>

@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -94,9 +93,9 @@ Procedure DeleteReminder()
 	DialogButtons = New ValueList;
 	DialogButtons.Add(DialogReturnCode.Yes, NStr("en = 'Delete'"));
 	DialogButtons.Add(DialogReturnCode.Cancel, NStr("en = 'Do not delete'"));
-	NotifyDescription = New CallbackDescription("DeleteReminderCompletion", ThisObject);
+	CallbackDescription = New CallbackDescription("DeleteReminderCompletion", ThisObject);
 	
-	ShowQueryBox(NotifyDescription, NStr("en = 'Delete the reminder?'"), DialogButtons);
+	ShowQueryBox(CallbackDescription, NStr("en = 'Delete the reminder?'"), DialogButtons);
 	
 EndProcedure
 

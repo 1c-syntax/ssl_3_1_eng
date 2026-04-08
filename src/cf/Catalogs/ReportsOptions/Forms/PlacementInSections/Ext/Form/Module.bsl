@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -33,7 +32,7 @@ Procedure OnOpen(Cancel)
 			StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1
 				|Details:
 				|%2'"), 
-			ErrorsMessages.Text, ErrorsMessages.More), QuestionDialogMode.OK);
+			ErrorsMessages.Text, ErrorsMessages.ShowMoreDetails), QuestionDialogMode.OK);
 	EndIf;
 EndProcedure
 
@@ -126,25 +125,25 @@ Procedure FillSections()
 	ErrorsCount = FilteredOptions.Count();
 
 	If ErrorsCount > 0 Then
-		ErrorsMessages = New Structure("Text, More");
+		ErrorsMessages = New Structure("Text, ShowMoreDetails");
 		CurrentReason = 0;
-		ErrorsMessages.More = "";
+		ErrorsMessages.ShowMoreDetails = "";
 		For Each TableRow In FilteredOptions Do
 			If CurrentReason <> TableRow.Cause Then
 				CurrentReason = TableRow.Cause;
-				ErrorsMessages.More = ErrorsMessages.More + Chars.LF + Chars.LF;
+				ErrorsMessages.ShowMoreDetails = ErrorsMessages.ShowMoreDetails + Chars.LF + Chars.LF;
 				If CurrentReason = 1 Then
-					ErrorsMessages.More = ErrorsMessages.More + NStr("en = 'Marked for deletion:'");
+					ErrorsMessages.ShowMoreDetails = ErrorsMessages.ShowMoreDetails + NStr("en = 'Marked for deletion:'");
 				ElsIf CurrentReason = 2 Then
-					ErrorsMessages.More = ErrorsMessages.More + NStr("en = 'Insufficient rights to modify:'");
+					ErrorsMessages.ShowMoreDetails = ErrorsMessages.ShowMoreDetails + NStr("en = 'Insufficient rights to modify:'");
 				ElsIf CurrentReason = 3 Then
-					ErrorsMessages.More = ErrorsMessages.More + NStr("en = 'The report is disabled or cannot be accessed with the rights:'");
+					ErrorsMessages.ShowMoreDetails = ErrorsMessages.ShowMoreDetails + NStr("en = 'The report is disabled or cannot be accessed with the rights:'");
 				ElsIf CurrentReason = 4 Then
-					ErrorsMessages.More = ErrorsMessages.More + NStr("en = 'Report option is disabled using the functional option:'");
+					ErrorsMessages.ShowMoreDetails = ErrorsMessages.ShowMoreDetails + NStr("en = 'Report option is disabled using the functional option:'");
 				EndIf;
 			EndIf;
 
-			ErrorsMessages.More = TrimL(ErrorsMessages.More) + Chars.LF + "    - " + String(
+			ErrorsMessages.ShowMoreDetails = TrimL(ErrorsMessages.ShowMoreDetails) + Chars.LF + "    - " + String(
 				TableRow.Ref);
 			OptionsToAssign.Delete(OptionsToAssign.FindByValue(TableRow.Ref));
 		EndDo;

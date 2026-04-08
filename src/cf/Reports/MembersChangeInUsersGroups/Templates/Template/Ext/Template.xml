@@ -165,8 +165,8 @@
 			</valueType>
 		</field>
 		<field xsi:type="DataSetFieldField">
-			<dataPath>Package</dataPath>
-			<field>Package</field>
+			<dataPath>Application</dataPath>
+			<field>Application</field>
 			<title xsi:type="v8:LocalStringType">
 				<v8:item>
 					<v8:lang>en</v8:lang>
@@ -1177,7 +1177,7 @@ neither the user nor its external user group are marked for deletion.</v8:conten
 						<dcsset:field>AuthorID</dcsset:field>
 					</dcsset:item>
 					<dcsset:item xsi:type="dcsset:SelectedItemField">
-						<dcsset:field>Package</dcsset:field>
+						<dcsset:field>Application</dcsset:field>
 					</dcsset:item>
 					<dcsset:item xsi:type="dcsset:SelectedItemField">
 						<dcsset:field>Computer</dcsset:field>
@@ -1303,7 +1303,7 @@ neither the user nor its external user group are marked for deletion.</v8:conten
 					<dcsset:appearance>
 						<dcscor:item xsi:type="dcsset:SettingsParameterValue">
 							<dcscor:parameter>ЦветТекста</dcscor:parameter>
-							<dcscor:value xsi:type="v8ui:Color">auto</dcscor:value>
+							<dcscor:value xsi:type="v8ui:Color">style:InaccessibleCellTextColor</dcscor:value>
 						</dcscor:item>
 					</dcsset:appearance>
 				</dcsset:item>
@@ -1364,7 +1364,7 @@ neither the user nor its external user group are marked for deletion.</v8:conten
 						<dcsset:field>AuthorID</dcsset:field>
 					</dcsset:item>
 					<dcsset:item xsi:type="dcsset:SelectedItemField">
-						<dcsset:field>Package</dcsset:field>
+						<dcsset:field>Application</dcsset:field>
 					</dcsset:item>
 					<dcsset:item xsi:type="dcsset:SelectedItemField">
 						<dcsset:field>Computer</dcsset:field>
@@ -1490,7 +1490,7 @@ neither the user nor its external user group are marked for deletion.</v8:conten
 					<dcsset:appearance>
 						<dcscor:item xsi:type="dcsset:SettingsParameterValue">
 							<dcscor:parameter>ЦветТекста</dcscor:parameter>
-							<dcscor:value xsi:type="v8ui:Color">auto</dcscor:value>
+							<dcscor:value xsi:type="v8ui:Color">style:InaccessibleCellTextColor</dcscor:value>
 						</dcscor:item>
 					</dcsset:appearance>
 				</dcsset:item>

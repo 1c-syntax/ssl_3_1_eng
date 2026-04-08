@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -14,11 +13,21 @@
 // Returns all available transport types.
 // 
 // Parameters:
-//  TypesOfTransport - Array of ОбработкаОбъект.ТранспортСообщенийОбмена*
+//  TypesOfTransport - Array of DataProcessorObject.ExchangeMessageTransportCOM,
+//    DataProcessorObject.ExchangeMessageTransportEMAIL,
+//    DataProcessorObject.ExchangeMessagesTransportESB1C,
+//    DataProcessorObject.ExchangeMessagesTransportFILE,
+//    DataProcessorObject.ExchangeMessagesTransportFTP,
+//    DataProcessorObject.ExchangeMessagesTransportGoogleDrive,
+//    DataProcessorObject.ExchangeMessagesTransportHTTP,
+//    DataProcessorObject.ExchangeMessagesTransportSM,
+//    DataProcessorObject.ExchangeMessagesTransportWS,
+//    DataProcessorObject.ExchangeMessagesTransportPassiveMode,
+//    DataProcessorObject.ExchangeMessagesTransportYandexDisk - Transport processors, including those added during customization.
 //
 Procedure WhenDeterminingTransportTypes(TypesOfTransport) Export
-
-	//
+	
+	
 	
 EndProcedure
 
@@ -26,8 +35,18 @@ EndProcedure
 // Specifies available transport types for an exchange plan node.
 // 
 // Parameters:
-//  AvailableTransportTypes - Array of ОбработкаОбъект.ТранспортСообщенийОбмена*
-//  Peer - ExchangePlanRef - Node whose available transport types are being defined
+//  AvailableTransportTypes - Array of DataProcessorObject.ExchangeMessageTransportCOM,
+//    DataProcessorObject.ExchangeMessageTransportEMAIL,
+//    DataProcessorObject.ExchangeMessagesTransportESB1C,
+//    DataProcessorObject.ExchangeMessagesTransportFILE,
+//    DataProcessorObject.ExchangeMessagesTransportFTP,
+//    DataProcessorObject.ExchangeMessagesTransportGoogleDrive,
+//    DataProcessorObject.ExchangeMessagesTransportHTTP,
+//    DataProcessorObject.ExchangeMessagesTransportSM,
+//    DataProcessorObject.ExchangeMessagesTransportWS,
+//    DataProcessorObject.ExchangeMessagesTransportPassiveMode,
+//    DataProcessorObject.ExchangeMessagesTransportYandexDisk - Transport processors, including those added during customization.
+//  Peer - ExchangePlanRef - Target node.
 //  SettingsMode - String - Setting option
 //
 Procedure WhenDeterminingAvailableTransportTypes(AvailableTransportTypes, Peer, SettingsMode = "") Export
@@ -59,6 +78,18 @@ Procedure BeforeRetrievingFileFromRepository(FileID) Export
 
 	//
 	
+EndProcedure
+
+// On validating required transport settings attributes.
+//
+// Parameters:
+//  Setting - QueryResult, Structure - Values of transport settings attributes.
+//  TransportManager - Arbitrary - Transport manager. See ExchangeMessagesTransport.TransportManagerById().
+//  SettingFilledIn - Boolean - Check result.
+//
+Procedure WhenCheckingFillingInRequiredAttributesOfTransportSettings(Setting, TransportManager, SettingFilledIn) Export
+	
+		
 EndProcedure
 
 #EndRegion

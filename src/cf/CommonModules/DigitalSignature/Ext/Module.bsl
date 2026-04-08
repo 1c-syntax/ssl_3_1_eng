@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -21,6 +20,19 @@ Function UseDigitalSignature() Export
 	
 EndFunction
 
+// Returns True if the configuration supports sending signatures to the mobile service and the setting is enabled.
+//
+// Returns:
+//  Boolean
+//
+Function UseMobileSignatureService() Export
+	
+	Used = False;
+	DigitalSignatureLocalization.OnRetrieveMobileServiceUsageSettings(Used);
+	Return Used;
+	
+EndFunction
+	
 // Returns the current setting of encryption usage.
 //
 // Returns:
@@ -166,32 +178,57 @@ Function ObjectSignatures(Object, AdditionalParameters = Undefined) Export
 		SignedObjectName = Common.ObjectAttributeValue(ObjectRef, "Description");
 		SignatureProperties.SignatureFileName = DigitalSignatureClientServer.SignatureFileName(SignedObjectName,
 			SelectionDetailRecords.CertificateOwner, SignatureFilesExtension);
+			
+		ReturnTimestampDate = AdditionalParameters.ReturnTimestampDate
+			And SelectionDetailRecords.SignatureType <> Enums.CryptographySignatureTypes.NormalCMS 
+			And SelectionDetailRecords.SignatureType <> Enums.CryptographySignatureTypes.BasicCAdESBES;
 		
-		If AdditionalParameters.ShouldExtractCertificatesFromSignatures Then
-			SignatureProperties.Certificate = DigitalSignatureInternal.CertificateFromSignatureBinaryData(SignatureProperties.Signature);
-			If SignatureProperties.Certificate = Undefined And DigitalSignatureInternal.CryptographyIsAvailable() Then
-				// 
+		If (AdditionalParameters.ShouldExtractCertificatesFromSignatures 
+			Or ReturnTimestampDate)
+			And ValueIsFilled(SignatureProperties.Signature) Then
+			
+			ExtendedSignatureProperties = DigitalSignatureInternal.SignaturePropertiesFromBinaryData(SignatureProperties.Signature,
+				AdditionalParameters.ShouldExtractCertificatesFromSignatures);
+			SignatureProperties.Certificate = ExtendedSignatureProperties.Certificate;
+			SignatureProperties.DateSignedFromLabels = ExtendedSignatureProperties.DateSignedFromLabels;
+			
+			If (AdditionalParameters.ShouldExtractCertificatesFromSignatures
+				And ExtendedSignatureProperties.Certificate = Undefined
+				Or ReturnTimestampDate And ExtendedSignatureProperties.DateSignedFromLabels = Undefined)
+				And DigitalSignatureInternal.IsCryptographyAvailable() Then
+					
+				// If the signature is not linked to the certificate, try to retrieve the certificate from the signature container.
 				CreationParameters = DigitalSignatureInternal.CryptoManagerCreationParameters();
 				CreationParameters.SignAlgorithm =
 					DigitalSignatureInternalClientServer.GeneratedSignAlgorithm(SignatureProperties.Signature);
 				
 				CryptoManager = DigitalSignatureInternal.CryptoManager("ReadSignature", CreationParameters);
 				If CryptoManager <> Undefined Then
-					ContainerReceived = False;
+					
+					IsContainerReceived = False;
 					Try
 						ContainerSignatures = CryptoManager.GetCryptoSignaturesContainer(SignatureProperties.Signature);
-						ContainerReceived = True;
+						IsContainerReceived = True;
 					Except
 						WriteLogEvent(
-							NStr("en = 'Электронная подпись.Получение контейнера подписи'",
+							NStr("en = 'Digital signature.Get signature container'",
 								Common.DefaultLanguageCode()),
 							EventLogLevel.Error, , ,
 							ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 					EndTry;
-					If ContainerReceived Then
-						Certificate = ContainerSignatures.Signatures[0].SignatureCertificate;
-						If DigitalSignatureInternalClientServer.IsCertificateExists(Certificate) Then
-							SignatureProperties.Certificate = Certificate.Unload();
+					
+					If IsContainerReceived Then
+						SignatureParameters = DigitalSignatureInternal.ParametersCryptoSignatures(
+							ContainerSignatures, DigitalSignatureInternal.UTCOffset(), CurrentSessionDate());
+						
+						If AdditionalParameters.ShouldExtractCertificatesFromSignatures Then
+							Certificate = SignatureParameters.Certificate;
+							If DigitalSignatureInternalClientServer.IsCertificateExists(Certificate) Then
+								SignatureProperties.Certificate = Certificate.Unload();
+							EndIf;
+						EndIf;
+						If ReturnTimestampDate Then
+							SignatureProperties.DateSignedFromLabels = SignatureParameters.DateSignedFromLabels;
 						EndIf;
 					EndIf;
 				EndIf;
@@ -202,6 +239,7 @@ Function ObjectSignatures(Object, AdditionalParameters = Undefined) Export
 		Result.Add(SignatureProperties);
 		
 	EndDo;
+	
 	
 	Return Result;
 	
@@ -368,6 +406,7 @@ Procedure UpdateSignature(Object, Val SignatureProperties, UpdateByOrderNumber =
 						If KeyAndValue.Key = "Certificate"
 							Or KeyAndValue.Key = "SignedObject"
 							Or KeyAndValue.Key = "SignatureDate"
+							Or KeyAndValue.Key = "DateSignedFromLabels"
 							Or KeyAndValue.Key = "SequenceNumber"
 							Or KeyAndValue.Key = "CertificateDetails"
 							Or KeyAndValue.Key = "SignatureID"
@@ -397,6 +436,7 @@ Procedure UpdateSignature(Object, Val SignatureProperties, UpdateByOrderNumber =
 						If KeyAndValue.Key = "Certificate"
 							Or KeyAndValue.Key = "Signature"
 							Or KeyAndValue.Key = "CertificateDetails"
+							Or KeyAndValue.Key = "DateSignedFromLabels"
 							Or KeyAndValue.Key = "SignatureFileName" 
 							Or KeyAndValue.Key = "SignatureID"
 								And ValueIsFilled(SignatureToRefresh.SignatureID) Then
@@ -439,6 +479,7 @@ EndProcedure
 //           will be changed without locking and writing.
 // 
 //  SequenceNumber      - Number - a signature sequence number.
+//                       - UUID - ID of the pending signature.
 //                       - Array - values of the type specified above.
 //
 //  FormIdentifier - UUID - a form ID that is used for lock
@@ -476,9 +517,24 @@ Procedure DeleteSignature(Object, SequenceNumber, FormIdentifier = Undefined,
 		
 		EventLogMessage = "";
 		
-		DeleteSignatureRows(DataObject, SequenceNumber, EventLogMessage);
+		If TypeOf(SequenceNumber) = Type("Array") Then
+			ArrayForDelete = SequenceNumber;
+		Else
+			ArrayForDelete = CommonClientServer.ValueInArray(SequenceNumber);
+		EndIf;
+
+		SequenceNumbers = New Array;
+		ExpectedSignaturesIDs = New Array;
+		For Each Number In ArrayForDelete Do
+			If TypeOf(Number) = Type("UUID") Then
+				ExpectedSignaturesIDs.Add(Number);
+			Else
+				SequenceNumbers.Add(Number);
+			EndIf;
+		EndDo;
 		
-		RefreshSignaturesNumbering(DataObject);
+		DeleteSignatureRows(DataObject, SequenceNumbers, ExpectedSignaturesIDs, EventLogMessage);
+		RefreshSignaturesNumbering(DataObject, SequenceNumbers);
 		
 		If IsReference Then
 			// To determine that this is a record to add or remove a signature.
@@ -721,9 +777,15 @@ Function RefsToCertificates(Val Certificates, Val ShouldReturnNonExistent = Fals
 	EndIf;
 	
 	Thumbprints = New Array;
+	Map = New Map;
 	For Each Certificate In Certificates Do
-		Thumbprints.Add(CertificateThumbprint(Certificate));
+		Thumbprint = ?(Certificate = Undefined, Undefined, CertificateThumbprint(Certificate));
+		Map.Insert(Certificate, Thumbprint);
+		If Thumbprint <> Undefined Then
+			Thumbprints.Add(Thumbprint);
+		EndIf;
 	EndDo;
+	
 	Query = New Query;
 	Query.SetParameter("CertificateThumbprints", Thumbprints);
 	Query.Text =
@@ -736,13 +798,19 @@ Function RefsToCertificates(Val Certificates, Val ShouldReturnNonExistent = Fals
 	|	Certificates.Thumbprint IN (&CertificateThumbprints)";
 	
 	CertificateThumbprints = Query.Execute().Unload();
+	
 	If ShouldReturnNonExistent Then
 		Result = New Array;
 		Filter = New Structure("Thumbprint", "");
-		For Each Thumbprint In Thumbprints Do
+		For Each Certificate In Certificates Do
+			Thumbprint = Map.Get(Certificate);
+			If Thumbprint = Undefined Then
+				Result.Add(Catalogs.DigitalSignatureAndEncryptionKeysCertificates.EmptyRef());
+				Continue;
+			EndIf;
 			Filter.Thumbprint = Thumbprint;
-			Certificate = CertificateThumbprints.FindRows(Filter);
-			Result.Add(?(Certificate.Count() > 0, Certificate[0].Ref, 
+			CertificateFound = CertificateThumbprints.FindRows(Filter);
+			Result.Add(?(CertificateFound.Count() > 0, CertificateFound[0].Ref, 
 				Catalogs.DigitalSignatureAndEncryptionKeysCertificates.EmptyRef()));
 		EndDo;
 		Return Result;
@@ -784,7 +852,7 @@ EndFunction
 //
 // Returns:
 //  CatalogRef.DigitalSignatureAndEncryptionKeysCertificates - a reference to the certificate.
-// 
+//
 Function WriteCertificateToCatalog(Val Certificate, AdditionalParameters = Undefined) Export
 	
 	If TypeOf(AdditionalParameters) <> Type("Structure") Then
@@ -811,7 +879,7 @@ Function WriteCertificateToCatalog(Val Certificate, AdditionalParameters = Undef
 		CertificateReference = CertificateRef(Certificate);
 	EndIf;
 	
-	AccessRightInsert = AccessRight("Insert", Metadata.Catalogs.DigitalSignatureAndEncryptionKeysCertificates);
+	AccessRightInsert = DigitalSignatureInternal.YouHaveRightToAddCertificatesToCatalog();
 	
 	If Not AccessRightInsert And Not ValueIsFilled(CertificateReference) Then
 		Raise(NStr("en = 'insufficient rights to use the certificate.'"), ErrorCategory.AccessViolation);
@@ -960,18 +1028,21 @@ EndFunction
 Function DigitalSignatureVisualizationStamp(Val Signature, Val SignatureDate = Undefined, 
 	Val MarkText = "", Val CompanyLogo = Undefined) Export
 
+	NewSignature = DigitalSignatureClientServer.NewSignatureProperties();
+	
 	If TypeOf(Signature) = Type("CryptoCertificate") Then
-		NewSignature = DigitalSignatureClientServer.NewSignatureProperties();
-		//@skip-check bsl-legacy-check-expression-type - для обратной совместимости
+		//@skip-check bsl-legacy-check-expression-type - 
 		NewSignature.Certificate = Signature;
 		NewSignature.SignatureDate = ?(SignatureDate = Undefined, Date(1,1,1), SignatureDate);
 		Signature = NewSignature;
 	Else
-		Signature.SignatureDate = ?(SignatureDate = Undefined, Signature.SignatureDate, SignatureDate);
+		FillPropertyValues(NewSignature, Signature);
+		NewSignature.SignatureDate = ?(SignatureDate = Undefined, NewSignature.SignatureDate, SignatureDate);
 	EndIf;
 	
 	Result = DigitalSignatureVisualizationStamps(Undefined, CommonClientServer.ValueInArray(Signature),
 		?(Not IsBlankString(MarkText), CommonClientServer.ValueInArray(MarkText), Undefined));
+	
 	Return Result[0];
 	
 EndFunction
@@ -997,6 +1068,7 @@ Function DigitalSignatureVisualizationStamps(Val SignedFile, Val DigitalSignatur
 		SignaturesAcquisitionParameters = NewObjectSignaturesAcquisitionParameters();
 		SignaturesAcquisitionParameters.ShouldReturnMachineReadableLOAData = True;
 		SignaturesAcquisitionParameters.ShouldExtractCertificatesFromSignatures = True;
+		SignaturesAcquisitionParameters.ReturnTimestampDate = True;
 		DigitalSignatures = ObjectSignatures(SignedFile, SignaturesAcquisitionParameters);
 	EndIf;
 
@@ -1020,39 +1092,52 @@ Function DigitalSignatureVisualizationStamps(Val SignedFile, Val DigitalSignatur
 	
 	For Each Signature In DigitalSignatures Do
 		
-		If Signature.Certificate = Undefined Then
-			ErrorText = ?(Signature.SignatureFileName = "",
-				NStr("en = 'Сертификат подписанта отсутствует в подписи и не найден в локальном хранилище.'"),
-				StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Сертификат подписанта отсутствует в подписи ""%1"" и не найден в локальном хранилище.'"),
-					Signature.SignatureFileName));
-			WriteLogEvent(
-				NStr("en = 'Электронная подпись.Получение штампов визуализации электронных подписей'",
-					Common.DefaultLanguageCode()),
-				EventLogLevel.Error, , ,
-				ErrorText);
-			Continue;
-		EndIf;
-
-		Certificate = ?(TypeOf(Signature.Certificate) = Type("CryptoCertificate"), // 
-			Signature.Certificate, New CryptoCertificate(Signature.Certificate));
-		CertificateProperties = CertificateProperties(Certificate);
-
-		ActionPeriod = StringFunctionsClientServer.SubstituteParametersToString(ActionPeriodTemplate,
-			Format(CertificateProperties.StartDate,    "DLF=D"),
-			Format(CertificateProperties.EndDate, "DLF=D"));
-	
 		StampParameters = New Structure;
-		StampParameters.Insert("SignatureDate", Signature.SignatureDate);
-		StampParameters.Insert("CertificateNumber", StrReplace(CertificateProperties.SerialNumber, " ", ""));
-		StampParameters.Insert("CertificateIssuedBy", CertificateProperties.IssuedBy);
-		StampParameters.Insert("CertificateRecipient", CertificateProperties.IssuedTo);
-		StampParameters.Insert("ValidityPeriod", ActionPeriod);
+		StampParameters.Insert("DateSignedFromLabels");
+		StampParameters.Insert("SignatureDate");
+		
+		FillPropertyValues(StampParameters, Signature);
 		
 		StampParameters.Insert("MarkText", ?(MarksTexts <> Undefined, MarksTexts[IndexOf], Undefined));
 		StampParameters.Insert("CompanyLogo", Undefined);
+		StampParameters.Insert("CertificateNumber", "");
+		StampParameters.Insert("CertificateIssuedBy", "");
+		StampParameters.Insert("CertificateRecipient", "");
+		StampParameters.Insert("ValidityPeriod", "");
+		StampParameters.Insert("StampText", "");
+		
+		If Signature.Certificate = Undefined Then
+			Certificate = Undefined;
+			StampParameters.Insert("CertificateRecipient", NStr(
+				"en = 'Signer certificate is missing from the signature'"));
+				
+			ErrorText = ?(Signature.SignatureFileName = "", NStr(
+				"en = 'The certificate is not found in the signature or the local certificate store.'"),
+				StringFunctionsClientServer.SubstituteParametersToString(
+					NStr("en = 'The certificate is not found in the signature ""%1"" or the local certificate store.'"),
+				Signature.SignatureFileName));
+			WriteLogEvent(
+				NStr("en = 'Digital signature.Get digital signature visualization stamps'",
+				Common.DefaultLanguageCode()), EventLogLevel.Error,,, ErrorText);
+		Else
+			Certificate = ?(TypeOf(Signature.Certificate) = Type("CryptoCertificate"), // For backward compatibility purposes.
+				Signature.Certificate, New CryptoCertificate(Signature.Certificate));
+			CertificateProperties = CertificateProperties(Certificate);
+			
+			If ValueIsFilled(StampParameters.DateSignedFromLabels) And (StampParameters.DateSignedFromLabels < CertificateProperties.StartDate
+				Or StampParameters.DateSignedFromLabels > CertificateProperties.EndDate) Then
+				StampParameters.DateSignedFromLabels = Undefined;
+			EndIf;
 
-		If ModuleFilesOperationsOverridable <> Undefined Then
+			ActionPeriod = StringFunctionsClientServer.SubstituteParametersToString(ActionPeriodTemplate, Format(
+				CertificateProperties.StartDate, "DLF=D"), Format(CertificateProperties.EndDate, "DLF=D"));
+			StampParameters.Insert("CertificateNumber", StrReplace(CertificateProperties.SerialNumber, " ", ""));
+			StampParameters.Insert("CertificateIssuedBy", CertificateProperties.IssuedBy);
+			StampParameters.Insert("CertificateRecipient", CertificateProperties.IssuedTo);
+			StampParameters.Insert("ValidityPeriod", ActionPeriod);
+		EndIf;
+				
+		If ModuleFilesOperationsOverridable <> Undefined And Certificate <> Undefined Then
 			
 			StampParametersOverride = New Structure;
 			StampParametersOverride.Insert("MarkText", StampParameters.MarkText);
@@ -1083,6 +1168,7 @@ Function DigitalSignatureVisualizationStamps(Val SignedFile, Val DigitalSignatur
 		Else
 			LOAAsString = "";
 		EndIf;
+		
 		StampParameters.Insert("LetterOfAuthority", LOAAsString);
 		
 		If ModuleOrganizationServer <> Undefined And StampParameters.CompanyLogo = Undefined Then
@@ -1096,9 +1182,14 @@ Function DigitalSignatureVisualizationStamps(Val SignedFile, Val DigitalSignatur
 	If ModuleOrganizationServer <> Undefined And Certificates.Count() > 0 Then
 		CertificatesRefs = RefsToCertificates(Certificates, True);
 		CompaniesRefs = Common.ObjectsAttributeValue(CertificatesRefs, "Organization");
-		IndexOf = 0;
+		IndexOf = 0; SignatureIndex = -1;
 		For Each StampParameters In StampsParameters Do
+			SignatureIndex = SignatureIndex + 1;
+			If StampParameters.CompanyLogo <> Undefined Then
+				Continue;
+			EndIf;
 			CertificateReference = CertificatesRefs[IndexOf];
+			IndexOf = IndexOf + 1;
 			If Not ValueIsFilled(CertificateReference) Then
 				Continue;
 			EndIf;
@@ -1106,24 +1197,51 @@ Function DigitalSignatureVisualizationStamps(Val SignedFile, Val DigitalSignatur
 			If Not ValueIsFilled(Organization) Then
 				Continue;
 			EndIf;
-			
 			AdditionalInfo = ModuleOrganizationServer.AdditionalOrganizationInformation(Organization,
-				"OrganizationSLogoForAnElectronicSignatureStamp", DigitalSignatures[IndexOf].SignatureDate);
+				"OrganizationSLogoForAnElectronicSignatureStamp", DigitalSignatures[SignatureIndex].SignatureDate);
 			If AdditionalInfo.Property("OrganizationSLogoForAnElectronicSignatureStamp") Then
 				StampParameters.CompanyLogo = AdditionalInfo.OrganizationSLogoForAnElectronicSignatureStamp;
 			EndIf;
-
-			IndexOf = IndexOf + 1;
 		EndDo;
 	EndIf;
 	
 	Result = New Array;
 	IndexOf = 0;
 	For Each StampParameters In StampsParameters Do
-		TemplateName = ?(Not IsBlankString(StampParameters.LetterOfAuthority), "ExtendedStamp", "Stamp");
-		Stamp = Catalogs.DigitalSignatureAndEncryptionKeysCertificates.GetTemplate(TemplateName);
+		
 		StampParameters.SignatureDate = Format(StampParameters.SignatureDate, "DLF=DT;");
+		
+		StampTextField = New Array;
+		AddStampField(StampTextField, NStr("en = 'Certificate'"), StampParameters.CertificateNumber);
+		AddStampField(StampTextField, NStr("en = 'Owner'"), StampParameters.CertificateRecipient);
+		AddStampField(StampTextField, NStr("en = 'Valid till'"), StampParameters.ValidityPeriod);
+		
+		DateSignedFromLabels = "";
+		If ValueIsFilled(StampParameters.DateSignedFromLabels) Then
+			StampParameters.DateSignedFromLabels = Format(StampParameters.DateSignedFromLabels, "DLF=DT;");
+			AddStampField(StampTextField, NStr("en = 'Date signed'"), StampParameters.SignatureDate);
+			AddStampField(StampTextField, NStr("en = 'Timestamp'"), StampParameters.DateSignedFromLabels);
+		EndIf;
+		
+		If ValueIsFilled(StampParameters.LetterOfAuthority) Then
+			AddStampField(StampTextField, NStr("en = 'Letter of authority'"), StampParameters.LetterOfAuthority);
+		EndIf;
+		
+		HeaderLength = 0;
+		For Each Item In StampTextField Do
+			HeaderLength = Max(HeaderLength, StrLen(Item.Name));
+		EndDo;
+		
+		StampText = New Array;
+		
+		For Each Item In StampTextField Do
+			StampText.Add(Item.Name + ":" + Chars.Tab + Item.Value);
+		EndDo;
+		StampParameters.StampText = StrConcat(StampText, Chars.LF);
+		
+		Stamp = Catalogs.DigitalSignatureAndEncryptionKeysCertificates.GetTemplate("Stamp");
 		FillPropertyValues(Stamp.Parameters, StampParameters);
+		
 		If StampParameters.CompanyLogo <> Undefined Then
 			Stamp.Areas.Picture.Picture = StampParameters.CompanyLogo;
 		EndIf;
@@ -1150,7 +1268,7 @@ EndFunction
 //                             the specified areas in the order they appear in the "StampsDetails" parameter.
 //                             
 //                  - Map of KeyAndValue - Describes stamp output locations:
-//                       * Key     - String - an area name, where the stump must be put. For such an area,
+//                       * Key     - String - an area name, where the stamp must be put. For such an area,
 //                                    an arbitrary column width 
 //                                    different from the column width of the rest of the document, must be set.
 //                       * Value - SpreadsheetDocument - a stamp got by the
@@ -1298,17 +1416,12 @@ Procedure AddStampsToSpreadsheetDocument(Document, StampsDetails, CellSize = Und
 				ReceivingArea = Document.Area(HeightStart, StartingWidth, HeightEnd, FinalWidth);
 				Document.InsertArea(SourceArea, ReceivingArea, , True);
 				
-				For Each NextInTurnArea In Document.Areas Do
-					AreaName = NextInTurnArea.Name; 
-					If StrStartsWith(AreaName, "Document") And StrFind(AreaName, "Obsolete3") = 0 Then
-						NextInTurnArea.Name = AreaName+"_Obsolete3_"+StampIndex;
-						Document.Area().Name = AreaName;
-						Break;
-					EndIf;
-				EndDo;
-				
-				Document.Areas.StampLeftColumn.ColumnWidth  = CellSize.LeftColumn;
 				Document.Areas.StampRightColumn.ColumnWidth = CellSize.RightColumn;
+				If Stamp.Areas.Find("StampLeftColumn") <> Undefined Then // Intended for compatibility purposes.
+					Document.Areas.StampLeftColumn.ColumnWidth  = CellSize.LeftColumn;
+				Else
+					Document.Areas.Picture.ColumnWidth  = CellSize.LeftColumn;
+				EndIf;
 				Document.Areas.StampIndent.ColumnWidth       = 3;
 					
 				StartingWidth = FinalWidth + 1;
@@ -1338,8 +1451,13 @@ Procedure AddStampsToSpreadsheetDocument(Document, StampsDetails, CellSize = Und
 			AreaFound = Document.Areas.Find(AreaName) <> Undefined;
 			If AreaFound Then
 				Document.InsertArea(Stamp.Areas.Stamp, Document.Areas[AreaName],, True);
-				Document.Areas.StampLeftColumn.ColumnWidth  = CellSize.LeftColumn;
+				Document.Areas.Picture.ColumnWidth  = CellSize.LeftColumn;
 				Document.Areas.StampRightColumn.ColumnWidth = CellSize.RightColumn;
+				If Stamp.Areas.Find("StampLeftColumn") <> Undefined Then // Intended for compatibility purposes.
+					Document.Areas.StampLeftColumn.ColumnWidth  = CellSize.LeftColumn;
+				Else
+					Document.Areas.Picture.ColumnWidth  = CellSize.LeftColumn;
+				EndIf;
 			EndIf;
 		EndDo;
 	EndIf;
@@ -1375,7 +1493,7 @@ EndFunction
 //
 // Returns:
 //   Structure:
-//    * Thumbprint      - String - a certificate thumbprint in the Base64 string format.
+//    * Thumbprint      - String - A certificate thumbprint in the Base64 string format.
 //    * SerialNumber  - BinaryData - the SerialNumber certificate property.
 //    * Presentation  - See DigitalSignatureClient.CertificatePresentation.
 //    * IssuedTo      - See DigitalSignatureClient.SubjectPresentation.
@@ -1391,7 +1509,7 @@ EndFunction
 //        For 1C:Enterprise v.8.3.27 and later, the structure has the following properties:
 //    * CertificateAuthorityKeyID - String - Issuer key ID.
 //    * SignAlgorithm - String - OID algorithm of the certificate's signature.
-//    * AlgorithmOfPublicKey - String - OID algorithm of the certificate's public key.
+//    * PublicKeyAlgorithm - String - OID algorithm of the certificate's public key.
 //    * AddressesOfRevocationLists - Array of String
 //
 Function CertificateProperties(Certificate) Export
@@ -1539,7 +1657,8 @@ Function EnhanceSignature(Signature, SignatureType, AddArchiveTimestamp = False,
 	EndIf;
 	
 	SignatureProperties.SignatureType = ParametersCryptoSignatures.SignatureType;
-	SignatureProperties.DateActionLastTimestamp = ParametersCryptoSignatures.DateActionLastTimestamp; 
+	SignatureProperties.DateActionLastTimestamp = ParametersCryptoSignatures.DateActionLastTimestamp;
+	SignatureProperties.DateSignedFromLabels = ParametersCryptoSignatures.DateSignedFromLabels;
 	
 	Result.SignatureProperties = SignatureProperties;
 	
@@ -1610,6 +1729,7 @@ Function EnhanceSignature(Signature, SignatureType, AddArchiveTimestamp = False,
 	If CertificateVerificationResult Then
 		SignatureProperties.Signature = ResultBinaryData;
 		SignatureProperties.SignatureType = ParametersCryptoSignatures.SignatureType;
+		SignatureProperties.DateSignedFromLabels = ParametersCryptoSignatures.DateSignedFromLabels;
 		SignatureProperties.DateActionLastTimestamp = ParametersCryptoSignatures.DateActionLastTimestamp;
 		SignatureProperties.CertificateDetails = ParametersCryptoSignatures.CertificateDetails;
 		SignatureProperties.SignatureDate = 
@@ -1740,6 +1860,9 @@ EndFunction
 //     * ShouldReturnMachineReadableLOAData           - Boolean - If set to "True" and there is a machine-readable LoA for the signature, populate the "ResultOfSignatureVerificationByMRLOA" property
 //     * ShouldExtractCertificatesFromSignatures - Boolean - If set to "True", certificates will be obtained from
 //                                                  signature binary data. 
+//     * ShouldReturnExpectedSignatures - Boolean - If set to True, data about the signers to whom the document was sent 
+//                                                  for signing via the mobile signing service will be included.
+//     * ReturnTimestampDate - Boolean - If True, the timestamp value will be recorded.
 //
 Function NewObjectSignaturesAcquisitionParameters() Export
 	
@@ -1747,6 +1870,8 @@ Function NewObjectSignaturesAcquisitionParameters() Export
 	Structure.Insert("SequenceNumber", Undefined);
 	Structure.Insert("ShouldReturnMachineReadableLOAData", False);
 	Structure.Insert("ShouldExtractCertificatesFromSignatures", False);
+	Structure.Insert("ShouldReturnExpectedSignatures", False);
+	Structure.Insert("ReturnTimestampDate", False);
 	
 	Return Structure;
 	
@@ -1767,7 +1892,57 @@ Function CertificateFromSignatureBinaryData(Signature) Export
 	
 EndFunction
 
-#Region ForCallsFromOtherSubsystems
+// Retrieves the result of sending data for signing.
+// 
+// Parameters:
+//  DocumentIDs - Array of UUID
+// 
+// Returns:
+//  Structure:
+//  * CheckResults - Map of KeyAndValue:
+//   ** Key - UUID
+//   ** Value - Structure:
+//      *** Signature - BinaryData - Empty if the signature hasn't been obtained.
+//      
+//      Otherwise, contains signature properties.:
+//      *** SignatureType          - EnumRef.CryptographySignatureTypes, Underfined.
+//      *** DateActionLastTimestamp - Date - Validity period of the certificate that the last timestamp was signed with.
+//            Empty date if there's no timestamp. Applicable if the period was determined using CryptoManager.
+//      *** UnverifiedSignatureDate - Date - Unconfirmed signature data.
+//                                      - Undefined - Unconfirmed signature data is missing from the signature data.
+//      *** DateSignedFromLabels - Date - Date of the earliest timestamp.
+//                         - Undefined - Signature data is missing a timestamp.
+//      *** SignatureDate - Date - UnconfirmedSignatureDate. If the property is empty, then CurrentSessionDate.
+//      *** Certificate - BinaryData - Signatory's certificate
+//      *** Thumbprint - String - a certificate thumbprint in the Base64 string format.
+//      *** CertificateOwner - String - a subject presentation received from the certificate binary data.
+//      *** WrittenSignature - Structure:
+//            **** SignedObject - DefinedType.SignedObject
+//            **** SequenceNumber - Number
+//      *** SignatureID - UUID
+//      
+//      Signature properties in case the signature is not obtained:
+//      *** StatusInMobileService - ПеречислениеСсылка.СервисМобильнойПодписиСтатусы
+//      *** AdditionalAttributesCheckError - String - Status information or error details in case the
+//                                                           signature is not obtained.
+//      
+//   * Error - Structure - In case of a status check error:
+//     ** ErrorTitle - String
+//     ** ErrorText - String
+//     ** QueryID - String, Undefined - Query ID.
+//     ** AdditionalFiles - Array of Structure - Files containing additional error details:
+//        ** Data - BinaryData
+//        ** Name - String - Filename
+//
+Function SendForSigningResult(DocumentIDs) Export
+	
+	Result = New Map;
+	DigitalSignatureLocalization.OnRetrieveSentForSigningResults(DocumentIDs, Result);
+	Return Result;
+
+EndFunction
+
+#Region InterfaceImplementation
 
 // The following procedures and functions are intended for integration with 1C:Electronic Document Library
 // and 1C:Regulated Reporting Library.
@@ -1831,8 +2006,8 @@ EndFunction
 //       * UnverifiedSignatureDate - Date - Unconfirmed signature data.
 //                                     - Undefined - Unconfirmed signature data is missing from the signature data.
 //       * Certificate  - BinaryData - Certificate used for signature validation.
-//       * Thumbprint           - String - a certificate thumbprint in the Base64 string format.
-//       * CertificateOwner - String - a subject presentation received from the certificate binary data. 
+//       * Thumbprint           - String - A certificate thumbprint in the Base64 string format.
+//       * CertificateOwner - String - A subject presentation received from the certificate binary data. 
 //       * Certificates - Array of BinaryData - Certificates used for signature validation.
 //
 Function SignatureProperties(Signature, ShouldReadCertificates = True) Export
@@ -1936,8 +2111,8 @@ EndFunction
 //                           * XMLDSigParameters - See DigitalSignature.XMLDSigParameters
 //                        - Structure:
 //                           * CMSParameters - See DigitalSignature.CMSParameters
-//                           * Data  - String - an arbitrary string for signing,
-//                                     - BinaryData - binary data for signing.
+//                           * Data  - String -  custom string for signing,
+//                                     - BinaryData - 
 //
 //   Signature              - BinaryData - digital signature binary data.
 //                        - String         - an address of a temporary storage with binary data.
@@ -2534,7 +2709,7 @@ EndFunction
 //
 // Returns:
 //  Structure - Result of the default CA check.:
-//   * Valid_SSLyf - Boolean - Flag indicating whether the CA is valid on the date or the check was not performed 
+//   * Valid - Boolean - Flag indicating whether the CA is valid on the date or the check was not performed 
 //                 (the certificate is unqualified or CA is missing from the list of qualified CAs)
 //   * FoundintheListofCAs - Boolean - Qualified certificate flag
 //   * IsState - Boolean - Flag indicating whether the CA is trusted and some checks must be skipped.
@@ -2622,7 +2797,7 @@ EndFunction
 
 #Region ObsoleteProceduresAndFunctions
 
-// Deprecated. Always returns "True".
+// Deprecated. Always returns True.
 //
 // Returns:
 //  Boolean - if True, digital signatures are used.
@@ -2940,7 +3115,7 @@ Function Encrypt(Data, Certificate, EncryptAlgorithm = "") Export
 			Return DigitalSignatureInternal.EncryptByBuiltInCryptoProvider(
 				Data, CertificateBinaryData);
 			
-		ElsIf DigitalSignatureInternal.CryptographyIsAvailable() Then
+		ElsIf DigitalSignatureInternal.IsCryptographyAvailable() Then
 
 			CreationParameters = DigitalSignatureInternal.CryptoManagerCreationParameters();
 			CreationParameters.Application = AttributesValues.Application;
@@ -2982,7 +3157,7 @@ Function Encrypt(Data, Certificate, EncryptAlgorithm = "") Export
 	
 	SignAlgorithm = DigitalSignatureInternalClientServer.CertificateSignAlgorithm(CertificateBinaryData);
 	
-	If DigitalSignatureInternal.CryptographyIsAvailable() Then
+	If DigitalSignatureInternal.IsCryptographyAvailable() Then
 	
 		CreationParameters = DigitalSignatureInternal.CryptoManagerCreationParameters();
 		CreationParameters.ErrorDescription	 = "";
@@ -3052,6 +3227,34 @@ Function Encrypt(Data, Certificate, EncryptAlgorithm = "") Export
 					NStr("en = 'Cannot encrypt with the ""%1"" certificate'"), Certificate);
 EndFunction
 
+// Returns common settings of all users to work with the digital signature.
+//
+// Returns: 
+//   FixedStructure - Common subsystem settings for managing digital signature:
+//     * UseDigitalSignature       - Boolean - if True, digital signatures are used.
+//     * UseEncryption               - Boolean - if True, encryption is used.
+//     * VerifyDigitalSignaturesOnTheServer - Boolean - if True, digital signatures and
+//                                                       certificates are checked on the server.
+//     * GenerateDigitalSignaturesAtServer - Boolean - if True, digital signatures are created
+//                                                       on the server, and if creation failed, they are created on the client.
+//
+//     * ApplicationsDetailsCollection - FixedArray of See DigitalSignatureInternalCached.ApplicationDetails -
+//                          Information about supported cryptographic apps.
+//
+//     * DescriptionsOfTheProgramsOnTheLink - FixedMap of KeyAndValue:
+//         ** Key - CatalogRef.DigitalSignatureAndEncryptionApplications
+//         ** Value - See DigitalSignatureInternalCached.ApplicationDetails
+//
+// :
+//   
+//   
+//
+Function CommonSettings() Export
+	
+	Return DigitalSignatureInternalCached.CommonSettings();
+	
+EndFunction
+
 #Region ScheduledJobsHandlers
 
 // Scheduled job.
@@ -3065,26 +3268,31 @@ Procedure ExtendSignatureValidity() Export
 	EndIf;
 	
 	If Common.DataSeparationEnabled() Then
-		If Not CommonSettings().ThisistheServiceModelwithEnhancementAvailable Then
+		
+		RequireImprovementSignatures = Constants.RefineSignaturesAutomatically.Get() = 1;
+		CryptoSignatureTypeDefault = Constants.CryptoSignatureTypeDefault.Get();
+		If Not RequireImprovementSignatures 
+			Or CryptoSignatureTypeDefault <> Enums.CryptographySignatureTypes.WithTimeCAdEST Then
+			DigitalSignatureInternal.ChangeRegulatoryTaskExtensionCredibilitySignatures(,False,CryptoSignatureTypeDefault);
 			Return;
+		EndIf;
+		
+		If Not CommonSettings().ThisistheServiceModelwithEnhancementAvailable Then
+			Constants.RefineSignaturesAutomatically.Set(0);
+			Raise NStr("en = 'Cannot enhance signatures on the server. The scheduled job is disabled.'");
 		Else
 			ServiceAccountSettings = DigitalSignatureInternal.ServiceAccountSettingsToImproveSignatures();
 			If ValueIsFilled(ServiceAccountSettings.Error) Then
 				Raise(ServiceAccountSettings.Error);
 			EndIf;
 		EndIf;
-		CryptoSignatureTypeDefault = Constants.CryptoSignatureTypeDefault.Get();
-		If CryptoSignatureTypeDefault <> Enums.CryptographySignatureTypes.WithTimeCAdEST Then
-			DigitalSignatureInternal.ChangeRegulatoryTaskExtensionCredibilitySignatures(,False,CryptoSignatureTypeDefault);
-			Return;
-		EndIf;
+		
 		RequiredAddArchiveTags = False;
 	Else
 		RequiredAddArchiveTags = Constants.AddTimestampsAutomatically.Get();
 		CryptoSignatureTypeDefault = Constants.CryptoSignatureTypeDefault.Get();
+		RequireImprovementSignatures = Constants.RefineSignaturesAutomatically.Get() = 1;
 	EndIf;
-	
-	RequireImprovementSignatures = Constants.RefineSignaturesAutomatically.Get() = 1;
 	
 	If (Not RequireImprovementSignatures
 		Or (CryptoSignatureTypeDefault <> Enums.CryptographySignatureTypes.WithTimeCAdEST
@@ -3155,34 +3363,6 @@ EndProcedure
 
 #Region Private
 
-// Returns common settings of all users to work with the digital signature.
-//
-// Returns: 
-//   FixedStructure - Common subsystem settings for managing digital signature:
-//     * UseDigitalSignature       - Boolean - if True, digital signatures are used.
-//     * UseEncryption               - Boolean - if True, encryption is used.
-//     * VerifyDigitalSignaturesOnTheServer - Boolean - if True, digital signatures and
-//                                                       certificates are checked on the server.
-//     * GenerateDigitalSignaturesAtServer - Boolean - if True, digital signatures are created
-//                                                       on the server, and if creation failed, they are created on the client.
-//
-//     * ApplicationsDetailsCollection - FixedArray of See DigitalSignatureInternalCached.ApplicationDetails -
-//                          Information about supported cryptographic apps.
-//
-//     * DescriptionsOfTheProgramsOnTheLink - FixedMap of KeyAndValue:
-//         ** Key - CatalogRef.DigitalSignatureAndEncryptionApplications
-//         ** Value - See DigitalSignatureInternalCached.ApplicationDetails
-//
-// See also:
-//   CommonForm.DigitalSignatureAndEncryptionSettings - a location to determine these parameters and
-//   their text descriptions.
-//
-Function CommonSettings() Export
-	
-	Return DigitalSignatureInternalCached.CommonSettings();
-	
-EndFunction
-
 #Region AuxiliaryProceduresAndFunctions
 
 // Intended for: AddSignature procedure.
@@ -3233,35 +3413,34 @@ Procedure AddSignatureRows(DataObject, PropertiesSignatures, EventLogMessage)
 		If Not ValueIsFilled(NewRecord.SignatureSetBy) Then
 			NewRecord.SignatureSetBy = Users.AuthorizedUser();
 		EndIf;
-
+	
 		SignatureDate = Undefined;
 		If ValueIsFilled(CommonClientServer.StructureProperty(
-				SignatureProperties, "UnverifiedSignatureDate", Undefined)) Then
+			SignatureProperties, "UnverifiedSignatureDate", Undefined)) Then
 			SignatureDate = SignatureProperties.UnverifiedSignatureDate;
 		ElsIf ValueIsFilled(NewRecord.SignatureType) Then
 			SignatureDate = SigningDate(SignatureProperties.Signature);
 		Else
 			SignatureParameters = DigitalSignatureInternalClientServer.SignaturePropertiesFromBinaryData(
-				SignatureProperties.Signature, DigitalSignatureInternal.UTCOffset());
+			SignatureProperties.Signature, DigitalSignatureInternal.UTCOffset());
 			If ValueIsFilled(SignatureParameters.SigningDate) Then
 				SignatureDate = SignatureParameters.SigningDate;
 			EndIf;
 			NewRecord.SignatureType = SignatureParameters.SignatureType;
 		EndIf;
-
 		If SignatureDate <> Undefined Then
 			NewRecord.SignatureDate = SignatureDate;
-
+			
 		ElsIf Not ValueIsFilled(NewRecord.SignatureDate) Then
 			NewRecord.SignatureDate = CurrentSessionDate();
 		EndIf;
 		
+		EventLogMessage = DigitalSignatureInternal.SignatureInfoForEventLog(
+			NewRecord.SignatureDate, SignatureProperties);
+				
 		If Not ValueIsFilled(NewRecord.SignatureID) Then
 			NewRecord.SignatureID = New UUID;
 		EndIf;
-
-		EventLogMessage = DigitalSignatureInternal.SignatureInfoForEventLog(
-				NewRecord.SignatureDate, SignatureProperties);
 
 		NewRecord.Write();
 		
@@ -3277,21 +3456,16 @@ Procedure AddSignatureRows(DataObject, PropertiesSignatures, EventLogMessage)
 EndProcedure
 
 // Intended for: DeleteSignature procedure.
-Procedure DeleteSignatureRows(SignedObject, SequenceNumbers, EventLogMessage)
+Procedure DeleteSignatureRows(SignedObject, SequenceNumbers, ExpectedSignaturesIDs, EventLogMessage)
 	
 	HasRightsToDeleteOthersSignatures = Users.IsFullUser() 
 		Or Users.RolesAvailable("RemoveDigitalSignatures");
 
 	SetPrivilegedMode(True);
 
-	If TypeOf(SequenceNumbers) = Type("Array") Then
-		SequenceNumbersArray = SequenceNumbers;
-	Else
-		SequenceNumbersArray = CommonClientServer.ValueInArray(SequenceNumbers);
-	EndIf;
-
-	Query = New Query;
-	Query.Text =
+	If SequenceNumbers.Count() > 0 Then
+		Query = New Query;
+		Query.Text =
 		"SELECT
 		|	DigitalSignatures.SequenceNumber AS SequenceNumber,
 		|	DigitalSignatures.SignedObject AS SignedObject,
@@ -3304,52 +3478,57 @@ Procedure DeleteSignatureRows(SignedObject, SequenceNumbers, EventLogMessage)
 		|
 		|ORDER BY
 		|	SequenceNumber DESC";
+		
+		Query.SetParameter("SequenceNumbersArray", SequenceNumbers);
+		Query.SetParameter("SignedObject", SignedObject.Ref);
+	EndIf;
 	
-
-	Query.SetParameter("SequenceNumbersArray", SequenceNumbersArray);
-	Query.SetParameter("SignedObject", SignedObject.Ref);
-
 	BeginTransaction();
 	Try
 
-		Block = New DataLock;
-		LockItem = Block.Add(Metadata.InformationRegisters.DigitalSignatures.FullName());
-		LockItem.SetValue("SignedObject", SignedObject.Ref);
-		Block.Lock();
 
-		SelectionDetailRecords = Query.Execute().Select();
-		If SelectionDetailRecords.Count() <> SequenceNumbersArray.Count() Then
-			Raise NStr("en = 'A signature row does not exist.'");
-		EndIf;
-
-		While SelectionDetailRecords.Next() Do
-			RecordManager = InformationRegisters.DigitalSignatures.CreateRecordManager();
-			FillPropertyValues(RecordManager, SelectionDetailRecords);
-
-			RecordManager.Read();
-
-			HasRights = HasRightsToDeleteOthersSignatures 
-				Or RecordManager.SignatureSetBy = Users.AuthorizedUser();
-
-			Certificate = DigitalSignatureInternal.CertificateFromSignatureBinaryData(RecordManager.Signature.Get());
-			SignatureProperties = New Structure;
-			SignatureProperties.Insert("Certificate", Certificate);
-			SignatureProperties.Insert("CertificateOwner", RecordManager.CertificateOwner);
-
-			EventLogMessage = DigitalSignatureInternal.SignatureInfoForEventLog(
-				RecordManager.SignatureDate, SignatureProperties);
-
-			If Not HasRights Then
-				Raise(NStr("en = 'Insufficient rights to delete the signature.'"), ErrorCategory.AccessViolation);
-			EndIf;
-			RecordManager.Delete();
+		If SequenceNumbers.Count() > 0 Then
 			
-
-			WriteLogEvent(NStr("en = 'Digital signature.Delete signature'", Common.DefaultLanguageCode()),
-				EventLogLevel.Information, SignedObject.Metadata(), SignedObject.Ref,
-				EventLogMessage, EventLogEntryTransactionMode.Transactional);
-
-		EndDo;
+			Block = New DataLock;
+			LockItem = Block.Add(Metadata.InformationRegisters.DigitalSignatures.FullName());
+			LockItem.SetValue("SignedObject", SignedObject.Ref);
+			Block.Lock();
+			
+			SelectionDetailRecords = Query.Execute().Select();
+			If SelectionDetailRecords.Count() <> SequenceNumbers.Count() Then
+				Raise NStr("en = 'A signature row does not exist.'");
+			EndIf;
+			
+			While SelectionDetailRecords.Next() Do
+				RecordManager = InformationRegisters.DigitalSignatures.CreateRecordManager();
+				FillPropertyValues(RecordManager, SelectionDetailRecords);
+				
+				RecordManager.Read();
+				
+				HasRights = HasRightsToDeleteOthersSignatures 
+					Or RecordManager.SignatureSetBy = Users.AuthorizedUser();
+				
+				Certificate = DigitalSignatureInternal.CertificateFromSignatureBinaryData(RecordManager.Signature.Get());
+				SignatureProperties = New Structure;
+				SignatureProperties.Insert("Certificate", Certificate);
+				SignatureProperties.Insert("CertificateOwner", RecordManager.CertificateOwner);
+				
+				EventLogMessage = DigitalSignatureInternal.SignatureInfoForEventLog(
+					RecordManager.SignatureDate, SignatureProperties);
+				
+				If Not HasRights Then
+					Raise(NStr("en = 'Insufficient rights to delete the signature.'"), ErrorCategory.AccessViolation);
+				EndIf;
+				RecordManager.Delete();
+				
+				
+				WriteLogEvent(NStr("en = 'Digital signature.Delete signature'", Common.DefaultLanguageCode()),
+					EventLogLevel.Information, SignedObject.Metadata(), SignedObject.Ref,
+					EventLogMessage, EventLogEntryTransactionMode.Transactional);
+				
+			EndDo;
+		EndIf;
+		
 		CommitTransaction();
 	Except
 		RollbackTransaction();
@@ -3359,37 +3538,40 @@ Procedure DeleteSignatureRows(SignedObject, SequenceNumbers, EventLogMessage)
 EndProcedure
 
 // Intended for: DeleteSignature procedure.
-Procedure RefreshSignaturesNumbering(SignedObject)
+Procedure RefreshSignaturesNumbering(SignedObject, SequenceNumbers)
 	
 	SetPrivilegedMode(True);
 	
 	SignedWithDS = False;
 	
-	Block = New DataLock;
-	LockItem = Block.Add("InformationRegister.DigitalSignatures");
-	LockItem.SetValue("SignedObject", SignedObject.Ref);
-	
 	BeginTransaction();
 	Try
 		
+		Block = New DataLock;
+		LockItem = Block.Add("InformationRegister.DigitalSignatures");
+		LockItem.SetValue("SignedObject", SignedObject.Ref);
 		Block.Lock();
-		
+
 		RecordSet = InformationRegisters.DigitalSignatures.CreateRecordSet();
 		RecordSet.Filter.SignedObject.Set(SignedObject.Ref);
 		RecordSet.Read();
 		
-		SequenceNumber = 1;
-		For Each ObjectDigitalSignature In RecordSet Do
-			ObjectDigitalSignature.SequenceNumber = SequenceNumber;
-			SequenceNumber = SequenceNumber + 1;
-			SignedWithDS = True;
-		EndDo;
+		SignedWithDS = RecordSet.Count() > 0;
+
+		If SequenceNumbers.Count() > 0 Then // Signatures were deleted
+			SequenceNumber = 1;
+			For Each ObjectDigitalSignature In RecordSet Do
+				ObjectDigitalSignature.SequenceNumber = SequenceNumber;
+				SequenceNumber = SequenceNumber + 1;
+			EndDo;
+			RecordSet.Write(True);
+		EndIf;
+		
 		
 		If SignedObject.SignedWithDS <> SignedWithDS Then
 			SignedObject.SignedWithDS = SignedWithDS;
 		EndIf;
 		
-		RecordSet.Write(True);
 		CommitTransaction();
 		
 	Except
@@ -3516,6 +3698,19 @@ Function CertificateThumbprint(Val Certificate)
 	
 EndFunction 
 
+// Used in DigitalSignatureVisualizationStamps().
+//
+Procedure AddStampField(StampTextField, Name, Value)
+	StampTextField.Add(New Structure("Name, Value", Name, Value));
+EndProcedure
+
 #EndRegion
+
+// See StandardSubsystemsServer.WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode
+Procedure WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode(Methods) Export
+	
+	Methods.Insert("ExtendSignatureValidity", True);
+	
+EndProcedure
 
 #EndRegion

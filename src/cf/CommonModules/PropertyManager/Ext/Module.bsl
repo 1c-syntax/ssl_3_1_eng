@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -752,7 +751,7 @@ EndFunction
 //     * IDForFormulas - String
 //     * MultilineInputField - Boolean
 //     * ToolTip              - String
-//     * PropertyColor            - "Enum.PropertiesColors". Mandatory for properties with the "Label" type.
+//     * PropertyColor            - "Enums.PropertiesColors". Mandatory for properties with the "Label" type.
 //
 Function PropertyAdditionParameters() Export
 	
@@ -1730,7 +1729,7 @@ EndProcedure
 //           - TaskObject
 //           - ChartOfCalculationTypesObject
 //           - ChartOfAccountsObject
-//  Properties - Array of Map:
+//  Properties - Map of KeyAndValue:
 //     * Key - ChartOfCharacteristicTypesRef.AdditionalAttributesAndInfo - Property to set.
 //     * Value - Arbitrary - New property value. 
 //
@@ -2014,7 +2013,7 @@ Procedure FillObjectLabels(Form, Object = Undefined, ArbitraryObject = False) Ex
 			NewItem.HorizontalAlign = ItemHorizontalLocation.Center;
 			NewItem.Height = 1;
 			NewItem.Title = Label.Description;
-			NewItem.TextColor = Metadata.StyleItems.LabelTextColor_SSLym.Value;
+			NewItem.TextColor = Metadata.StyleItems.LabelTextColor.Value;
 			NewItem.BackColor = StyleItemByColor(Label.PropertyColor);
 			NewItem.Font = Metadata.StyleItems.LabelsFont.Value;
 			NewItem.ToolTip = Label.ToolTip;

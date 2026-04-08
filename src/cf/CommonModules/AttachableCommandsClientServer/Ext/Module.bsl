@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -48,33 +47,9 @@ EndProcedure
 
 #EndRegion
 
-#Region Private
+#Region Internal
 
-// Properties of the second handler parameter of the attachable command shared both by client and server handlers.
-//
-// Returns:
-//  Structure:
-//   * CommandDetails - Structure - properties match the value table columns of the Commands parameter
-///of the AttachableCommandsOverridable.OnDefineCommandsAttachedToObject procedure.
-//                                   Key properties:
-//      ** Id - String - Command ID.
-//      ** Presentation - String - Command presentation in a form.
-//      ** Name - String - a command name on a form.
-//   * Form - ClientApplicationForm - a form the command is called from.
-//   * IsObjectForm - Boolean - True if the command is called from the object form.
-//   * Source - FormTable
-//              - FormDataStructure - an object or a form list with the Reference field.
-//
-Function CommandExecuteParameters() Export
-	Result = New Structure;
-	Result.Insert("CommandDetails", Undefined);
-	Result.Insert("Form", Undefined);
-	Result.Insert("Source", Undefined);
-	Result.Insert("IsObjectForm", False);
-	Return Result;
-EndFunction
-
-Function ConditionsBeingExecuted(Conditions, AttributesValues)
+Function ConditionsBeingExecuted(Conditions, AttributesValues) Export
 	For Each Condition In Conditions Do
 		AttributeName = Condition.Attribute;
 		If Not AttributesValues.Property(AttributeName) Then
@@ -123,6 +98,34 @@ Function ConditionsBeingExecuted(Conditions, AttributesValues)
 		EndIf;
 	EndDo;
 	Return True;
+EndFunction
+
+#EndRegion
+
+#Region Private
+
+// Properties of the second handler parameter of the attachable command shared both by client and server handlers.
+//
+// Returns:
+//  Structure:
+//   * CommandDetails - Structure - properties match the value table columns of the Commands parameter
+///of the AttachableCommandsOverridable.OnDefineCommandsAttachedToObject procedure.
+//                                   Key properties:
+//      ** Id - String - Command ID.
+//      ** Presentation - String - Command presentation in a form.
+//      ** Name - String - a command name on a form.
+//   * Form - ClientApplicationForm - a form the command is called from.
+//   * IsObjectForm - Boolean - True if the command is called from the object form.
+//   * Source - FormTable
+//              - FormDataStructure - an object or a form list with the Reference field.
+//
+Function CommandExecuteParameters() Export
+	Result = New Structure;
+	Result.Insert("CommandDetails", Undefined);
+	Result.Insert("Form", Undefined);
+	Result.Insert("Source", Undefined);
+	Result.Insert("IsObjectForm", False);
+	Return Result;
 EndFunction
 
 Procedure HideShowAllSubordinateButtons(FormGroup, Visible)
@@ -259,7 +262,15 @@ Procedure RefreshSourceCommands(Val Form, Val Source, Val SourceName = "")
 				TheExpressionComputingTheValueOfTheNotes = StrReplace(CommandDetails.CheckMarkValue, "[""%SOURCE%""]", "");
 			EndIf;
 			
+			// ACC:547-off - The preprocessor directive is allowed because the executing code does not access any modules.
+#If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
+			SetSafeMode(True);
+#EndIf
 			Form.Items[CommandDetails.NameOnForm].Check = Eval(TheExpressionComputingTheValueOfTheNotes); // ACC:488 The code being executed is safe.
+#If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
+			SetSafeMode(False);
+#EndIf
+			// ACC:547-on
 		EndIf;
 	EndDo;
 	

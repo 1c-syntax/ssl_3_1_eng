@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -763,7 +762,9 @@ EndFunction
 //    * AddInAttachmentError - Boolean - a COM connection error flag.
 //
 Function ExternalConnectionToInfobase(Parameters) Export
+	
 	Return ExchangeMessagesTransport.EstablishExternalConnectionWithInfobase(Parameters);
+	
 EndFunction
 
 // An entry point to iterate data exchange (import and export) with the external system by the exchange plan node.
@@ -778,11 +779,6 @@ EndFunction
 // 
 Procedure ExecuteDataExchangeWithExternalSystem(Peer, ExchangeParameters, FlagError) Export
 	
-	AdditionalParameters = New Structure;
-		
-	ActionImport = Enums.ActionsOnExchange.DataImport;
-	ActionExport = Enums.ActionsOnExchange.DataExport;
-	
 	Cancel = False;
 
 	BeforePerformingExchanges(Peer, Cancel);
@@ -792,11 +788,8 @@ Procedure ExecuteDataExchangeWithExternalSystem(Peer, ExchangeParameters, FlagEr
 		
 	EndIf;
 	
-	ParametersOnly = False;
-	ExchangeMessagesTransportKind = Enums.ExchangeMessagesTransportTypes.ExternalSystem;
-	
 	FlagError = False;
-		
+	
 	AfterPerformingTheExchanges(Peer, Cancel);
 	
 EndProcedure
@@ -1242,9 +1235,19 @@ Function SynchronizationSetupCompleted(ExchangeNode) Export
 	If DataExchangeCached.IsMessagesExchangeNode(ExchangeNode) Then
 		Return True;
 	Else
-		SetPrivilegedMode(True);
+		StandardProcessing = True;
 		
-		Return InformationRegisters.CommonInfobasesNodesSettings.SettingCompleted(ExchangeNode);
+		SettingCompleted = False;
+		
+		DataExchangeOverridable.WhenDeterminingWhetherSynchronizationSettingHasEnded(StandardProcessing, SettingCompleted, ExchangeNode);
+		
+		If StandardProcessing Then
+			SetPrivilegedMode(True);
+			
+			SettingCompleted = InformationRegisters.CommonInfobasesNodesSettings.SettingCompleted(ExchangeNode);
+		EndIf;
+		
+		Return SettingCompleted;
 	EndIf;
 	
 EndFunction
@@ -1262,7 +1265,7 @@ EndProcedure
 
 #EndRegion
 
-#Region ForCallsFromOtherSubsystems
+#Region InterfaceImplementation
 
 // StandardSubsystems.SaaSOperations.DataExchangeSaaS
 
@@ -1863,7 +1866,7 @@ Procedure InitializeUpdateDataFile(Parameters) Export
 		NameOfChangedFile = FullNameOfFileOfDeferredUpdateData();
 		
 		FileToWriteXML = New FastInfosetWriter;
-		FileToWriteXML.OpenFile(NameOfChangedFile);
+		FileToWriteXML.SetBinaryData();
 		FileToWriteXML.WriteXMLDeclaration();
 		FileToWriteXML.WriteStartElement("Objects");
 		
@@ -2137,10 +2140,8 @@ Function CompleteWriteFileAndGetUpdateData(Parameters) Export
 	
 	XMLWriter = Parameters.WriteChangesForSubordinateDIBNodeWithFilters;
 	XMLWriter.WriteEndElement();
-	XMLWriter.Close();
 	
-	NameOfChangedFile = Parameters.NameOfChangedFile;
-	FileBinaryData = New BinaryData(NameOfChangedFile);
+	FileBinaryData = XMLWriter.Close();
 	
 	Return New ValueStorage(FileBinaryData, New Deflation(9));
 	
@@ -3537,7 +3538,8 @@ Function DataExchangeMonitorTable(Val Var_ExchangePlans, Val AdditionalExchangeP
 		|		ELSE TRUE
 		|	END AS HasErrors,
 		|	ISNULL(MessagesForDataMapping.MessageReceivedForDataMapping, FALSE) AS MessageReceivedForDataMapping,
-		|	ISNULL(MessagesForDataMapping.LastMessageStoragePlacementDate, DATETIME(1, 1, 1)) AS DataMapMessageDate
+		|	ISNULL(MessagesForDataMapping.LastMessageStoragePlacementDate, DATETIME(1, 1, 1)) AS DataMapMessageDate,
+		|	ISNULL(CurrentNodeTasks.Action, """") AS CurrentNodeAction
 		|FROM
 		|	ConfigurationExchangePlans AS ExchangePlans
 		|		LEFT JOIN CommonInfobasesNodesSettings AS CommonInfobasesNodesSettings
@@ -3554,6 +3556,8 @@ Function DataExchangeMonitorTable(Val Var_ExchangePlans, Val AdditionalExchangeP
 		|		ON (DataSynchronizationScenarios.InfobaseNode = ExchangePlans.InfobaseNode)
 		|		LEFT JOIN MessagesForDataMapping AS MessagesForDataMapping
 		|		ON (MessagesForDataMapping.InfobaseNode = ExchangePlans.InfobaseNode)
+		|		LEFT JOIN CurrentNodeTasks AS CurrentNodeTasks
+		|		ON (CurrentNodeTasks.InfobaseNode = ExchangePlans.InfobaseNode)
 		|
 		|ORDER BY
 		|	ExchangePlans.Description";
@@ -5438,6 +5442,12 @@ Procedure InitDataExchangeDataProcessorByConversionRules(ExchangeSettingsStructu
 		
 	EndIf;
 	
+	If ExchangeSettingsStructure.AdditionalParameters.Property("ConversionProcessingParameters") Then
+		For Each KeyValue In ExchangeSettingsStructure.AdditionalParameters.ConversionProcessingParameters Do
+			DataExchangeDataProcessor.Parameters.Insert(KeyValue.Key, KeyValue.Value);
+		EndDo;
+	EndIf;
+	
 	ExchangeSettingsStructure.Insert("DataExchangeDataProcessor", DataExchangeDataProcessor);
 	
 EndProcedure
@@ -5534,6 +5544,55 @@ EndProcedure
 #EndRegion
 
 #Region Common
+
+// Function for retrieving property: returns a name of the file that is used for checking whether transport data processor is attached.
+//
+// Returns:
+//  String - returns a name of the file that is used for checking whether transport data processor is attached.
+//
+Function TempConnectionTestFileName() Export
+	FilePostfix = String(New UUID());
+	Return "ConnectionCheckFile_" + FilePostfix + ".tmp";
+	
+EndFunction
+
+// Checks whether the exchange message size exceed the maximum allowed size.
+// 
+// Parameters:
+//  FileName - String - Full filename
+//  MaxMessageSize - Number
+// 
+// Returns:
+//  Boolean - if the file size exceeds the maximum allowed size. Otherwise, False.
+//
+Function ExchangeMessageSizeExceedsAllowed(Val FileName, Val MaxMessageSize) Export
+	
+	// Function return value.
+	Result = False;
+	
+	File = New File(FileName);
+	
+	If File.Exists() And File.IsFile() Then
+		
+		If MaxMessageSize <> 0 Then
+			
+			PackageSize = Round(File.Size() / 1024, 0, RoundMode.Round15as20);
+			
+			If PackageSize > MaxMessageSize Then
+				
+				MessageString = NStr("en = 'The outgoing package size (%1 KB) exceeds the limit (%2 KB).'");
+				MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString, String(PackageSize), String(MaxMessageSize));
+				ReportError(MessageString, Result);
+				
+			EndIf;
+			
+		EndIf;
+		
+	EndIf;
+	
+	Return Result;
+	
+EndFunction
 
 // Registers that the exchange was carried out and records information in the protocol.
 //
@@ -5726,9 +5785,10 @@ EndFunction
 // Getting file by its ID.
 //
 // Parameters:
-//  FileID - UUID - File ID.
-//  WSPassiveModeFileIB - Boolean - Indicates that the file is received in the file infobase upon setting up the WS
-//                                        connection in a passive mode.
+//  FileID - UUID - an ID of the file being received.
+//  PassiveModeFileInformation - Boolean - Indicates that the file is being received in a file infobase
+//                                        over the WS connection in a passive mode.
+//  DeleteFileFromStorage - Boolean - Indicates if the information about the exchange message file must be removed from the storage.
 //
 // Returns:
 //  String - Filename.
@@ -5741,7 +5801,7 @@ Function GetFileFromStorage(Val FileID, PassiveModeFileInformation = False, Dele
 		And Common.SeparatedDataUsageAvailable() Then
 		
 		ModuleDataExchangeSaaS = Common.CommonModule("DataExchangeSaaS");
-		ModuleDataExchangeSaaS.OnReceiveFileFromStorage(FileID, FileName);
+		ModuleDataExchangeSaaS.OnReceiveFileFromStorage(FileID, FileName, DeleteFileFromStorage);
 		
 	Else
 		
@@ -6164,6 +6224,35 @@ Procedure UnblockTheExchangeNode(ExchangeNode, Cancel) Export
 	
 EndProcedure
 
+Function ThereIsMessageForMatching(InfobaseNode, CurrentAction )
+	
+	Result = False;
+	
+	If CurrentAction = Enums.ActionsOnExchange.DataImport Then
+		HasMapSupport = ExchangePlanSettingValue(
+			DataExchangeCached.GetExchangePlanName(InfobaseNode),
+			"DataMappingSupported",
+			SavedExchangePlanNodeSettingOption(InfobaseNode));
+		
+		If HasMapSupport Then
+			AMessageForMatchingWasReceived = MessageWithDataForMappingReceived(InfobaseNode);
+			
+			If AMessageForMatchingWasReceived Then 
+				MessageKey = EventLogMessageKey(InfobaseNode, CurrentAction);
+
+				MessageText = NStr("en = 'To continue, import the data mapping message.
+				|The data exchange is canceled.'");
+				
+				WriteLogEvent(MessageKey, EventLogLevel.Error, InfobaseNode.Metadata(), , MessageText);
+				Result = True;
+			EndIf;
+		EndIf; 
+	EndIf;
+	
+	Return Result;
+	
+EndFunction
+
 #EndRegion
 
 #Region InfobaseUpdate
@@ -6525,7 +6614,7 @@ Procedure ExecuteStandardNodeChangesExport(Cancel,
 	DataExchangeInternal.CheckObjectsRegistrationMechanismCache();
 	
 	PredefinedDataTable = DataExchangeInternal.PredefinedDataTable1();
-	PredefinedDataTable.Columns.Add("Export", New TypeDescription("Boolean"));
+	PredefinedDataTable.Columns.Add("ToExport", New TypeDescription("Boolean"));
 	PredefinedDataTable.Indexes.Add("Ref");
 	
 	// Getting changed data selection.
@@ -6653,7 +6742,7 @@ Procedure ExportPredefinedItemsTable(ExportingParameters)
 	CountExported = 0;
 	
 	For Each PredefinedDataRow In ExportingParameters.PredefinedDataTable Do
-		If Not PredefinedDataRow.Export Then
+		If Not PredefinedDataRow.ToExport Then
 			Continue;
 		EndIf;
 		
@@ -7058,17 +7147,6 @@ EndFunction
 Function FilterItemPropertyValueAlgorithm() Export
 	
 	Return "ValueAlgorithm";
-	
-EndFunction
-
-// Function for retrieving property: returns a name of the file that is used for checking whether transport data processor is attached.
-//
-// Returns:
-//  String - returns a name of the file that is used for checking whether transport data processor is attached.
-//
-Function TempConnectionTestFileName() Export
-	FilePostfix = String(New UUID());
-	Return "ConnectionCheckFile_" + FilePostfix + ".tmp";
 	
 EndFunction
 
@@ -8476,8 +8554,9 @@ Procedure SetDataExchangeMessageFromMasterNode(ExchangeMessage, MasterNode) Expo
 	
 	ExchangeMessage.Write(PathToFile);
 	
-	MessageStructure = New Structure;
-	MessageStructure.Insert("PathToFile", PathToFile);
+	MessageStructure = InitializeStructureOfExchangeMessage();
+	MessageStructure.PathToFile = PathToFile; 
+	MessageStructure.TheHashSumOfTheFile = HashAmountOfExchangeMessage(ExchangeMessage);
 	
 	Constants.DataExchangeMessageFromMasterNode.Set(New ValueStorage(MessageStructure));
 	
@@ -8614,6 +8693,7 @@ Procedure ExecuteDataExchangeOverFileResource(ExchangeSettingsStructure)
 	
 		ExchangeMessage = "";
 		StandardProcessing = True;
+		DeleteExchangeMessage = False;
 		
 		BeforeReadExchangeMessage(ExchangeSettingsStructure.InfobaseNode, ExchangeMessage, StandardProcessing);
 		
@@ -8626,6 +8706,7 @@ Procedure ExecuteDataExchangeOverFileResource(ExchangeSettingsStructure)
 				InformationRegisters.ArchiveOfExchangeMessages.PackMessageToArchive(
 					ExchangeSettingsStructure.InfobaseNode, ExchangeMessage);
 				
+				DeleteExchangeMessage = True;
 			Else
 				ExchangeSettingsStructure.ExchangeExecutionResult = Enums.ExchangeExecutionResults.ErrorMessageTransport;
 			EndIf;
@@ -8680,6 +8761,12 @@ Procedure ExecuteDataExchangeOverFileResource(ExchangeSettingsStructure)
 		
 		If StandardProcessing Then
 			ExchangeMessagesTransport.Deinitialization(Transport);
+		EndIf;
+		
+		If DeleteExchangeMessage Then
+			FileExchangeMessages = New File(ExchangeMessage);
+			Directory = FileExchangeMessages.Path;
+			DeleteFiles(Directory);
 		EndIf;
 		
 	ElsIf ExchangeSettingsStructure.DoDataExport Then
@@ -8787,6 +8874,13 @@ Procedure ExecuteDataExchangeByDataExchangeScenario(Cancel, ExchangeExecutionSet
 			
 		EndIf;
 				
+		If ThereIsMessageForMatching(Selection.InfobaseNode, Selection.CurrentAction) Then  
+			
+			Cancel = True;
+			Continue; 
+			
+		EndIf;
+		
 		// DATA EXCHANGE INITIALIZATION
 		ExchangeSettingsStructure = DataExchangeSettings(Selection.ExchangeExecutionSettings, Selection.LineNumber);
 		
@@ -9074,9 +9168,27 @@ Procedure BeforeReadExchangeMessage(Val Recipient, ExchangeMessage, StandardProc
 		
 		If TypeOf(SavedExchangeMessage) = Type("Structure") Then
 			
-			StandardProcessing = False;
-			
 			ExchangeMessage = SavedExchangeMessage.PathToFile;
+			
+			If ValueIsFilled(ExchangeMessage) Then
+				MessageFile = New File(ExchangeMessage);
+				
+				// If the file containing the message was removed from the temp directory, try to retrieve it from the archive.
+				If Not MessageFile.Exists() Then
+					If SavedExchangeMessage.Property("TheHashSumOfTheFile") Then
+						HashAmountOfLastMessage = GetHashSumOfLastMessage(Recipient);
+						
+						If HashAmountOfLastMessage = SavedExchangeMessage.TheHashSumOfTheFile Then
+							SaveMessageFromArchiveToCache(Recipient); 
+							
+							SavedExchangeMessage = DataExchangeMessageFromMasterNode();
+							ExchangeMessage = SavedExchangeMessage.PathToFile;
+						EndIf;
+					EndIf;
+				EndIf
+			EndIf;
+			
+			StandardProcessing = False;
 			
 			WriteDataReceivingEvent(Recipient, NStr("en = 'An exchange message is received from the cache.'"));
 			
@@ -9723,7 +9835,9 @@ Function ExchangePlanCatalogs(Val ExchangePlanName)
 	Return Result;
 EndFunction
 
-// See ToDoListOverridable.OnDetermineToDoListHandlers
+// Parameters:
+//   ToDoList - See ToDoListServer.ToDoList.
+//
 Procedure OnFillToDoListSynchronizationWarnings(ToDoList)
 	
 	ModuleToDoListServer = Common.CommonModule("ToDoListServer");
@@ -9751,19 +9865,21 @@ Procedure OnFillToDoListSynchronizationWarnings(ToDoList)
 	For Each Section In Sections Do
 		
 		NotificationOnSynchronizationID = "WarningsOnSynchronization" + StrReplace(Section.FullName(), ".", "");
-		ToDoItem = ToDoList.Add();
-		ToDoItem.Id  = NotificationOnSynchronizationID;
-		ToDoItem.HasToDoItems       = ResultingStructure.Count > 0;
-		ToDoItem.Count     = ResultingStructure.Count;
-		ToDoItem.Presentation  = NStr("en = 'Warnings'");
-		ToDoItem.Form          = "InformationRegister.DataExchangeResults.Form.SynchronizationWarnings";
-		ToDoItem.Owner       = Section;
+		CaseFile = ToDoList.Add();
+		CaseFile.Id  = NotificationOnSynchronizationID;
+		CaseFile.HasToDoItems       = ResultingStructure.Count > 0;
+		CaseFile.Count     = ResultingStructure.Count;
+		CaseFile.Presentation  = NStr("en = 'Warnings'");
+		CaseFile.Form          = "InformationRegister.DataExchangeResults.Form.SynchronizationWarnings";
+		CaseFile.Owner       = Section;
 		
 	EndDo;
 	
 EndProcedure
 
-// See ToDoListOverridable.OnDetermineToDoListHandlers
+// Parameters:
+//   ToDoList - See ToDoListServer.ToDoList.
+//
 Procedure CheckLoopingWhenFillingOutToDoList(ToDoList)
 	
 	ModuleToDoListServer = Common.CommonModule("ToDoListServer");
@@ -9782,19 +9898,21 @@ Procedure CheckLoopingWhenFillingOutToDoList(ToDoList)
 	For Each Section In Sections Do
 		
 		NotificationOnSynchronizationID = "WarningOnSyncLoop" + StrReplace(Section.FullName(), ".", "");
-		ToDoItem = ToDoList.Add();
-		ToDoItem.Id  = NotificationOnSynchronizationID;
-		ToDoItem.HasToDoItems       = HasLoop;
-		ToDoItem.Presentation  = NStr("en = 'Synchronization loop is found'");
-		ToDoItem.Form          = "InformationRegister.SynchronizationCircuit.Form.SynchronizationLoop";
-		ToDoItem.Owner       = Section;
-		ToDoItem.Important			= True;
+		CaseFile = ToDoList.Add();
+		CaseFile.Id  = NotificationOnSynchronizationID;
+		CaseFile.HasToDoItems       = HasLoop;
+		CaseFile.Presentation  = NStr("en = 'Synchronization loop is found'");
+		CaseFile.Form          = "InformationRegister.SynchronizationCircuit.Form.SynchronizationLoop";
+		CaseFile.Owner       = Section;
+		CaseFile.Important			= True;
 	
 	EndDo;
 	
 EndProcedure
 
-// See ToDoListOverridable.OnDetermineToDoListHandlers.
+// Parameters:
+//   ToDoList - See ToDoListServer.ToDoList.
+//
 Procedure OnFillToDoListCheckCompatibilityWithCurrentVersion(ToDoList)
 	
 	ModuleToDoListServer = Common.CommonModule("ToDoListServer");
@@ -9809,13 +9927,13 @@ Procedure OnFillToDoListCheckCompatibilityWithCurrentVersion(ToDoList)
 		Return;
 	EndIf;
 	
-	OutputToDoItem = True;
+	OutputCaseFile = True;
 	VersionChecked = CommonSettingsStorage.Load("ToDoList", "ExchangePlans");
 	If VersionChecked <> Undefined Then
 		ArrayVersion  = StrSplit(Metadata.Version, ".");
 		CurrentVersion = ArrayVersion[0] + ArrayVersion[1] + ArrayVersion[2];
 		If VersionChecked = CurrentVersion Then
-			OutputToDoItem = False; // Additional reports and data processors were checked on the current version.
+			OutputCaseFile = False; // Additional reports and data processors were checked on the current version.
 		EndIf;
 	EndIf;
 	
@@ -9825,32 +9943,32 @@ Procedure OnFillToDoListCheckCompatibilityWithCurrentVersion(ToDoList)
 		SectionID = "CheckCompatibilityWithCurrentVersion" + StrReplace(Section.FullName(), ".", "");
 		
 		// Add a to-do item.
-		ToDoItem = ToDoList.Add();
-		ToDoItem.Id = "ExchangeRules";
-		ToDoItem.HasToDoItems      = OutputToDoItem And ExchangePlansWithRulesFromFile > 0;
-		ToDoItem.Presentation = NStr("en = 'Exchange rules'");
-		ToDoItem.Count    = ExchangePlansWithRulesFromFile;
-		ToDoItem.Form         = "InformationRegister.DataExchangeRules.Form.DataSynchronizationCheck";
-		ToDoItem.Owner      = SectionID;
+		CaseFile = ToDoList.Add();
+		CaseFile.Id = "ExchangeRules";
+		CaseFile.HasToDoItems      = OutputCaseFile And ExchangePlansWithRulesFromFile > 0;
+		CaseFile.Presentation = NStr("en = 'Exchange rules'");
+		CaseFile.Count    = ExchangePlansWithRulesFromFile;
+		CaseFile.Form         = "InformationRegister.DataExchangeRules.Form.DataSynchronizationCheck";
+		CaseFile.Owner      = SectionID;
 		
 		// Check for the to-do's group. If the group is missing, add it.
 		ToDoGroup = ToDoList.Find(SectionID, "Id");
 		If ToDoGroup = Undefined Then
 			ToDoGroup = ToDoList.Add();
 			ToDoGroup.Id = SectionID;
-			ToDoGroup.HasToDoItems      = ToDoItem.HasToDoItems;
+			ToDoGroup.HasToDoItems      = CaseFile.HasToDoItems;
 			ToDoGroup.Presentation = NStr("en = 'Check compatibility'");
-			If ToDoItem.HasToDoItems Then
-				ToDoGroup.Count = ToDoItem.Count;
+			If CaseFile.HasToDoItems Then
+				ToDoGroup.Count = CaseFile.Count;
 			EndIf;
 			ToDoGroup.Owner = Section;
 		Else
 			If Not ToDoGroup.HasToDoItems Then
-				ToDoGroup.HasToDoItems = ToDoItem.HasToDoItems;
+				ToDoGroup.HasToDoItems = CaseFile.HasToDoItems;
 			EndIf;
 			
-			If ToDoItem.HasToDoItems Then
-				ToDoGroup.Count = ToDoGroup.Count + ToDoItem.Count;
+			If CaseFile.HasToDoItems Then
+				ToDoGroup.Count = ToDoGroup.Count + CaseFile.Count;
 			EndIf;
 		EndIf;
 	EndDo;
@@ -10274,7 +10392,14 @@ Procedure GetDataExchangesStates(TempTablesManager)
 		|FROM
 		|	InformationRegister.SuccessfulDataExchangesStates AS SuccessfulDataExchangesStates
 		|WHERE
-		|	SuccessfulDataExchangesStates.ActionOnExchange = VALUE(Enum.ActionsOnExchange.DataExport)");
+		|	SuccessfulDataExchangesStates.ActionOnExchange = VALUE(Enum.ActionsOnExchange.DataExport)
+		|;
+		|
+		|////////////////////////////////////////////////////////////////////////////////
+		|SELECT
+		|	UNDEFINED AS InfobaseNode,
+		|	UNDEFINED AS Action
+		|INTO CurrentNodeTasks");
 		
 		Query.TempTablesManager = TempTablesManager;
 		Query.Execute();
@@ -11524,44 +11649,6 @@ Function StatisticsTablePictureIndex(Val UnmappedObjectsCount, Val DataImportedS
 	
 EndFunction
 
-// Checks whether the exchange message size exceed the maximum allowed size.
-// 
-// Parameters:
-//  FileName - String - Full filename
-//  MaxMessageSize - Number
-// 
-// Returns:
-//  Boolean - if the file size exceeds the maximum allowed size. Otherwise, False.
-//
-Function ExchangeMessageSizeExceedsAllowed(Val FileName, Val MaxMessageSize) Export
-	
-	// Function return value.
-	Result = False;
-	
-	File = New File(FileName);
-	
-	If File.Exists() And File.IsFile() Then
-		
-		If MaxMessageSize <> 0 Then
-			
-			PackageSize = Round(File.Size() / 1024, 0, RoundMode.Round15as20);
-			
-			If PackageSize > MaxMessageSize Then
-				
-				MessageString = NStr("en = 'The outgoing package size (%1 KB) exceeds the limit (%2 KB).'");
-				MessageString = StringFunctionsClientServer.SubstituteParametersToString(MessageString, String(PackageSize), String(MaxMessageSize));
-				ReportError(MessageString, Result);
-				
-			EndIf;
-			
-		EndIf;
-		
-	EndIf;
-	
-	Return Result;
-	
-EndFunction
-
 Function InitialDataExportFlagIsSet(InfobaseNode) Export
 	
 	SetPrivilegedMode(True);
@@ -11745,7 +11832,7 @@ Function DataExchangeOption(Val Peer) Export
 	For Each Attribute In AttributesValues Do
 			
 		If Attribute.Value = Enums.ExchangeObjectExportModes.ManualExport
-			Or Attribute.Value = Enums.ExchangeObjectExportModes.NotExport Then
+			Or Attribute.Value = Enums.ExchangeObjectExportModes.NotToExport Then
 			
 			Result = "ReceiveAndSend";
 			Break;
@@ -12168,7 +12255,11 @@ Function DataSynchronizationWithOtherApplicationsAccessProfileRoles()
 	
 EndFunction
 
-// See ToDoListOverridable.OnDetermineToDoListHandlers
+// Populate the to-do list.
+//
+// Parameters:
+//   ToDoList - See ToDoListServer.ToDoList.
+//
 Procedure OnFillToDoListUpdateRequired(ToDoList)
 	
 	ModuleToDoListServer = Common.CommonModule("ToDoListServer");
@@ -12186,22 +12277,22 @@ Procedure OnFillToDoListUpdateRequired(ToDoList)
 	For Each Section In Sections Do
 		
 		IDUpdateRequired = "UpdateRequiredDataExchange" + StrReplace(Section.FullName(), ".", "");
-		ToDoItem = ToDoList.Add();
-		ToDoItem.Id  = IDUpdateRequired;
-		ToDoItem.HasToDoItems       = UpdateInstallationRequired;
-		ToDoItem.Important         = True;
-		ToDoItem.Presentation  = NStr("en = 'Update application version'");
+		CaseFile = ToDoList.Add();
+		CaseFile.Id  = IDUpdateRequired;
+		CaseFile.HasToDoItems       = UpdateInstallationRequired;
+		CaseFile.Important         = True;
+		CaseFile.Presentation  = NStr("en = 'Update application version'");
 		If Common.SubsystemExists("StandardSubsystems.ConfigurationUpdate") Then
 			ModuleConfigurationUpdate = Common.CommonModule("ConfigurationUpdate");
 			FormParameters = New Structure("ShouldExitApp, IsConfigurationUpdateReceived", False, False);
-			ToDoItem.Form      = ModuleConfigurationUpdate.InstallUpdatesFormName();
-			ToDoItem.FormParameters = FormParameters;
+			CaseFile.Form      = ModuleConfigurationUpdate.InstallUpdatesFormName();
+			CaseFile.FormParameters = FormParameters;
 		Else
-			ToDoItem.Form      = "CommonForm.AdditionalDetails";
-			ToDoItem.FormParameters = New Structure("Title,TemplateName",
+			CaseFile.Form      = "CommonForm.AdditionalDetails";
+			CaseFile.FormParameters = New Structure("Title,TemplateName",
 				NStr("en = 'Install update'"), "ManualUpdateInstruction");
 		EndIf;
-		ToDoItem.Owner       = Section;
+		CaseFile.Owner       = Section;
 		
 	EndDo;
 	
@@ -13046,15 +13137,26 @@ Procedure SetUpLoopFormElements(Form)
 	NodeRef1 = Form.Object.Ref;
 	Items = Form.Items;
 	
-	If NodeRef1.IsEmpty() 
-		Or Not DataExchangeCached.IsXDTOExchangePlan(NodeRef1) Then		
+	SUBAssetIsLoopedControlIsDisabled = DataExchangeLoopControl.IsNodeLooped(NodeRef1, True);
+	SUBAssetIsLoopedControlIsOn = DataExchangeLoopControl.IsNodeLooped(NodeRef1, False);
+	
+	CommonClientServer.SetFormItemProperty(
+		Items,
+		"FormIsGeneralCommandToPreventCyclicalExchangeSettings",
+		"LocationInCommandBar",
+		ButtonLocationInCommandBar.InAdditionalSubmenu);
+	
+	If NodeRef1.IsEmpty()
+		Or Not DataExchangeCached.IsXDTOExchangePlan(NodeRef1)
+		Or Not SUBAssetIsLoopedControlIsDisabled
+		Then
 		
 		CommonClientServer.SetFormItemProperty(
 			Items,
 			"FormCommonCommandObjectsUnregisteredWhileLooping",
 			"Visible",
 			False);
-	
+			
 		Return;
 		
 	EndIf;
@@ -13064,8 +13166,16 @@ Procedure SetUpLoopFormElements(Form)
 		"FormCommonCommandObjectsUnregisteredWhileLooping",
 		"LocationInCommandBar",
 		ButtonLocationInCommandBar.InAdditionalSubmenu);
+		
+	CommonClientServer.SetFormItemProperty(
+		Items,
+		"FormIsGeneralCommandToPreventCyclicalExchangeSettings",
+		"Visible",
+		SUBAssetIsLoopedControlIsOn);
 	
-	If Not DataExchangeLoopControl.IsNodeLooped(NodeRef1) Then
+	LoopingWarningIsHidden = DataExchangeLoopControl.LoopingWarningIsHiddenFromUser();
+	If Not SUBAssetIsLoopedControlIsDisabled
+		Or LoopingWarningIsHidden Then
 		Return;
 	EndIf;
 	
@@ -13074,7 +13184,7 @@ Procedure SetUpLoopFormElements(Form)
 	Group = Items.Insert(PanelName, Type("FormGroup"), Undefined, Form.Items.FormCommandBar);
 	Group.Type 			= FormGroupType.UsualGroup;
 	Group.Group 	= ChildFormItemsGroup.AlwaysHorizontal;
-	Group.BackColor 	= StyleColors.WarningBackColor;
+	Group.BackColor 	= StyleColors.SynchronizationTooltip;
 	Group.ShowTitle = False;
 	
 	IndentDecoration = Items.Add("Indent" + PanelName, Type("FormDecoration"), Group);
@@ -13087,10 +13197,10 @@ Procedure SetUpLoopFormElements(Form)
 	PictureDecoration.Width 	= 5;
 	PictureDecoration.PictureSize = PictureSize.Proportionally;
 
-	TextTemplate1 = NStr("en = '<br>Synchronization loop is found. For more information, follow the 
-			  |<a href=""%1"">link</a>.
+	TextTemplate1 = NStr("en = '<br>Synchronization loop is found. For details, click 
+			  |<a href=""%1"">here</a>.
 			  |<br><br>
-			  |<a href=""%2"">Objects not registered upon looping</a>.'");
+			  |<a href=""%2"">View objects unregistered because of the loop</a>.'");
 	WarningText = StringFunctionsClientServer.SubstituteParametersToString(TextTemplate1, 
 		"FormSynchronizationLoop", "FormObjectsUnregisteredWhileLooping" );
 	
@@ -13137,6 +13247,148 @@ Function TypesExcludedFromProblemResolutionCheck() Export
 	Return Types;
 	
 EndFunction
+
+// Returns:
+//   Structure - Message file data to cache:
+//     * PathToFile - String - File path.
+//     * TheHashSumOfTheFile - String - Hash of the exchange message file.
+//
+Function InitializeStructureOfExchangeMessage()
+	
+	MessageStructure = New Structure;
+	MessageStructure.Insert("PathToFile",    "");
+	MessageStructure.Insert("TheHashSumOfTheFile", "");
+	
+	Return MessageStructure;
+	
+EndFunction  
+
+// Returns the hashsum of the exchange message file.
+//
+// Parameters:
+//  ExchangeMessage - BinaryData - Exchange message binary data.
+//
+// Returns:
+//  String - Hashsum.
+//
+Function HashAmountOfExchangeMessage(Val ExchangeMessage) Export
+	
+	DataHashing = New DataHashing(HashFunction.MD5);
+	DataHashing.Append(ExchangeMessage);
+	Return StrReplace(DataHashing.HashSum, " ", "");
+	
+EndFunction
+
+Function GetHashSumOfLastMessage(Recipient)
+	
+	Result = "";
+	
+	Query = New Query;
+	Query.Text = 
+	"SELECT
+	|	ArchiveOfExchangeMessagesSliceLast.TheHashSumOfTheFile AS TheHashSumOfTheFile
+	|FROM
+	|	InformationRegister.ArchiveOfExchangeMessages.SliceLast AS ArchiveOfExchangeMessagesSliceLast
+	|WHERE
+	|	ArchiveOfExchangeMessagesSliceLast.InfobaseNode = &InfobaseNode";
+	
+	Query.SetParameter("InfobaseNode", Recipient);
+	
+	QueryResult = Query.Execute();
+	
+	If Not QueryResult.IsEmpty() Then
+		Selection = QueryResult.Select();
+		Selection.Next();
+		
+		Result = Selection.TheHashSumOfTheFile;
+	EndIf;
+	
+	Return Result;
+	
+EndFunction
+
+Procedure SaveMessageFromArchiveToCache(InfobaseNode) Export
+	
+	Query = New Query;
+	Query.Text = 
+	"SELECT                                            
+	|	ArchiveOfExchangeMessagesSliceLast.FullFileName AS FullFileName,
+	|	ArchiveOfExchangeMessagesSliceLast.Storage AS Storage,
+	|	ArchiveOfExchangeMessagesSliceLast.FileExtention AS FileExtention
+	|FROM
+	|	InformationRegister.ArchiveOfExchangeMessages.SliceLast(, InfobaseNode = &InfobaseNode) AS ArchiveOfExchangeMessagesSliceLast";
+	
+	Query.SetParameter("InfobaseNode", InfobaseNode);
+	
+	QueryResult = Query.Execute();
+	
+	If QueryResult.IsEmpty() Then
+		Raise NStr("en = 'Archived message missing.'");
+	EndIf;
+	
+	Selection = QueryResult.Select();
+	Selection.Next();
+	
+	If ValueIsFilled(Selection.FullFileName) Then
+		If Selection.FileExtention = "zip" Then
+			SetExchangeMessageFromArchive(Selection.FullFileName, InfobaseNode);
+		Else        
+			BinaryDataOfArchive = New BinaryData(Selection.FullFileName);
+			SetDataExchangeMessageFromMasterNode(BinaryDataOfArchive, InfobaseNode);
+		EndIf;
+	Else	
+		BinaryDataOfArchive = Selection.Storage.Get();
+		
+		If Selection.FileExtention = "zip" Then
+			ArchiveTempFileName = GetTempFileName("zip");
+			BinaryDataOfArchive.Write(ArchiveTempFileName);
+			
+			SetExchangeMessageFromArchive(ArchiveTempFileName, InfobaseNode); 
+			
+			DeleteFiles(ArchiveTempFileName);
+		Else
+			SetDataExchangeMessageFromMasterNode(BinaryDataOfArchive, InfobaseNode);
+		EndIf;
+	EndIf;
+	
+EndProcedure
+
+Procedure SetExchangeMessageFromArchive(ArchiveTempFileName, InfobaseNode)
+	
+	HasErrors = False;
+	
+	// Extract data from archive.
+	TempDirectoryName = GetTempFileName("");
+	If UnpackZipFile(ArchiveTempFileName, TempDirectoryName) Then
+		
+		UnpackedFileList = FindFiles(TempDirectoryName, GetAllFilesMask(), True);
+		
+		// Canceling import if the archive contains no files.
+		If UnpackedFileList.Count() = 0 Then
+			Raise NStr("en = 'Rule file not found in archive.'");
+		EndIf;
+		
+		// Canceling import if number of files in the archive does not match the expected number.
+		If UnpackedFileList.Count() > 1 Then
+			Raise NStr("en = 'Archive is expected to contain a single file.'");
+		EndIf;
+		
+		BinaryDataExchangeMessages = New BinaryData(UnpackedFileList[0].FullName);
+		
+		SetDataExchangeMessageFromMasterNode(BinaryDataExchangeMessages, InfobaseNode);		
+	Else            
+		HasErrors = True;
+	EndIf;  
+	
+	// Delete the temp archive and temp directory.
+	FileSystem.DeleteTempFile(TempDirectoryName); 
+	
+	If HasErrors Then
+		// Canceling import if unpacking the file failed.
+		Raise NStr("en = 'Extraction failed.'");
+	EndIf;
+	
+EndProcedure
 
 #EndRegion
 

@@ -102,10 +102,10 @@
 					</ButtonGroup>
 				</ChildItems>
 			</Popup>
-			<Button name="FormHelp" id="349">
+			<Button name="FormHelp_SSLyf" id="349">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.StandardCommand.Help</CommandName>
-				<ExtendedTooltip name="FormHelpExtendedTooltip" id="350"/>
+				<ExtendedTooltip name="FormHelp_SSLyfExtendedTooltip" id="350"/>
 			</Button>
 		</ChildItems>
 	</AutoCommandBar>
@@ -705,7 +705,7 @@ by the user list owner (not by the administrator).</v8:content>
 							<ThroughAlign>Use</ThroughAlign>
 							<ExtendedTooltip name="NameEmailPhoneExtendedTooltip" id="385"/>
 							<ChildItems>
-								<UsualGroup name="GroupName" id="409">
+								<UsualGroup name="GroupName_SSLyf" id="409">
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
@@ -715,7 +715,7 @@ by the user list owner (not by the administrator).</v8:content>
 									<Behavior>Usual</Behavior>
 									<Representation>None</Representation>
 									<ShowTitle>false</ShowTitle>
-									<ExtendedTooltip name="GroupNameExtendedTooltip" id="410"/>
+									<ExtendedTooltip name="GroupName_SSLyfExtendedTooltip" id="410"/>
 									<ChildItems>
 										<InputField name="IBUserName" id="95">
 											<DataPath>IBUserName</DataPath>
@@ -745,7 +745,7 @@ by the user list owner (not by the administrator).</v8:content>
 									<Behavior>Usual</Behavior>
 									<Representation>None</Representation>
 									<ShowTitle>false</ShowTitle>
-									<ExtendedTooltip name="GroupContactInformationFieldUserEmailExtendedTooltip" id="402"/>
+									<ExtendedTooltip name="GroupContactInfoFieldUserEmailAddressExtendedTooltip" id="402"/>
 									<ChildItems>
 										<InputField name="ContactInformationFieldUserEmail" id="395">
 											<DataPath>ContactInformationFieldUserEmail</DataPath>
@@ -763,9 +763,9 @@ by the user list owner (not by the administrator).</v8:content>
 												<Event name="Clearing">Attachable_ContactInformationClearing</Event>
 											</Events>
 										</InputField>
-										<Button name="CommandContactInfoFieldUserEmail" id="405">
+										<Button name="CommandContactInformationFieldUserEmail" id="405">
 											<Type>UsualButton</Type>
-											<CommandName>Form.Command.CommandContactInfoFieldUserEmail</CommandName>
+											<CommandName>Form.Command.CommandContactInformationFieldUserEmail</CommandName>
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
@@ -787,7 +787,7 @@ by the user list owner (not by the administrator).</v8:content>
 									<Behavior>Usual</Behavior>
 									<Representation>None</Representation>
 									<ShowTitle>false</ShowTitle>
-									<ExtendedTooltip name="GroupContactInformationFieldUserPhoneExtendedTooltip" id="404"/>
+									<ExtendedTooltip name="GroupContactInfoFieldUserPhoneNumExtendedTooltip" id="404"/>
 									<ChildItems>
 										<InputField name="ContactInformationFieldUserPhone" id="398">
 											<DataPath>ContactInformationFieldUserPhone</DataPath>
@@ -806,9 +806,9 @@ by the user list owner (not by the administrator).</v8:content>
 												<Event name="Clearing">Attachable_ContactInformationClearing</Event>
 											</Events>
 										</InputField>
-										<Button name="CommandContactInfoFieldUserPhoneNum" id="407">
+										<Button name="CommandContactInformationFieldUserPhone" id="407">
 											<Type>UsualButton</Type>
-											<CommandName>Form.Command.CommandContactInfoFieldUserPhoneNum</CommandName>
+											<CommandName>Form.Command.CommandContactInformationFieldUserPhone</CommandName>
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
@@ -954,7 +954,7 @@ username and password.</v8:content>
 																	<Title>
 																		<v8:item>
 																			<v8:lang>en</v8:lang>
-																			<v8:content>Demand password change on next login</v8:content>
+																			<v8:content>Require password change on next login</v8:content>
 																		</v8:item>
 																	</Title>
 																	<TitleLocation>Right</TitleLocation>
@@ -1006,6 +1006,9 @@ changing their password.</v8:content>
 																	<CheckBoxType>Auto</CheckBoxType>
 																	<ContextMenu name="IBUserCannotRecoveryPasswordContextMenu" id="367"/>
 																	<ExtendedTooltip name="IBUserCannotRecoveryPasswordExtendedTooltip" id="368"/>
+																	<Events>
+																		<Event name="OnChange">IBUserCannotRecoveryPasswordOnChange</Event>
+																	</Events>
 																</CheckBoxField>
 																<CheckBoxField name="IBUserShowInList" id="25">
 																	<DataPath>IBUserShowInList</DataPath>
@@ -1829,16 +1832,11 @@ associated with the 1C:Enterprise user.</v8:content>
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>
 		</Attribute>
-		<Attribute name="CanSignInDirectChangeValue" id="33">
-			<Type>
-				<v8:Type>xs:boolean</v8:Type>
-			</Type>
-		</Attribute>
 		<Attribute name="UserMustChangePasswordOnAuthorization" id="35">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Demand password change on next login</v8:content>
+					<v8:content>Require password change on next login</v8:content>
 				</v8:item>
 			</Title>
 			<Type>
@@ -1870,15 +1868,6 @@ associated with the 1C:Enterprise user.</v8:content>
 				</v8:NumberQualifiers>
 			</Type>
 		</Attribute>
-		<Attribute name="IBUserNameDirectChangeValue" id="39">
-			<Type>
-				<v8:Type>xs:string</v8:Type>
-				<v8:StringQualifiers>
-					<v8:Length>0</v8:Length>
-					<v8:AllowedLength>Variable</v8:AllowedLength>
-				</v8:StringQualifiers>
-			</Type>
-		</Attribute>
 		<Attribute name="IBUserPassword" id="40">
 			<Type/>
 			<SavedData>true</SavedData>
@@ -1908,11 +1897,6 @@ associated with the 1C:Enterprise user.</v8:content>
 					<v8:Length>0</v8:Length>
 					<v8:AllowedLength>Variable</v8:AllowedLength>
 				</v8:StringQualifiers>
-			</Type>
-		</Attribute>
-		<Attribute name="IBUserStandardAuthenticationDirectChangeValue" id="3">
-			<Type>
-				<v8:Type>xs:boolean</v8:Type>
 			</Type>
 		</Attribute>
 		<Attribute name="PhotoAddress" id="4">
@@ -2147,6 +2131,14 @@ associated with the 1C:Enterprise user.</v8:content>
 		<Attribute name="ContactInformationKindUserPhone" id="60">
 			<Type/>
 		</Attribute>
+		<Attribute name="DirectChangeValues" id="61">
+			<Type/>
+		</Attribute>
+		<Attribute name="UserMustChangePasswordOnAuthorizationPrevious" id="3">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Attribute>
 	</Attributes>
 	<Commands>
 		<Command name="ShowSelectedRolesOnly" id="1">
@@ -2316,8 +2308,9 @@ associated with the 1C:Enterprise user.</v8:content>
 				</v8:item>
 			</Title>
 			<Action>SelectPhoto</Action>
+			<ModifiesSavedData>true</ModifiesSavedData>
 		</Command>
-		<Command name="CommandContactInfoFieldUserEmail" id="11">
+		<Command name="CommandContactInformationFieldUserEmail" id="11">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
@@ -2337,7 +2330,7 @@ associated with the 1C:Enterprise user.</v8:content>
 			<Action>Attachable_ContactInformationExecuteCommand</Action>
 			<Representation>Picture</Representation>
 		</Command>
-		<Command name="CommandContactInfoFieldUserPhoneNum" id="12">
+		<Command name="CommandContactInformationFieldUserPhone" id="12">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>

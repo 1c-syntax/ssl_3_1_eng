@@ -73,9 +73,9 @@
 						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 						<ExtendedTooltip name="FormInstallExtensionExtendedTooltip" id="451"/>
 					</Button>
-					<Button name="FormQuestionInSupport" id="503">
+					<Button name="FormSupportTicket" id="503">
 						<Type>CommandBarButton</Type>
-						<CommandName>Form.Command.QuestionInSupport</CommandName>
+						<CommandName>Form.Command.SupportTicket</CommandName>
 						<Title>
 							<v8:item>
 								<v8:lang>en</v8:lang>
@@ -83,13 +83,19 @@
 							</v8:item>
 						</Title>
 						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-						<ExtendedTooltip name="FormQuestionInSupportExtendedTooltip" id="504"/>
+						<ExtendedTooltip name="FormSupportTicketExtendedTooltip" id="504"/>
 					</Button>
-					<Button name="FormInformationToSendToSupport" id="432">
+					<Button name="FormInfoForSupport" id="432">
 						<Type>CommandBarButton</Type>
-						<CommandName>Form.Command.InformationToSendToSupport</CommandName>
+						<CommandName>Form.Command.InfoForSupport</CommandName>
+						<Title>
+							<v8:item>
+								<v8:lang>en</v8:lang>
+								<v8:content>Information to send to support</v8:content>
+							</v8:item>
+						</Title>
 						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-						<ExtendedTooltip name="FormInformationToSendToSupportExtendedTooltip" id="433"/>
+						<ExtendedTooltip name="FormInfoForSupportExtendedTooltip" id="433"/>
 					</Button>
 				</ChildItems>
 			</ButtonGroup>
@@ -128,10 +134,9 @@
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Certificates filter</v8:content>
+									<v8:content>Filters certificates</v8:content>
 								</v8:item>
 							</Title>
-							<Group>AlwaysHorizontal</Group>
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
@@ -1206,8 +1211,8 @@
 											</Title>
 											<TitleLocation>None</TitleLocation>
 											<ShowInHeader>false</ShowInHeader>
-											<ContextMenu name="AppsCheckResultAtServerContextMenu" id="443"/>
-											<ExtendedTooltip name="AppsCheckResultAtServerExtendedTooltip" id="444"/>
+											<ContextMenu name="ProgramsCheckResultAtServerContextMenu" id="443"/>
+											<ExtendedTooltip name="ProgramsCheckResultAtServerExtendedTooltip" id="444"/>
 										</InputField>
 									</ChildItems>
 								</ColumnGroup>
@@ -1302,6 +1307,19 @@
 					</Title>
 					<ExtendedTooltip name="SettingsPageExtendedTooltip" id="45"/>
 					<ChildItems>
+						<Button name="MobileSignatureServiceSignatories" id="507">
+							<Type>Hyperlink</Type>
+							<Visible>false</Visible>
+							<CommandName>0</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Signers in the mobile application</v8:content>
+								</v8:item>
+							</Title>
+							<ToolTipRepresentation>Balloon</ToolTipRepresentation>
+							<ExtendedTooltip name="MobileSignatureServiceSignatoriesExtendedTooltip" id="508"/>
+						</Button>
 						<InputField name="EncryptedFilesExtension" id="9">
 							<DataPath>EncryptedFilesExtension</DataPath>
 							<Title>
@@ -1564,7 +1582,7 @@
 		AND CertificatesOverridable.ValidBefore &gt; &amp;CurrentDate
 			THEN TRUE
 		ELSE FALSE
-	END AS Valid_SSLyf,
+	END AS Valid,
 	CASE
 		WHEN ProgramsOverridable.IsBuiltInCryptoProvider
 			THEN 4
@@ -2162,12 +2180,18 @@ WHERE
 			</ToolTip>
 			<Action>SetComponentExtraCryptoAPI</Action>
 		</Command>
-		<Command name="InformationToSendToSupport" id="8">
+		<Command name="InfoForSupport" id="8">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Information to send to support</v8:content>
+				</v8:item>
+			</Title>
 			<Picture>
 				<xr:Ref>CommonPicture.Download</xr:Ref>
 				<xr:LoadTransparent>false</xr:LoadTransparent>
 			</Picture>
-			<Action>InformationToSendToSupport</Action>
+			<Action>InfoForSupport</Action>
 		</Command>
 		<Command name="AddFromDirectory" id="9">
 			<Title>
@@ -2227,7 +2251,7 @@ WHERE
 			<Representation>TextPicture</Representation>
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
-		<Command name="QuestionInSupport" id="13">
+		<Command name="SupportTicket" id="13">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
@@ -2244,7 +2268,7 @@ WHERE
 				<xr:Ref>CommonPicture.SendEmail</xr:Ref>
 				<xr:LoadTransparent>false</xr:LoadTransparent>
 			</Picture>
-			<Action>QuestionInSupport</Action>
+			<Action>SupportTicket</Action>
 		</Command>
 	</Commands>
 	<Parameters>

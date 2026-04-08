@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Internal
@@ -222,10 +221,14 @@ Procedure NotifyAppStartupModified(User, IBUser, InfobaseOldUser = Undefined) Ex
 	User_Info.Insert("ServiceUserID", Attributes.ServiceUserID);
 	User_Info.Insert("HasRights", IsStartupPossible);
 	User_Info.Insert("DateUTC", CurrentUniversalDate());
+	User_Info.Insert("StoredPasswordValue", IBUser.StoredPasswordValue);
+	User_Info.Insert("Language", GetLanguageCode(IBUser.Language));
+	User_Info.Insert("FullAccess", IsStartupPossible And IBUser.Roles.Contains(Metadata.Roles.FullAccess));
+	User_Info.Insert("CanSignIn", Users.CanSignIn(IBUser));
 	
 	BeginTransaction();
 	Try
-		ModuleMessagesExchange.SendMessage("UserHandler/LaunchSwitch", Common.ValueToXMLString(
+		ModuleMessagesExchange.SendMessageNow("UserHandler/LaunchSwitch", Common.ValueToXMLString(
 			User_Info), ModuleSaaSOperations.ServiceManagerEndpoint());
 		CommitTransaction();
 	Except
@@ -556,9 +559,10 @@ Procedure OnEndIBUserProcessing(UserObject, ProcessingParameters, UpdateRoles) E
 	
 	If TypeOf(UserObject) = Type("CatalogObject.Users")
 	   And IBUserDetails.Property("ActionResult")
+	   And IBUserDetails.Property("Action")
 	   And Not UserObject.IsInternal Then
 		
-		If IBUserDetails.ActionResult = "IBUserDeleted" Then
+		If IBUserDetails.Action = "Delete" Then
 			
 			SetPrivilegedMode(True);
 			CancelSaaSUserAccess(UserObject);

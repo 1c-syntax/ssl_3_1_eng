@@ -1,0 +1,407 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.18">
+	<WindowOpeningMode>LockOwnerWindow</WindowOpeningMode>
+	<AutoCommandBar name="FormCommandBar" id="-1">
+		<Autofill>false</Autofill>
+	</AutoCommandBar>
+	<ChildItems>
+		<UsualGroup name="IsMain" id="30">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Main</v8:content>
+				</v8:item>
+			</Title>
+			<Group>Vertical</Group>
+			<Representation>None</Representation>
+			<ShowTitle>false</ShowTitle>
+			<ExtendedTooltip name="IsMainExtendedTooltip" id="31"/>
+			<ChildItems>
+				<Pages name="Pages" id="36">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Pages</v8:content>
+						</v8:item>
+					</Title>
+					<PagesRepresentation>None</PagesRepresentation>
+					<ExtendedTooltip name="PagesExtendedTooltip" id="37"/>
+					<ChildItems>
+						<Page name="MailServicePage" id="38">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Mail service</v8:content>
+								</v8:item>
+							</Title>
+							<ExtendedTooltip name="MailServicePageExtendedTooltip" id="39"/>
+							<ChildItems>
+								<InputField name="MailService" id="45">
+									<DataPath>MailService</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Mail service</v8:content>
+										</v8:item>
+									</Title>
+									<TitleLocation>Top</TitleLocation>
+									<ListChoiceMode>true</ListChoiceMode>
+									<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
+									<ChoiceList>
+										<xr:Item>
+											<xr:Presentation/>
+											<xr:CheckState>0</xr:CheckState>
+											<xr:Value xsi:type="FormChoiceListDesTimeValue">
+												<Presentation>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Yandex</v8:content>
+													</v8:item>
+												</Presentation>
+												<Value xsi:type="xs:string">yandex.ru</Value>
+											</xr:Value>
+										</xr:Item>
+										<xr:Item>
+											<xr:Presentation/>
+											<xr:CheckState>0</xr:CheckState>
+											<xr:Value xsi:type="FormChoiceListDesTimeValue">
+												<Presentation>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Mail.ru</v8:content>
+													</v8:item>
+												</Presentation>
+												<Value xsi:type="xs:string">mail.ru</Value>
+											</xr:Value>
+										</xr:Item>
+										<xr:Item>
+											<xr:Presentation/>
+											<xr:CheckState>0</xr:CheckState>
+											<xr:Value xsi:type="FormChoiceListDesTimeValue">
+												<Presentation>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Gmail.com</v8:content>
+													</v8:item>
+												</Presentation>
+												<Value xsi:type="xs:string">gmail.com</Value>
+											</xr:Value>
+										</xr:Item>
+										<xr:Item>
+											<xr:Presentation/>
+											<xr:CheckState>0</xr:CheckState>
+											<xr:Value xsi:type="FormChoiceListDesTimeValue">
+												<Presentation>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Outlook.com</v8:content>
+													</v8:item>
+												</Presentation>
+												<Value xsi:type="xs:string">office365.com</Value>
+											</xr:Value>
+										</xr:Item>
+									</ChoiceList>
+									<ContextMenu name="MailServiceContextMenu" id="46"/>
+									<ExtendedTooltip name="MailServiceExtendedTooltip" id="47"/>
+									<Events>
+										<Event name="OnChange">MailServiceONChange</Event>
+									</Events>
+								</InputField>
+							</ChildItems>
+						</Page>
+						<Page name="ApplicationRegistrationPage" id="40">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Application registration</v8:content>
+								</v8:item>
+							</Title>
+							<ExtendedTooltip name="ApplicationRegistrationPageExtendedTooltip" id="41"/>
+							<ChildItems>
+								<InputField name="MailServiceAppRegistration" id="48">
+									<DataPath>MailService</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Mail service</v8:content>
+										</v8:item>
+									</Title>
+									<TitleLocation>Top</TitleLocation>
+									<ListChoiceMode>true</ListChoiceMode>
+									<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
+									<ChoiceList>
+										<xr:Item>
+											<xr:Presentation/>
+											<xr:CheckState>0</xr:CheckState>
+											<xr:Value xsi:type="FormChoiceListDesTimeValue">
+												<Presentation>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Yandex</v8:content>
+													</v8:item>
+												</Presentation>
+												<Value xsi:type="xs:string">yandex.ru</Value>
+											</xr:Value>
+										</xr:Item>
+										<xr:Item>
+											<xr:Presentation/>
+											<xr:CheckState>0</xr:CheckState>
+											<xr:Value xsi:type="FormChoiceListDesTimeValue">
+												<Presentation>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Mail.ru</v8:content>
+													</v8:item>
+												</Presentation>
+												<Value xsi:type="xs:string">mail.ru</Value>
+											</xr:Value>
+										</xr:Item>
+										<xr:Item>
+											<xr:Presentation/>
+											<xr:CheckState>0</xr:CheckState>
+											<xr:Value xsi:type="FormChoiceListDesTimeValue">
+												<Presentation>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Gmail.com</v8:content>
+													</v8:item>
+												</Presentation>
+												<Value xsi:type="xs:string">gmail.com</Value>
+											</xr:Value>
+										</xr:Item>
+										<xr:Item>
+											<xr:Presentation/>
+											<xr:CheckState>0</xr:CheckState>
+											<xr:Value xsi:type="FormChoiceListDesTimeValue">
+												<Presentation>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Outlook.com</v8:content>
+													</v8:item>
+												</Presentation>
+												<Value xsi:type="xs:string">office365.com</Value>
+											</xr:Value>
+										</xr:Item>
+									</ChoiceList>
+									<ContextMenu name="MailServiceAppRegistrationContextMenu" id="49"/>
+									<ExtendedTooltip name="MailServiceAppRegistrationExtendedTooltip" id="50"/>
+									<Events>
+										<Event name="OnChange">MailServiceONChange</Event>
+									</Events>
+								</InputField>
+								<UsualGroup name="ApplicationRegistrationGroup" id="1">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Application registration</v8:content>
+										</v8:item>
+									</Title>
+									<Group>Vertical</Group>
+									<ShowTitle>false</ShowTitle>
+									<ExtendedTooltip name="ApplicationRegistrationGroupExtendedTooltip" id="2"/>
+									<ChildItems>
+										<LabelDecoration name="ExplanationByRedirectAddress" id="6">
+											<AutoMaxWidth>false</AutoMaxWidth>
+											<MaxWidth>50</MaxWidth>
+											<AutoMaxHeight>false</AutoMaxHeight>
+											<Title formatted="true">
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>
+Fill in the following fields from the application registration settings:
+</v8:content>
+												</v8:item>
+											</Title>
+											<ContextMenu name="ExplanationByRedirectAddressContextMenu" id="7"/>
+											<ExtendedTooltip name="ExplanationByRedirectAddressExtendedTooltip" id="8"/>
+										</LabelDecoration>
+										<InputField name="RedirectAddress" id="9">
+											<DataPath>RedirectAddress</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Redirection address (redirect_uri)</v8:content>
+												</v8:item>
+											</Title>
+											<TitleLocation>Top</TitleLocation>
+											<AutoMarkIncomplete>true</AutoMarkIncomplete>
+											<ContextMenu name="RedirectAddressContextMenu" id="10"/>
+											<ExtendedTooltip name="RedirectAddressExtendedTooltip" id="11"/>
+										</InputField>
+										<LabelDecoration name="ExplanationByApplicationID" id="12">
+											<AutoMaxWidth>false</AutoMaxWidth>
+											<MaxWidth>50</MaxWidth>
+											<AutoMaxHeight>false</AutoMaxHeight>
+											<Title formatted="true"/>
+											<ContextMenu name="ExplanationByApplicationIDContextMenu" id="13"/>
+											<ExtendedTooltip name="ExplanationByApplicationIDExtendedTooltip" id="14"/>
+										</LabelDecoration>
+										<InputField name="AppID" id="15">
+											<DataPath>AppID</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Application ID (client_id)</v8:content>
+												</v8:item>
+											</Title>
+											<TitleLocation>Top</TitleLocation>
+											<AutoMarkIncomplete>true</AutoMarkIncomplete>
+											<ContextMenu name="AppIDContextMenu" id="16"/>
+											<ExtendedTooltip name="AppIDExtendedTooltip" id="17"/>
+										</InputField>
+										<LabelDecoration name="ExplanationApplicationPassword" id="18">
+											<AutoMaxWidth>false</AutoMaxWidth>
+											<MaxWidth>50</MaxWidth>
+											<AutoMaxHeight>false</AutoMaxHeight>
+											<Title formatted="true"/>
+											<ContextMenu name="ExplanationApplicationPasswordContextMenu" id="19"/>
+											<ExtendedTooltip name="ExplanationApplicationPasswordExtendedTooltip" id="20"/>
+										</LabelDecoration>
+										<InputField name="ApplicationPassword" id="21">
+											<DataPath>ApplicationPassword</DataPath>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Application password (client_secret)</v8:content>
+												</v8:item>
+											</Title>
+											<TitleLocation>Top</TitleLocation>
+											<AutoMarkIncomplete>true</AutoMarkIncomplete>
+											<ContextMenu name="ApplicationPasswordContextMenu" id="22"/>
+											<ExtendedTooltip name="ApplicationPasswordExtendedTooltip" id="23"/>
+										</InputField>
+										<LabelDecoration name="AdditionalNote" id="24">
+											<AutoMaxWidth>false</AutoMaxWidth>
+											<MaxWidth>50</MaxWidth>
+											<AutoMaxHeight>false</AutoMaxHeight>
+											<Title formatted="false">
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>In some services, a new registered application does not become available immediately. Before you continue the setup after registration, wait a few minutes.</v8:content>
+												</v8:item>
+											</Title>
+											<ContextMenu name="AdditionalNoteContextMenu" id="25"/>
+											<ExtendedTooltip name="AdditionalNoteExtendedTooltip" id="26"/>
+										</LabelDecoration>
+									</ChildItems>
+								</UsualGroup>
+							</ChildItems>
+						</Page>
+					</ChildItems>
+				</Pages>
+				<CommandBar name="GroupCommandBar" id="34">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Command bar</v8:content>
+						</v8:item>
+					</Title>
+					<HorizontalLocation>Right</HorizontalLocation>
+					<ExtendedTooltip name="GroupCommandBarExtendedTooltip" id="35"/>
+					<ChildItems>
+						<Button name="Register" id="32">
+							<Type>CommandBarButton</Type>
+							<DefaultButton>true</DefaultButton>
+							<CommandName>Form.Command.Register</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Register</v8:content>
+								</v8:item>
+							</Title>
+							<ExtendedTooltip name="RegisterExtendedTooltip" id="33"/>
+						</Button>
+						<Button name="Help" id="51">
+							<Type>CommandBarButton</Type>
+							<CommandName>Form.StandardCommand.Help</CommandName>
+							<ExtendedTooltip name="HelpExtendedTooltip" id="52"/>
+						</Button>
+					</ChildItems>
+				</CommandBar>
+			</ChildItems>
+		</UsualGroup>
+	</ChildItems>
+	<Attributes>
+		<Attribute name="RedirectAddress" id="1">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Redirection address</v8:content>
+				</v8:item>
+			</Title>
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="AppID" id="2">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Application ID</v8:content>
+				</v8:item>
+			</Title>
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="ApplicationPassword" id="3">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Application access key</v8:content>
+				</v8:item>
+			</Title>
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="MailService" id="4">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Mail service</v8:content>
+				</v8:item>
+			</Title>
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+			<FillCheck>ShowError</FillCheck>
+		</Attribute>
+		<Attribute name="MailServiceSettings" id="5">
+			<Type/>
+		</Attribute>
+	</Attributes>
+	<Commands>
+		<Command name="Register" id="1">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Register</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Register</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Action>Register</Action>
+		</Command>
+	</Commands>
+</Form>

@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Internal
@@ -46,13 +45,13 @@ Procedure OnFillToDoList(ToDoList) Export
 	
 	For Each Section In Sections Do
 		NoteID = "UserNotes" + StrReplace(Section.FullName(), ".", "");
-		ToDoItem = ToDoList.Add();
-		ToDoItem.Id = NoteID;
-		ToDoItem.HasToDoItems      = NumberOfNotes > 0;
-		ToDoItem.Presentation = NStr("en = 'My notes'");
-		ToDoItem.Count    = NumberOfNotes;
-		ToDoItem.Form         = "Catalog.Notes.Form.AllNotes";
-		ToDoItem.Owner      = Section;
+		CaseFile = ToDoList.Add();
+		CaseFile.Id = NoteID;
+		CaseFile.HasToDoItems      = NumberOfNotes > 0;
+		CaseFile.Presentation = NStr("en = 'My notes'");
+		CaseFile.Count    = NumberOfNotes;
+		CaseFile.Form         = "Catalog.Notes.Form.AllNotes";
+		CaseFile.Owner      = Section;
 	EndDo;
 	
 EndProcedure

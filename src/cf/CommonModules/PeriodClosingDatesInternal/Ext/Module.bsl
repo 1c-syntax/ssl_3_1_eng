@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Internal
@@ -385,7 +384,7 @@ EndFunction
 //
 //  SourceRegister - Boolean - False - a source is a register, otherwise, an object.
 //
-//  Replacing       - РежимЗамещения, Boolean - Record replacement mode (only for registers).
+//  Replacing       - ReplacementMode, Boolean - Record replacement mode (only for registers).
 //
 //  Delete        - Boolean - if a source is an object and an object is being deleted,
 //                    specify True.
@@ -699,8 +698,8 @@ Function PeriodEndClosingFound(Val DataToCheck, PeriodEndMessageParameters,
 	// 3. Use the overall exchange plan setting (if the node setting and exchange plan setting are missing).
 	//    
 	
-	// Priority by section and object is applied to the extent of the above-mentioned
-	// priorities and identical to the period-end closing dates and data import restriction dates.
+	// Priorities by section and object are applied to the extent of the above priorities
+	// and are the same for the period-end closing dates and data import restriction dates.
 	// 1. For this section, this object.
 	// 2. For this section, for any object (the object is a section).
 	// 3. For any object (an empty section), for any object (the object is a section).
@@ -711,33 +710,33 @@ Function PeriodEndClosingFound(Val DataToCheck, PeriodEndMessageParameters,
 	
 	// Search for period-end closing.
 	If ImportRestrictionCheckNode = Undefined Then
-		SMSMessageRecipients = EffectiveDates.ForUsers.SMSMessageRecipients;
+		Recipients = EffectiveDates.ForUsers.Recipients;
 		Addressee = Users.AuthorizedUser();
-		Sections = SMSMessageRecipients.Get(Addressee);
+		Sections = Recipients.Get(Addressee);
 		If Sections = Undefined Then
 			OpenUserGroups = EffectiveDates.UserGroups.Get(Addressee);
 			If OpenUserGroups <> Undefined Then
 				For Each Group In OpenUserGroups Do
 					PeriodEndAddressee = Group;
-					Sections = SMSMessageRecipients.Get(PeriodEndAddressee);
+					Sections = Recipients.Get(PeriodEndAddressee);
 					Break;
 				EndDo;
 			EndIf;
 			If Sections = Undefined Then
 				PeriodEndAddressee = Enums.PeriodClosingDatesPurposeTypes.ForAllUsers;
-				Sections = SMSMessageRecipients.Get(PeriodEndAddressee);
+				Sections = Recipients.Get(PeriodEndAddressee);
 			EndIf;
 		EndIf;
 	Else
-		SMSMessageRecipients = EffectiveDates.ForInfobases.SMSMessageRecipients;
+		Recipients = EffectiveDates.ForInfobases.Recipients;
 		Addressee = ImportRestrictionCheckNode;
-		Sections = SMSMessageRecipients.Get(Addressee);
+		Sections = Recipients.Get(Addressee);
 		If Sections = Undefined Then
 			PeriodEndAddressee = Common.ObjectManagerByRef(ImportRestrictionCheckNode).EmptyRef();
-			Sections = SMSMessageRecipients.Get(PeriodEndAddressee);
+			Sections = Recipients.Get(PeriodEndAddressee);
 			If Sections = Undefined Then
 				PeriodEndAddressee = Enums.PeriodClosingDatesPurposeTypes.ForAllInfobases;
-				Sections = SMSMessageRecipients.Get(PeriodEndAddressee);
+				Sections = Recipients.Get(PeriodEndAddressee);
 			EndIf;
 		EndIf;
 	EndIf;
@@ -1283,7 +1282,7 @@ Function DataToCheckFromDatabase(Data, DataID, EffectiveDates, ImportRestriction
 	For Each DataSource In DataSources.Content Do
 		Selection = QueryResults[DataSources.Content.Find(DataSource)].Select();
 		While Selection.Next() Do
-			// @skip-check query-in-loop - Цикл для исключения разыменования составного типа (стандарт 654)
+			// @skip-check query-in-loop - 
 			AddDataStringFromDatabase(Selection, DataSource, DataToCheck, NoObject);
 		EndDo;
 	EndDo;
@@ -1326,7 +1325,7 @@ Function DataForCheckFromObject(Data, EffectiveDates, ImportRestrictionCheckNode
 		EndIf;
 		For Each TableRow In FieldValues Do
 			For Each DataSource In DataSources.Content Do
-				// @skip-check query-in-loop - Цикл для исключения разыменования составного типа (стандарт 654)
+				// @skip-check query-in-loop - 
 				AddDataString(TableRow, TableRow, DataSource, DataToCheck, NoObject);
 			EndDo;
 		EndDo;
@@ -1335,22 +1334,22 @@ Function DataForCheckFromObject(Data, EffectiveDates, ImportRestrictionCheckNode
 			
 			If Not ValueIsFilled(DataSource.DateField.TabularSection)
 			   And Not ValueIsFilled(DataSource.ObjectField.TabularSection) Then
-				// @skip-check query-in-loop - Цикл для исключения разыменования составного типа (стандарт 654)
+				// @skip-check query-in-loop - 
 				AddDataString(Data, Data, DataSource, DataToCheck, NoObject);
 				
 			ElsIf Not ValueIsFilled(DataSource.DateField.TabularSection) Then
 				
 				If NoObject Then
-					// @skip-check query-in-loop - Цикл для исключения разыменования составного типа (стандарт 654)
+					// @skip-check query-in-loop - 
 					AddDataString(Data, Undefined, DataSource, DataToCheck, NoObject);
 				Else
-					// @skip-check query-in-loop - Цикл для исключения разыменования составного типа (стандарт 654)
+					// @skip-check query-in-loop - 
 					DateString = New Structure("Value", Simple(Data, DataSource.DateField));
 					Field = DataSource.ObjectField.Name;
 					ObjectValues = Data[DataSource.ObjectField.TabularSection].Unload(, Field); // ValueTable
 					ObjectValues.GroupBy(Field);
 					For Each ObjectString In ObjectValues Do
-						// @skip-check query-in-loop - Цикл для исключения разыменования составного типа (стандарт 654)
+						// @skip-check query-in-loop - 
 						AddDataString(DateString, ObjectString, DataSource, DataToCheck);
 					EndDo;
 				EndIf;
@@ -1358,14 +1357,14 @@ Function DataForCheckFromObject(Data, EffectiveDates, ImportRestrictionCheckNode
 			ElsIf Not ValueIsFilled(DataSource.ObjectField.TabularSection) Then
 				
 				If Not NoObject Then
-					// @skip-check query-in-loop - Цикл для исключения разыменования составного типа (стандарт 654)
+					// @skip-check query-in-loop - 
 					ObjectString = New Structure("Value", Simple(Data, DataSource.ObjectField));
 				EndIf;
 				Field = DataSource.DateField.Name;
 				DateValues = Data[DataSource.DateField.TabularSection].Unload(, Field); // ValueTable
 				DateValues.GroupBy(Field);
 				For Each DateString In DateValues Do
-					// @skip-check query-in-loop - Цикл для исключения разыменования составного типа (стандарт 654)
+					// @skip-check query-in-loop - 
 					AddDataString(DateString, ObjectString, DataSource, DataToCheck, NoObject);
 				EndDo;
 			
@@ -1379,7 +1378,7 @@ Function DataForCheckFromObject(Data, EffectiveDates, ImportRestrictionCheckNode
 				Values = Data[DataSource.DateField.TabularSection].Unload(, Fields); // ValueTable
 				Values.GroupBy(Fields);
 				For Each TableRow In Values Do
-					// @skip-check query-in-loop - Цикл для исключения разыменования составного типа (стандарт 654)
+					// @skip-check query-in-loop - 
 					AddDataString(TableRow, TableRow, DataSource, DataToCheck, NoObject);
 				EndDo;
 			Else
@@ -1394,14 +1393,14 @@ Function DataForCheckFromObject(Data, EffectiveDates, ImportRestrictionCheckNode
 				EndIf;
 				
 				For Each DateString In DateValues Do
-					// @skip-check query-in-loop - Цикл для исключения разыменования составного типа (стандарт 654)
+					// @skip-check query-in-loop - 
 					DateString = New Structure("Value", Simple(DateString, DataSource.DateField));
 					If NoObject Then
-						// @skip-check query-in-loop - Цикл для исключения разыменования составного типа (стандарт 654)
+						// @skip-check query-in-loop - 
 						AddDataString(DateString, Undefined, DataSource, DataToCheck, NoObject);
 					Else
 						For Each ObjectString In ObjectValues Do
-							// @skip-check query-in-loop - Цикл для исключения разыменования составного типа (стандарт 654)
+							// @skip-check query-in-loop - 
 							AddDataString(DateString, ObjectString, DataSource, DataToCheck);
 						EndDo;
 					EndIf;
@@ -1516,7 +1515,7 @@ Function Simple(FieldValues, Field)
 		Query.Text = StrReplace(QueryText, "PathsField", PathsField);
 		Query.Text = StrReplace(Query.Text, "&CurrentTable", Table);
 		Query.SetParameter("CurrentRef", CurrentRef);
-		// @skip-check query-in-loop - Цикл для исключения разыменования составного типа (стандарт 654)
+		// @skip-check query-in-loop - 
 		Selection = Query.Execute().Select();
 		If Not Selection.Next() Then
 			Return Undefined;
@@ -1590,17 +1589,17 @@ Function SessionParameterValueEffectivePeriodClosingDates() Export
 		EffectiveDates.Insert("ImportRestrictionUsed",  False);
 		EffectiveDates.Insert("UserGroups", New FixedMap(New Map));
 		SetDates = New Structure;
-		SetDates.Insert("SMSMessageRecipients", New FixedMap(New Map));
+		SetDates.Insert("Recipients", New FixedMap(New Map));
 		SetDates.Insert("ClosingDatesByObjectsNotSpecified", True);
 		EffectiveDates.Insert("ForUsers",     New FixedStructure(SetDates));
 		EffectiveDates.Insert("ForInfobases", New FixedStructure(SetDates));
 	EndIf;
 	
-	If EffectiveDates.ForUsers.SMSMessageRecipients.Count() = 0 Then
+	If EffectiveDates.ForUsers.Recipients.Count() = 0 Then
 		EffectiveDates.PeriodClosingUsed = False;
 	EndIf;
 	
-	If EffectiveDates.ForInfobases.SMSMessageRecipients.Count() = 0
+	If EffectiveDates.ForInfobases.Recipients.Count() = 0
 	 Or NodesAddresseesTypes.Count() = 0 Then
 		
 		EffectiveDates.ImportRestrictionUsed = False;
@@ -2183,7 +2182,7 @@ EndFunction
 // Returns:
 //  FixedStructure:
 //   * ClosingDatesByObjectsNotSpecified - Boolean
-//   * SMSMessageRecipients - FixedMap of KeyAndValue:
+//   * Recipients - FixedMap of KeyAndValue:
 //      ** Key     - DefinedType.PeriodClosingTarget - Recipient.
 //      ** Value - FixedMap of KeyAndValue:
 //          *** Key     - String - Section name.
@@ -2195,7 +2194,7 @@ Function SetDates(QueryResult, BegOfDay)
 	
 	Upload0 = QueryResult.Unload(QueryResultIteration.ByGroups);
 	
-	SMSMessageRecipients = New Map;
+	Recipients = New Map;
 	ClosingDatesByObjectsNotSpecified = True;
 	
 	For Each Addressee In Upload0.Rows Do
@@ -2211,11 +2210,11 @@ Function SetDates(QueryResult, BegOfDay)
 			EndDo;
 			Sections.Insert(Section.Section, New FixedMap(Objects));
 		EndDo;
-		SMSMessageRecipients.Insert(Addressee.User, New FixedMap(Sections));
+		Recipients.Insert(Addressee.User, New FixedMap(Sections));
 	EndDo;
 	
 	SetDates = New Structure;
-	SetDates.Insert("SMSMessageRecipients", New FixedMap(SMSMessageRecipients));
+	SetDates.Insert("Recipients", New FixedMap(Recipients));
 	SetDates.Insert("ClosingDatesByObjectsNotSpecified", ClosingDatesByObjectsNotSpecified);
 	
 	Return New FixedStructure(SetDates);
@@ -2791,5 +2790,18 @@ Function IntervalOfRelativeClosingDate(PeriodEndClosingDateDetails)
 EndFunction
 
 #EndRegion
+
+// See StandardSubsystemsServer.WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode
+Procedure WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode(Methods) Export
+	
+	Methods.Insert("SessionParametersSetting");
+	Methods.Insert("UpdatePeriodClosingDatesSections");
+	Methods.Insert("AppendSettingsForGivenAddressees");
+	Methods.Insert("ReplaceClosingDatesSectionsWithNewOnes");
+	Methods.Insert("ClearPredefinedItemsInClosingDatesSections");
+	Methods.Insert("SetInitialPeriodEndClosingDate");
+	Methods.Insert("SessionParametersSetting");
+	
+EndProcedure
 
 #EndRegion

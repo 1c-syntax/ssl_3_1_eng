@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -42,8 +41,8 @@ Procedure CreateNewEmailMessage(EmailSendOptions = Undefined, FormClosingNotific
 		Else
 			MessageText = NStr("en = 'To send messages, set up the email account.
 				|Contact the administrator.'");
-			NotifyDescription = New CallbackDescription("CheckAccountForSendingEmailExistsCompletion", ThisObject, ResultHandler);
-			ShowMessageBox(NotifyDescription, MessageText);
+			CallbackDescription = New CallbackDescription("CheckAccountForSendingEmailExistsCompletion", ThisObject, ResultHandler);
+			ShowMessageBox(CallbackDescription, MessageText);
 		EndIf;
 	EndIf;
 	
@@ -125,8 +124,8 @@ Procedure CheckAccountForSendingEmailExists(ResultHandler) Export
 		Else	
 			MessageText = NStr("en = 'To send messages, set up the email account.
 				|Contact the administrator.'");
-			NotifyDescription = New CallbackDescription("CheckAccountForSendingEmailExistsCompletion", ThisObject, ResultHandler);
-			ShowMessageBox(NotifyDescription, MessageText);
+			CallbackDescription = New CallbackDescription("CheckAccountForSendingEmailExistsCompletion", ThisObject, ResultHandler);
+			ShowMessageBox(CallbackDescription, MessageText);
 		EndIf;
 	EndIf;
 EndProcedure
@@ -181,8 +180,8 @@ Procedure CreateNewEmailMessageAccountChecked(AccountSetUp, SendOptions) Export
 	EndIf;
 	
 	If SendOptions.ShowAttachmentSaveFormatSelectionDialog Then
-		NotifyDescription = New CallbackDescription("CreateNewEmailMessagePrepareAttachments", ThisObject, SendOptions);
-		CommonClient.ShowAttachmentsFormatSelection(NotifyDescription, Undefined);
+		CallbackDescription = New CallbackDescription("CreateNewEmailMessagePrepareAttachments", ThisObject, SendOptions);
+		CommonClient.ShowAttachmentsFormatSelection(CallbackDescription, Undefined);
 		Return;
 	EndIf;
 	
@@ -229,11 +228,11 @@ Procedure CreateNewEmailMessageAttachmentsPrepared(AttachmentsPrepared, SendOpti
 		
 		FormParameters.Insert("ShouldSkipAttachmentFormatSelection", True);
 		
-		NotifyDescription = New CallbackDescription("AfterRecipientsSelected", ThisObject, SendOptions);
+		CallbackDescription = New CallbackDescription("AfterRecipientsSelected", ThisObject, SendOptions);
 		ModulePrintManagerInternalClient = CommonClient.CommonModule("PrintManagementInternalClient");
 		
 		ModulePrintManagerInternalClient.OpenNewMailPreparationForm(ThisObject, 
-			FormParameters, NotifyDescription);
+			FormParameters, CallbackDescription);
 		
 		Return;
 	EndIf;

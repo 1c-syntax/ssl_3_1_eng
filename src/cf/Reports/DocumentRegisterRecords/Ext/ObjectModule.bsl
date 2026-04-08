@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -23,7 +22,7 @@ Var Remarks; // See NotesPropertiesPalette
 
 #Region Public
 
-#Region ForCallsFromOtherSubsystems
+#Region InterfaceImplementation
 
 // StandardSubsystems.ReportsOptions
 
@@ -1146,14 +1145,14 @@ Function AddDataSetField(DataSet, Field, Title, DataPath = Undefined)
 	
 EndFunction
 
-Function AddSelectedField(Where, DCNameOrField, Title = "") Export
+Function AddSelectedField(Var_To, DCNameOrField, Title = "") Export
 	
-	If TypeOf(Where) = Type("DataCompositionSettingsComposer") Then
-		SelectedDCFields = Where.Settings.Selection;
-	ElsIf TypeOf(Where) = Type("DataCompositionSettings") Or TypeOf(Where) = Type("DataCompositionGroup") Then
-		SelectedDCFields = Where.Selection;
+	If TypeOf(Var_To) = Type("DataCompositionSettingsComposer") Then
+		SelectedDCFields = Var_To.Settings.Selection;
+	ElsIf TypeOf(Var_To) = Type("DataCompositionSettings") Or TypeOf(Var_To) = Type("DataCompositionGroup") Then
+		SelectedDCFields = Var_To.Selection;
 	Else
-		SelectedDCFields = Where;
+		SelectedDCFields = Var_To;
 	EndIf;
 	
 	If TypeOf(DCNameOrField) = Type("String") Then
@@ -1173,14 +1172,14 @@ Function AddSelectedField(Where, DCNameOrField, Title = "") Export
 	
 EndFunction
 
-Function AddSelectedFieldGroup(Where, DCNameOrField, Title = "", Placement = Undefined)
+Function AddSelectedFieldGroup(Var_To, DCNameOrField, Title = "", Placement = Undefined)
 	
-	If TypeOf(Where) = Type("DataCompositionSettingsComposer") Then
-		SelectedDCFields = Where.Settings.Selection;
-	ElsIf TypeOf(Where) = Type("DataCompositionSettings") Or TypeOf(Where) = Type("DataCompositionGroup") Then
-		SelectedDCFields = Where.Selection;
+	If TypeOf(Var_To) = Type("DataCompositionSettingsComposer") Then
+		SelectedDCFields = Var_To.Settings.Selection;
+	ElsIf TypeOf(Var_To) = Type("DataCompositionSettings") Or TypeOf(Var_To) = Type("DataCompositionGroup") Then
+		SelectedDCFields = Var_To.Selection;
 	Else
-		SelectedDCFields = Where;
+		SelectedDCFields = Var_To;
 	EndIf;
 	
 	If TypeOf(DCNameOrField) = Type("String") Then

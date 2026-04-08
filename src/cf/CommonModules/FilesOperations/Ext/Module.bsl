@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -34,50 +33,7 @@
 //
 Function FileBinaryData(Val AttachedFile, Val RaiseException1 = True) Export
 	
-	CommonClientServer.CheckParameter("FilesOperations.FileBinaryData", "AttachedFile", 
-		AttachedFile, Metadata.DefinedTypes.AttachedFile.Type);
-	
-	FileObject1 = FilesOperationsInternal.FileObject1(AttachedFile);
-	If (FileObject1 = Undefined Or FileObject1.IsFolder) And Not RaiseException1 Then
-		Return Undefined;
-	EndIf;
-	
-	CommonClientServer.Validate(FileObject1 <> Undefined, 
-		StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Invalid value of parameter %1'"), "AttachedFile"),
-		"FilesOperations.FileBinaryData");
-	CommonClientServer.Validate(Not FileObject1.IsFolder, 
-		StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Invalid value of parameter %1 (file folder: ""%2"")'"),
-			"AttachedFile", Common.SubjectString(AttachedFile)),
-		"FilesOperations.FileBinaryData");
-	
-	SetSafeModeDisabled(True);
-	SetPrivilegedMode(True);
-	
-	If FileObject1.DeletionMark Then
-		FilesOperationsInternal.ReportErrorFileNotFound(FileObject1, RaiseException1);
-		Return Undefined;
-	EndIf;
-	
-	If FileObject1.FileStorageType = Enums.FileStorageTypes.InInfobase Then
-		
-		Result = FileFromInfobaseStorage(FileObject1.Ref);
-		If TypeOf(Result) = Type("ValueStorage") Then
-			Result = Result.Get();
-			If TypeOf(Result) = Type("BinaryData") Then
-				Return Result;
-			ElsIf TypeOf(Result) = Type("Picture") Then
-				Return Result.GetBinaryData();
-			EndIf;
-		EndIf;
-		
-		FilesOperationsInternal.ReportErrorFileNotFound(FileObject1, RaiseException1);
-		Return Undefined;
-			
-	Else
-		Return FilesOperationsInVolumesInternal.FileData(AttachedFile, RaiseException1);
-	EndIf;
+	Return FilesOperationsInternal.FileBinaryData(AttachedFile, RaiseException1);
 	
 EndFunction
 
@@ -131,7 +87,7 @@ Function BinaryFilesData(Val AttachedFiles, Val RaiseException1 = True) Export
 		
 	SetSafeModeDisabled(True);
 	SetPrivilegedMode(True);
-		
+
 	If HasCurrentVersionAttribute Then
 		If FilesOperationsInternalCached.IsDeduplicationCompleted() Then
 			QueryText =
@@ -140,13 +96,23 @@ Function BinaryFilesData(Val AttachedFiles, Val RaiseException1 = True) Export
 			|	AttachedFiles.FileStorageType AS FileStorageType,
 			|	AttachedFiles.Volume AS Volume,
 			|	AttachedFiles.DeletionMark AS DeletionMark,
-			|	FileRepository.BinaryDataStorage.BinaryData AS FileStorage1
+			|	CASE
+			|		WHEN AttachedFiles.FileStorageType = VALUE(Enum.FileStorageTypes.InInfobase)
+			|			THEN FileRepository.BinaryDataStorage.BinaryData
+			|		WHEN AttachedFiles.FileStorageType = VALUE(Enum.FileStorageTypes.InExternalBinaryDataStorage)
+			|			THEN ISNULL(BinaryDataStorageLocations.BinaryDataInOperationalExternalStorage, UNDEFINED)
+			|		WHEN AttachedFiles.FileStorageType = VALUE(Enum.FileStorageTypes.InBuiltInBinaryDataStorage)
+			|			THEN ISNULL(BinaryDataStorageLocations.BinaryDataInOperationalBuiltInStorage, UNDEFINED)
+			|		ELSE UNDEFINED
+			|	END AS FileStorage1
 			|FROM
 			|	&TableAttachedFiles AS AttachedFiles
 			|		LEFT JOIN InformationRegister.FileRepository AS FileRepository
 			|		ON AttachedFiles.Ref = FileRepository.File
+			|		LEFT JOIN InformationRegister.BinaryDataStorageLocations AS BinaryDataStorageLocations
+			|		ON (FileRepository.BinaryDataStorage = BinaryDataStorageLocations.BinaryDataStorage)
 			|WHERE
-			|	AttachedFiles.Ref IN (&AttachedFiles)
+			|	AttachedFiles.Ref IN(&AttachedFiles)
 			|	AND AttachedFiles.CurrentVersion = VALUE(Catalog.FilesVersions.EmptyRef)
 			|
 			|UNION ALL
@@ -156,13 +122,23 @@ Function BinaryFilesData(Val AttachedFiles, Val RaiseException1 = True) Export
 			|	AttachedFiles.FileStorageType,
 			|	AttachedFiles.Volume,
 			|	AttachedFiles.DeletionMark,
-			|	FileRepository.BinaryDataStorage.BinaryData
+			|	CASE
+			|		WHEN AttachedFiles.FileStorageType = VALUE(Enum.FileStorageTypes.InInfobase)
+			|			THEN FileRepository.BinaryDataStorage.BinaryData
+			|		WHEN AttachedFiles.FileStorageType = VALUE(Enum.FileStorageTypes.InExternalBinaryDataStorage)
+			|			THEN ISNULL(BinaryDataStorageLocations.BinaryDataInOperationalExternalStorage, UNDEFINED)
+			|		WHEN AttachedFiles.FileStorageType = VALUE(Enum.FileStorageTypes.InBuiltInBinaryDataStorage)
+			|			THEN ISNULL(BinaryDataStorageLocations.BinaryDataInOperationalBuiltInStorage, UNDEFINED)
+			|		ELSE UNDEFINED
+			|	END
 			|FROM
 			|	&TableAttachedFiles AS AttachedFiles
 			|		LEFT JOIN InformationRegister.FileRepository AS FileRepository
 			|		ON AttachedFiles.CurrentVersion = FileRepository.File
+			|		LEFT JOIN InformationRegister.BinaryDataStorageLocations AS BinaryDataStorageLocations
+			|		ON (FileRepository.BinaryDataStorage = BinaryDataStorageLocations.BinaryDataStorage)
 			|WHERE
-			|	AttachedFiles.Ref IN (&AttachedFiles)
+			|	AttachedFiles.Ref IN(&AttachedFiles)
 			|	AND AttachedFiles.CurrentVersion <> VALUE(Catalog.FilesVersions.EmptyRef)";
 		Else
 			QueryText =
@@ -174,7 +150,15 @@ Function BinaryFilesData(Val AttachedFiles, Val RaiseException1 = True) Export
 			|	CASE
 			|		WHEN FileRepository.File IS NULL
 			|			THEN DeleteFilesBinaryData.FileBinaryData
-			|		ELSE FileRepository.BinaryDataStorage.BinaryData
+			|		ELSE CASE
+			|				WHEN AttachedFiles.FileStorageType = VALUE(Enum.FileStorageTypes.InInfobase)
+			|					THEN FileRepository.BinaryDataStorage.BinaryData
+			|				WHEN AttachedFiles.FileStorageType = VALUE(Enum.FileStorageTypes.InExternalBinaryDataStorage)
+			|					THEN ISNULL(BinaryDataStorageLocations.BinaryDataInOperationalExternalStorage, UNDEFINED)
+			|				WHEN AttachedFiles.FileStorageType = VALUE(Enum.FileStorageTypes.InBuiltInBinaryDataStorage)
+			|					THEN ISNULL(BinaryDataStorageLocations.BinaryDataInOperationalBuiltInStorage, UNDEFINED)
+			|				ELSE UNDEFINED
+			|			END
 			|	END AS FileStorage1
 			|FROM
 			|	&TableAttachedFiles AS AttachedFiles
@@ -182,8 +166,10 @@ Function BinaryFilesData(Val AttachedFiles, Val RaiseException1 = True) Export
 			|		ON AttachedFiles.Ref = FileRepository.File
 			|		LEFT JOIN InformationRegister.DeleteFilesBinaryData AS DeleteFilesBinaryData
 			|		ON AttachedFiles.Ref = DeleteFilesBinaryData.File
+			|		LEFT JOIN InformationRegister.BinaryDataStorageLocations AS BinaryDataStorageLocations
+			|		ON (FileRepository.BinaryDataStorage = BinaryDataStorageLocations.BinaryDataStorage)
 			|WHERE
-			|	AttachedFiles.Ref IN (&AttachedFiles)
+			|	AttachedFiles.Ref IN(&AttachedFiles)
 			|	AND AttachedFiles.CurrentVersion = VALUE(Catalog.FilesVersions.EmptyRef)
 			|
 			|UNION ALL
@@ -196,7 +182,15 @@ Function BinaryFilesData(Val AttachedFiles, Val RaiseException1 = True) Export
 			|	CASE
 			|		WHEN FileRepository.File IS NULL
 			|			THEN DeleteFilesBinaryData.FileBinaryData
-			|		ELSE FileRepository.BinaryDataStorage.BinaryData
+			|		ELSE CASE
+			|				WHEN AttachedFiles.FileStorageType = VALUE(Enum.FileStorageTypes.InInfobase)
+			|					THEN FileRepository.BinaryDataStorage.BinaryData
+			|				WHEN AttachedFiles.FileStorageType = VALUE(Enum.FileStorageTypes.InExternalBinaryDataStorage)
+			|					THEN ISNULL(BinaryDataStorageLocations.BinaryDataInOperationalExternalStorage, UNDEFINED)
+			|				WHEN AttachedFiles.FileStorageType = VALUE(Enum.FileStorageTypes.InBuiltInBinaryDataStorage)
+			|					THEN ISNULL(BinaryDataStorageLocations.BinaryDataInOperationalBuiltInStorage, UNDEFINED)
+			|				ELSE UNDEFINED
+			|			END
 			|	END
 			|FROM
 			|	&TableAttachedFiles AS AttachedFiles
@@ -204,8 +198,10 @@ Function BinaryFilesData(Val AttachedFiles, Val RaiseException1 = True) Export
 			|		ON AttachedFiles.CurrentVersion = FileRepository.File
 			|		LEFT JOIN InformationRegister.DeleteFilesBinaryData AS DeleteFilesBinaryData
 			|		ON AttachedFiles.CurrentVersion = DeleteFilesBinaryData.File
+			|		LEFT JOIN InformationRegister.BinaryDataStorageLocations AS BinaryDataStorageLocations
+			|		ON (FileRepository.BinaryDataStorage = BinaryDataStorageLocations.BinaryDataStorage)
 			|WHERE
-			|	AttachedFiles.Ref IN (&AttachedFiles)
+			|	AttachedFiles.Ref IN(&AttachedFiles)
 			|	AND AttachedFiles.CurrentVersion <> VALUE(Catalog.FilesVersions.EmptyRef)";
 		EndIf;
 	Else
@@ -216,13 +212,23 @@ Function BinaryFilesData(Val AttachedFiles, Val RaiseException1 = True) Export
 			|	AttachedFiles.FileStorageType AS FileStorageType,
 			|	AttachedFiles.Volume AS Volume,
 			|	AttachedFiles.DeletionMark AS DeletionMark,
-			|	FileRepository.BinaryDataStorage.BinaryData AS FileStorage1
+			|	CASE
+			|		WHEN AttachedFiles.FileStorageType = VALUE(Enum.FileStorageTypes.InInfobase)
+			|			THEN FileRepository.BinaryDataStorage.BinaryData
+			|		WHEN AttachedFiles.FileStorageType = VALUE(Enum.FileStorageTypes.InExternalBinaryDataStorage)
+			|			THEN ISNULL(BinaryDataStorageLocations.BinaryDataInOperationalExternalStorage, UNDEFINED)
+			|		WHEN AttachedFiles.FileStorageType = VALUE(Enum.FileStorageTypes.InBuiltInBinaryDataStorage)
+			|			THEN ISNULL(BinaryDataStorageLocations.BinaryDataInOperationalBuiltInStorage, UNDEFINED)
+			|		ELSE UNDEFINED
+			|	END AS FileStorage1
 			|FROM
 			|	&TableAttachedFiles AS AttachedFiles
 			|		LEFT JOIN InformationRegister.FileRepository AS FileRepository
 			|		ON AttachedFiles.Ref = FileRepository.File
+			|		LEFT JOIN InformationRegister.BinaryDataStorageLocations AS BinaryDataStorageLocations
+			|		ON (FileRepository.BinaryDataStorage = BinaryDataStorageLocations.BinaryDataStorage)
 			|WHERE
-			|	AttachedFiles.Ref IN (&AttachedFiles)";
+			|	AttachedFiles.Ref IN(&AttachedFiles)";
 		Else
 			QueryText =
 			"SELECT
@@ -233,7 +239,15 @@ Function BinaryFilesData(Val AttachedFiles, Val RaiseException1 = True) Export
 			|	CASE
 			|		WHEN FileRepository.File IS NULL
 			|			THEN DeleteFilesBinaryData.FileBinaryData
-			|		ELSE FileRepository.BinaryDataStorage.BinaryData
+			|		ELSE CASE
+			|				WHEN AttachedFiles.FileStorageType = VALUE(Enum.FileStorageTypes.InInfobase)
+			|					THEN FileRepository.BinaryDataStorage.BinaryData
+			|				WHEN AttachedFiles.FileStorageType = VALUE(Enum.FileStorageTypes.InExternalBinaryDataStorage)
+			|					THEN ISNULL(BinaryDataStorageLocations.BinaryDataInOperationalExternalStorage, UNDEFINED)
+			|				WHEN AttachedFiles.FileStorageType = VALUE(Enum.FileStorageTypes.InBuiltInBinaryDataStorage)
+			|					THEN ISNULL(BinaryDataStorageLocations.BinaryDataInOperationalBuiltInStorage, UNDEFINED)
+			|				ELSE UNDEFINED
+			|			END
 			|	END AS FileStorage1
 			|FROM
 			|	&TableAttachedFiles AS AttachedFiles
@@ -241,8 +255,10 @@ Function BinaryFilesData(Val AttachedFiles, Val RaiseException1 = True) Export
 			|		ON AttachedFiles.Ref = FileRepository.File
 			|		LEFT JOIN InformationRegister.DeleteFilesBinaryData AS DeleteFilesBinaryData
 			|		ON AttachedFiles.Ref = DeleteFilesBinaryData.File
+			|		LEFT JOIN InformationRegister.BinaryDataStorageLocations AS BinaryDataStorageLocations
+			|		ON (FileRepository.BinaryDataStorage = BinaryDataStorageLocations.BinaryDataStorage)
 			|WHERE
-			|	AttachedFiles.Ref IN (&AttachedFiles)";
+			|	AttachedFiles.Ref IN(&AttachedFiles)";
 		EndIf;
 	EndIf;
 	
@@ -253,7 +269,7 @@ Function BinaryFilesData(Val AttachedFiles, Val RaiseException1 = True) Export
 	
 	BinaryFilesData = New Map;
 	While Selection.Next() Do
-		If Selection.FileStorageType = Enums.FileStorageTypes.InInfobase Then
+		If WorkingWithFilesInBinaryDataWarehouseIsService.StorageTypeDoesNotUseDisks(Selection.FileStorageType) Then
 			BinaryData = Undefined;
 			If Selection.FileStorage1 <> Null Then
 				BinaryData = Selection.FileStorage1.Get();
@@ -360,12 +376,14 @@ Function FileData(Val AttachedFile, Val AdditionalParameters = Undefined,
 		RaiseException1 = ?(AdditionalParameters.Property("RaiseException1"), AdditionalParameters.RaiseException1, True);
 		GetBinaryDataRef = ?(AdditionalParameters.Property("GetBinaryDataRef"), 
 			AdditionalParameters.GetBinaryDataRef, True);
+		FileGettingParameters = ?(AdditionalParameters.Property("FileGettingParameters"), AdditionalParameters.FileGettingParameters, Undefined);
 		
 	Else
 		ForEditing = DeleteForEditing;
 		FormIdentifier = AdditionalParameters;
 		RaiseException1 = True;
 		GetBinaryDataRef = DeleteGetRefToBinaryData;
+		FileGettingParameters = Undefined;
 	EndIf;
 	
 	InfobaseUpdate.CheckObjectProcessed(AttachedFile);
@@ -411,13 +429,43 @@ Function FileData(Val AttachedFile, Val AdditionalParameters = Undefined,
 		And AttachedFile.StoreVersions And ValueIsFilled(AttachedFile.CurrentVersion);
 	
 	If GetBinaryDataRef Then
+		
 		If FilesVersioningUsed Then
-			BinaryData = FileBinaryData(AttachedFile.CurrentVersion, RaiseException1);
+			AttachedFileCurrentVersion = AttachedFile.CurrentVersion;
 		Else
-			BinaryData = FileBinaryData(AttachedFile, RaiseException1);
+			AttachedFileCurrentVersion = AttachedFile;
 		EndIf;
-		If TypeOf(FormIdentifier) = Type("UUID") Then
-			RefToBinaryFileData = PutToTempStorage(BinaryData, FormIdentifier);
+		
+		CheckPresenceOfFileInArchive = True;
+		GettingFileFromArchive = False;
+		
+		If TypeOf(FileGettingParameters) = Type("Structure") Then
+			CheckPresenceOfFileInArchive = FileGettingParameters.CheckPresenceOfFileInArchive;
+
+			If Not CheckPresenceOfFileInArchive Then
+				GettingFileFromArchive = FileGettingParameters.FileInArchive;
+			EndIf;
+		EndIf;                                                                              
+
+		If CheckPresenceOfFileInArchive Then 
+			GettingFileFromArchive = FilesOperationsInternal.FileIsLocatedInFileArchive(AttachedFile, AttachedFileCurrentVersion);
+		EndIf;
+		
+		BinaryData = FilesOperationsInternal.FileBinaryData(AttachedFileCurrentVersion, RaiseException1, GettingFileFromArchive);
+		
+		If GettingFileFromArchive Then
+			BinaryData = WorkingWithServerFileArchive.BinaryDataOfFileExtractedFromZipArchive(BinaryData, AttachedFileCurrentVersion);
+		EndIf;
+
+		AddressOfBinaryDataInTemporaryStorage = "";
+		If TypeOf(FileGettingParameters) = Type("Structure") And ValueIsFilled(FileGettingParameters.AddressInParentSession) Then
+			AddressOfBinaryDataInTemporaryStorage = FileGettingParameters.AddressInParentSession;
+		ElsIf TypeOf(FormIdentifier) = Type("UUID") Then
+			AddressOfBinaryDataInTemporaryStorage = FormIdentifier;
+		EndIf;
+
+		If ValueIsFilled(AddressOfBinaryDataInTemporaryStorage) Then
+			RefToBinaryFileData = PutToTempStorage(BinaryData, AddressOfBinaryDataInTemporaryStorage);
 		Else
 			RefToBinaryFileData = PutToTempStorage(BinaryData);
 		EndIf;
@@ -913,9 +961,11 @@ Function AppendFile(FileParameters, Val FileAddressInTempStorage,
 	If Not ValueIsFilled(AttachedFile.ChangedBy) Then
 		AttachedFile.ChangedBy = Users.AuthorizedUser();
 	EndIf;
-	
+
+	WorkingWithServerFileArchive.FillInFilePropertiesForExistingBinaryDataStorageItem(AttachedFile, BinaryData);
+
 	Context = FilesOperationsInternal.FileUpdateContext(AttachedFile, FileAddressInTempStorage, 
-		NewRefToFile);
+		NewRefToFile, AttachedFile.FileStorageType);
 	FileManager = FilesOperationsInternal.FilesManager(AttachedFile);
 	FileManager.BeforeUpdatingTheFileData(Context);
 	
@@ -1687,7 +1737,7 @@ EndFunction
 //  AttachedFile - DefinedType.AttachedFile - a reference to the catalog item with file.
 //
 //  SignatureProperties    - See DigitalSignatureClientServer.NewSignatureProperties
-//                     - Array - an array of the structures described above.
+//                     - Array - 
 //                     
 //  FormIdentifier - UUID - if specified, it is used when locking an object.
 //
@@ -1886,7 +1936,7 @@ Procedure SaveUserScanSettings(UserScanSettings, ClientID) Export
 	Common.CommonSettingsStorageSaveArray(Result, True);
 EndProcedure
 
-#Region ForCallsFromOtherSubsystems
+#Region InterfaceImplementation
 
 // OnlineInteraction
 
@@ -2044,11 +2094,11 @@ Procedure ChangeFilesStoragecatalog(Val FilesOwner, CatalogName = Undefined) Exp
 			
 			AttachedFile.Write();
 			
-			If AttachedFile.FileStorageType = Enums.FileStorageTypes.InInfobase Then
+			If WorkingWithFilesInBinaryDataWarehouseIsService.StorageTypeDoesNotUseDisks(AttachedFile.FileStorageType) Then
 				// @skip-check query-in-loop - по-объектная запись данных 
 				FileStorage1 = FileFromInfobaseStorage(CurrentVersionObject.Ref);
-				
-				InformationRegisters.FileRepository.WriteBinaryData(RefToNew, FileStorage1.Get());
+				RecordingParametersVIB = WorkingWithServerFileArchive.CompletedParametersOfEntryInInformationDatabase(AttachedFile);
+				InformationRegisters.FileRepository.WriteBinaryData(RefToNew, FileStorage1.Get(), RecordingParametersVIB);
 			EndIf;
 			
 			CurrentVersionObject.DeletionMark = True;
@@ -2189,14 +2239,16 @@ Function CreateAttachedFileBasedOnFile(Val FilesOwner, Val AttachedFilesManager,
 	
 	AttachedFile.Write();
 	
-	If AttachedFile.FileStorageType = Enums.FileStorageTypes.InInfobase Then
+	If WorkingWithFilesInBinaryDataWarehouseIsService.StorageTypeDoesNotUseDisks(AttachedFile.FileStorageType) Then
 		FileStorage1 = FileFromInfobaseStorage(CurrentVersionObject.Ref);
 		
 		// If binary file data is missing from the infobase, skip it but keep the file card.
 		// It can be done after garbage files are cleaned up or due to exchange or import errors.
 		If FileStorage1 <> Undefined Then
+			RecordingParametersVIB = WorkingWithServerFileArchive.CompletedParametersOfEntryInInformationDatabase(AttachedFile);
+
 			SetPrivilegedMode(True);
-			InformationRegisters.FileRepository.WriteBinaryData(RefToNew, FileStorage1.Get());
+			InformationRegisters.FileRepository.WriteBinaryData(RefToNew, FileStorage1.Get(), RecordingParametersVIB);
 			SetPrivilegedMode(False);
 		EndIf;
 	EndIf;
@@ -2352,23 +2404,27 @@ EndFunction
 //
 // Parameters:
 //   FileRef - a reference to a file or its version.
+//   GettingFileFromArchive - Boolean
 //
 // Returns:
 //   ValueStorage - binary file data.
 //
-Function FileFromInfobaseStorage(FileRef) Export
+Function FileFromInfobaseStorage(FileRef, GettingFileFromArchive = False) Export
 	
 	SetSafeModeDisabled(True);
 	SetPrivilegedMode(True);
 	
+	FileStorageType = Common.ObjectAttributeValue(FileRef, "FileStorageType");
+	
+	If Not ValueIsFilled(FileStorageType) Then
+		Raise(StringFunctionsClientServer.SubstituteParametersToString(
+								NStr("en = 'Failed to determine the storage type for %1 in function %2'"), 
+								String(FileRef), "FilesOperations.FileFromInfobaseStorage"),
+								ErrorCategory.ConfigurationError);
+	EndIf;
+	
 	Query = New Query;
-	Query.Text = 
-	"SELECT
-	|	FileRepository.BinaryDataStorage.BinaryData AS FileBinaryData
-	|FROM
-	|	InformationRegister.FileRepository AS FileRepository
-	|WHERE
-	|	FileRepository.File = &FileRef";
+	Query.Text = GetQueryTextForBinaryFileData(FileStorageType, GettingFileFromArchive);
 	
 	Query.SetParameter("FileRef", FileRef);
 	Selection = Query.Execute().Select();
@@ -2391,6 +2447,39 @@ Function FileFromInfobaseStorage(FileRef) Export
 	Selection = Query.Execute().Select();
 	
 	Return ?(Selection.Next(), Selection.FileBinaryData, Undefined);
+	
+EndFunction
+
+// Returns the query text for retrieving a file's binary data.
+//
+Function GetQueryTextForBinaryFileData(FileStorageType, GettingFileFromArchive = False)
+
+	If FileStorageType = Enums.FileStorageTypes.InInfobase Then
+		Result =
+		"SELECT
+		|	FileRepository.BinaryDataStorage.BinaryData AS FileBinaryData
+		|FROM
+		|	InformationRegister.FileRepository AS FileRepository
+		|WHERE
+		|	FileRepository.File = &FileRef";
+	Else
+		Result =
+		"SELECT
+		|	&BinaryData AS FileBinaryData
+		|FROM
+		|	InformationRegister.FileRepository AS FileRepository
+		|		INNER JOIN InformationRegister.BinaryDataStorageLocations AS BinaryDataStorageLocations
+		|		ON FileRepository.BinaryDataStorage = BinaryDataStorageLocations.BinaryDataStorage
+		|WHERE
+		|	FileRepository.File = &FileRef";		
+		
+		NameOfBinaryDataStorageAttribute = WorkingWithFilesInBinaryDataWarehouseIsService.DetermineAttributesOfBinaryDataStorageByFileStorageType(FileStorageType, GettingFileFromArchive);
+
+		Result = StrReplace(Result, "&BinaryData", "BinaryDataStorageLocations." + NameOfBinaryDataStorageAttribute);
+		
+	EndIf;
+
+	Return Result;
 	
 EndFunction
 
@@ -2422,10 +2511,9 @@ Procedure ExecuteActionsBeforeWriteAttachedFile(Source, Cancel) Export
 		Return;
 	EndIf;
 	
-	If Common.FileInfobase()
-	   And Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
-		ModuleAccessManagementInternal = Common.CommonModule("AccessManagementInternal");
-		ModuleAccessManagementInternal.LockRegistersBeforeWritingAccessConfigurationObjectToFileInformationSystem();
+	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
+		ModuleAccessManagement = Common.CommonModule("AccessManagement");
+		ModuleAccessManagement.SetLockBeforeWriteToFileIB(, True);
 	EndIf;
 	
 	If Source.IsNew() Then
@@ -2615,8 +2703,10 @@ Procedure WriteFileDataToRegisterDuringExchange(Val Source)
 	Var FileBinaryData;
 	
 	If Source.AdditionalProperties.Property("FileBinaryData", FileBinaryData) Then
+		RecordingParametersVIB = WorkingWithServerFileArchive.CompletedParametersOfEntryInInformationDatabase(Source);
+
 		SetPrivilegedMode(True);
-		InformationRegisters.FileRepository.WriteBinaryData(Source.Ref, FileBinaryData);
+		InformationRegisters.FileRepository.WriteBinaryData(Source.Ref, FileBinaryData, RecordingParametersVIB);
 		SetPrivilegedMode(False);
 		
 		Source.AdditionalProperties.Delete("FileBinaryData");
@@ -3204,8 +3294,8 @@ Procedure CreateFileField(Form, ItemToAdd, AttachedFilesOwner, FileFieldParamete
 		
 		PutFile           = Form.Commands.Add(CommandPrefix + FilesOperationsClientServer.PutFileCommandName() + "_" + ItemNumber);
 		PutFile.Picture  = PictureLib.EndFileEditing;
-		PutFile.Title = NStr("en = 'Commit'");
-		PutFile.ToolTip = NStr("en = 'Save the file and release it in the infobase.'");
+		PutFile.Title = NStr("en = 'Finish editing'");
+		PutFile.ToolTip = NStr("en = 'Finalize changes and make the file available for editing.'");
 		FillPropertyValues(PutFile, FormCommandPropertiesPicture);
 		
 		CancelEdit = Form.Commands.Add(

@@ -310,7 +310,7 @@
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Save to file…</v8:content>
+									<v8:content>Save to file...</v8:content>
 								</v8:item>
 							</Title>
 							<ExtendedTooltip name="SaveReportOptionToFileExtendedTooltip" id="199"/>
@@ -1307,7 +1307,7 @@ WHERE
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Save to file…</v8:content>
+					<v8:content>Save to file...</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>

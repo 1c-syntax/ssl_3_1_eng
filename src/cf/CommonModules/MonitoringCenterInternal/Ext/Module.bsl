@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Internal
@@ -331,17 +330,17 @@ Procedure OnFillToDoList(ToDoList) Export
 	// 1. Process dump import request.
 	RequestForGettingDumps = MonitoringCenterParameters.SendDumpsFiles = 2 And MonitoringCenterParameters.BasicChecksPassed;
 	For Each Section In Sections Do
-		ToDoItem = ToDoList.Add();
-		ToDoItem.Id  = "RequestForGettingDumps";
-		ToDoItem.HasToDoItems       = RequestForGettingDumps;
-		ToDoItem.Important         = True;
-		ToDoItem.HideInSettings = True;
-		ToDoItem.Owner       = Section;
-		ToDoItem.Presentation  = NStr("en = 'Provide error reports'");
-		ToDoItem.Count     = 0;
-		ToDoItem.ToolTip      = NStr("en = 'Abnormal terminations of the app were detected. Please contact us on this issue.'");
-		ToDoItem.FormParameters = New Structure("Variant", "Query");
-		ToDoItem.Form          = "DataProcessor.MonitoringCenterSettings.Form.RequestForErrorReportsCollectionAndSending";
+		CaseFile = ToDoList.Add();
+		CaseFile.Id  = "RequestForGettingDumps";
+		CaseFile.HasToDoItems       = RequestForGettingDumps;
+		CaseFile.Important         = True;
+		CaseFile.HideInSettings = True;
+		CaseFile.Owner       = Section;
+		CaseFile.Presentation  = NStr("en = 'Provide error reports'");
+		CaseFile.Count     = 0;
+		CaseFile.ToolTip      = NStr("en = 'Abnormal terminations of the app were detected. Please contact us on this issue.'");
+		CaseFile.FormParameters = New Structure("Variant", "Query");
+		CaseFile.Form          = "DataProcessor.MonitoringCenterSettings.Form.RequestForErrorReportsCollectionAndSending";
 	EndDo;
 
 	// 2. Process dump export request.
@@ -354,31 +353,31 @@ Procedure OnFillToDoList(ToDoList) Export
 						And Not IsBlankString(MonitoringCenterParameters.DumpsInformation)
 						And MonitoringCenterParameters.BasicChecksPassed;
 	For Each Section In Sections Do
-		ToDoItem = ToDoList.Add();
-		ToDoItem.Id  = "DumpsSendingRequest";
-		ToDoItem.HasToDoItems       = SendingRequest;
-		ToDoItem.Important         = False;
-		ToDoItem.Owner       = Section;
-		ToDoItem.Presentation  = NStr("en = 'Send error reports'");
-		ToDoItem.Count     = 0;
-		ToDoItem.ToolTip      = NStr("en = 'Crash reports are collected and prepared. Please approve reports submission.'");
-		ToDoItem.FormParameters = New Structure;
-		ToDoItem.Form          = "DataProcessor.MonitoringCenterSettings.Form.RequestForSendingErrorReports";
+		CaseFile = ToDoList.Add();
+		CaseFile.Id  = "DumpsSendingRequest";
+		CaseFile.HasToDoItems       = SendingRequest;
+		CaseFile.Important         = False;
+		CaseFile.Owner       = Section;
+		CaseFile.Presentation  = NStr("en = 'Send error reports'");
+		CaseFile.Count     = 0;
+		CaseFile.ToolTip      = NStr("en = 'Crash reports are collected and prepared. Please approve reports submission.'");
+		CaseFile.FormParameters = New Structure;
+		CaseFile.Form          = "DataProcessor.MonitoringCenterSettings.Form.RequestForSendingErrorReports";
 	EndDo;
 	
 	// 3. Request contact information.
 	HasContactInformationRequest = MonitoringCenterParameters.ContactInformationRequest = 3;
 	For Each Section In Sections Do
-		ToDoItem = ToDoList.Add();
-		ToDoItem.Id  = "ContactInformationRequest";
-		ToDoItem.HasToDoItems       = HasContactInformationRequest;
-		ToDoItem.Important         = True;
-		ToDoItem.Owner       = Section;
-		ToDoItem.Presentation  = NStr("en = 'Inform of performance issues'");
-		ToDoItem.Count     = 0;
-		ToDoItem.ToolTip      = NStr("en = 'Performance issues are detected. Contact us on this issue.'");
-		ToDoItem.FormParameters = New Structure("OnRequest", True);
-		ToDoItem.Form          = "DataProcessor.MonitoringCenterSettings.Form.SendContactInformation";
+		CaseFile = ToDoList.Add();
+		CaseFile.Id  = "ContactInformationRequest";
+		CaseFile.HasToDoItems       = HasContactInformationRequest;
+		CaseFile.Important         = True;
+		CaseFile.Owner       = Section;
+		CaseFile.Presentation  = NStr("en = 'Inform of performance issues'");
+		CaseFile.Count     = 0;
+		CaseFile.ToolTip      = NStr("en = 'Performance issues are detected. Contact us on this issue.'");
+		CaseFile.FormParameters = New Structure("OnRequest", True);
+		CaseFile.Form          = "DataProcessor.MonitoringCenterSettings.Form.SendContactInformation";
 	EndDo;
 	
 EndProcedure
@@ -1341,8 +1340,8 @@ Function HTTPServiceSendDataInternal(Parameters)
 	If Parameters.DataType = "Text" Then
 		HTTPRequest.SetBodyFromString(Parameters.Data);
 	ElsIf Parameters.DataType = "ZIP" Then
-		ArchiveFileName = WriteDataToArchive(Parameters.Data);
-		BinaryDataOfArchive = New BinaryData(ArchiveFileName);
+		ArchiveFileName_ = WriteDataToArchive(Parameters.Data);
+		BinaryDataOfArchive = New BinaryData(ArchiveFileName_);
 		HTTPRequest.SetBodyFromBinaryData(BinaryDataOfArchive);
 	ElsIf Parameters.DataType = "BinaryData" Then
 		BinaryDataOfArchive = New BinaryData(Parameters.Data);
@@ -1363,7 +1362,7 @@ Function HTTPServiceSendDataInternal(Parameters)
 		
 		If HTTPResponseStructure.StatusCode = 200 Then
 			If Parameters.DataType = "ZIP" Then
-				DeleteFiles(ArchiveFileName);
+				DeleteFiles(ArchiveFileName_);
 			ElsIf Parameters.DataType = "BinaryData" Then
 				DeleteFiles(Parameters.Data);
 			EndIf;
@@ -1377,19 +1376,19 @@ EndFunction
 
 Function WriteDataToArchive(Data)
 	DataFileName = GetTempFileName("txt");
-	ArchiveFileName = GetTempFileName("zip");
+	ArchiveFileName_ = GetTempFileName("zip");
 	
 	TextWriter = New TextWriter(DataFileName);
 	TextWriter.Write(Data);
 	TextWriter.Close();
 	
-	ZipArchive = New ZipFileWriter(ArchiveFileName,,,ZIPCompressionMethod.Deflate,ZIPCompressionLevel.Maximum);
+	ZipArchive = New ZipFileWriter(ArchiveFileName_,,,ZIPCompressionMethod.Deflate,ZIPCompressionLevel.Maximum);
 	ZipArchive.Add(DataFileName, ZIPStorePathMode.DontStorePath);
 	ZipArchive.Write();
 	
 	DeleteFiles(DataFileName);
 	
-	Return ArchiveFileName; 
+	Return ArchiveFileName_; 
 EndFunction
 
 Function HTTPResponseToStructure(Response)
@@ -4066,5 +4065,18 @@ Procedure GetFullTextSearchUsageStatistics()
 EndProcedure
 
 #EndRegion
+
+// See StandardSubsystemsServer.WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode
+Procedure WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode(Methods) Export
+	
+	Methods.Insert("InitialFilling1");
+	Methods.Insert("AddInfobaseIDPermanent");
+	Methods.Insert("DisableEventLoggingOnUpdate");
+	Methods.Insert("SendTestPackage", True);
+	Methods.Insert("OnRecurringClientDataReceiptOnServerInBackground", True);
+	Methods.Insert("CollectAndSendDumps", True);
+	Methods.Insert("MonitoringCenterScheduledJob", True);
+	
+EndProcedure
 
 #EndRegion

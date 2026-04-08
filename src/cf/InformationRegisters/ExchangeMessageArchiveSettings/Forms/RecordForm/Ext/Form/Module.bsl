@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -85,13 +84,13 @@ Procedure Save(Command)
 		Return;
 	EndIf;
 	
-	TimeIntervals_ = New Array;
+	TimeIntervals = New Array;
 	For Each String In SelectedRows Do
 		ListLine = Items.ArchiveOfExchangeMessages.RowData(String);
-		TimeIntervals_.Add(ListLine.Period);
+		TimeIntervals.Add(ListLine.Period);
 	EndDo;
 		
-	FilesForDownloading = PrepareFilesAtServer(Record.InfobaseNode, TimeIntervals_);
+	FilesForDownloading = PrepareFilesAtServer(Record.InfobaseNode, TimeIntervals);
 	If FilesForDownloading.Count() <> 0 Then
 		Title = NStr("en = 'Select a directory to save the files'");
 		DialogParameters = New GetFilesDialogParameters(Title, True);
@@ -180,7 +179,7 @@ Procedure AppendFullPath()
 EndProcedure
 
 &AtServerNoContext
-Function PrepareFilesAtServer(InfobaseNode, TimeIntervals_)
+Function PrepareFilesAtServer(InfobaseNode, TimeIntervals)
 	
 	Query = New Query;
 	Query.Text = 
@@ -194,12 +193,12 @@ Function PrepareFilesAtServer(InfobaseNode, TimeIntervals_)
 		|FROM
 		|	InformationRegister.ArchiveOfExchangeMessages AS Archive
 		|WHERE
-		|	Archive.Period IN(&TimeIntervals_)
+		|	Archive.Period IN(&TimeIntervals)
 		|	AND Archive.InfobaseNode = &InfobaseNode
 		|	AND NOT Archive.IsFileExceeds100MB";
 	
 	Query.SetParameter("InfobaseNode", InfobaseNode);
-	Query.SetParameter("TimeIntervals_", TimeIntervals_);
+	Query.SetParameter("TimeIntervals", TimeIntervals);
 	
 	Selection = Query.Execute().Select();
 	

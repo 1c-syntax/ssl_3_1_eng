@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -116,6 +115,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	OnChangeUseOfSigningOrEncryptionAtServer();
 	
+	WorkingWithServerFileArchive.VisibilityOfListFieldImageNumberIsArchive(Items.ListImageNumberIsArchive);
+	
 	UsePreview1 = Common.CommonSettingsStorageLoad(FileCatalogType, "Preview");
 	If UsePreview1 <> Undefined Then
 		Preview = UsePreview1;
@@ -210,6 +211,9 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 		
 		FileRef = ?(TypeOf(Source) = Type("Array"), Source[0], Source);
 		If TypeOf(FileRef) <> FileCatalogType Then
+			If Parameter.Event = "FilesChangedWhenWorkingWithArchive" Then
+				SetFileCommandsAvailability();
+			EndIf;
 			Return;
 		EndIf;
 		
@@ -220,9 +224,10 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 			
 		Else
 			CurrentData = CurrentData();
-			If FileCommandsAvailable() And CurrentData <> Undefined 
-				 And FileRef = CurrentData.Ref Then
-				SetFileCommandsAvailability();
+			If FileCommandsAvailable() And CurrentData <> Undefined Then
+				 If FileRef = CurrentData.Ref Or Parameter.Event = "FilesChangedWhenWorkingWithArchive" Then
+					SetFileCommandsAvailability();
+				 EndIf;
 			EndIf;
 		EndIf;
 	ElsIf EventName = "Write_FilesFolders" Then
@@ -264,7 +269,7 @@ Procedure ListSelection(Item, RowSelected, Field, StandardProcessing)
 	
 	CurrentData = CurrentData();
 	
-	If Items.List.CurrentData = Undefined Then
+	If CurrentData = Undefined Then
 		Return;
 	EndIf;
 	
@@ -280,15 +285,20 @@ Procedure ListSelection(Item, RowSelected, Field, StandardProcessing)
 		Return;
 	EndIf;
 	
-	FileData = FilesOperationsInternalServerCall.FileDataToOpen(RowSelected,
-		Undefined, UUID, Undefined, FilePreviousURL);
-	
-	HandlerParameters = New Structure;
-	HandlerParameters.Insert("FileData", FileData);
-	Handler = New CallbackDescription("ListSelectionAfterEditModeChoice", ThisObject, HandlerParameters);
-	
-	FilesOperationsInternalClient.SelectModeAndEditFile(Handler, FileData, Items.FormEdit.Enabled);
-	
+	FileGettingParameters = FilesOperationsClient.ParametersForAsynchronousFileReceipt("SelectModeAndEditFile");
+	FileGettingParameters.AttachedFile				= RowSelected;
+	FileGettingParameters.OwnerForm					= ThisObject;
+	FileGettingParameters.CheckPresenceOfFileInArchive	= False;
+	FileGettingParameters.FileInArchive						= CurrentData.ImageNumberIsArchive = 0;
+
+	FileGettingParameters.MethodParameters.FilePreviousURL = FilePreviousURL;
+
+	ActionParameters = FileGettingParameters.ActionParameters;
+	ActionParameters.OwnerForm						= ThisObject;
+	ActionParameters.CommandEditAvailability	= Items.FormEdit.Enabled;
+
+	FilesOperationsClient.OpenFile(FileGettingParameters);	
+
 EndProcedure
 
 &AtClient
@@ -312,11 +322,15 @@ Procedure ListBeforeAddRow(Item, Cancel, Copy, Parent, Var_Group)
 	
 	If Copy Then
 		
-		If Not FileCommandsAvailable() Then
+		CurrentData = CurrentData();
+		
+		If CurrentData.ImageNumberIsArchive = 0 Then
 			Return;
 		EndIf;
 		
-		CurrentData = CurrentData();
+		If Not FileCommandsAvailable() Then
+			Return;
+		EndIf;
 		
 		FormParameters = New Structure;
 		FormParameters = New Structure("CopyingValue", CurrentData);
@@ -425,6 +439,48 @@ Procedure ListOnChange(Item)
 	NotifyChanged(FileOwner);
 	FileWriteNotificationParameters = FilesOperationsInternalClient.FileWriteNotificationParameters("FileDataChanged");
 	Notify("Write_File", FileWriteNotificationParameters, Item.SelectedRows);
+	
+EndProcedure
+
+&AtServerNoContext
+Procedure ListOnGetDataAtServer(TagName, Settings, Rows)
+	
+	If Rows.Count() = 0 Then
+		Return;
+	EndIf;
+	
+	For Each String In Rows Do
+		If TypeOf(String.Key) = Type("CatalogRef.Files") Then
+			Return;
+		Else
+			Break;
+		EndIf;
+	EndDo;
+	
+	AttachedFiles = Rows.GetKeys();
+	
+	Query = New Query;
+	Query.SetParameter("Files", AttachedFiles);
+	Query.Text = "SELECT
+	               |	FilesInfo.File AS File,
+	               |	CASE
+	               |		WHEN FilesInfo.DateOfTransferToArchive = DATETIME(1, 1, 1)
+	               |			THEN -1
+	               |		ELSE 0
+	               |	END AS ImageNumberIsArchive
+	               |FROM
+	               |	InformationRegister.FilesInfo AS FilesInfo
+	               |WHERE
+	               |	FilesInfo.File IN(&Files)";
+	
+	SetPrivilegedMode(True);
+	Selection = Query.Execute().Select();
+	SetPrivilegedMode(False);
+	
+	While Selection.Next() Do
+		String = Rows.Get(Selection.File);
+		String.Data["ImageNumberIsArchive"] = Selection.ImageNumberIsArchive;
+	EndDo;	
 	
 EndProcedure
 
@@ -543,8 +599,13 @@ Procedure SaveAs(Command)
 		Return;
 	EndIf;
 	
-	FileData = FilesOperationsInternalServerCall.FileDataToSave(CurrentData.Ref, , UUID);
-	FilesOperationsInternalClient.SaveAs(Undefined, FileData, Undefined);
+	FileGettingParameters = FilesOperationsClient.ParametersForAsynchronousFileReceipt("SaveAs", "FilesOperationsInternal.FileDataToSaveAsynchronous");
+	FileGettingParameters.AttachedFile				= CurrentData.Ref;
+	FileGettingParameters.OwnerForm					= ThisObject;
+	FileGettingParameters.CheckPresenceOfFileInArchive	= False;
+	FileGettingParameters.FileInArchive						= CurrentData.ImageNumberIsArchive = 0;
+	
+	FilesOperationsClient.SaveFileAs(FileGettingParameters);	
 	
 EndProcedure
 
@@ -712,7 +773,7 @@ Procedure ImportFiles(Command)
 		FilesGroup = FileGroup_(CurrentData.Ref);
 	EndIf;
 	FormParameters.Insert("FilesGroup",                  FilesGroup);
-	OpenForm("DataProcessor.FilesOperations.Form.FilesImport", FormParameters);
+	OpenForm("DataProcessor.FilesOperations.Form.LoadFiles", FormParameters);
 EndProcedure
 
 &AtClient
@@ -820,8 +881,8 @@ Procedure Sign(Command)
 		Return;
 	EndIf;
 	
-	NotifyDescription      = New CallbackDescription("AddSignaturesCompeltion", ThisObject);
-	AdditionalParameters = New Structure("ResultProcessing", NotifyDescription);
+	CallbackDescription      = New CallbackDescription("AddSignaturesCompeltion", ThisObject);
+	AdditionalParameters = New Structure("ResultProcessing", CallbackDescription);
 	
 	ModuleDigitalSignatureClient = CommonClient.CommonModule("DigitalSignatureClient");
 	SigningParameters = ModuleDigitalSignatureClient.NewSignatureType();
@@ -1119,8 +1180,8 @@ Procedure Delete(Command)
 	
 	SelectedRows = SelectedRows();
 	
-	NotifyDescription = New CallbackDescription("AfterDeleteData", ThisObject);
-	FilesOperationsInternalClient.DeleteFilesData(NotifyDescription, SelectedRows, UUID);
+	CallbackDescription = New CallbackDescription("AfterDeleteData", ThisObject);
+	FilesOperationsInternalClient.DeleteFilesData(CallbackDescription, SelectedRows, UUID);
 
 EndProcedure
 
@@ -1133,9 +1194,36 @@ EndProcedure
 
 #EndRegion
 
+&AtClient
+Procedure SendForSigning(Command)
+	
+	If Not CommonClient.SubsystemExists("StandardSubsystems.DigitalSignature") Then
+		Return;
+	EndIf;
+	
+	CallbackDescription      = New CallbackDescription("SignCompletion", ThisObject);
+	AdditionalParameters = New Structure("ResultProcessing", CallbackDescription);
+	
+	ModuleDigitalSignatureClient = CommonClient.CommonModule("DigitalSignatureClient");
+	SigningParameters = ModuleDigitalSignatureClient.NewSignatureType();
+	SigningParameters.CanSelectLetterOfAuthority = True;
+
+	FilesOperationsClient.SendFileForSigning(Items.List.SelectedRows, UUID, AdditionalParameters,
+		SigningParameters);
+
+EndProcedure
+
 #EndRegion
 
 #Region Private
+
+&AtClient
+Procedure SignCompletion(Result, ExecutionParameters) Export
+	
+	SetFileCommandsAvailability();
+	
+EndProcedure
+
 &AtClient
 Procedure AfterDeleteData(Result, AdditionalParameters) Export
 	
@@ -1248,27 +1336,20 @@ Procedure OpenFile()
 	If CurrentData.Encrypted Then
 		Return;
 	EndIf;
-	
+
+	AdditionalParameters = New Structure;
+	AdditionalParameters.Insert("CurrentData", CurrentData);	
+
 	If RestrictedExtensions.FindByValue(CurrentData.Extension) <> Undefined Then
-		AdditionalParameters = New Structure;
-		AdditionalParameters.Insert("CurrentData", CurrentData);
+
 		Notification = New CallbackDescription("OpenFileAfterConfirm", ThisObject, AdditionalParameters);
 		UsersInternalClient.ShowSecurityWarning(Notification,
 			UsersInternalClientServer.SecurityWarningKinds().BeforeOpenFile,
 			CommonClientServer.GetNameWithExtension(CurrentData.Description, CurrentData.Extension));
 		Return;
 	EndIf;
-	
-	FileBeingEdited = CurrentData.FileBeingEdited And CurrentData.CurrentUserEditsFile;
-	
-	FileData = FilesOperationsInternalServerCall.FileDataToOpen(CurrentData.Ref, Undefined, UUID);
-	If FileData.Encrypted Then
-		// The file might be changed in another session
-		NotifyChanged(CurrentData.Ref);
-		Return;
-	EndIf;
-	
-	FilesOperationsClient.OpenFile(FileData, FileBeingEdited);
+
+	OpenAttachedFile(AdditionalParameters);
 	
 EndProcedure
 
@@ -1301,22 +1382,32 @@ EndProcedure
 Procedure OpenFileAfterConfirm(Result, AdditionalParameters) Export
 	
 	If Result <> Undefined And Result = "Continue" Then
-		
-		CurrentData = AdditionalParameters.CurrentData; // See DataProcessorObject.DuplicateObjectsDetection.DuplicatesGroups
-		
-		FileBeingEdited = CurrentData.FileBeingEdited And CurrentData.CurrentUserEditsFile;
-		
-		FileData = FilesOperationsInternalServerCall.FileDataToOpen(CurrentData.Ref, Undefined, UUID);
-		If FileData.Encrypted Then
-			// The file might be changed in another session
-			NotifyChanged(CurrentData.Ref);
-			Return;
-		EndIf;
-		
-		FilesOperationsClient.OpenFile(FileData, FileBeingEdited);
-		
+
+		OpenAttachedFile(AdditionalParameters);
+
 	EndIf;
 	
+EndProcedure
+
+&AtClient
+Procedure OpenAttachedFile(FileParameters)
+
+	CurrentData = FileParameters.CurrentData; // See DataProcessorObject.DuplicateObjectsDetection.DuplicatesGroups
+		
+	FileBeingEdited = CurrentData.FileBeingEdited And CurrentData.CurrentUserEditsFile;
+		
+	FileGettingParameters = FilesOperationsClient.ParametersForAsynchronousFileReceipt("OpenFile");
+	FileGettingParameters.AttachedFile				= CurrentData.Ref;
+	FileGettingParameters.OwnerForm					= ThisObject;
+	FileGettingParameters.CheckPresenceOfFileInArchive	= False;
+	FileGettingParameters.FileInArchive						= CurrentData.ImageNumberIsArchive = 0;
+		
+	ActionParameters = FileGettingParameters.ActionParameters;
+	ActionParameters.NotifyIfEncrypted	= True;
+	ActionParameters.FileBeingEdited			= FileBeingEdited;
+		
+	FilesOperationsClient.OpenFile(FileGettingParameters);
+
 EndProcedure
 
 &AtClient
@@ -1469,7 +1560,7 @@ EndProcedure
 Procedure SetDeletionMarkCompletion(Result, AdditionalParameters) Export
 	
 	If Result = DialogReturnCode.Yes Then
-		SetClearDeletionMark(AdditionalParameters.Files);
+		SetClearDeletionMark(AdditionalParameters.Files, FileOwner);
 		FileWriteNotificationParameters = FilesOperationsInternalClient.FileWriteNotificationParameters("FileDataChanged");
 		Notify("Write_File", FileWriteNotificationParameters, Items.List.SelectedRows);
 		Items.List.Refresh();
@@ -1538,7 +1629,8 @@ Procedure SetUpDynamicList()
 	|	&IsInternal AS IsInternal,
 	|	&FileGroup_ AS FileGroup_,
 	|	Files.FileOwner AS FileOwner,
-	|	Files.StoreVersions AS StoreVersions
+	|	Files.StoreVersions AS StoreVersions,
+	|	&PictureNumber AS ImageNumberIsArchive
 	|FROM
 	|	&CatalogName AS Files
 	|		LEFT JOIN InformationRegister.FilesSynchronizationWithCloudServiceStatuses AS FilesSynchronizationWithCloudServiceStatuses
@@ -1546,14 +1638,20 @@ Procedure SetUpDynamicList()
 	|WHERE
 	|	Files.FileOwner = &FilesOwner";
 	
-	FullCatalogName = "Catalog." + FilesStorageCatalogName;
+	FullCatalogName = "Catalog." + FilesStorageCatalogName; // @query-part
 	QueryText = StrReplace(QueryText, "&CatalogName", FullCatalogName);
-	QueryText = StrReplace(QueryText, "&IsInternal", ?(ThereArePropsInternal, "Files.IsInternal", "FALSE"));
-	QueryText = StrReplace(QueryText, "&FileGroup_", ?(HaveFileGroups, "Files.Parent", "UNDEFINED"));
-	
+	QueryText = StrReplace(QueryText, "&IsInternal", ?(ThereArePropsInternal, "Files.IsInternal", "FALSE")); // @query-part-2, @query-part-3
+	QueryText = StrReplace(QueryText, "&FileGroup_", ?(HaveFileGroups, "Files.Parent", "UNDEFINED")); // @query-part-2, @query-part-3
+    QueryText = StrReplace(QueryText, "&PictureNumber", 
+		?(FilesStorageCatalogName = "Files", 
+		"CASE
+		|		WHEN ISNULL(Files.CurrentVersion.DateOfTransferToArchive, DATETIME(1, 1, 1)) = DATETIME(1, 1, 1)
+		|			THEN -1
+		|		ELSE 0
+		|	END", "-1"));
 	
 	ListProperties.QueryText = StrReplace(QueryText, "&IsFolder",
-		?(HaveFileGroups, "Files.IsFolder", "FALSE"));
+		?(HaveFileGroups, "Files.IsFolder", "FALSE")); // @query-part-2, @query-part-3
 		
 	ListProperties.MainTable  = FullCatalogName;
 	ListProperties.DynamicDataRead = True;
@@ -1637,6 +1735,7 @@ Function ObjectChangeCommandsNames()
 	Result.Insert("ContextMenuMarkForDeletion", True);
 	
 	Result.Insert("Sign", True);
+	Result.Insert("SendForSigning", True);
 	Result.Insert("AddDSFromFile", True);
 	Result.Insert("SaveWithDigitalSignature", True);
 	
@@ -1677,6 +1776,7 @@ Function AvailableCommands(CurrentFileData, FilesBeingEditedInCloudService, Abil
 	FileBeingEdited                  = CurrentFileData.FileBeingEdited;
 	FileSigned                       = CurrentFileData.SignedWithDS;
 	FileEncrypted                     = CurrentFileData.Encrypted;
+	FileHasBeenMovedToArchive				   = CurrentFileData.ImageNumberIsArchive = 0;
 	
 	If FileBeingEdited Then
 		
@@ -1695,6 +1795,7 @@ Function AvailableCommands(CurrentFileData, FilesBeingEditedInCloudService, Abil
 		CommandsNames["ContextMenuMarkForDeletion"] = False;
 
 		CommandsNames["Sign"] = False;
+		CommandsNames["SendForSigning"] = False;
 		CommandsNames["AddDSFromFile"] = False;
 		CommandsNames["SaveWithDigitalSignature"] = False;
 		
@@ -1714,6 +1815,7 @@ Function AvailableCommands(CurrentFileData, FilesBeingEditedInCloudService, Abil
 	If CurrentFileData.IsFolder Then
 		CommandsNames["Edit"] = False;
 		CommandsNames["Sign"] = False;
+		CommandsNames["SendForSigning"] = False;
 		CommandsNames["AddDSFromFile"] = False;
 		CommandsNames["SaveWithDigitalSignature"] = False;
 		CommandsNames["Encrypt"] = False;
@@ -1740,6 +1842,7 @@ Function AvailableCommands(CurrentFileData, FilesBeingEditedInCloudService, Abil
 	
 	If FileEncrypted Then
 		CommandsNames["Sign"] = False;
+		CommandsNames["SendForSigning"] = False;
 		CommandsNames["AddDSFromFile"] = False;
 		CommandsNames["SaveWithDigitalSignature"] = False;
 		
@@ -1780,9 +1883,34 @@ Function AvailableCommands(CurrentFileData, FilesBeingEditedInCloudService, Abil
 		CommandsNames["Delete"] = False;
 		
 		CommandsNames["Sign"] = False;
+		CommandsNames["SendForSigning"] = False;
 		CommandsNames["AddDSFromFile"] = False;
 		CommandsNames["Encrypt"] = False;
 		CommandsNames["Decrypt"] = False;
+		
+	EndIf;
+	
+	If FileHasBeenMovedToArchive Then
+
+		CommandsNames["EndEdit"] = False;
+		CommandsNames["Release"] = False;
+		CommandsNames["Edit"] = False;
+		CommandsNames["Lock"] = False;
+		
+		CommandsNames["Sign"] = False;
+		CommandsNames["SendForSigning"] = False;
+		CommandsNames["AddDSFromFile"] = False;
+		CommandsNames["SaveWithDigitalSignature"] = False;
+		CommandsNames["Encrypt"] = False;
+		CommandsNames["Decrypt"] = False;
+
+		CommandsNames["UpdateFromFileOnHardDrive"] = False;
+		CommandsNames["Copy"] = False;
+		CommandsNames["OpenFileDirectory"] = False;
+
+		CommandsNames["Send"] = False;
+		CommandsNames["PrintWithStamp"] = False;
+		CommandsNames["Print"] = False;
 		
 	EndIf;
 	
@@ -1830,9 +1958,13 @@ Procedure OnSendFilesViaEmail(SendOptions, Val FilesToSend, FilesOwner, UUID)
 EndProcedure
 
 &AtServerNoContext
-Procedure SetClearDeletionMark(Files)
+Procedure SetClearDeletionMark(Files, FileOwner)
+	
+	OwnerFiles = FilesOperationsInternal.SelectAttachedFilesOfOwner(Files, FileOwner);
+	
 	DeletionMark = Undefined;
-	For Each FileRef In Files Do
+	For Each FileRef In OwnerFiles Do
+		
 		BeginTransaction();
 		Try
 			Block = New DataLock();
@@ -1852,6 +1984,7 @@ Procedure SetClearDeletionMark(Files)
 			Raise;
 		EndTry;
 	EndDo;
+	
 EndProcedure
 
 &AtClient
@@ -2059,13 +2192,17 @@ EndFunction
 
 &AtClient
 Function SelectedRows()
+	
 	SelectedRows = New Array;
 	For Each SelectedRow In Items.List.SelectedRows Do
 		If TypeOf(SelectedRow) <> Type("DynamicListGroupRow") Then
-			SelectedRows.Add(SelectedRow);
+			RowData = Items.List.RowData(SelectedRow);
+			If RowData.FileOwner = FileOwner Then
+				SelectedRows.Add(SelectedRow);
+			EndIf;
 		EndIf;
 	EndDo;
-	Return SelectedRows;
+Return SelectedRows;
 	
 EndFunction
 

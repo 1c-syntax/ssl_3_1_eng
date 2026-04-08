@@ -490,6 +490,7 @@
 									<Events>
 										<Event name="OnChange">InputOnBasisParameterTypeFullNameOnChange</Event>
 										<Event name="Clearing">InputOnBasisParameterTypeFullNameClearing</Event>
+										<Event name="ChoiceProcessing">InputOnBasisParameterTypeFullNameChoiceProcessing</Event>
 									</Events>
 								</InputField>
 							</ChildItems>
@@ -1296,8 +1297,8 @@
 											<DataPath>Object.AddAttachedFiles</DataPath>
 											<TitleLocation>Right</TitleLocation>
 											<CheckBoxType>Auto</CheckBoxType>
-											<ContextMenu name="AddAttachedFilesContextMenu" id="365"/>
-											<ExtendedTooltip name="AddAttachedFilesExtendedTooltip" id="366"/>
+											<ContextMenu name="ShouldAddAttachmentsContextMenu" id="365"/>
+											<ExtendedTooltip name="ShouldAddAttachmentsExtendedTooltip" id="366"/>
 										</CheckBoxField>
 										<CheckBoxField name="TransliterateFileNames" id="349">
 											<DataPath>Object.TransliterateFileNames</DataPath>

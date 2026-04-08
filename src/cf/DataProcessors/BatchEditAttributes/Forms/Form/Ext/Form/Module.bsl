@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Variables
@@ -50,7 +49,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		WindowOpeningMode = FormWindowOpeningMode.Independent;
 	EndIf;
 	
-	Items.GenerateErrorReport.Visible = False;
+	Items.GenerateErrorReport_SSLyf.Visible = False;
 	
 EndProcedure
 
@@ -107,14 +106,14 @@ EndProcedure
 &AtClient
 Procedure KindOfObjectsToChangeStartChoice(Item, ChoiceData, StandardProcessing)
 	StandardProcessing = False;
-	NotifyDescription = New CallbackDescription("KindOfObjectsToChangeWhenSelected", ThisObject);
+	CallbackDescription = New CallbackDescription("KindOfObjectsToChangeWhenSelected", ThisObject);
 	
 	FormParameters = New Structure;
 	FormParameters.Insert("SelectedTypes", KindsOfObjectsToChange);
 	FormParameters.Insert("ShowHiddenItems", Object.ShowInternalAttributes);
 	
 	OpenForm("DataProcessor.BatchEditAttributes.Form.SelectObjectsKind",
-		FormParameters, , , , , NotifyDescription);
+		FormParameters, , , , , CallbackDescription);
 EndProcedure
 
 &AtClient
@@ -169,7 +168,7 @@ Procedure ObjectCompositionOnCurrentPageChange(Item, CurrentPage)
 EndProcedure
 
 &AtClient
-Procedure GenerateErrorReportClick(Item)
+Procedure GenerateErrorReport_SSLyfClick(Item)
 	
 	CurrentData = Items.ObjectsThatCouldNotBeChanged.CurrentData;
 	If CurrentData = Undefined Then
@@ -238,7 +237,7 @@ EndProcedure
 &AtClient
 Procedure ConfigureVisibilityAndTitleForURLSendErrorReport()
 	
-	Items.GenerateErrorReport.Visible = False;
+	Items.GenerateErrorReport_SSLyf.Visible = False;
 	
 	If Items.Pages.CurrentPage <> Items.ObjectsChange 
 		Or Not Items.ObjectsThatCouldNotBeChangedGroup.Visible Then
@@ -253,7 +252,7 @@ Procedure ConfigureVisibilityAndTitleForURLSendErrorReport()
 	ErrorInfo = InfoOnError(CurrentData.Object).ErrorInfo;
 	If ErrorInfo <> Undefined Then
 		StandardSubsystemsClient.ConfigureVisibilityAndTitleForURLSendErrorReport(
-			Items.GenerateErrorReport, ErrorInfo);
+			Items.GenerateErrorReport_SSLyf, ErrorInfo);
 	EndIf;
 	
 EndProcedure
@@ -401,8 +400,8 @@ Procedure Change(Command)
 			ExecuteChangeFilterCheckCompleted();
 		Else
 			QueryText = NStr("en = 'Filter not set. Do you want to edit all items?'");
-			NotifyDescription = New CallbackDescription("ExecuteChangeFilterCheckCompleted", ThisObject);
-			ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.OKCancel, , , NStr("en = 'Edit items'"));
+			CallbackDescription = New CallbackDescription("ExecuteChangeFilterCheckCompleted", ThisObject);
+			ShowQueryBox(CallbackDescription, QueryText, QuestionDialogMode.OKCancel, , , NStr("en = 'Edit items'"));
 		EndIf;
 		
 		Return;
@@ -643,8 +642,8 @@ Procedure ExecuteChangeFilterCheckCompleted(QuestionResult = Undefined, Addition
 	
 	If Not AvailableConfiguredChanges() And Object.OperationType = "EnterValues" Then
 		QueryText = NStr("en = 'No changes found. Overwrite the items without introducing changes?'");
-		NotifyDescription = New CallbackDescription("ExecuteChangeChecksCompleted", ThisObject);
-		ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.OKCancel, , , NStr("en = 'Edit items'"));
+		CallbackDescription = New CallbackDescription("ExecuteChangeChecksCompleted", ThisObject);
+		ShowQueryBox(CallbackDescription, QueryText, QuestionDialogMode.OKCancel, , , NStr("en = 'Edit items'"));
 	Else
 		ExecuteChangeChecksCompleted();
 	EndIf;
@@ -835,8 +834,8 @@ Procedure AskForAttributeUnlockConfirmation(SelectedAttribute)
 	
 	Buttons.Add(DialogReturnCode.Cancel, NStr("en = 'Cancel'"));
 	
-	NotifyDescription = New CallbackDescription("AskForAttributeUnlockConfirmationCompletion", ThisObject, SelectedAttribute);
-	ShowQueryBox(NotifyDescription, QueryText, Buttons, , DialogReturnCode.Yes, NStr("en = 'Attribute is locked'"));
+	CallbackDescription = New CallbackDescription("AskForAttributeUnlockConfirmationCompletion", ThisObject, SelectedAttribute);
+	ShowQueryBox(CallbackDescription, QueryText, Buttons, , DialogReturnCode.Yes, NStr("en = 'Attribute is locked'"));
 	
 EndProcedure
 
@@ -1122,8 +1121,8 @@ Async Procedure ChangeObjectsBatch()
 		IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 		IdleParameters.OutputIdleWindow = False;
 		
-		NotifyDescription = New CallbackDescription("OnCompleteChange", ThisObject);
-		TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, NotifyDescription, IdleParameters);
+		CallbackDescription = New CallbackDescription("OnCompleteChange", ThisObject);
+		TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CallbackDescription, IdleParameters);
 	EndIf;
 	
 EndProcedure
@@ -1205,9 +1204,9 @@ Procedure ProcessChangeResult(ChangeResult = Undefined, ContinueProcessing = Und
 		Buttons.Add(DialogReturnCode.Ignore, NStr("en = 'Continue'"));
 		Buttons.Add(DialogReturnCode.No, NStr("en = 'Do not ask again'"));
 		
-		NotifyDescription = New CallbackDescription("ProcessChangeResultResponseReceived", 
+		CallbackDescription = New CallbackDescription("ProcessChangeResultResponseReceived", 
 			ThisObject, ChangeResult);
-		ShowQueryBox(NotifyDescription, QueryText, Buttons, , DialogReturnCode.Abort, 
+		ShowQueryBox(CallbackDescription, QueryText, Buttons, , DialogReturnCode.Abort, 
 			NStr("en = 'Editing errors'"));
 		Return;
 	EndDo;
@@ -1350,8 +1349,8 @@ Procedure AddMessagePossibleToEditAttributesFaster()
 	
 	Items.DoneLabel.Title = Items.DoneLabel.Title
 		+ Chars.LF + Chars.LF
-		+ NStr("en = 'You can edit attributes faster.
-		|To do it, clear the ""Edit in transaction"" check box in the additional parameters.'");
+		+ NStr("en = 'To speed up attribute editing, clear the ""Edit in transaction"" checkbox in the additional parameters.
+		|'");
 	
 EndProcedure
 
@@ -3388,14 +3387,14 @@ EndProcedure
 &AtClient
 Procedure GoToFilterSettings()
 	If Not IsBlankString(KindsOfObjectsToChange) Then
-		NotifyDescription = New CallbackDescription("OnCloseSelectedObjectsForm", ThisObject);
+		CallbackDescription = New CallbackDescription("OnCloseSelectedObjectsForm", ThisObject);
 		OpenForm("DataProcessor.BatchEditAttributes.Form.SelectedItems", 
-			New Structure("SelectedTypes, Settings", KindsOfObjectsToChange, SettingsComposer.Settings), , , , , NotifyDescription);
+			New Structure("SelectedTypes, Settings", KindsOfObjectsToChange, SettingsComposer.Settings), , , , , CallbackDescription);
 	EndIf;
 EndProcedure
 
 &AtClient
-Function ComposerParameters(Formula)
+Function ConstructorParameters(Formula)
 	Result = New Structure;
 	Result.Insert("Formula", Formula);
 	Result.Insert("OperandsTitle", NStr("en = 'Available attributes'"));
@@ -3540,9 +3539,9 @@ EndFunction
 &AtClient
 Procedure EditFormula()
 	CurrentData = Items.ObjectAttributes.CurrentData;
-	NotifyDescription = New CallbackDescription("ObjectAttributesValueChoiceCompletion", ThisObject, CurrentData);
+	CallbackDescription = New CallbackDescription("ObjectAttributesValueChoiceCompletion", ThisObject, CurrentData);
 	OpenForm("DataProcessor.BatchEditAttributes.Form.FormulaEdit",
-		ComposerParameters(CurrentData.Value), , , , , NotifyDescription);
+		ConstructorParameters(CurrentData.Value), , , , , CallbackDescription);
 EndProcedure
 
 &AtClient

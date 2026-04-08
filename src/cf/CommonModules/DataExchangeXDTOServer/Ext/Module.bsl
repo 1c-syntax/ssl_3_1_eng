@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -142,6 +141,8 @@ Function InitializeExchangeComponents(ExchangeDirection) Export
 		ExchangeComponents.Insert("SkipObjectsWithSchemaCheckErrors", False);
 		ExchangeComponents.Insert("NotExportedObjects", New Array);
 		
+		ExchangeComponents.Insert("ChangeSelectionFilter");
+		
 	Else
 		
 		ExchangeComponents.Insert("IncomingMessageNumber");
@@ -211,24 +212,7 @@ EndFunction
 //
 Procedure InitializeExchangeRulesTables(ExchangeComponents) Export
 	
-	ExchangeComponents.Insert("BaseFormatSchemas", New Map);
-	ExchangeComponents.BaseFormatSchemas.Insert(ExchangeComponents.XMLSchema, True);
-	ExchangeComponents.BaseFormatSchemas.Insert(XMLBasicSchema(), True);
-	
-	// Calculating a version of an exchange manager format. Rules generation depends on it.
-	Try
-		ExchangeComponents.Insert("ExchangeManagerFormatVersion", ExchangeComponents.ExchangeManager.ExchangeManagerFormatVersion());
-	Except
-		ExchangeComponents.Insert("ExchangeManagerFormatVersion", "1");
-	EndTry;
-	
-	// Initializing exchange rule tables.
-	ExchangeComponents.Insert("DataProcessingRules",     DataProcessingRulesTable(ExchangeComponents));
-	ExchangeComponents.Insert("ObjectsConversionRules", ConversionRulesTable(ExchangeComponents));
-	
-	ExchangeComponents.Insert("PredefinedDataConversionRules", PredefinedDataConversionRulesTable(ExchangeComponents));
-	
-	ExchangeComponents.Insert("ConversionParameters_SSLy", ConversionParametersStructure(ExchangeComponents.ExchangeManager));
+	InitializeTablesOfExchangeRulesAdvanced(ExchangeComponents);
 	
 EndProcedure
 
@@ -520,6 +504,75 @@ EndFunction
 
 #Region DataSending
 
+// Checks the possibility of exporting a reference according to the registration rules
+// and data sending settings on the exchange node. Registers changes on the exchange node.
+// Initializes additional data conversion parameters
+// passed to DataExchangeServer.PerformExchangeAction() to run selective export.
+// Returns a list of references that will be exported.
+//
+// Parameters:
+//  ExchangeNode - ExchangePlanRef - Target exchange node.
+//  ReferenceList - Array of AnyRef - List of links to exported objects.
+//  AdditionalParameters - Structure - Outgoing parameter. Reserved for internal use.
+//
+// Returns:
+//  Array of AnyRef - List of exported links.
+// 
+Function InitializeSelectiveDataUpload(ExchangeNode, ReferenceList, AdditionalParameters) Export
+	
+	DownloadableLinks = New Array;
+	
+	ExchangePlanName = DataExchangeCached.GetExchangePlanName(ExchangeNode);
+	
+	For Each Ref In ReferenceList Do
+		If ExchangePlans.IsChangeRecorded(ExchangeNode, Ref) Then
+			DownloadableLinks.Add(Ref);
+		Else
+			ObjectForExport = Ref.GetObject();
+			
+			DataExchangeEvents.ExecuteRegistrationRulesForObject(ObjectForExport, ExchangePlanName);
+				
+			If ExchangePlans.IsChangeRecorded(ExchangeNode, Ref) Then
+				DownloadableLinks.Add(Ref);
+			EndIf;
+		EndIf;
+	EndDo;
+	
+	ConversionProcessingParameters = New Structure;
+	ConversionProcessingParameters.Insert("UseHandshake", False);
+	ConversionProcessingParameters.Insert("ChangeSelectionFilter", Common.CopyRecursive(DownloadableLinks));
+	
+	AdditionalParameters = New Structure;
+	AdditionalParameters.Insert("ConversionProcessingParameters", ConversionProcessingParameters);
+	
+	Return DownloadableLinks;
+	
+EndFunction
+
+// Performs actions related to the successful delivery of an exchange message to the peer infobase:
+//  - Adds records of exported objects to the public identifiers register.
+//  - Optionally, unregisters changes for the exported objects.
+// The method is intended only for selective data export scenarios.
+// Parameters:
+//  ExchangeNode - ExchangePlanRef - Target exchange node.
+//  AdditionalParameters - Structure - Reserved for internal use.
+//                            This parameter receives a structure obtained during the preparation of selective
+//                            data export by DataExchangeXDTOServer.InitializeSelectiveDataUpload.
+//
+Procedure ConfirmSendingSelectiveDataUploadMessage(ExchangeNode, AdditionalParameters) Export
+	
+	ExchangeComponents = New Structure;
+	ExchangeComponents.Insert("CorrespondentNode", ExchangeNode);
+	ExchangeComponents.Insert("MessageNumberReceivedByCorrespondent", 0);
+	
+	ExchangeComponents.Insert("UseHandshake");
+	ExchangeComponents.Insert("ChangeSelectionFilter");
+	FillPropertyValues(ExchangeComponents, AdditionalParameters.ConversionProcessingParameters);
+	
+	ProcessReceiptOfConfirmationFromCorrespondent(ExchangeComponents, False);
+	
+EndProcedure
+
 // Exports data according to exchange rules and parameters.
 //
 // Parameters:
@@ -559,8 +612,10 @@ Procedure ExecuteDataExport(ExchangeComponents) Export
 	SentNo = 0;
 	
 	If ExchangeComponents.IsExchangeViaExchangePlan Then
-	
-		SentNo = Common.ObjectAttributeValue(NodeForExchange, "SentNo") + 1;
+		
+		If ExchangeComponents.UseHandshake Then
+			SentNo = Common.ObjectAttributeValue(NodeForExchange, "SentNo") + 1;
+		EndIf;
 		
 		ExecuteRegisteredDataExport(ExchangeComponents, SentNo);
 		
@@ -622,41 +677,46 @@ Procedure ExecuteDataExport(ExchangeComponents) Export
 		
 		// Resetting the sent message number for non-exported objects.
 		If ExchangeComponents.SkipObjectsWithSchemaCheckErrors Then
+			ExcludedTypesForRegistration = InitializeArrayOfExcludedTypesForRegistration();
 			For Each ObjectRef In ExchangeComponents.NotExportedObjects Do
-				ExchangePlans.RecordChanges(NodeForExchange, ObjectRef);
+				If ExcludedTypesForRegistration.Find(TypeOf(ObjectRef)) = Undefined Then
+					ExchangePlans.RecordChanges(NodeForExchange, ObjectRef);
+				EndIf;
 			EndDo;
 		EndIf;
 		
-		// Setting the sent message number for objects exported by reference.
-		If ExchangeComponents.ExportedByRefObjects.Count() > 0 Then
-			// Registering the selected exported by reference objects on the current node.
-			For Each Item In ExchangeComponents.ExportedByRefObjects Do
-				ExchangePlans.RecordChanges(NodeForExchange, Item);
-			EndDo;
+		If ExchangeComponents.UseHandshake Then
+			// Setting the sent message number for objects exported by reference.
+			If ExchangeComponents.ExportedByRefObjects.Count() > 0 Then
+				// Registering the selected exported by reference objects on the current node.
+				For Each Item In ExchangeComponents.ExportedByRefObjects Do
+					ExchangePlans.RecordChanges(NodeForExchange, Item);
+				EndDo;
+				
+				DataExchangeServer.SelectChanges(NodeForExchange, SentNo, ExchangeComponents.ExportedByRefObjects);
+			EndIf;
 			
-			DataExchangeServer.SelectChanges(NodeForExchange, SentNo, ExchangeComponents.ExportedByRefObjects);
+			BeginTransaction();
+			Try
+			    Block = New DataLock;
+			    LockItem = Block.Add(Common.TableNameByRef(NodeForExchange));
+			    LockItem.SetValue("Ref", NodeForExchange);
+			    Block.Lock();
+			    
+				LockDataForEdit(NodeForExchange);
+				Recipient = NodeForExchange.GetObject();
+				
+				Recipient.SentNo = SentNo;
+				Recipient.DataExchange.Load = True;
+	
+				Recipient.Write();
+	
+				CommitTransaction();
+			Except
+				RollbackTransaction();
+				Raise;
+			EndTry;
 		EndIf;
-		
-		BeginTransaction();
-		Try
-		    Block = New DataLock;
-		    LockItem = Block.Add(Common.TableNameByRef(NodeForExchange));
-		    LockItem.SetValue("Ref", NodeForExchange);
-		    Block.Lock();
-		    
-			LockDataForEdit(NodeForExchange);
-			Recipient = NodeForExchange.GetObject();
-			
-			Recipient.SentNo = SentNo;
-			Recipient.DataExchange.Load = True;
-
-			Recipient.Write();
-
-			CommitTransaction();
-		Except
-			RollbackTransaction();
-			Raise;
-		EndTry;
 		
 	EndIf;
 	
@@ -983,7 +1043,7 @@ Function XDTODataObjectFromXDTOData(ExchangeComponents, Val Source, Val XDTOType
 							Or (TypeOf(PropertyValue) = Type("Boolean")
 							And StrFind(FlexibleTypeProperty.Type.Name,"boolean")>0)
 							Or (TypeOf(PropertyValue) = Type("Date")
-							And StrFind(FlexibleTypeProperty.Type.Name,"date")>0) Then
+							And StrFind(FlexibleTypeProperty.Type.Name,"getsessions")>0) Then
 							
 							CompoundXDTOValue = PropertyValue;
 							
@@ -1537,27 +1597,32 @@ Procedure OpenExportFile(ExchangeComponents, ExchangeFileName = "") Export
 		WriteMessage1 = New Structure("ReceivedNo, MessageNo, Recipient");
 		WriteMessage1.Recipient = ExchangeComponents.CorrespondentNode;
 		
-		If TransactionActive() Then
-			Raise NStr("en = 'Cannot apply a data exchange lock to an active transaction.'");
+		If ExchangeComponents.UseHandshake Then
+			If TransactionActive() Then
+				Raise NStr("en = 'Cannot apply a data exchange lock to an active transaction.'");
+			EndIf;
+			
+			// Setting a lock to the recipient node.
+			Try
+				LockDataForEdit(WriteMessage1.Recipient);
+			Except
+				Raise StringFunctionsClientServer.SubstituteParametersToString(
+					NStr("en = 'Cannot lock the data exchange.
+					|The data exchange might be running in another session.
+					|
+					|Details:
+					|%1'"),
+					ErrorProcessing.BriefErrorDescription(ErrorInfo()));
+			EndTry;
+			
+			RecipientData = Common.ObjectAttributesValues(WriteMessage1.Recipient, "SentNo, ReceivedNo, Code");
+			
+			WriteMessage1.MessageNo = RecipientData.SentNo + 1;
+			WriteMessage1.ReceivedNo = RecipientData.ReceivedNo;
+		Else
+			WriteMessage1.MessageNo = 0;
+			WriteMessage1.ReceivedNo = 0;
 		EndIf;
-		
-		// Setting a lock to the recipient node.
-		Try
-			LockDataForEdit(WriteMessage1.Recipient);
-		Except
-			Raise StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Cannot lock the data exchange.
-				|The data exchange might be running in another session.
-				|
-				|Details:
-				|%1'"),
-				ErrorProcessing.BriefErrorDescription(ErrorInfo()));
-		EndTry;
-		
-		RecipientData = Common.ObjectAttributesValues(WriteMessage1.Recipient, "SentNo, ReceivedNo, Code");
-		
-		WriteMessage1.MessageNo = RecipientData.SentNo + 1;
-		WriteMessage1.ReceivedNo = RecipientData.ReceivedNo;
 		
 	EndIf;
 	
@@ -2011,7 +2076,7 @@ Function XDTOObjectStructureToIBData(ExchangeComponents, XDTOData, Val Conversio
 			EndIf;
 		EndIf;
 		
-		RememberObjectForDeferredFilling(DataToWriteToIB, ConversionRule, ExchangeComponents);
+		RememberObjectForDeferredFilling(DataToWriteToIB, ConversionRule, ExchangeComponents, Action);
 		
 	Else
 		
@@ -2322,28 +2387,7 @@ Procedure OpenImportFile(ExchangeComponents, ExchangeFileName) Export
 				EndIf;
 				
 				If ExchangeComponents.UseHandshake Then
-					
-					ReceivedNo = Common.ObjectAttributeValue(ExchangeComponents.CorrespondentNode, "ReceivedNo");
-					
-					If ReceivedNo >= ExchangeComponents.IncomingMessageNumber Then
-						// The message number is less than or equal to the previously received one.
-						ExchangeComponents.DataExchangeState.ExchangeExecutionResult =
-							Enums.ExchangeExecutionResults.Warning_ExchangeMessageAlreadyAccepted;
-							
-						WriteToExecutionProtocol(ExchangeComponents, 174,,,,, True);
-						ExchangeComponents.XDTOSettingsOnly = True;
-					Else
-						// Adding public IDs for reference objects whose receiving was reported by the correspondent node.
-						AddExportedObjectsToPublicIDsRegister(ExchangeComponents);
-						
-						// Deleting registration of changes whose receiving was reported by the correspondent node.
-						ExchangePlans.DeleteChangeRecords(ExchangeComponents.CorrespondentNode, ExchangeComponents.MessageNumberReceivedByCorrespondent);
-						
-						// Removing the initial data export flag.
-						InformationRegisters.CommonInfobasesNodesSettings.ClearInitialDataExportFlag(
-							ExchangeComponents.CorrespondentNode, ExchangeComponents.MessageNumberReceivedByCorrespondent);
-					EndIf;
-					
+					ProcessMessageReceipt(ExchangeComponents);
 				EndIf;
 					
 			EndIf;
@@ -2670,12 +2714,12 @@ Function UndoObjectPostingInIB(Object, Sender, ExchangeComponents = Undefined) E
 			|You can ignore and hide the error if the document was posted after upload.
 			|For more information about the error, see the event log.'", Common.DefaultLanguageCode());
 		Brief1 = StrTemplate(TextTemplate1, String(Object), ErrorProcessing.BriefErrorDescription(ErrorInfo()));
-		More = ErrorProcessing.DetailErrorDescription(ErrorInfo());
+		ShowMoreDetails = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 		
 		ErrorDescription = New Structure;
 		ErrorDescription.Insert("Level", EventLogLevel.Error);
 		ErrorDescription.Insert("BriefErrorDescription", Brief1);
-		ErrorDescription.Insert("DetailErrorDescription", More);
+		ErrorDescription.Insert("DetailErrorDescription", ShowMoreDetails);
 	
 		WriteToExecutionProtocol(ExchangeComponents, ErrorDescription, , False);
 		WriteObjectProcessingErrorOnSend(Object, ExchangeComponents.CorrespondentNode, Brief1, IssueType);
@@ -2758,13 +2802,16 @@ EndProcedure
 //
 Function SupportedObjectsInFormat(ExchangePlanName, Mode = "SendReceive", ExchangeNode = Undefined) Export
 	
-	ObjectsTable1 = New ValueTable;
-	InitializeSupportedFormatObjectsTable(ObjectsTable1, Mode);
+	TableObjects = New ValueTable;
+	InitializeSupportedFormatObjectsTable(TableObjects, Mode);
 	
 	ExchangeFormatVersions = DataExchangeServer.ExchangePlanSettingValue(ExchangePlanName, "ExchangeFormatVersions");
 	
 	SendingMode  = StrFind(Mode, "Send") > 0;
 	ReceiptMode = StrFind(Mode, "Receive") > 0;
+	
+	RulesForSendingExchangeManagers = New Map;
+	RulesForReceivingExchangeManagers = New Map;
 	
 	For Each Version In ExchangeFormatVersions Do
 		
@@ -2796,9 +2843,11 @@ Function SupportedObjectsInFormat(ExchangePlanName, Mode = "SendReceive", Exchan
 				ExchangeComponents.XMLSchema = ExchangeFormat(ExchangePlanName, ExchangeComponents.ExchangeFormatVersion);
 				IncludeNamespace(ExchangeComponents, ExtensionSchema, "ext");
 				
-				InitializeExchangeRulesTables(ExchangeComponents);
+				RuleTables = RulesForSendingExchangeManagers[ExchangeComponents.ExchangeManager];
+				InitializeTablesOfExchangeRulesAdvanced(ExchangeComponents, RuleTables, True);
+				RulesForSendingExchangeManagers[ExchangeComponents.ExchangeManager] = RuleTables;
 				
-				FillSupportedFormatObjectsByExchangeComponents(ObjectsTable1, ExchangeComponents);
+				FillSupportedFormatObjectsByExchangeComponents(TableObjects, ExchangeComponents);
 			EndIf;
 			
 			If ReceiptMode Then
@@ -2810,9 +2859,11 @@ Function SupportedObjectsInFormat(ExchangePlanName, Mode = "SendReceive", Exchan
 				ExchangeComponents.XMLSchema = ExchangeFormat(ExchangePlanName, ExchangeComponents.ExchangeFormatVersion);
 				IncludeNamespace(ExchangeComponents, ExtensionSchema, "ext");
 				
-				InitializeExchangeRulesTables(ExchangeComponents);
+				RuleTables = RulesForReceivingExchangeManagers[ExchangeComponents.ExchangeManager];
+				InitializeTablesOfExchangeRulesAdvanced(ExchangeComponents, RuleTables, True);
+				RulesForReceivingExchangeManagers[ExchangeComponents.ExchangeManager] = RuleTables;
 				
-				FillSupportedFormatObjectsByExchangeComponents(ObjectsTable1, ExchangeComponents);
+				FillSupportedFormatObjectsByExchangeComponents(TableObjects, ExchangeComponents);
 			EndIf;
 			
 		EndDo;
@@ -2823,11 +2874,11 @@ Function SupportedObjectsInFormat(ExchangePlanName, Mode = "SendReceive", Exchan
 	HasAlgorithm = DataExchangeServer.HasExchangePlanManagerAlgorithm(AlgorithmName, ExchangePlanName);
 	If HasAlgorithm Then
 		
-		ExchangePlans[ExchangePlanName].OnDefineSupportedFormatObjects(ObjectsTable1, Mode, ExchangeNode);
+		ExchangePlans[ExchangePlanName].OnDefineSupportedFormatObjects(TableObjects, Mode, ExchangeNode);
 		
 	EndIf;
 	
-	Return ObjectsTable1;
+	Return TableObjects;
 	
 EndFunction
 
@@ -2850,8 +2901,8 @@ EndFunction
 //
 Function SupportedPeerInfobaseFormatObjects(ExchangeNode, Mode = "SendReceive") Export
 	
-	ObjectsTable1 = New ValueTable;
-	InitializeSupportedFormatObjectsTable(ObjectsTable1, Mode);
+	TableObjects = New ValueTable;
+	InitializeSupportedFormatObjectsTable(TableObjects, Mode);
 	
 	CorrespondentSettings = InformationRegisters.XDTODataExchangeSettings.CorrespondentSettingValue(ExchangeNode, "SupportedObjects");
 	
@@ -2861,7 +2912,7 @@ Function SupportedPeerInfobaseFormatObjects(ExchangeNode, Mode = "SendReceive") 
 			
 			If (StrFind(Mode, "Send") And CorrespondentSettingsRow.Send)
 				Or (StrFind(Mode, "Receive") And CorrespondentSettingsRow.Receive) Then
-				RowObjects = ObjectsTable1.Add();
+				RowObjects = TableObjects.Add();
 				FillPropertyValues(RowObjects, CorrespondentSettingsRow);
 			EndIf;
 			
@@ -2870,7 +2921,7 @@ Function SupportedPeerInfobaseFormatObjects(ExchangeNode, Mode = "SendReceive") 
 	Else
 		
 		If Not DataExchangeServer.SynchronizationSetupCompleted(ExchangeNode) Then
-			Return ObjectsTable1;
+			Return TableObjects;
 		EndIf;
 		
 		ExchangePlanName = DataExchangeCached.GetExchangePlanName(ExchangeNode);
@@ -2880,7 +2931,7 @@ Function SupportedPeerInfobaseFormatObjects(ExchangeNode, Mode = "SendReceive") 
 		
 		For Each BaseObjectsRow In DatabaseObjectsTable Do
 			
-			CorrespondentObjectsRow = ObjectsTable1.Add();
+			CorrespondentObjectsRow = TableObjects.Add();
 			FillPropertyValues(CorrespondentObjectsRow, BaseObjectsRow, "Version, Object");
 			
 			If StrFind(Mode, "Send") > 0 Then
@@ -2897,12 +2948,12 @@ Function SupportedPeerInfobaseFormatObjects(ExchangeNode, Mode = "SendReceive") 
 	HasAlgorithm = DataExchangeServer.HasExchangePlanManagerAlgorithm(
 		"OnDefineFormatObjectsSupportedByCorrespondent", ExchangePlanName);
 	If HasAlgorithm Then
-		ExchangePlans[ExchangePlanName].OnDefineFormatObjectsSupportedByCorrespondent(ExchangeNode, ObjectsTable1, Mode);
+		ExchangePlans[ExchangePlanName].OnDefineFormatObjectsSupportedByCorrespondent(ExchangeNode, TableObjects, Mode);
 	EndIf;
 	
-	ObjectsTable1.Indexes.Add("Object");
+	TableObjects.Indexes.Add("Object");
 	
-	Return ObjectsTable1;
+	Return TableObjects;
 	
 EndFunction
 
@@ -2924,19 +2975,44 @@ Function SkipObjectsWithSchemaCheckErrors(InfobaseNode, NewValue = Undefined) Ex
 	
 	SetPrivilegedMode(True);
 	
-	RecordManager = InformationRegisters.XDTODataExchangeSettings.CreateRecordManager();
-	RecordManager.InfobaseNode = InfobaseNode;
-	RecordManager.Read();
-	
 	If NewValue = Undefined Then
+		RecordManager = InformationRegisters.XDTODataExchangeSettings.CreateRecordManager();
+		RecordManager.InfobaseNode = InfobaseNode;
+		RecordManager.Read();
+	
 		If RecordManager.Selected() Then
 			Mode = RecordManager.SkipObjectsWithSchemaCheckErrors;
 		EndIf;
 	Else
-		RecordManager.SkipObjectsWithSchemaCheckErrors = NewValue;
-		RecordManager.Write(True);
+		BeginTransaction();
 		
-		Mode = NewValue;
+		Try
+			DataLock = New DataLock;
+			DataLockItem = DataLock.Add("InformationRegister.XDTODataExchangeSettings");
+			DataLockItem.SetValue("InfobaseNode", InfobaseNode);
+			DataLockItem.Mode = DataLockMode.Exclusive;
+			DataLock.Lock();
+			
+			RecordManager = InformationRegisters.XDTODataExchangeSettings.CreateRecordManager();
+			RecordManager.InfobaseNode = InfobaseNode;
+			RecordManager.Read();
+			RecordManager.SkipObjectsWithSchemaCheckErrors = NewValue;
+			RecordManager.Write(True); 
+			
+			Mode = NewValue;
+			
+			CommitTransaction();
+		Except
+			RollbackTransaction();
+			
+			ErrorMessage = ErrorProcessing.DetailErrorDescription(ErrorInfo());
+			
+			Event = NStr("en = 'Data exchange via universal format.Export.Save exchange setting'", Common.DefaultLanguageCode());
+			
+			WriteLogEvent(Event, EventLogLevel.Error, Metadata.InformationRegisters.XDTODataExchangeSettings, , ErrorMessage);
+			
+			Raise ErrorMessage;
+		EndTry;
 	EndIf;
 	
 	Return Mode;
@@ -3186,6 +3262,77 @@ Procedure AfterOpenImportFile(ExchangeComponents, Cancel, InitializeRulesTables 
 			
 		EndIf;
 	EndIf;
+	
+EndProcedure
+
+Procedure ApplyObjectsDeletion(ExchangeComponents, ArrayOfObjectsToDelete, ArrayOfImportedObjects) Export
+	
+	For Each ImportedObject In ArrayOfImportedObjects Do
+		While ArrayOfObjectsToDelete.Find(ImportedObject) <> Undefined Do
+			ArrayOfObjectsToDelete.Delete(ArrayOfObjectsToDelete.Find(ImportedObject));
+		EndDo;
+	EndDo;
+	
+	ProhibitDocumentPosting = Metadata.ObjectProperties.Posting.Deny;
+	
+	For Each ElementToDelete In ArrayOfObjectsToDelete Do
+		
+		// Delete the reference.
+		Object = ElementToDelete.GetObject();
+		If Object = Undefined Then
+			Continue;
+		EndIf;
+		
+		If ExchangeComponents.DataImportToInfobaseMode Then
+			
+			If ExchangeComponents.IsExchangeViaExchangePlan
+				And DataExchangeEvents.ImportRestricted(Object, ExchangeComponents.CorrespondentNodeObject) Then
+				
+				Continue; // If the object modification is restricted due to a period-end closing date, then resume the loop
+				
+			EndIf;
+			
+			//@skip-check empty-except-statement
+			Try
+				// An attempt in case the hander is missing from the data exchange manager
+				ExchangeComponents.ExchangeManager.ПередОбработкойУдаляемогоОбъекта(ExchangeComponents, Object);
+			Except
+			EndTry;
+			
+			If Object = Undefined Then
+				Continue;
+			EndIf;
+			
+			ObjectMetadata = Object.Metadata();
+			If Metadata.Documents.Contains(ObjectMetadata) Then
+				If Object.Posted Then
+					
+					HasResult = UndoObjectPostingInIB(Object, 
+						ExchangeComponents.CorrespondentNode, ExchangeComponents);
+					
+					If Not HasResult Then
+						Continue;
+					EndIf;
+				ElsIf ObjectMetadata.Posting = ProhibitDocumentPosting Then
+					MakeDocumentRegisterRecordsInactive(Object, ExchangeComponents);
+				EndIf;
+			EndIf;
+			DataExchangeServer.SetDataExchangeLoad(Object, True, False, ExchangeComponents.CorrespondentNode);
+			DeleteObject(Object, False, ExchangeComponents);
+		Else
+			
+			ReceivedDataTypeAsString = DataTypeNameByMetadataObject(Object.Metadata());
+			
+			TableRow = ExchangeComponents.PackageHeaderDataTable.Add();
+			
+			TableRow.ObjectTypeString = ReceivedDataTypeAsString;
+			TableRow.ObjectCountInSource = 1;
+			TableRow.DestinationTypeString = ReceivedDataTypeAsString;
+			TableRow.IsObjectDeletion = True;
+			
+		EndIf;
+		
+	EndDo;
 	
 EndProcedure
 
@@ -3462,25 +3609,20 @@ EndProcedure
 //     * OnProcess - String
 //     * OCRUsed - Array of String
 // 
-Function DataProcessingRulesTable(ExchangeComponents) Export
+Function DataProcessingRulesTable(ExchangeComponents, ExchangeManagerDataProcessingRules = Undefined) Export
 	
 	XMLSchema = ExchangeComponents.XMLSchema;
-	ExchangeManagerFormatVersion = ExchangeComponents.ExchangeManagerFormatVersion;
 	
-	// Initializing a table of data processing rules.
-	DataProcessingRules = New ValueTable;
-	DataProcessingRules.Columns.Add("Name");
-	DataProcessingRules.Columns.Add("FilterObjectFormat");
-	DataProcessingRules.Columns.Add("XDTORefType");
-	DataProcessingRules.Columns.Add("SelectionObjectMetadata");
-	DataProcessingRules.Columns.Add("DataSelection");
-	DataProcessingRules.Columns.Add("TableNameForSelection");
-	DataProcessingRules.Columns.Add("OnProcess",    New TypeDescription("String"));
-	
-	// UsedOCR - an array containing the names of OCR, into which an object from this DPR can be sent.
-	DataProcessingRules.Columns.Add("OCRUsed",    New TypeDescription("Array"));
-	
-	ExchangeComponents.ExchangeManager.FillInDataProcessingRules(ExchangeComponents.ExchangeDirection, DataProcessingRules);
+	If ExchangeManagerDataProcessingRules = Undefined Then
+		// Initializing a table of data processing rules.
+	    DataProcessingRules = CollectionOfDataProcessingRules();
+		
+		ExchangeComponents.ExchangeManager.FillInDataProcessingRules(ExchangeComponents.ExchangeDirection, DataProcessingRules);
+		
+		ExchangeManagerDataProcessingRules = DataProcessingRules.Copy();
+	Else
+		DataProcessingRules = ExchangeManagerDataProcessingRules.Copy();
+	EndIf;
 	
 	HasExtensions = False;
 	If TypeOf(ExchangeComponents.FormatExtensions) = Type("Map") Then
@@ -3629,6 +3771,61 @@ EndFunction
 
 #Region ExchangeInitialization
 
+Function CollectionOfDataProcessingRules()
+	
+	// Initializing a table of data processing rules.
+	DataProcessingRules = New ValueTable;
+	DataProcessingRules.Columns.Add("Name");
+	DataProcessingRules.Columns.Add("FilterObjectFormat");
+	DataProcessingRules.Columns.Add("XDTORefType");
+	DataProcessingRules.Columns.Add("SelectionObjectMetadata");
+	DataProcessingRules.Columns.Add("DataSelection");
+	DataProcessingRules.Columns.Add("TableNameForSelection");
+	DataProcessingRules.Columns.Add("OnProcess", New TypeDescription("String"));
+	
+	// UsedOCR - an array containing the names of OCR, into which an object from this DPR can be sent.
+	DataProcessingRules.Columns.Add("OCRUsed", New TypeDescription("Array"));
+	
+	Return DataProcessingRules;
+	
+EndFunction
+
+Procedure InitializeTablesOfExchangeRulesAdvanced(ExchangeComponents, ExchangeManagerRules = Undefined, ToGetSupportedObjects = False)
+	
+	ExchangeComponents.Insert("BaseFormatSchemas", New Map);
+	ExchangeComponents.BaseFormatSchemas.Insert(ExchangeComponents.XMLSchema, True);
+	ExchangeComponents.BaseFormatSchemas.Insert(XMLBasicSchema(), True);
+	
+	// Calculating a version of an exchange manager format. Rules generation depends on it.
+	Try
+		ExchangeComponents.Insert("ExchangeManagerFormatVersion", ExchangeComponents.ExchangeManager.ExchangeManagerFormatVersion());
+	Except
+		ExchangeComponents.Insert("ExchangeManagerFormatVersion", "1");
+	EndTry;
+	
+	If ExchangeManagerRules = Undefined Then
+		ExchangeManagerRules = New Structure;
+		ExchangeManagerRules.Insert("DataProcessingRules");
+		ExchangeManagerRules.Insert("ObjectsConversionRules");
+	EndIf;
+	
+	// Initializing exchange rule tables.
+	ExchangeComponents.Insert("DataProcessingRules",
+		DataProcessingRulesTable(ExchangeComponents, ExchangeManagerRules.DataProcessingRules));
+	ExchangeComponents.Insert("ObjectsConversionRules",
+		ConversionRulesTable(ExchangeComponents, ExchangeManagerRules.ObjectsConversionRules, ToGetSupportedObjects));
+	
+	If ToGetSupportedObjects Then
+		Return;
+	EndIf;
+	
+	ExchangeComponents.Insert("PredefinedDataConversionRules", PredefinedDataConversionRulesTable(ExchangeComponents));
+	
+	ExchangeComponents.Insert("ConversionParameters_SSLy", ConversionParametersStructure(ExchangeComponents.ExchangeManager));
+	
+EndProcedure
+
+
 // Parameters:
 //   * ExchangeManagerFormatVersion - String
 // 
@@ -3671,6 +3868,7 @@ Function ConversionRulesCollection1(ExchangeManagerFormatVersion)
 	ConversionRules.Columns.Add("ReceivedDataHeaderAttributes",        New TypeDescription("Array"));
 	ConversionRules.Columns.Add("OnSendData",                     New TypeDescription("String"));
 	ConversionRules.Columns.Add("OnConvertXDTOData",              New TypeDescription("String"));
+	ConversionRules.Columns.Add("WhenReceivingRequestToUploadObject",    New TypeDescription("String"));
 	ConversionRules.Columns.Add("BeforeWriteReceivedData",          New TypeDescription("String"));
 	ConversionRules.Columns.Add("AfterImportAllData",               New TypeDescription("String"));
 	ConversionRules.Columns.Add("RuleForCatalogGroup",           New TypeDescription("Boolean"));
@@ -3692,12 +3890,18 @@ Function ConversionRulesCollection1(ExchangeManagerFormatVersion)
 	
 EndFunction
 
-Function ConversionRulesTable(ExchangeComponents)
+Function ConversionRulesTable(ExchangeComponents, RulesForConvertingObjectsOfExchangeManager = Undefined, ToGetSupportedObjects = False)
 	
-	// Initializing the data conversion rules table.
-	ConversionRules = ConversionRulesCollection1(ExchangeComponents.ExchangeManagerFormatVersion);
-	
-	ExchangeComponents.ExchangeManager.FillInObjectConversionRules(ExchangeComponents.ExchangeDirection, ConversionRules);
+	If RulesForConvertingObjectsOfExchangeManager = Undefined Then
+		// Initializing the data conversion rules table.
+		ConversionRules = ConversionRulesCollection1(ExchangeComponents.ExchangeManagerFormatVersion);
+		
+		ExchangeComponents.ExchangeManager.FillInObjectConversionRules(ExchangeComponents.ExchangeDirection, ConversionRules);
+		
+		RulesForConvertingObjectsOfExchangeManager = ConversionRules.Copy();
+	Else
+		ConversionRules = RulesForConvertingObjectsOfExchangeManager.Copy();
+	EndIf;
 	
 	If ExchangeComponents.ExchangeDirection = "Receive" Then
 		
@@ -3752,6 +3956,7 @@ Function ConversionRulesTable(ExchangeComponents)
 	ConversionRules.Columns.Add("HasHandlerBeforeWriteReceivedData", New TypeDescription("Boolean"));
 	ConversionRules.Columns.Add("HasHandlerAfterImportAllData",      New TypeDescription("Boolean"));
 	ConversionRules.Columns.Add("HasHandlerSearchAlgorithm",               New TypeDescription("Boolean"));
+	ConversionRules.Columns.Add("ThereIsHandlerWhenReceivingRequestToUploadObject", New TypeDescription("Boolean"));
 	
 	AllowDocumentPosting = Metadata.ObjectProperties.Posting.Allow;
 	
@@ -3777,6 +3982,10 @@ Function ConversionRulesTable(ExchangeComponents)
 				Continue;
 			EndIf;
 			
+		EndIf;
+		
+		If ToGetSupportedObjects Then
+			Continue;
 		EndIf;
 		
 		If IsBaseSchema And HasExtensions Then
@@ -3816,6 +4025,7 @@ Function ConversionRulesTable(ExchangeComponents)
 			ConversionRule.HasHandlerBeforeWriteReceivedData = Not IsBlankString(ConversionRule.BeforeWriteReceivedData);
 			ConversionRule.HasHandlerAfterImportAllData      = Not IsBlankString(ConversionRule.AfterImportAllData);
 			ConversionRule.HasHandlerSearchAlgorithm               = Not IsBlankString(ConversionRule.SearchAlgorithm);
+			ConversionRule.ThereIsHandlerWhenReceivingRequestToUploadObject = Not IsBlankString(ConversionRule.WhenReceivingRequestToUploadObject);
 		Else
 			ConversionRule.HasHandlerOnSendData            = Not IsBlankString(ConversionRule.OnSendData);
 		EndIf;
@@ -4225,15 +4435,23 @@ Procedure ExecuteRegisteredDataExport(ExchangeComponents, MessageNo)
 	InitialDataExport = DataExchangeServer.InitialDataExportFlagIsSet(NodeForExchange);
 	
 	// Getting changed data selection.
-	ChangesSelection = ExchangePlans.SelectChanges(NodeForExchange, MessageNo);
-	
 	ObjectsToExportCount = 0;
-	While ChangesSelection.Next() Do
-		ObjectsToExportCount = ObjectsToExportCount + 1;
-	EndDo;
+	If ExchangeComponents.UseHandshake Then
+		ChangesSelection = ExchangePlans.SelectChanges(NodeForExchange, MessageNo, ExchangeComponents.ChangeSelectionFilter);
+		While ChangesSelection.Next() Do
+			ObjectsToExportCount = ObjectsToExportCount + 1;
+		EndDo;
+	Else
+		If ExchangeComponents.ChangeSelectionFilter <> Undefined Then
+			For Each LinkToUpload In ExchangeComponents.ChangeSelectionFilter Do
+				If ExchangePlans.IsChangeRecorded(NodeForExchange, LinkToUpload) Then
+					ObjectsToExportCount = ObjectsToExportCount + 1;
+				EndIf;
+			EndDo;
+		EndIf;
+	EndIf;
 	ExchangeComponents.Insert("ObjectsToExportCount", ObjectsToExportCount);
 	
-	//
 	ExchangePlanContent = NodeForExchange.Metadata().Content;
 	
 	ListOfTypesWithBatchRegistration = New Array;
@@ -4291,7 +4509,10 @@ Procedure UploadRegisteredDataWithBatchRegistration(
 			|	#ChangesTable AS ChangesTable
 			|WHERE
 			|	ChangesTable.Node = &Node
-			|	AND ChangesTable.MessageNo = &MessageNo
+			|	AND (NOT &UseHandshake
+			|			OR ChangesTable.MessageNo <= &MessageNo)
+			|	AND (NOT &UseChangeSelectionFilter
+			|			OR ChangesTable.Ref IN (&ChangeSelectionFilter))
 			|;
 			|
 			|////////////////////////////////////////////////////////////////////////////////
@@ -4314,7 +4535,12 @@ Procedure UploadRegisteredDataWithBatchRegistration(
 		Query.Text = StrReplace(Query.Text, "#ChangesTable", ObjectType.FullName() + ".Changes"); //@Query-part-2
 		
 		Query.SetParameter("Node", NodeForExchange);
+		// Handshake parameters.
+		Query.SetParameter("UseHandshake", ExchangeComponents.UseHandshake);
 		Query.SetParameter("MessageNo", MessageNo);
+		// Limitation parameters of change selection.
+		Query.SetParameter("UseChangeSelectionFilter", ExchangeComponents.ChangeSelectionFilter <> Undefined);
+		Query.SetParameter("ChangeSelectionFilter", ExchangeComponents.ChangeSelectionFilter);
 		
 		QueryResult = Query.ExecuteBatch();
 		
@@ -4402,14 +4628,41 @@ Procedure UploadRegisteredDataWithoutBatchRegistration(
 	ExchangeComponents, MessageNo, InitialDataExport, NodeForExchangeObject, TypesList)
 	
 	NodeForExchange = ExchangeComponents.CorrespondentNode;
-	ChangesSelection = ExchangePlans.SelectChanges(NodeForExchange, MessageNo, TypesList);
 	
-	While ChangesSelection.Next() Do
+	If ExchangeComponents.UseHandshake Then
+		If ExchangeComponents.ChangeSelectionFilter <> Undefined Then
+			SelectionFilterWithAppropriateType = New Array;
+			For Each LinkToUpload In ExchangeComponents.ChangeSelectionFilter Do
+				If TypesList.Find(Metadata.FindByType(TypeOf(LinkToUpload))) <> Undefined Then
+					SelectionFilterWithAppropriateType.Add(LinkToUpload);
+				EndIf;
+			EndDo;
+			If SelectionFilterWithAppropriateType.Count() = 0 Then
+				Return;
+			EndIf;
+			
+			ChangesSelection = ExchangePlans.SelectChanges(NodeForExchange, MessageNo, SelectionFilterWithAppropriateType);
+		Else
+			ChangesSelection = ExchangePlans.SelectChanges(NodeForExchange, MessageNo, TypesList);
+		EndIf;
 		
-		Object = ChangesSelection.Get();
-		UploadingRegisteredObject(ExchangeComponents, InitialDataExport, NodeForExchangeObject, Object);
-		
-	EndDo;
+		While ChangesSelection.Next() Do
+		    Object = ChangesSelection.Get();
+			UploadingRegisteredObject(ExchangeComponents, InitialDataExport, NodeForExchangeObject, Object);
+		EndDo;
+	Else
+		If ExchangeComponents.ChangeSelectionFilter <> Undefined Then
+			For Each LinkToUpload In ExchangeComponents.ChangeSelectionFilter Do
+				If TypesList.Find(Metadata.FindByType(TypeOf(LinkToUpload))) = Undefined Then
+					Continue;
+				EndIf;
+				If ExchangePlans.IsChangeRecorded(NodeForExchange, LinkToUpload) Then
+					Object = LinkToUpload.GetObject();
+					UploadingRegisteredObject(ExchangeComponents, InitialDataExport, NodeForExchangeObject, Object);
+				EndIf;
+			EndDo;
+		EndIf;
+	EndIf;
 	
 EndProcedure
 
@@ -4464,6 +4717,44 @@ EndProcedure
 Procedure ExportObjectsByRef(ExchangeComponents, RefsFromObject)
 	
 	If Not ExchangeComponents.IsExchangeViaExchangePlan Then
+		Return;
+	EndIf;
+	
+	If ExchangeComponents.ChangeSelectionFilter <> Undefined Then
+		For Each RefValue In RefsFromObject Do
+			If ExchangeComponents.ExportedObjects.Find(RefValue) <> Undefined Then
+				Continue;
+			EndIf;
+			
+			ObjectIsRegistered = ExchangePlans.IsChangeRecorded(ExchangeComponents.CorrespondentNode, RefValue);
+			
+			If ExportObjectIfNecessary(ExchangeComponents, RefValue) Then
+				ObjectWasUploadedEarlier = InformationRegisters.ObjectsDataToRegisterInExchanges.ObjectIsInRegister(
+					RefValue, ExchangeComponents.CorrespondentNode);
+					
+				If ObjectIsRegistered
+					Or Not ObjectWasUploadedEarlier Then
+					If Common.RefExists(RefValue) Then
+						ObjectToExportByRef = RefValue.GetObject();
+						ExportSelectionObject(ExchangeComponents, ObjectToExportByRef);
+						ExchangeComponents.ExportedByRefObjects.Add(RefValue);
+						If Not ObjectWasUploadedEarlier Then
+							InformationRegisters.ObjectsDataToRegisterInExchanges.AddObjectToAllowedObjectsFilter(
+								RefValue, ExchangeComponents.CorrespondentNode);
+						EndIf;
+					EndIf;
+				EndIf;
+			Else
+				If ObjectIsRegistered Then
+					If Common.RefExists(RefValue) Then
+						ObjectToExportByRef = RefValue.GetObject();
+						ExportSelectionObject(ExchangeComponents, ObjectToExportByRef);
+						ExchangeComponents.ExportedByRefObjects.Add(RefValue);
+					EndIf;
+				EndIf;
+			EndIf;
+		EndDo;
+		
 		Return;
 	EndIf;
 	
@@ -6255,16 +6546,32 @@ EndProcedure
 //                      - DocumentObject - an object to write.
 //   ConversionRule - ValueTableRow - a string with a conversion rule.
 //   ExchangeComponents - See DataExchangeXDTOServer.InitializeExchangeComponents
+//   Action - String - Action performed in XDTOObjectStructureToIBData(). Valid values: 
+//                       ConvertAndWrite, GetRef.
 //
-Procedure RememberObjectForDeferredFilling(DataToWriteToIB, ConversionRule, ExchangeComponents)
+Procedure RememberObjectForDeferredFilling(DataToWriteToIB, ConversionRule, ExchangeComponents, Action)
 	
 	If ConversionRule.HasHandlerAfterImportAllData Then
 		
-		// Add the object data to the deferred processing table.
-		NewRow = ExchangeComponents.ImportedObjects.Add();
-		NewRow.HandlerName = ConversionRule.AfterImportAllData;
-		NewRow.Object         = DataToWriteToIB;
-		NewRow.ObjectReference = DataToWriteToIB.Ref;
+		RowFilter = New Structure("ObjectReference", DataToWriteToIB.Ref);
+		FoundRows = ExchangeComponents.ImportedObjects.FindRows(RowFilter);
+		If FoundRows.Count() = 0 Then
+			
+			// Add the object data to the deferred processing table.
+			NewRow = ExchangeComponents.ImportedObjects.Add();
+			NewRow.Object         = DataToWriteToIB;
+			NewRow.ObjectReference = DataToWriteToIB.Ref;
+			NewRow.HandlerName = ConversionRule.AfterImportAllData;
+			
+		ElsIf Action = "ConvertAndWrite" Then
+			
+			For Each TableRow In FoundRows Do
+				
+				TableRow.Object = DataToWriteToIB;
+				
+			EndDo;
+			
+		EndIf;
 		
 	EndIf;
 	
@@ -6584,6 +6891,16 @@ Procedure ReadExchangeMessage(ExchangeComponents, Results, TablesToImport = Unde
 			ReadDeletion(ExchangeComponents, XDTODataObject, ArrayOfObjectsToDelete, TablesToImport);
 			Continue;
 			
+		ElsIf XDTOObjectType.Name = "ExportRequest" Then
+			
+			If AnalysisMode <> True Then
+				
+				ConvertExportRequest(ExchangeComponents, XDTODataObject);
+				
+			EndIf;
+			
+			Continue;
+			
 		EndIf;
 		
 		// Process DPR.
@@ -6658,7 +6975,9 @@ Procedure ReadExchangeMessage(ExchangeComponents, Results, TablesToImport = Unde
 			If Not CurrentOCR.Value Then
 				If SynchronizeByID Then
 					SupplementListOfObjectsForDeletion(ExchangeComponents,
-						ConversionRule.DataType, XDTOData[LinkClass()].Value, ArrayOfObjectsToDelete);
+						ConversionRule,
+						XDTOData[LinkClass()].Value,
+						ArrayOfObjectsToDelete);
 				EndIf;
 				Continue;
 			EndIf;
@@ -6982,6 +7301,466 @@ Function FindRefByPublicID(XDTOObjectUUID, ExchangeComponents, IBObjectValueType
 	
 EndFunction
 
+Procedure ProcessMessageReceipt(ExchangeComponents)
+	
+	ReceivedNo = Common.ObjectAttributeValue(ExchangeComponents.CorrespondentNode, "ReceivedNo");
+	
+	If ReceivedNo >= ExchangeComponents.IncomingMessageNumber Then
+		// The message number is less than or equal to the previously received one.
+		ExchangeComponents.DataExchangeState.ExchangeExecutionResult =
+			Enums.ExchangeExecutionResults.Warning_ExchangeMessageAlreadyAccepted;
+		
+		WriteToExecutionProtocol(ExchangeComponents, 174,,,,, True);
+		ExchangeComponents.XDTOSettingsOnly = True;
+	Else
+		ProcessReceiptOfConfirmationFromCorrespondent(ExchangeComponents);
+		
+		// Removing the initial data export flag.
+		InformationRegisters.CommonInfobasesNodesSettings.ClearInitialDataExportFlag(
+			ExchangeComponents.CorrespondentNode, ExchangeComponents.MessageNumberReceivedByCorrespondent);
+	EndIf;
+	
+EndProcedure
+
+#Region ReUnloadingRequest
+
+// The area methods are obtained from upcoming projects for backward compatibility.
+
+// Converts requests for re-export of reference data by registering the references for export.
+// A use case scenario:
+//
+// The current infobase sent a nested reference to a peer infobase, and no matching reference was found.
+// The request sent here contains the format object name, the received UID, and optionally a navigation reference.
+// The app is expected to use this data to find the reference and register it for export.
+// Processing algorithm.
+//
+// Building the rule table is resource-intensive, so the conversion is split into steps:
+// 1. Read all rows in the export request. 
+// 2. Group them by namespace.
+//   3. Build the outbound OCR tables.
+//   4. Deserialize.
+//   Deserialization:
+//   To identify which data must be exported again:
+//
+// Select all OCRs related to the specified format object, considering the URI.
+// Iterate over all metadata objects (managers) listed in the discovered OCRs,
+// - because the conversion rule used during export is unknown.
+//   Note that the system is receiving data, so the OCRs are located in the inbound components,
+//   but searching in the outbound OCRs is preferred.
+//
+// To address this, build outbound rule tables separately and search them first.
+// Only if the result is empty, search in the inbound OCRs.
+// Example of an XML fragment with a re-export request:
+// <ExportRequest>
+//
+// <String>
+// <ReceivedFormatObjectName>Catalog.ProductTypes</ReceivedFormatObjectName>
+//    <ExportRequestReference>c3314ae6-6899-11e8-8780-b06ebf2faaf6</ExportRequestReference>
+//       <URLExternal>e1c://filev/E/[Path_for_DB]/#e1cib/data/Catalog.ProductTypes?ref=8780b06ebf2faaf611e86899c3314ae6</URLExternal>
+//       </String>
+//       </ExportRequest>
+//    
+// 
+//
+Procedure ConvertExportRequest(ExchangeComponents, XDTODataObject)
+	
+	If XDTODataObject = Undefined Then
+		
+		Return;
+		
+	EndIf;
+	
+	If TypeOf(XDTODataObject.String) <> Type("XDTOList") Then
+		
+		Return;
+		
+	EndIf;
+	
+	MissingLinksDescription = ReadRequestsForExport(ExchangeComponents, XDTODataObject);
+	
+	RegisterNavigationQueryLinks(ExchangeComponents, MissingLinksDescription);
+	If MissingLinksDescription.Count() > 0 Then
+		
+		NamespaceTable = MissingLinksDescription.Copy(, "FormatObjectNamespace");
+		NamespaceTable.GroupBy("FormatObjectNamespace");
+		
+		For Each NamespaceTableRow In NamespaceTable Do
+			
+			FormatObjectsNamespace = NamespaceTableRow.FormatObjectNamespace;
+			RegisterNamespaceQueryLinks(ExchangeComponents, MissingLinksDescription, FormatObjectsNamespace);
+			
+		EndDo;
+		
+	EndIf;
+	
+EndProcedure
+
+
+Function ExportRequestConversionRules(Val ExchangeComponents, FormatObjectsNamespace)
+	
+	ExchangeComponentsSend = Common.CopyRecursive(ExchangeComponents, False);
+	ExchangeComponentsSend.ExchangeDirection = "Send";
+	If StrFind(FormatObjectsNamespace, "http://v8.1c.ru/edi/edi_stnd/EnterpriseData/") <> 0 Then
+		
+		ConversionRulesSend = ExportRequestConversionRulesMain(ExchangeComponentsSend, FormatObjectsNamespace);
+		
+	Else
+		
+		ConversionRulesSend = ExportRequestConversionRulesExtended(ExchangeComponentsSend, FormatObjectsNamespace);
+		
+	EndIf;
+	
+	Return ConversionRulesSend;
+	
+EndFunction
+
+Function ExportRequestConversionRulesMain(ExchangeComponentsSend, FormatObjectsNamespace)
+	
+	ExchangeFormatVersion = StrReplace(FormatObjectsNamespace, "http://v8.1c.ru/edi/edi_stnd/EnterpriseData/", "");
+	If IsBlankString(ExchangeFormatVersion) Then
+		
+		Return Undefined;
+		
+	EndIf;
+	
+	ExchangeComponentsSend.XMLSchema = FormatObjectsNamespace;
+	ExchangeComponentsSend.BaseFormatSchemas.Insert(FormatObjectsNamespace, True);
+	ExchangeComponentsSend.ExchangeManager =
+		FormatVersionExchangeManager(ExchangeFormatVersion, ExchangeComponentsSend.CorrespondentNode);
+	
+	Return ConversionRulesTable(ExchangeComponentsSend);
+	
+EndFunction
+
+Function ExportRequestConversionRulesExtended(ExchangeComponentsSend, FormatObjectsNamespace)
+	
+	ConversionRulesSend = Undefined;
+	
+	FormatExtensions = New Map;
+	DataExchangeOverridable.OnGetAvailableFormatExtensions(FormatExtensions);
+	
+	For Each FormatExtensionDetails In FormatExtensions Do
+		
+		If FormatExtensionDetails.Key <> FormatObjectsNamespace Then
+			
+			Continue;
+			
+		EndIf;
+		
+		ExchangeFormatVersion = FormatExtensionDetails.Value;
+		BasicXMLSchema = "http://v8.1c.ru/edi/edi_stnd/EnterpriseData/" + ExchangeFormatVersion;
+		
+		ExchangeComponentsSend.XMLSchema = BasicXMLSchema;
+		ExchangeComponentsSend.BaseFormatSchemas.Insert(BasicXMLSchema, True);
+		ExchangeComponentsSend.ExchangeManager =
+			FormatVersionExchangeManager(ExchangeFormatVersion, ExchangeComponentsSend.CorrespondentNode);
+		
+		AllConversionRulesSend = ConversionRulesTable(ExchangeComponentsSend);
+		
+		OCRRowFilter = New Structure;
+		OCRRowFilter.Insert("Namespace", FormatObjectsNamespace);
+		
+		FoundRows = AllConversionRulesSend.FindRows(OCRRowFilter);
+		If FoundRows.Count() = 0 Then
+			
+			Continue;
+			
+		EndIf;
+		
+		If ConversionRulesSend = Undefined Then
+			
+			ConversionRulesSend = AllConversionRulesSend.Copy(FoundRows);
+			
+		Else
+			
+			For Each ICOString In FoundRows Do
+				
+				FillPropertyValues(ConversionRulesSend.Add(), ICOString);
+				
+			EndDo;
+			
+		EndIf;
+		
+	EndDo;
+	
+	Return ConversionRulesSend;
+	
+EndFunction
+
+Function ReadRequestsForExport(ExchangeComponents, XDTODataObject)
+	
+	MissingLinksDescription = New ValueTable;
+	MissingLinksDescription.Columns.Add("ExportRequestReference", New TypeDescription("String"));
+	MissingLinksDescription.Columns.Add("URLExternal", New TypeDescription("String"));
+	MissingLinksDescription.Columns.Add("ReceivedFormatObjectName", New TypeDescription("String"));
+	MissingLinksDescription.Columns.Add("FormatObjectNamespace", New TypeDescription("String"));
+	MissingLinksDescription.Columns.Add("IsReferenceFoundAndRegisteredToSend", New TypeDescription("Boolean"));
+	
+	For Each MissingRef In XDTODataObject.String Do
+		
+		If IsBlankString(MissingRef.ReceivedFormatObjectName)
+			Or IsBlankString(MissingRef.FormatObjectNamespace)
+			Or IsBlankString(MissingRef.ExportRequestReference)
+			Or Not StringFunctionsClientServer.IsUUID(MissingRef.ExportRequestReference)
+			Then
+			
+			Continue;
+			
+		EndIf;
+		
+		NewRow = MissingLinksDescription.Add();
+		
+		FillPropertyValues(NewRow, MissingRef);
+		NewRow.IsReferenceFoundAndRegisteredToSend = False;
+		
+	EndDo;
+	
+	Return MissingLinksDescription;
+	
+EndFunction
+
+
+Procedure RegisterNavigationQueryLinks(ExchangeComponents, MissingRefs)
+	
+	ReexportObjects = New Array;
+	
+	For Each RequestReferenceDetails In MissingRefs Do
+		
+		URL = TrimAll(RequestReferenceDetails.URLExternal);
+		
+		PositionIB = StrFind(URL, "e1cib/data/");
+		PositionRef = StrFind(URL, "?ref=");
+		
+		If PositionIB = 0
+			Or PositionRef = 0 Then
+			
+			Continue;
+			
+		EndIf;
+		
+		FullNameOfMetadata = Mid(URL, PositionIB + 11, PositionRef - PositionIB - 11);
+		If Metadata.FindByFullName(FullNameOfMetadata) = Undefined Then
+			
+			Continue;
+			
+		EndIf;
+		
+		SystemPresentation = ValueToStringInternal(PredefinedValue(FullNameOfMetadata + ".EmptyRef"));
+		
+		IDAsString = Mid(URL, PositionRef + 5);
+		LinkValueAsString = StrReplace(SystemPresentation, "00000000000000000000000000000000", IDAsString);
+		MatchedObjectRef = ValueFromStringInternal(LinkValueAsString);
+		
+		If MatchedObjectRef.GetObject() <> Undefined
+			And ReexportObjects.Find(MatchedObjectRef) = Undefined Then
+			
+			ReexportObjects.Add(MatchedObjectRef);
+			
+		EndIf;
+		
+	EndDo;
+	
+	RegisterSelectedRefs(ExchangeComponents, ReexportObjects, RequestReferenceDetails);
+	DeleteStringsOfRegisteredReferences(MissingRefs);
+	
+EndProcedure
+
+Procedure RegisterNamespaceQueryLinks(ExchangeComponents, MissingRefs, FormatObjectsNamespace)
+	
+	If XDTOFactory.Packages.Get(FormatObjectsNamespace) = Undefined Then
+		
+		Return;
+		
+	EndIf;
+	
+	ConversionRulesSend = ExportRequestConversionRules(ExchangeComponents, FormatObjectsNamespace);
+	If ConversionRulesSend = Undefined Then
+		
+		Return;
+		
+	EndIf;
+	
+	FilterParameters = New Structure;
+	FilterParameters.Insert("FormatObjectNamespace", FormatObjectsNamespace);
+	
+	ExportRequestReferences = MissingRefs.FindRows(FilterParameters);
+	For Each RequestReferenceDetails In ExportRequestReferences Do
+		
+		FindLinkForSendByRuleCollection(ExchangeComponents, ConversionRulesSend, RequestReferenceDetails);
+		If Not RequestReferenceDetails.IsReferenceFoundAndRegisteredToSend Then
+			
+			RecordImportQueryWarningReferenceNotFound(ExchangeComponents, RequestReferenceDetails);
+			
+		EndIf;
+		
+	EndDo;
+	
+EndProcedure
+
+Procedure FindLinkForSendByRuleCollection(ExchangeComponents, ConversionRules, RequestReferenceDetails)
+	
+	IDForSearch = New UUID(RequestReferenceDetails.ExportRequestReference);
+	If IDForSearch = Undefined Then
+		
+		Return;
+		
+	EndIf;
+	
+	ReexportObjects = New Array;
+	
+	OCRRowFilter = New Structure;
+	OCRRowFilter.Insert("FormatObject", RequestReferenceDetails.ReceivedFormatObjectName);
+	
+	FoundOCR = ConversionRules.FindRows(OCRRowFilter);
+	For Each ConversionRule In FoundOCR Do
+		
+		If ConversionRule.IsReferenceType <> True Then
+			
+			Continue;
+			
+		EndIf;
+		
+		MetadataObjectManager = ConversionRule.ObjectManager;
+		
+		// There might be multiple OCRs set up for different metadata tables.
+		// These tables can include identical identifiers.
+		MatchedObjectRef = MetadataObjectManager.GetRef(IDForSearch);
+		If Not Common.RefExists(MatchedObjectRef) Then
+			
+			MatchedObjectRef = Undefined;
+			
+		EndIf;
+		
+		// This conversion version has no event OnReceiptOfObjectExportRequest
+		
+		If MatchedObjectRef <> Undefined
+			And ReexportObjects.Find(MatchedObjectRef) = Undefined Then
+			
+			ReexportObjects.Add(MatchedObjectRef);
+			
+		EndIf;
+		
+	EndDo;
+	
+	RegisterSelectedRefs(ExchangeComponents, ReexportObjects, RequestReferenceDetails);
+	
+EndProcedure
+
+Procedure OnSendDataToRecipient(CorrespondentNode, ItemSend, MatchedObjectRef)
+	
+	IsInitialDataExport = False;
+	IsDataAnalysis = True; // Disable prioritization of DIB data
+	
+	DataExchangeEvents.OnSendDataToRecipient(MatchedObjectRef, ItemSend, 
+		IsInitialDataExport, CorrespondentNode, IsDataAnalysis);
+	
+EndProcedure
+
+Procedure RegisterSelectedRefs(ExchangeComponents, ReexportObjects, RequestReferenceDetails)
+	
+	If ReexportObjects.Count() < 1 Then
+		
+		Return;
+		
+	EndIf;
+	
+	CorrespondentNode = ExchangeComponents.CorrespondentNode;
+	
+	For Each MatchedObjectRef In ReexportObjects Do
+		
+		If Common.IsRegister(MatchedObjectRef.Metadata()) Then
+			
+			Continue;
+			
+		EndIf;
+		
+		RegisterManagerObjectsData = InformationRegisters.ObjectsDataToRegisterInExchanges;
+		If Not RegisterManagerObjectsData.ObjectIsInRegister(MatchedObjectRef, CorrespondentNode) Then
+			
+			AddObjectToAllowedObjectsFilter(MatchedObjectRef, CorrespondentNode);
+			
+		EndIf;
+		
+		MatchedObject = MatchedObjectRef.GetObject();
+		
+		ItemSend = DataItemSend.Auto;
+		OnSendDataToRecipient(CorrespondentNode, ItemSend, MatchedObject);
+		
+		If ItemSend = DataItemSend.Auto Then
+			
+			ExchangePlans.RecordChanges(CorrespondentNode, MatchedObjectRef);
+			RequestReferenceDetails.IsReferenceFoundAndRegisteredToSend = True;
+			
+		Else
+			
+			RecordImportQueryWarningReferenceDoesNotPassFilter(
+				ExchangeComponents, RequestReferenceDetails, MatchedObjectRef);
+			
+		EndIf;
+		
+	EndDo;
+	
+EndProcedure
+
+Procedure RecordImportQueryWarningReferenceDoesNotPassFilter(ExchangeComponents, RequestReferenceDetails, MatchedObjectRef)
+	
+	TextTemplate1 = NStr("en = '%1 will not be re-exported because it does not meet the filter conditions.'");
+	
+	RepresentationOfTheReference = ObjectPresentationForProtocol(MatchedObjectRef);
+	
+	WarningPresentation = StrTemplate(TextTemplate1, RepresentationOfTheReference);
+	If Not IsBlankString(RequestReferenceDetails.URLExternal) Then
+		
+		WarningPresentation = WarningPresentation + Chars.LF + RequestReferenceDetails.URLExternal;
+		
+	EndIf;
+	
+	WarningDetails = New Structure;
+	WarningDetails.Insert("Level", EventLogLevel.Warning);
+	WarningDetails.Insert("BriefErrorDescription",   WarningPresentation);
+	WarningDetails.Insert("DetailErrorDescription", WarningPresentation);
+	
+	// Log the warning in the event log. The exchange result ignores it.
+	WriteToExecutionProtocol(ExchangeComponents, WarningDetails, Undefined, False);
+	
+EndProcedure
+
+Procedure RecordImportQueryWarningReferenceNotFound(ExchangeComponents, RequestReferenceDetails)
+	
+	ErrorDescription = NStr("en = 'Reference with ID %1 for format object %2 will not be re-exported,
+							|because no matching reference was found in this application.'");
+	
+	IdentifierFromQuery = RequestReferenceDetails.ExportRequestReference;
+	FormatObjectName = RequestReferenceDetails.ReceivedFormatObjectName;
+	
+	WarningPresentation = StrTemplate(ErrorDescription, IdentifierFromQuery, FormatObjectName);
+	If Not IsBlankString(RequestReferenceDetails.URLExternal) Then
+		
+		WarningPresentation = WarningPresentation + Chars.LF + RequestReferenceDetails.URLExternal;
+		
+	EndIf;
+	
+	WarningDetails = New Structure;
+	WarningDetails.Insert("Level", EventLogLevel.Warning);
+	WarningDetails.Insert("BriefErrorDescription",   WarningPresentation);
+	WarningDetails.Insert("DetailErrorDescription", WarningPresentation);
+	
+	// Log the warning, and do not include it in the exchange results.
+	WriteToExecutionProtocol(ExchangeComponents, WarningDetails, Undefined, False);
+	
+EndProcedure
+
+Procedure DeleteStringsOfRegisteredReferences(MissingRefs)
+	
+	RowFilter = New Structure;
+	RowFilter.Insert("IsReferenceFoundAndRegisteredToSend", False);
+	
+	MissingRefs = MissingRefs.Copy(RowFilter);
+	
+EndProcedure
+
+#EndRegion
+
 // Reading and processing data on object deletion.
 //
 // Parameters:
@@ -7051,78 +7830,12 @@ Procedure ReadDeletion(ExchangeComponents, XDTODataObject, ArrayOfObjectsToDelet
 					TablesToImport, XDTODataObject.Type().Name, ConversionRule.ReceivedDataTypeAsString) Then
 				Continue;
 			EndIf;
-			
-			SupplementListOfObjectsForDeletion(ExchangeComponents,
-				ConversionRule.DataType, UUIDAsString1, ArrayOfObjectsToDelete);
-			
-		EndIf;
-	EndDo;
-	
-EndProcedure
 
-Procedure ApplyObjectsDeletion(ExchangeComponents, ArrayOfObjectsToDelete, ArrayOfImportedObjects)
-	
-	For Each ImportedObject In ArrayOfImportedObjects Do
-		While ArrayOfObjectsToDelete.Find(ImportedObject) <> Undefined Do
-			ArrayOfObjectsToDelete.Delete(ArrayOfObjectsToDelete.Find(ImportedObject));
-		EndDo;
-	EndDo;
-	
-	ProhibitDocumentPosting = Metadata.ObjectProperties.Posting.Deny;
-	
-	For Each ElementToDelete In ArrayOfObjectsToDelete Do
-		
-		// Delete the reference.
-		Object = ElementToDelete.GetObject();
-		If Object = Undefined Then
-			Continue;
+			SupplementListOfObjectsForDeletion(ExchangeComponents,
+				ConversionRule,
+				UUIDAsString1,
+				ArrayOfObjectsToDelete);
 		EndIf;
-		
-		If ExchangeComponents.DataImportToInfobaseMode Then
-			
-			If ExchangeComponents.IsExchangeViaExchangePlan
-				And DataExchangeEvents.ImportRestricted(Object, ExchangeComponents.CorrespondentNodeObject) Then
-				
-				Continue; // If the object modification is restricted due to a period-end closing date, then resume the loop
-				
-			EndIf;
-			
-			// An attempt in case the hander is missing from the data exchange manager
-			Try
-				ExchangeComponents.ExchangeManager.ПередОбработкойУдаляемогоОбъекта(ExchangeComponents, Object);
-			Except
-				// No action required
-			EndTry;
-			
-			ObjectMetadata = Object.Metadata();
-			If Metadata.Documents.Contains(ObjectMetadata) Then
-				If Object.Posted Then
-					
-					HasResult = UndoObjectPostingInIB(Object, 
-						ExchangeComponents.CorrespondentNode, ExchangeComponents);
-					
-					If Not HasResult Then
-						Continue;
-					EndIf;
-				ElsIf ObjectMetadata.Posting = ProhibitDocumentPosting Then
-					MakeDocumentRegisterRecordsInactive(Object, ExchangeComponents);
-				EndIf;
-			EndIf;
-			DataExchangeServer.SetDataExchangeLoad(Object, True, False, ExchangeComponents.CorrespondentNode);
-			DeleteObject(Object, False, ExchangeComponents);
-		Else
-			
-			ReceivedDataTypeAsString = DataTypeNameByMetadataObject(Object.Metadata());
-			
-			TableRow = ExchangeComponents.PackageHeaderDataTable.Add();
-			
-			TableRow.ObjectTypeString = ReceivedDataTypeAsString;
-			TableRow.ObjectCountInSource = 1;
-			TableRow.DestinationTypeString = ReceivedDataTypeAsString;
-			TableRow.IsObjectDeletion = True;
-			
-		EndIf;
-		
 	EndDo;
 	
 EndProcedure
@@ -7162,12 +7875,60 @@ Procedure DeleteObject(Object, DeleteDirectly, ExchangeComponents)
 	EndIf;
 	
 	If DeleteDirectly Then
-		Object.Delete();
+		DeleteObjectWithRecordsOfDependentInformationRegisters(Object, ExchangeComponents);
 	Else
 		SetObjectDeletionMark(Object);
 	EndIf;
 	
 EndProcedure
+
+Procedure DeleteObjectWithRecordsOfDependentInformationRegisters(Object, ExchangeComponents)
+	
+	BeginTransaction();
+	
+	Try
+	
+		For Each CollectionItem In DependentObjectInformationRegisters() Do 
+			Block = New DataLock;
+			LockItem = Block.Add("InformationRegister." + CollectionItem.Key);
+			LockItem.SetValue(CollectionItem.Value, Object.Ref);
+			Block.Lock();
+			
+			RecordSet = InformationRegisters[CollectionItem.Key].CreateRecordSet();
+			RecordSet.Filter[CollectionItem.Value].Set(Object.Ref, True);
+			RecordSet.DataExchange.Load = Object.DataExchange.Load;
+			RecordSet.Write(True);
+		EndDo;
+	
+		Object.Delete();
+	
+		CommitTransaction();
+	Except
+		RollbackTransaction();
+		
+		ErrorMessage = ErrorProcessing.DetailErrorDescription(ErrorInfo());
+		
+		InfobaseNode = ExchangeComponents.CorrespondentNode;
+		ExchangeDirection = ExchangeComponents.ExchangeDirection;
+		
+		Event = DataExchangeServer.EventLogMessageKey(InfobaseNode,
+			ExchangeDirection);
+			
+		WriteLogEvent(Event, EventLogLevel.Error,,, ErrorMessage);
+	EndTry;
+
+EndProcedure
+
+Function DependentObjectInformationRegisters()
+
+	DependentInformationRegisters = New Structure;
+	DependentInformationRegisters.Insert("SynchronizedObjectPublicIDs", "Ref");
+	DependentInformationRegisters.Insert("ObjectsDataToRegisterInExchanges", "Ref");
+	DependentInformationRegisters.Insert("ObjectsUnregisteredDuringLoop", "Object");
+
+	Return DependentInformationRegisters;
+
+EndFunction
 
 // Sets deletion mark.
 //
@@ -7341,19 +8102,19 @@ Procedure FillXDTOSettingsStructure(ExchangeComponents) Export
 		
 	Else
 		
-		ObjectsTable1 = New ValueTable;
-		InitializeSupportedFormatObjectsTable(ObjectsTable1, ExchangeComponents.ExchangeDirection);
+		TableObjects = New ValueTable;
+		InitializeSupportedFormatObjectsTable(TableObjects, ExchangeComponents.ExchangeDirection);
 		
-		FillSupportedFormatObjectsByExchangeComponents(ObjectsTable1, ExchangeComponents);
+		FillSupportedFormatObjectsByExchangeComponents(TableObjects, ExchangeComponents);
 		
 		AlgorithmName = "OnDefineSupportedFormatObjects";
 		HasAlgorithm = DataExchangeServer.HasExchangePlanManagerAlgorithm(AlgorithmName, ExchangePlanName);
 		If HasAlgorithm Then
 			ExchangePlans[ExchangePlanName].OnDefineSupportedFormatObjects(
-				ObjectsTable1, ExchangeComponents.ExchangeDirection, ExchangeComponents.CorrespondentNode);
+				TableObjects, ExchangeComponents.ExchangeDirection, ExchangeComponents.CorrespondentNode);
 		EndIf;
 		
-		ExchangeComponents.XDTOSettings.SupportedObjects = ObjectsTable1;
+		ExchangeComponents.XDTOSettings.SupportedObjects = TableObjects;
 		
 	EndIf;
 	
@@ -8001,7 +8762,7 @@ EndFunction
 //
 // Parameters:
 //   Object - AnyRef - a reference to any MDO;
-//          - Объект - MDO;
+//          - CatalogObject, DocumentObject - metadata object;
 //          - XDTODataObject - an XDTO object;
 //          - Structure
 //   StructurePresentationMetadata - MetadataObject - metadata of the object the presentation is generated for.
@@ -8025,7 +8786,9 @@ Function ObjectPresentationForProtocol(Object, StructurePresentationMetadata = U
 			Ref = Object.Ref;
 		EndIf;
 	Else
-		If Common.IsRefTypeObject(ObjectMetadata) Then
+		If Common.IsReference(ObjectType) Then
+			Ref = Object;
+		ElsIf Common.IsRefTypeObject(ObjectMetadata) Then
 			Ref = Object.Ref;
 		EndIf;
 	EndIf;
@@ -8572,50 +9335,93 @@ Procedure WritePublicIDIfNecessary(
 	
 EndProcedure
 
-Procedure AddExportedObjectsToPublicIDsRegister(ExchangeComponents)
+Procedure ProcessReceiptOfConfirmationFromCorrespondent(ExchangeComponents, CachePublicIdentifiers = True)
+	
+	AdditionalConversionParameters = New Structure("ChangeSelectionFilter");
+	FillPropertyValues(AdditionalConversionParameters, ExchangeComponents);
+	
+	AddExportedObjectsToPublicIDsRegister(
+		ExchangeComponents, CachePublicIdentifiers, AdditionalConversionParameters.ChangeSelectionFilter);
+	
+	If ExchangeComponents.UseHandshake Then
+		ExchangePlans.DeleteChangeRecords(ExchangeComponents.CorrespondentNode, ExchangeComponents.MessageNumberReceivedByCorrespondent);
+	EndIf;
+	
+EndProcedure
+
+Procedure AddExportedObjectsToPublicIDsRegister(ExchangeComponents, CachePublicIdentifiers, ChangeSelectionFilter)
 	
 	NodeForExchange = ExchangeComponents.CorrespondentNode;
 	ExchangePlanContent = NodeForExchange.Metadata().Content;
 	
-	QueryTextTemplate2 = 
-	"SELECT 
-	|	ChangesTable.Ref
-	|FROM 
-	|	&MetadataTableName AS ChangesTable
-	|LEFT JOIN 
-	|	InformationRegister.SynchronizedObjectPublicIDs AS PublicIDs
-	|ON PublicIDs.InfobaseNode = &Node AND PublicIDs.Ref = ChangesTable.Ref
-	|WHERE ChangesTable.Node = &Node AND ChangesTable.MessageNo <= &MessageNo
-	|	AND PublicIDs.Id IS NULL";
+	ChangeRequestTemplate = 
+	"SELECT
+	|	ChangesTable.Ref AS Ref,
+	|	ChangesTable.Node AS Node
+	|FROM
+	|	#MetadataTableName AS ChangesTable
+	|WHERE
+	|	ChangesTable.Node = &Node
+	|	AND (NOT &UseHandshake
+	|			OR ChangesTable.MessageNo <= &MessageNo)
+	|	AND (NOT &UseChangeSelectionFilter
+	|			OR ChangesTable.Ref IN (&ChangeSelectionFilter))";
+	
+	SetOfChangeRequests = New Array;
 	
 	For Each CompositionItem In ExchangePlanContent Do
-		
 		If Not Common.IsRefTypeObject(CompositionItem.Metadata) Then
-			
 			Continue;
-			
 		EndIf;
 		
 		MetadataTableName = StringFunctionsClientServer.SubstituteParametersToString("%1.Changes", CompositionItem.Metadata.FullName());
-		QueryText = StrReplace(QueryTextTemplate2, "&MetadataTableName", MetadataTableName);
+		QueryText = StrReplace(ChangeRequestTemplate, "#MetadataTableName", MetadataTableName);
+		
+		SetOfChangeRequests.Add(QueryText);
+	EndDo;
+	
+	If SetOfChangeRequests.Count() > 0 Then
+		JoinString = "
+		|UNION ALL
+		|";
+		TextOfChangeRequest = StrConcat(SetOfChangeRequests, JoinString);
+		
+		QueryTextTemplate2 = 
+		"SELECT
+		|	ChangesTable.Ref AS Ref
+		|FROM
+		|	#DataChangeSubquery AS ChangesTable
+		|		LEFT JOIN InformationRegister.SynchronizedObjectPublicIDs AS PublicIDs
+		|		ON (PublicIDs.InfobaseNode = ChangesTable.Node)
+		|			AND (PublicIDs.Ref = ChangesTable.Ref)
+		|WHERE
+		|	PublicIDs.Id IS NULL";
+		
+		QueryText = StrReplace(QueryTextTemplate2, "#DataChangeSubquery", "(" + TextOfChangeRequest + ")");
 		
 		Query = New Query(QueryText);
 		Query.SetParameter("Node", NodeForExchange);
+		// Handshake parameters.
+		Query.SetParameter("UseHandshake", ExchangeComponents.UseHandshake);
 		Query.SetParameter("MessageNo", ExchangeComponents.MessageNumberReceivedByCorrespondent);
+		// Limitation parameters of change selection.
+		Query.SetParameter("UseChangeSelectionFilter", ChangeSelectionFilter <> Undefined);
+		Query.SetParameter("ChangeSelectionFilter", ChangeSelectionFilter);
+		
 		Selection = Query.Execute().Select();
 		While Selection.Next() Do
-			
 			RecordStructure = New Structure;
 			RecordStructure.Insert("Ref", Selection.Ref);
 			RecordStructure.Insert("InfobaseNode", ExchangeComponents.CorrespondentNode);
 			RecordStructure.Insert("Id", Selection.Ref.UUID());
+			
 			InformationRegisters.SynchronizedObjectPublicIDs.AddRecord(RecordStructure, True);
 			
-			AddEntryToPublicIdCache(RecordStructure, ExchangeComponents);
-			
+			If CachePublicIdentifiers Then
+				AddEntryToPublicIdCache(RecordStructure, ExchangeComponents);
+			EndIf;
 		EndDo;
-		
-	EndDo;
+	EndIf;
 	
 EndProcedure
 
@@ -8629,24 +9435,24 @@ Function VersionNumberWithDataExchangeIDSupport()
 	Return "1.5";
 EndFunction
 
-Procedure InitializeSupportedFormatObjectsTable(ObjectsTable1, Mode)
+Procedure InitializeSupportedFormatObjectsTable(TableObjects, Mode)
 	
-	ObjectsTable1.Columns.Add("Version", New TypeDescription("String"));
-	ObjectsTable1.Columns.Add("Object", New TypeDescription("String"));
+	TableObjects.Columns.Add("Version", New TypeDescription("String"));
+	TableObjects.Columns.Add("Object", New TypeDescription("String"));
 	
 	If StrFind(Mode, "Send") Then
-		ObjectsTable1.Columns.Add("Send", New TypeDescription("Boolean"));
+		TableObjects.Columns.Add("Send", New TypeDescription("Boolean"));
 	EndIf;
 	
 	If StrFind(Mode, "Receive") Then
-		ObjectsTable1.Columns.Add("Receive", New TypeDescription("Boolean"));
+		TableObjects.Columns.Add("Receive", New TypeDescription("Boolean"));
 	EndIf;
 	
-	ObjectsTable1.Indexes.Add("Version, Object");
+	TableObjects.Indexes.Add("Version, Object");
 	
 EndProcedure
 
-Procedure FillSupportedFormatObjectsByExchangeComponents(ObjectsTable1, ExchangeComponents)
+Procedure FillSupportedFormatObjectsByExchangeComponents(TableObjects, ExchangeComponents)
 	
 	If ExchangeComponents.ExchangeDirection = "Send" Then
 		
@@ -8658,9 +9464,9 @@ Procedure FillSupportedFormatObjectsByExchangeComponents(ObjectsTable1, Exchange
 			Filter.Insert("Version", ExchangeComponents.ExchangeFormatVersion);
 			Filter.Insert("Object", ObjectType.Name);
 			
-			RowsObjects = ObjectsTable1.FindRows(Filter);
+			RowsObjects = TableObjects.FindRows(Filter);
 			If RowsObjects.Count() = 0 Then
-				RowObjects = ObjectsTable1.Add();
+				RowObjects = TableObjects.Add();
 				FillPropertyValues(RowObjects, Filter);
 			Else
 				RowObjects = RowsObjects[0];
@@ -8678,9 +9484,9 @@ Procedure FillSupportedFormatObjectsByExchangeComponents(ObjectsTable1, Exchange
 			Filter.Insert("Version", ExchangeComponents.ExchangeFormatVersion);
 			Filter.Insert("Object", ProcessingRule.FilterObjectFormat);
 			
-			RowsObjects = ObjectsTable1.FindRows(Filter);
+			RowsObjects = TableObjects.FindRows(Filter);
 			If RowsObjects.Count() = 0 Then
-				RowObjects = ObjectsTable1.Add();
+				RowObjects = TableObjects.Add();
 				FillPropertyValues(RowObjects, Filter);
 			Else
 				RowObjects = RowsObjects[0];
@@ -8722,10 +9528,24 @@ Function SearchByID(Val IdentificationOption)
 									
 EndFunction
 	
-Procedure SupplementListOfObjectsForDeletion(ExchangeComponents, DataType, UUID, ArrayOfObjectsToDelete)
+Procedure SupplementListOfObjectsForDeletion(ExchangeComponents, ConversionRule, UUID, ArrayOfObjectsToDelete)
 	
 	RefForDeletion = ObjectRefByXDTODataObjectUUID(UUID,
-		DataType, ExchangeComponents);
+		ConversionRule.DataType, ExchangeComponents);
+	
+	RuleForCatalogGroup = (ConversionRule.IsCatalog Or ConversionRule.IsChartOfCharacteristicTypes)
+		And ConversionRule.RuleForCatalogGroup;
+		
+	If RuleForCatalogGroup And (Not RefForDeletion.IsEmpty()
+		And Common.RefExists(RefForDeletion)) Then
+		
+		IsFolder = Common.ObjectAttributeValue(RefForDeletion, "IsFolder");
+	
+		If Not IsFolder Then
+			RefForDeletion = ConversionRule.ObjectManager.GetRef();
+		EndIf;
+	EndIf;
+
 	If ArrayOfObjectsToDelete.Find(RefForDeletion) = Undefined Then
 		ArrayOfObjectsToDelete.Add(RefForDeletion);
 	EndIf;
@@ -8756,6 +9576,15 @@ Procedure FillXDTOObjectPropertiesList(XDTOObjectType, Properties)
 	EndDo;
 	
 EndProcedure
+
+Function InitializeArrayOfExcludedTypesForRegistration()
+	
+	ExcludedTypesForRegistration = New Array;	
+	ExcludedTypesForRegistration.Add(Type("Structure"));
+	
+	Return ExcludedTypesForRegistration;
+
+EndFunction
 
 #EndRegion
 

@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -14,14 +13,12 @@
 // ACC:134-off - 7+ parameters to support application functions.
 
 // Starts the function execution in a background job if possible.
-// The function to call can have the arbitrary number of parameters, but not more than 7.
+// The function to call can have an arbitrary number of parameters, but not more than 7.
 // Values of the passed function parameters and its return value must be serialized.
 // Function parameters must not be returned.
 //
-// Do not use the function if the background job must be started unconditionally.
-// We recommend that you use it together with the TimeConsumingOperationsClient.WaitForCompletion function.
-// If it's impossible, use the IsJobCompleted function to ensure the operation is completed.
-// 
+// We recommend that you use it together with the TimeConsumingOperationsClient.WaitForCompletion().
+// If it's impossible, use IsJobCompleted() to ensure the operation is completed.
 //
 // Parameters:
 //  ExecutionParameters - ClientApplicationForm - Form where the call originated.
@@ -100,6 +97,9 @@ Function ExecuteFunction(Val ExecutionParameters, FunctionName, Val Parameter1 =
 	Val Parameter2 = Undefined, Val Parameter3 = Undefined, Val Parameter4 = Undefined,
 	Val Parameter5 = Undefined, Val Parameter6 = Undefined, Val Parameter7 = Undefined) Export
 	
+	CheckProcedureName(FunctionName,
+		"FunctionName", "TimeConsumingOperations.ExecuteFunction", ExecutionParameters);
+	
 	CallParameters = ParametersList(Parameter1, Parameter2, Parameter3, Parameter4,
 		Parameter5, Parameter6, Parameter7);
 	
@@ -111,15 +111,13 @@ EndFunction
 // ACC:141-off - The first optional parameter followed by a required parameter is selected
 // to keep the parameter order the same as in the "ExecuteFunction" function.
 
-// Starts the procedure execution in a background job if possible.
-// The procedure to call can have the arbitrary number of parameters, but not more than 7.
+// Runs a procedure in a background job if possible.
+// The procedure to call can have an arbitrary number of parameters, but not more than 7.
 // Values of the passed procedure parameters and its return value must be serialized.
 // Procedure parameters must not be returned.
 //
-// Do not use the function if the background job must be started unconditionally.
-// We recommend that you use it together with the TimeConsumingOperationsClient.WaitForCompletion function.
-// If it's impossible, use the IsJobCompleted function to ensure the operation is completed.
-// 
+// We recommend that you use it together with TimeConsumingOperationsClient.WaitForCompletion().
+// If it's impossible, use IsJobCompleted() to ensure the operation is completed.
 //
 // Parameters:
 //
@@ -197,6 +195,9 @@ Function ExecuteProcedure(Val ExecutionParameters = Undefined, ProcedureName, Va
 	Val Parameter2 = Undefined, Val Parameter3 = Undefined, Val Parameter4 = Undefined,
 	Val Parameter5 = Undefined, Val Parameter6 = Undefined, Val Parameter7 = Undefined) Export
 	
+	CheckProcedureName(ProcedureName,
+		"ProcedureName", "TimeConsumingOperations.ExecuteFunction", ExecutionParameters);
+	
 	CallParameters = ParametersList(Parameter1, Parameter2, Parameter3, Parameter4,
 		Parameter5, Parameter6, Parameter7);
 	ExecutionParameters = PrepareExecutionParameters(ExecutionParameters, "Procedure");
@@ -208,14 +209,13 @@ EndFunction
 // ACC:134-on
 // ACC:142-on
 
-// Starts the function execution in a multi-threaded background job if possible.
-// The procedure to call can have the arbitrary number of parameters, but not more than 7.
-// Values of the passed procedure parameters and its return value must be serialized.
+// Runs a function in a multi-threaded background job if possible.
+// The procedure can have an arbitrary number of parameters, but no more than 7.
+// Values of the passed parameters and the return value must be serialized.
 // Procedure parameters must not be returned. Shared sessions do not support multi-threaded long-running operations.
-// Do not use the function if the background job must be started unconditionally.
+// We recommend using it together with TimeConsumingOperationsClient.WaitForCompletion().
 //
-// We recommend that you use it together with the TimeConsumingOperationsClient.WaitForCompletion function.
-// If it's impossible, use the IsJobCompleted function to ensure the operation is completed.
+// If it's impossible, use IsJobCompleted() to ensure the operation is completed.
 // 
 //
 // Parameters:
@@ -247,66 +247,28 @@ EndFunction
 //   * BriefErrorDescription   - String - Obsolete.
 //   * DetailErrorDescription - String - Obsolete.
 //
-Function ExecuteFunctionInMultipleThreads(FunctionName, Val ExecutionParameters, Val FunctionSettings = Undefined) Export
+Function ExecuteFunctionInMultipleThreads(FunctionName, ExecutionParameters, FunctionSettings = Undefined) Export
 	
-	CheckIfCanRunMultiThreadLongRunningOperation(ExecutionParameters, FunctionSettings);
-
-	If ExecutionParameters.WaitCompletion = CommonBackgroundExecutionParameters().WaitCompletion Then
-		ExecutionParameters.WaitCompletion = 0;
-	EndIf;
+	CheckProcedureName(FunctionName,
+		"FunctionName", "TimeConsumingOperations.ExecuteFunctionInMultipleThreads", ExecutionParameters);
 	
-	ResultAddresses = New Map;
-	
-	If TypeOf(FunctionSettings) = Type("Map") Then
-		For Each ParameterFunctions In FunctionSettings Do
-			StreamResultAddr = PutToTempStorage(Undefined, New UUID);
-			ResultAddresses.Insert(ParameterFunctions.Key, StreamResultAddr);
-		EndDo;
-		MethodParameters = FunctionSettings.Count();
-	Else
-		MethodParameters = FunctionSettings; // Structure
-		FunctionSettings = New Map;
-	EndIf;
-	
-	ProcessID = New UUID;
-	MultithreadOperationParameters = MultithreadOperationParameters(ProcessID);
-	MultithreadOperationParameters.MethodName = FunctionName;
-	MultithreadOperationParameters.IsFunction = "Function";
-	MultithreadOperationParameters.ExecutionParameters = ExecutionParameters;
-	MultithreadOperationParameters.MethodParameters = MethodParameters;
-	
-	PrepareMultiThreadOperationForStartup(FunctionName,
-		ResultAddresses, ProcessID, FunctionSettings);
-	
-	RunResult = New Structure("Status, JobID, ResultAddress",
-		TimeConsumingOperationStatus().Running);
-	ScheduleStartOfLongRunningOperationThreads(RunResult, MultithreadOperationParameters);
-	
-	RunResult = ExecuteFunction(ExecutionParameters,
-		MultithreadProcessMethodName(), MultithreadOperationParameters);
-	
-	If RunResult.Status <> TimeConsumingOperationStatus().Running Then
-		DeleteDataAboutThreads(ProcessID);
-	EndIf;
-	
-	Return RunResult;
+	Return RunMethodInMultipleThreads(FunctionName, ExecutionParameters, FunctionSettings, True);
 	
 EndFunction
 
-// Starts the procedure execution in a multi-threaded background job if possible.
-// The procedure to call can have the arbitrary number of parameters, but not more than 7.
-// Values of the passed procedure parameters and its return value must be serialized.
+// Runs a procedure in a multi-threaded background job if possible.
+// The procedure can have an arbitrary number of parameters, but no more than 7.
+// Values of the passed procedure parameters must be serialized.
 // Procedure parameters must not be returned. Shared sessions do not support multi-threaded long-running operations.
-// Do not use the function if the background job must be started unconditionally.
+// We recommend using it together with TimeConsumingOperationsClient.WaitForCompletion().
 //
-// We recommend that you use it together with the TimeConsumingOperationsClient.WaitForCompletion function.
-// If it's impossible, use the IsJobCompleted function to ensure the operation is completed.
+// If it's impossible, use IsJobCompleted() to ensure the operation is completed.
 // 
 //
 // Parameters:
 //  ProcedureName - String - Name of the export procedure that you want to start in the background. 
 //                          The procedure can belong to a common module, object manager module, or data processor module.
-//  ExecutionParameters - See ProcedureExecutionParameters
+//  ExecutionParameters - See FunctionExecutionParameters
 //  ProcedureSettings - Map of KeyAndValue - Custom set of procedure call parameters:
 //    * Key - Arbitrary - Set key.
 //    * Value - Array - Up to 7 procedure call parameters.
@@ -330,53 +292,12 @@ EndFunction
 //   * BriefErrorDescription   - String - Obsolete.
 //   * DetailErrorDescription - String - Obsolete.
 //
-Function ExecuteProcedureinMultipleThreads(ProcedureName, Val ExecutionParameters, Val ProcedureSettings = Undefined) Export
+Function ExecuteProcedureinMultipleThreads(ProcedureName, ExecutionParameters, ProcedureSettings = Undefined) Export
 	
-	CheckIfCanRunMultiThreadLongRunningOperation(ExecutionParameters, ProcedureSettings);
+	CheckProcedureName(ProcedureName,
+		"ProcedureName", "TimeConsumingOperations.ExecuteFunctionInMultipleThreads", ExecutionParameters);
 	
-	NewExecutionParameters = FunctionExecutionParameters(Undefined);
-	FillPropertyValues(NewExecutionParameters, ExecutionParameters);
-	ExecutionParameters = NewExecutionParameters;
-	
-	If ExecutionParameters.WaitCompletion = CommonBackgroundExecutionParameters().WaitCompletion Then
-		ExecutionParameters.WaitCompletion = 0;
-	EndIf;
-	
-	ResultAddresses = New Map;
-	
-	If TypeOf(ProcedureSettings) = Type("Map") Then
-		For Each ParameterFunctions In ProcedureSettings Do
-			StreamResultAddr = PutToTempStorage(Undefined, New UUID);
-			ResultAddresses.Insert(ParameterFunctions.Key, StreamResultAddr);
-		EndDo;
-		MethodParameters = ProcedureSettings.Count();
-	Else
-		MethodParameters = ProcedureSettings; // Structure
-		ProcedureSettings = New Map;
-	EndIf;
-	
-	ProcessID = New UUID;
-	MultithreadOperationParameters = MultithreadOperationParameters(ProcessID);
-	MultithreadOperationParameters.MethodName = ProcedureName;
-	MultithreadOperationParameters.IsFunction = "Procedure";
-	MultithreadOperationParameters.ExecutionParameters = ExecutionParameters;
-	MultithreadOperationParameters.MethodParameters = MethodParameters;
-	
-	PrepareMultiThreadOperationForStartup(ProcedureName,
-		ResultAddresses, ProcessID, ProcedureSettings);
-	
-	RunResult = New Structure("Status, JobID, ResultAddress",
-		TimeConsumingOperationStatus().Running);
-	ScheduleStartOfLongRunningOperationThreads(RunResult, MultithreadOperationParameters);
-	
-	RunResult = ExecuteFunction(ExecutionParameters,
-		MultithreadProcessMethodName(), MultithreadOperationParameters);
-	
-	If RunResult.Status <> TimeConsumingOperationStatus().Running Then
-		DeleteDataAboutThreads(ProcessID);
-	EndIf;
-	
-	Return RunResult;
+	Return RunMethodInMultipleThreads(ProcedureName, ExecutionParameters, ProcedureSettings, False);
 	
 EndFunction
 
@@ -491,12 +412,11 @@ Function ProcedureExecutionParameters() Export
 	
 EndFunction
 
-// We recommend that you use functions ExecuteFunction and ExecuteProcedure instead of this one.
+// We recommend that you use ExecuteFunction() and ExecuteProcedure() instead of this function.
 // 
-// It executes the procedure in a background job when possible.
-// Do not use the function if the background job must be started unconditionally.
-// We recommend that you use it together with the TimeConsumingOperationsClient.WaitForCompletion function.
-// If it's impossible, use the IsJobCompleted function to ensure the operation is completed.
+// It executes a procedure in a background job when possible.
+// We recommend that you use it together with TimeConsumingOperationsClient.WaitForCompletion().
+// If it's impossible, use IsJobCompleted() to ensure the operation is completed.
 // 
 // Parameters:
 //  ProcedureName           - String    - a name of the export procedure in a common module, object manager module, 
@@ -582,7 +502,10 @@ EndFunction
 //  EndProcedure
 //  
 Function ExecuteInBackground(Val ProcedureName, Val ProcedureParameters, Val ExecutionParameters) Export
-		
+	
+	CheckProcedureName(ProcedureName,
+		"ProcedureName", "TimeConsumingOperations.ExecuteInBackground", ExecutionParameters);
+	
 	// Backward compatibility.
 	NewExecutionParameters = BackgroundExecutionParameters();
 	FillPropertyValues(NewExecutionParameters, ExecutionParameters);
@@ -592,6 +515,9 @@ Function ExecuteInBackground(Val ProcedureName, Val ProcedureParameters, Val Exe
 	ExecutionParameters = NewExecutionParameters;
 	
 	VerifyExecutionParameters(ExecutionParameters);
+	If ExecutionParameters.MultithreadLongRunningOperationThreadOfControlProperties = Undefined Then
+		CheckAndFillResultAddress(ExecutionParameters, "TimeConsumingOperations.ExecuteInBackground");
+	EndIf;
 	
 	Result = New Structure;
 	Result.Insert("Status", "Running");
@@ -870,6 +796,7 @@ Procedure CancelJobExecution(Val JobID) Export
 		Return;
 	EndIf;
 	
+	SetSafeModeDisabled(True);
 	SetPrivilegedMode(True);
 	If SessionParameters.TimeConsumingOperations.CanceledJobs.Find(JobID) = Undefined Then
 		Properties = New Structure(SessionParameters.TimeConsumingOperations);
@@ -879,19 +806,32 @@ Procedure CancelJobExecution(Val JobID) Export
 		SessionParameters.TimeConsumingOperations = New FixedStructure(Properties);
 	EndIf;
 	SetPrivilegedMode(False);
+	SetSafeModeDisabled(False);
 	
 	Job = FindJobByID(JobID);
-	If Job = Undefined Or Job.State <> BackgroundJobState.Active Then
-		Return;
+	If Job <> Undefined
+	   And Job.State = BackgroundJobState.Active Then
+		
+		Try
+			Job.Cancel();
+		Except
+			// The job might have been completed at that moment and no error occurred.
+			WriteLogEvent(NStr("en = 'Long-running operations.Cancel background job'", Common.DefaultLanguageCode()),
+				EventLogLevel.Information, , , ErrorProcessing.BriefErrorDescription(ErrorInfo()));
+		EndTry;
 	EndIf;
 	
-	Try
-		Job.Cancel();
-	Except
-		// The job might have been completed at that moment and no error occurred.
-		WriteLogEvent(NStr("en = 'Long-running operations.Cancel background job'", Common.DefaultLanguageCode()),
-			EventLogLevel.Information, , , ErrorProcessing.BriefErrorDescription(ErrorInfo()));
-	EndTry;
+	SetSafeModeDisabled(True);
+	SetPrivilegedMode(True);
+	
+	ProcessID = SessionParameters.TimeConsumingOperations.RunOnes.Get(JobID);
+	If ProcessID <> Undefined Then
+		CancelAllThreadsExecution(ProcessID);
+		ActionCompleted(JobID);
+	EndIf;
+	
+	SetPrivilegedMode(False);
+	SetSafeModeDisabled(False);
 	
 EndProcedure
 
@@ -1082,6 +1022,9 @@ EndFunction
 Function StartBackgroundExecution(Val FormIdentifier, Val ExportProcedureName, Val Parameters,
 	Val JobDescription = "", UseAdditionalTempStorage = False) Export
 	
+	CheckProcedureName(ExportProcedureName,
+		"ExportProcedureName", "TimeConsumingOperations.StartBackgroundExecution");
+	
 	StorageAddress = PutToTempStorage(Undefined, FormIdentifier);
 	
 	Result = New Structure;
@@ -1162,11 +1105,16 @@ Function ActionCompleted(Val JobID, Job = Undefined) Export
 	LastID_ = LastID_(JobID);
 	
 	Job = FindJobByID(LastID_);
+	
+	SetSafeModeDisabled(True);
+	SetPrivilegedMode(True);
+	
 	If Job = Undefined Then
 		ResultFromNotification = GetFromNotifications(False,
 			JobID, "TimeConsumingOperationCompleted");
 		If ResultFromNotification <> Undefined Then
 			FillPropertyValues(Result, ResultFromNotification);
+			SetCompletionForThreadOfControl(JobID, Result);
 			Return Result;
 		EndIf;
 		If IsThreadOfControlRestarted(JobID, Job) Then
@@ -1181,9 +1129,8 @@ Function ActionCompleted(Val JobID, Job = Undefined) Export
 			ErrorInfo = ErrorInfo();
 		EndTry;
 		SetErrorProperties(Result, ErrorInfo);
-		WriteLogEvent(NStr("en = 'Long-running operations.Background job not found'", Common.DefaultLanguageCode()),
-			EventLogLevel.Error, , , Result.DetailErrorDescription);
 		Result.Status = "Error";
+		SetCompletionForThreadOfControl(JobID, Result);
 		Return Result;
 	EndIf;
 	
@@ -1193,7 +1140,6 @@ Function ActionCompleted(Val JobID, Job = Undefined) Export
 	EndIf;
 	
 	If Job.State = BackgroundJobState.Canceled Then
-		SetPrivilegedMode(True);
 		If SessionParameters.TimeConsumingOperations.CanceledJobs.Find(LastID_) = Undefined Then
 			Result.Status = "Error";
 			If Job.ErrorInfo <> Undefined Then
@@ -1209,7 +1155,7 @@ Function ActionCompleted(Val JobID, Job = Undefined) Export
 		Else
 			Result.Status = "Canceled";
 		EndIf;
-		SetPrivilegedMode(False);
+		SetCompletionForThreadOfControl(JobID, Result);
 		Return Result;
 	EndIf;
 	
@@ -1220,10 +1166,12 @@ Function ActionCompleted(Val JobID, Job = Undefined) Export
 		If Job.ErrorInfo <> Undefined Then
 			SetErrorProperties(Result, Job.ErrorInfo);
 		EndIf;
+		SetCompletionForThreadOfControl(JobID, Result);
 		Return Result;
 	EndIf;
 	
 	Result.Status = "Completed2";
+	SetCompletionForThreadOfControl(JobID, Result);
 	Return Result;
 	
 EndFunction
@@ -1249,6 +1197,9 @@ Procedure RunDataProcessorObjectModuleProcedure(Parameters, StorageAddress) Expo
 	Else
 		DataProcessor = DataProcessors[Parameters.DataProcessorName].Create();
 	EndIf;
+	
+	CheckProcedureName(Parameters.MethodName,
+		"Parameters.MethodName", "RunDataProcessorObjectModuleProcedure",, DataProcessor);
 	
 	If SafeMode() = False And SafeMode <> False Then
 		SetSafeMode(SafeMode);
@@ -1286,6 +1237,9 @@ Procedure RunReportObjectModuleProcedure(Parameters, StorageAddress) Export
 		Report = Reports[Parameters.ReportName].Create();
 	EndIf;
 	
+	CheckProcedureName(Parameters.MethodName,
+		"Parameters.MethodName", "RunReportObjectModuleProcedure",, Report);
+	
 	If SafeMode() = False And SafeMode <> False Then
 		SetSafeMode(SafeMode);
 	EndIf;
@@ -1316,6 +1270,7 @@ Procedure SessionParametersSetting(ParameterName, SpecifiedParameters) Export
 	If ParameterName = "TimeConsumingOperations" Then
 		Properties = New Structure;
 		Properties.Insert("CanceledJobs", New FixedArray(New Array));
+		Properties.Insert("RunOnes", New FixedMap(New Map));
 		Properties.Insert("Restarted", New FixedMap(New Map));
 		Properties.Insert("MainJobID");
 		Properties.Insert("ReceivedNotifications", New FixedMap(New Map));
@@ -1557,7 +1512,7 @@ Function LongRunningOperationCheckResult(Parameters) Export
 	
 	Result = New Map;
 	For Each JobID In Parameters.JobsToCheck Do
-		// @skip-check query-in-loop - ветка с запросом вызывается редко (только при перезапуске управляющего потока)
+		// @skip-check query-in-loop 
 		Result.Insert(JobID, ActionCompleted(JobID));
 	EndDo;
 	
@@ -1571,7 +1526,7 @@ Function LongRunningOperationCheckResult(Parameters) Export
 EndFunction
 
 Function RunBackgroundJobWithClientContext(ProcedureName,
-			ExecutionParameters, ProcedureParameters = Undefined, SafeMode = False, ShouldSendNotifications = False) Export
+			ExecutionParameters, ProcedureParameters = Undefined, SafeMode = False, ShouldSendNotifications = False)
 	
 	BackgroundJobKey = ExecutionParameters.BackgroundJobKey;
 	BackgroundJobDescription = ?(IsBlankString(ExecutionParameters.BackgroundJobDescription),
@@ -1609,11 +1564,8 @@ Function RunBackgroundJobWithClientContext(ProcedureName,
 	BackgroundJobProcedureParameters = New Array;
 	BackgroundJobProcedureParameters.Add(AllParameters);
 	
-	NameOfTheBackgroundTaskProcedure = NameOfLongRunningOperationBackgroundJobProcedure();
-	
 	Return RunBackgroundJob(ExecutionParameters,
-		NameOfTheBackgroundTaskProcedure, BackgroundJobProcedureParameters,
-		BackgroundJobKey, BackgroundJobDescription);
+		BackgroundJobProcedureParameters, BackgroundJobKey, BackgroundJobDescription);
 	
 EndFunction
 
@@ -1785,32 +1737,41 @@ Procedure CallProcedure(ProcedureName, CallParameters, ExecutionParameters)
 	NameParts = StrSplit(ProcedureName, ".");
 	IsDataProcessorModuleProcedure = (NameParts.Count() = 4) And Upper(NameParts[2]) = "OBJECTMODULE";
 	If Not IsDataProcessorModuleProcedure Then
+		CheckProcedureName(ProcedureName, "ProcedureName", "CallProcedure");
 		Common.ExecuteConfigurationMethod(ProcedureName, CallParameters);
 		Return;
 	EndIf;
+	
+	DataProcessorReportObject = DataProcessorReportObject(ProcedureName,
+		NameParts, ExecutionParameters, "ProcedureName", "CallProcedure");
+	
+	CheckProcedureName(NameParts[3], "ProcedureName", "CallProcedure",, DataProcessorReportObject);
+	
+	Common.ExecuteObjectMethod(DataProcessorReportObject, NameParts[3], CallParameters);
+	
+EndProcedure
+
+Function DataProcessorReportObject(Name, NameParts, ExecutionParameters, NameOfMethodParameter, MethodName)
 	
 	IsDataProcessor = Upper(NameParts[0]) = "DATAPROCESSOR";
 	IsReport = Upper(NameParts[0]) = "REPORT";
 	If IsDataProcessor Or IsReport Then
 		ObjectManager = ?(IsReport, Reports, DataProcessors);
-		DataProcessorReportObject = ObjectManager[NameParts[1]].Create();
-		Common.ExecuteObjectMethod(DataProcessorReportObject, NameParts[3], CallParameters);
-		Return;
+		Return ObjectManager[NameParts[1]].Create();
 	EndIf;
 	
 	IsExternalDataProcessor = Upper(NameParts[0]) = "EXTERNALDATAPROCESSOR";
 	IsExternalReport = Upper(NameParts[0]) = "EXTERNALREPORT";
 	If IsExternalDataProcessor Or IsExternalReport Then
-		DataProcessorReportObject = ExternalDataProcessorReportObject(IsExternalReport, ExecutionParameters, NameParts[1]);
-		Common.ExecuteObjectMethod(DataProcessorReportObject, NameParts[3], CallParameters);
-		Return;
+		Return ExternalDataProcessorReportObject(IsExternalReport, ExecutionParameters, NameParts[1]);
 	EndIf;
 	
 	Raise(StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Invalid format of the %2 parameter (passed value: %1).'"), ProcedureName, "ProcedureName"),
+		NStr("en = 'Incorrect format of parameter %1 in %3: %2.'"),
+		Name, NameOfMethodParameter, MethodName),
 		ErrorCategory.ConfigurationError);
 	
-EndProcedure
+EndFunction
 
 Function ExternalDataProcessorReportObject(IsExternalReport, ExecutionParameters, NameOfAttachedReportProcessor)
 	
@@ -1890,33 +1851,19 @@ Procedure CallFunction(FunctionName, ProcedureParameters, ExecutionParameters)
 	NameParts = StrSplit(FunctionName, ".");
 	IsDataProcessorModuleProcedure = (NameParts.Count() = 4) And Upper(NameParts[2]) = "OBJECTMODULE";
 	If Not IsDataProcessorModuleProcedure Then
-		Result = Common.CallConfigurationFunction(FunctionName, ProcedureParameters);
+		CheckProcedureName(FunctionName, "FunctionName", "CallFunction");
+		Result = Common.ExecuteConfigurationMethod(FunctionName, ProcedureParameters, True);
 		SetFunctionCallResult(Result, ExecutionParameters);
 		Return;
 	EndIf;
 	
-	IsDataProcessor = Upper(NameParts[0]) = "DATAPROCESSOR";
-	IsReport = Upper(NameParts[0]) = "REPORT";
-	If IsDataProcessor Or IsReport Then
-		ObjectManager = ?(IsReport, Reports, DataProcessors);
-		DataProcessorReportObject = ObjectManager[NameParts[1]].Create();
-		Result = Common.CallObjectFunction(DataProcessorReportObject, NameParts[3], ProcedureParameters);
-		SetFunctionCallResult(Result, ExecutionParameters);
-		Return;
-	EndIf;
+	DataProcessorReportObject = DataProcessorReportObject(FunctionName,
+		NameParts, ExecutionParameters, "FunctionName", "CallFunction");
 	
-	IsExternalDataProcessor = Upper(NameParts[0]) = "EXTERNALDATAPROCESSOR";
-	IsExternalReport = Upper(NameParts[0]) = "EXTERNALREPORT";
-	If IsExternalDataProcessor Or IsExternalReport Then
-		DataProcessorReportObject = ExternalDataProcessorReportObject(IsExternalReport, ExecutionParameters, NameParts[1]);
-		Result = Common.CallObjectFunction(DataProcessorReportObject, NameParts[3], ProcedureParameters);
-		SetFunctionCallResult(Result, ExecutionParameters);
-		Return;
-	EndIf;
+	CheckProcedureName(NameParts[3], "FunctionName", "CallFunction",, DataProcessorReportObject);
 	
-	Raise(StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Invalid format of the %2 parameter (passed value: %1).'"), FunctionName, "FunctionName"),
-		ErrorCategory.ConfigurationError);
+	Result = Common.ExecuteObjectMethod(DataProcessorReportObject, NameParts[3], ProcedureParameters, True);
+	SetFunctionCallResult(Result, ExecutionParameters);
 	
 EndProcedure
 
@@ -2121,7 +2068,7 @@ Procedure SendClientNotification(NotificationKind, ValueToPass,
 		// , which does not use "Common.MessageToUser".
 		Messages = BackgroundJob.GetUserMessages(True);
 		For Each Message In Messages Do
-			// @skip-check query-in-loop - ветка с запросом вызывается только при первом вызове в сеансе
+			// @skip-check query-in-loop - 
 			SendClientNotification("UserMessage", Message);
 		EndDo;
 	EndIf;
@@ -2144,13 +2091,15 @@ Procedure SendClientNotification(NotificationKind, ValueToPass,
 	NotificationParameters.Insert("TimeSentOn", CurrentUniversalDateInMilliseconds());
 	
 	SessionsKeys = CommonClientServer.ValueInArray(ParentSessionKey);
-	SMSMessageRecipients = New Map;
-	SMSMessageRecipients.Insert(InfoBaseUsers.CurrentUser().UUID, SessionsKeys);
+	Recipients = New Map;
+	Recipients.Insert(InfoBaseUsers.CurrentUser().UUID, SessionsKeys);
 	
 	AdditionalSendingParameters = ServerNotifications.AdditionalSendingParameters();
 	AdditionalSendingParameters.GroupID  = MainJobID;
 	AdditionalSendingParameters.NotificationTypeInGroup = NotificationTypeID(NotificationKind);
-	AdditionalSendingParameters.ShouldWriteUnconditionally = NotificationKind = "UserMessage";
+	AdditionalSendingParameters.ShouldWriteUnconditionally = NotificationKind = "UserMessage"
+		Or NotificationKind = "TimeConsumingOperationCompleted"
+		  And Not Common.FileInfobase();
 	
 	If NotificationKind = "Progress" Then
 		AdditionalSendingParameters.Replace = True;
@@ -2163,7 +2112,7 @@ Procedure SendClientNotification(NotificationKind, ValueToPass,
 	EndIf;
 	
 	ServerNotifications.SendServerNotificationWithGroupID(NameOfAlert(),
-		NotificationParameters, SMSMessageRecipients, Not WriteUserMessages, AdditionalSendingParameters);
+		NotificationParameters, Recipients, Not WriteUserMessages, AdditionalSendingParameters);
 	
 	SetPrivilegedMode(False);
 	SetSafeModeDisabled(False);
@@ -2224,7 +2173,7 @@ Procedure WritePendingUserMessages(JobID)
 		Messages = BackgroundJob.GetUserMessages(True);
 		// Write accumulated messages.
 		For Each Message In Messages Do
-			// @skip-check query-in-loop - ветка с запросом вызывается только при первом вызове в сеансе
+			// @skip-check query-in-loop - 
 			SendClientNotification("UserMessage", Message, BackgroundJob, JobID);
 		EndDo;
 	EndIf;
@@ -2279,7 +2228,7 @@ Function CanRunInBackground(ProcedureName)
 	
 EndFunction
 
-Function RunBackgroundJob(ExecutionParameters, MethodName, Parameters, Var_Key, Description)
+Function RunBackgroundJob(ExecutionParameters, Parameters, Var_Key, Description)
 	
 	If CurrentRunMode() = Undefined
 		And Common.FileInfobase() Then
@@ -2295,14 +2244,17 @@ Function RunBackgroundJob(ExecutionParameters, MethodName, Parameters, Var_Key, 
 		
 	EndIf;
 	
+	// The procedure name must be as specified in the NameOfLongRunningOperationBackgroundJobProcedure variable.
 	If ExecutionParameters.NoExtensions Then
-		Return ConfigurationExtensions.ExecuteBackgroundJobWithoutExtensions(MethodName, Parameters, Var_Key, Description);
+		Return ConfigurationExtensions.ExecuteBackgroundJobWithoutExtensions(
+			"TimeConsumingOperations.ExecuteWithClientContext", Parameters, Var_Key, Description);
 	
 	ElsIf ExecutionParameters.WithDatabaseExtensions Then
-		Return ConfigurationExtensions.ExecuteBackgroundJobWithDatabaseExtensions(MethodName, Parameters, 
-			Var_Key, Description);
+		Return ConfigurationExtensions.ExecuteBackgroundJobWithDatabaseExtensions(
+			"TimeConsumingOperations.ExecuteWithClientContext", Parameters, Var_Key, Description);
 	Else
-		Return BackgroundJobs.Execute(MethodName, Parameters, Var_Key, Description);
+		Return BackgroundJobs.Execute("TimeConsumingOperations.ExecuteWithClientContext",
+			Parameters, Var_Key, Description);
 	EndIf;
 	
 EndFunction
@@ -2331,6 +2283,45 @@ Function ParametersList(Val Parameter1, Val Parameter2, Val Parameter3, Val Para
 	Return Result;
 
 EndFunction
+
+Procedure CheckProcedureName(ProcedureName, NameOfMethodParameter, MethodName,
+			ExecutionParameters = Undefined, Object = Undefined)
+	
+	NameOfProcedureBeingChecked = ProcedureName;
+	
+	If Object = Undefined Then
+		NameParts = StrSplit(ProcedureName, ".", True);
+		
+		If NameParts.Count() = 4 And Upper(NameParts[2]) = "OBJECTMODULE" Then
+			Parameters = New Structure("ExternalReportDataProcessor, RunNotInBackground1");
+			If TypeOf(ExecutionParameters) = Type("Structure") Then
+				FillPropertyValues(Parameters, ExecutionParameters);
+			EndIf;
+			Parameters.RunNotInBackground1 = True;
+			Object = DataProcessorReportObject(ProcedureName,
+				NameParts, Parameters, "ProcedureName", "CallProcedure");
+			NameOfProcedureBeingChecked = NameParts[3];
+		
+		ElsIf NameParts.Count() < 2 Or NameParts.Count() > 3 Then
+			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'Incorrect value of parameter %1 in %3: %2.'"),
+				NameOfMethodParameter, ProcedureName, MethodName);
+			Raise(ErrorText, ErrorCategory.ConfigurationError);
+		EndIf;
+	EndIf;
+	
+	Try
+		StandardSubsystemsServer.CheckMethodToCallAsArbitraryCode(NameOfProcedureBeingChecked, True, Object);
+	Except
+		ErrorInfo = ErrorInfo();
+		ErrorTitle = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Incorrect value of parameter %1 in %3: %2'"),
+			NameOfMethodParameter, ProcedureName, MethodName);
+		Refinement = CommonClientServer.ExceptionClarification(ErrorInfo, ErrorTitle);
+		Raise(Refinement.Text, Refinement.Category,,, ErrorInfo);
+	EndTry;
+	
+EndProcedure
 
 Function PrepareExecutionParameters(PassedParameter, IsFunction)
 	
@@ -2390,36 +2381,60 @@ Procedure VerifyExecutionParameters(ExecutionParameters)
 			ErrorCategory.ConfigurationError);
 	EndIf;
 #EndIf
-
-	If ExecutionParameters.MultithreadLongRunningOperationThreadOfControlProperties = Undefined Then
-		If ExecutionParameters.ResultAddress = Undefined Then
-			If Not ValueIsFilled(ExecutionParameters.FormIdentifier) And Common.DebugMode() Then
-				Try
-					Raise(StringFunctionsClientServer.SubstituteParametersToString(NStr(
-						"en = 'Form UUID is not specified in the %1 parameter and temporary storage address is not specified
-						|in the %2 parameter in %3.
-						|Make sure that the temporary storage is cleared explicitly with the %4 method on result processing.'"),
-						"ExecutionParameters.FormIdentifier", "ExecutionParameters.ResultAddress",
-						"TimeConsumingOperations.ExecuteInBackground", "DeleteFromTempStorage"),
-						ErrorCategory.ConfigurationError);
-				Except
-					// ACC:154-on Recommendation: Log as a warning, not as an error.
-					WriteLogEvent(NStr("en = 'Long-running operations.Diagnostics'", Common.DefaultLanguageCode()),
-						EventLogLevel.Warning, , , ErrorProcessing.DetailErrorDescription(ErrorInfo()));
-					// ACC:154-on 
-				EndTry;
-			EndIf;
-			ExecutionParameters.ResultAddress = PutToTempStorage(Undefined, ExecutionParameters.FormIdentifier);
-		ElsIf Not IsTempStorageURL(ExecutionParameters.ResultAddress) Then
-			Raise(StringFunctionsClientServer.SubstituteParametersToString(NStr(
-				"en = 'Temporary storage address is not specified in the %1 parameter
-				|in %2.'"),
-				"ExecutionParameters.ResultAddress", "TimeConsumingOperations.ExecuteInBackground"),
-				ErrorCategory.ConfigurationError);
-		EndIf;
+	
+	If ExecutionParameters.IsFunction <> "Function"
+	   And ExecutionParameters.IsFunction <> "Procedure"
+	   And ExecutionParameters.IsFunction <> "" Then
+		Raise(StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'Possible values for the ""%1"" service parameter are """", ""%2"", ""%3"" in %4,
+				           |and not the specified ""%5"" value.'"),
+				"IsFunction",
+				"Function",
+				"Procedure",
+				"TimeConsumingOperations.ExecuteInBackground",
+				ExecutionParameters.IsFunction),
+			ErrorCategory.ConfigurationError);
 	EndIf;
-
+	
 EndProcedure 
+
+Procedure CheckAndFillResultAddress(ExecutionParameters, FunctionName)
+	
+	If ExecutionParameters.ResultAddress = Undefined Then
+		
+		If  Common.DebugMode()
+		   And (Not ValueIsFilled(ExecutionParameters.FormIdentifier)
+		      Or TypeOf(ExecutionParameters.FormIdentifier) <> Type("UUID")) Then
+			
+			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'Neither a unique form identifier in the parameter %1
+				           |nor a temporary storage address in the parameter %2
+				           | of the function %3 is specified.
+				           |We recommend providing either the identifier or the address.
+				           |An automatically generated address is valid only until the next server call,
+				           |which may cause unexpected errors.'"),
+				"ExecutionParameters.FormIdentifier", "ExecutionParameters.ResultAddress", FunctionName);
+			Try
+				Raise(ErrorText, ErrorCategory.ConfigurationError);
+			Except
+				// ACC:154-off - Recommendation: Log as a warning, not as an error.
+				WriteLogEvent(NStr("en = 'Long-running operations.Diagnostics'", Common.DefaultLanguageCode()),
+					EventLogLevel.Warning, , , ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+				// ACC:154-on 
+			EndTry;
+		EndIf;
+		ExecutionParameters.ResultAddress = PutToTempStorage(Undefined,
+			ExecutionParameters.FormIdentifier);
+		
+	ElsIf Not IsTempStorageURL(ExecutionParameters.ResultAddress) Then
+		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'An invalid temporary storage address was specified in parameter %1
+			           | of the function %2.'"),
+			"ExecutionParameters.ResultAddress", FunctionName);
+		Raise(ErrorText, ErrorCategory.ConfigurationError);
+	EndIf;
+	
+EndProcedure
 
 Function IsRunWithoutBackgroundJob(ProcedureName, ExecutionParameters)
 
@@ -2518,9 +2533,10 @@ Function ExecuteMultithreadedProcess(OperationParametersList) Export
 				ResultsNewAddresses, ProcessID, NewBatches, OperationParametersList);
 		EndIf;
 		
-		// @skip-check query-in-loop - Получение актуальных данных о потоках с учетом работы других процессов.
+		// @skip-check query-in-loop 
 		Threads = TreadsPendingProcessing(ProcessID);
 		If Threads.Count() = 0 Then
+			WaitForAllThreadsCompletion(ProcessID, AbortExecutionIfError, FinishEarly);
 			Break;
 		EndIf;
 		
@@ -2553,7 +2569,7 @@ Function ExecuteMultithreadedProcess(OperationParametersList) Export
 			Break;
 		EndIf;
 		
-		// @skip-check query-in-loop - На каждой итерации необходимо зачитывать актуальные данные из ИБ.
+		// @skip-check query-in-loop - 
 		WaitForAllThreadsCompletion(ProcessID, AbortExecutionIfError, FinishEarly);
 		
 		If FinishEarly Then
@@ -2588,7 +2604,7 @@ Function ExecuteMultithreadedProcess(OperationParametersList) Export
 		FillPropertyValues(Results[Var_Key], Stream, 
 			"Status, DetailErrorDescription, BriefErrorDescription, JobID");
 		
-		// @skip-check query-in-loop - ветка с запросом вызывается только при первом вызове в сеансе
+		// @skip-check query-in-loop - 
 		SendThreadMessages(Stream.JobID);
 	EndDo;
 	
@@ -2605,19 +2621,19 @@ Function MonitorThreadExecution(Stream, OperationParametersList, ProcessJobID)
 		If AbortExecutionIfError Then
 			Return True;
 		EndIf; 
-		// @skip-check query-in-loop - ветка с запросом вызывается только при первом вызове в сеансе
+		// @skip-check query-in-loop - 
 		SendThreadMessages(Stream.JobID);
 	EndIf;
 	
 	Result = Undefined;
 	While Result = Undefined Do
-		// @skip-check query-in-loop - зачитывание актуальных данных о потоках из ИБ.
+		// @skip-check query-in-loop - 
 		ExecuteInBackground = WaitForAvailableThread(ProcessID, AbortExecutionIfError);
 		If ExecuteInBackground = Undefined Then
 			Return True;
 		EndIf;
 		
-		// @skip-check query-in-loop - зачитывание актуальных данных о потоках из ИБ.
+		// @skip-check query-in-loop - 
 		Result = ExecuteThread(Stream, OperationParametersList, ExecuteInBackground, ProcessJobID);
 		
 	EndDo;
@@ -2662,17 +2678,14 @@ Function ExecuteThread(Stream, OperationParametersList, ExecuteInBackground, Pro
 	ExecutionParameters = PrepareExecutionParameters(ExecutionParameters, OperationParametersList.IsFunction);
 	ExecutionParameters.ExternalReportDataProcessor = OperationParametersList.ExecutionParameters.ExternalReportDataProcessor;
 	
-	RunResult = Undefined;
-	MaxThreads  = AllowedNumberofThreads();
-	
-	Block = New DataLock;
-	Block.Add("Constant.LongRunningOperationsThreadCount");
-	SetFullNameOfAppliedProcedure(OperationParametersList.MethodName);
-	
 	IsThreadOccupied = False;
+	NewExecutionAttempt = Stream.Status <> TimeConsumingOperationStatus().CreatedOn;
 	
-	If Not ExecutionParameters.RunNotInBackground1 Then
-	
+	If ExecutionParameters.RunNotInBackground1 = False Then
+		Block = New DataLock;
+		Block.Add("Constant.LongRunningOperationsThreadCount");
+		MaxThreads = AllowedNumberofThreads();
+		
 		BeginTransaction();
 		Try
 			Block.Lock();
@@ -2682,7 +2695,7 @@ Function ExecuteThread(Stream, OperationParametersList, ExecuteInBackground, Pro
 				StartupTempResult = ThreadExecutionNewResult();
 				StartupTempResult.JobID = ProcessJobID;
 				StartupTempResult.Status = TimeConsumingOperationStatus().Running;
-				UpdateInfoAboutThread(Stream, StartupTempResult, False);
+				RefreshThreadInformationRecords(Stream, StartupTempResult);
 				IsThreadOccupied = True;
 			EndIf;
 		
@@ -2691,65 +2704,57 @@ Function ExecuteThread(Stream, OperationParametersList, ExecuteInBackground, Pro
 			RollbackTransaction();
 			Raise;
 		EndTry;
-		
 	EndIf;
 	
+	If ExecutionParameters.RunNotInBackground1 = False And Not IsThreadOccupied Then
+		Return Undefined;
+	EndIf;
+	
+	SetFullNameOfAppliedProcedure(OperationParametersList.MethodName);
 	Try
-	
-		If ExecutionParameters.RunNotInBackground1 Or IsThreadOccupied Then
-			RunResult = ExecuteInBackground(OperationParametersList.MethodName, MethodParameters, ExecutionParameters);
-			SetFullNameOfAppliedProcedure(MultithreadProcessMethodName());
-			UpdateInfoAboutThread(Stream, RunResult);
-		EndIf;
-	
+		RunResult = ExecuteInBackground(OperationParametersList.MethodName, MethodParameters, ExecutionParameters);
 	Except
-		
+		SetFullNameOfAppliedProcedure(MultithreadProcessMethodName());
 		If IsThreadOccupied Then
-			EmptyStartupResult = ThreadExecutionNewResult();
-			UpdateInfoAboutThread(Stream, EmptyStartupResult, False);
+			ErrorInfo = ErrorInfo();
+			Refinement = CommonClientServer.ExceptionClarification(ErrorInfo,
+				NStr("en = 'Failed to start batch processing task due to:'"));
+			Try
+				Raise(Refinement.Text, Refinement.Category,,, ErrorInfo);
+			Except
+				ClarifiedErrorInfo = ErrorInfo();
+			EndTry;
+			ErrorRunResult = ThreadExecutionNewResult();
+			ErrorRunResult.Status = TimeConsumingOperationStatus().Error;
+			SetErrorProperties(ErrorRunResult, ClarifiedErrorInfo);
+			RefreshThreadInformationRecords(Stream, ErrorRunResult);
 		EndIf;
 		Raise;
-		
 	EndTry;
+	SetFullNameOfAppliedProcedure(MultithreadProcessMethodName());
+	RefreshThreadInformationRecords(Stream, RunResult, NewExecutionAttempt);
 	
 	Return RunResult;
 	
 EndFunction
 
-Function StatusFromState(State)
-	
-	If State = BackgroundJobState.Completed Then
-		Return TimeConsumingOperationStatus().Completed2;
-	ElsIf State = BackgroundJobState.Canceled Then
-		Return TimeConsumingOperationStatus().Canceled;
-	ElsIf State = BackgroundJobState.Active Then
-		Return TimeConsumingOperationStatus().Running;
-	EndIf;
-	
-	Return TimeConsumingOperationStatus().Error;
-
-EndFunction
-
-Procedure UpdateInfoAboutThread(Stream, RunResult = Undefined, NewAttempt = True)
+Procedure RefreshThreadInformationRecords(Stream, RunResult, NewAttempt = False,
+			RestartProcess = False, SetCompletionOfActiveOne = False)
 	
 	IsStartupResultSpecified = RunResult <> Undefined;
 	
-	If RunResult = Undefined Then
+	SetPrivilegedMode(True);
+	
+	If Not IsStartupResultSpecified Then
 		RunResult = ThreadExecutionNewResult(); 
 		
 		If ValueIsFilled(Stream.JobID) Then
-			LastID_ = ThreadOfControlJobLastID(Stream);
-			Job = FindJobByID(LastID_);
-			
-			If Job <> Undefined Then
-				RunResult.Status = StatusFromState(Job.State);
-				
-				If Job.ErrorInfo <> Undefined Then
-					SetErrorProperties(RunResult, Job.ErrorInfo);
-				EndIf;
-			Else
-				RunResult.Status = TimeConsumingOperationStatus().Error;
-			EndIf;
+			LastID_ = ThreadJobLastID(Stream);
+			Result = JobCompleted(LastID_, True);
+			RunResult.Status                       = TimeConsumingOperationStatus()[Result.Status];
+			RunResult.ErrorInfo           = Result.ErrorInfo;
+			RunResult.BriefErrorDescription   = Result.BriefErrorDescription;
+			RunResult.DetailErrorDescription = Result.DetailErrorDescription;
 		Else
 			RunResult.Status = TimeConsumingOperationStatus().CreatedOn;
 		EndIf;
@@ -2767,31 +2772,40 @@ Procedure UpdateInfoAboutThread(Stream, RunResult = Undefined, NewAttempt = True
 	Try
 		Block.Lock();
 		
-		SetPrivilegedMode(True);
-		
 		RecordSet = InformationRegisters.TimeConsumingOperations.CreateRecordSet();
 		RecordSet.Filter.ProcessID.Set(ProcessID);
 		RecordSet.Filter.ThreadID.Set(ThreadID);
 		
 		RecordSet.Read();
+		IsStatusUpdated = Undefined;
 		
 		If RecordSet.Count() > 0 Then
 			Record = RecordSet.Get(0);
+			IsStatusUpdated = False;
 			
-			If IsStartupResultSpecified Then
-				Record.JobID = RunResult.JobID;
-				Record.ThreadKey   = Stream.ThreadKey;
+			If IsStartupResultSpecified And Not SetCompletionOfActiveOne Then
+				If RestartProcess Then
+					Record.ThreadKey = New ValueStorage(RunResult.JobID, New Deflation(9));
+				Else
+					Record.JobID = RunResult.JobID;
+				EndIf;
 				If NewAttempt Then
 					Record.AttemptNumber = Stream.AttemptNumber + 1;
 				EndIf;
 			EndIf;
-			Record.Status = RunResult.Status;
-			If RunResult.Status = TimeConsumingOperationStatus().Error Then
-				Record.MethodParameters = New ValueStorage(RunResult.ErrorInfo, New Deflation(9));
-				Record.DetailErrorDescription = RunResult.DetailErrorDescription;
-				Record.BriefErrorDescription   = RunResult.BriefErrorDescription;
-			EndIf;
 			
+			If Not SetCompletionOfActiveOne
+			 Or Record.Status = TimeConsumingOperationStatus().Running
+			   And ThreadJobLastID(Record) = ThreadJobLastID(Stream) Then
+				
+				IsStatusUpdated = True;
+				Record.Status = RunResult.Status;
+				If RunResult.Status = TimeConsumingOperationStatus().Error Then
+					Record.MethodParameters = New ValueStorage(RunResult.ErrorInfo, New Deflation(9));
+					Record.DetailErrorDescription = RunResult.DetailErrorDescription;
+					Record.BriefErrorDescription   = RunResult.BriefErrorDescription;
+				EndIf;
+			EndIf;
 			FillPropertyValues(Stream, Record);
 			
 			RecordSet.Write();
@@ -2802,6 +2816,8 @@ Procedure UpdateInfoAboutThread(Stream, RunResult = Undefined, NewAttempt = True
 		RollbackTransaction();
 		Raise;
 	EndTry;
+	
+	SetCompletionOfActiveOne = IsStatusUpdated;
 	
 EndProcedure
 
@@ -2833,7 +2849,7 @@ Function FirstIDOfThreadOfControlJob(ProcessID)
 	
 EndFunction
 
-Function ThreadOfControlJobLastID(Stream)
+Function ThreadJobLastID(Stream)
 	
 	LastID_ = Stream.JobID;
 	
@@ -2953,10 +2969,7 @@ Function WaitForAvailableThread(ProcessID, EndEarlyIfError)
 			Break;
 		EndIf;
 		
-		If WaitForThreadCompletion(Threads[0]) Then // The job is completed.
-			UpdateInfoAboutThread(Threads[0]);
-		EndIf;
-		
+		WaitForThreadCompletion(Threads[0]);
 	EndDo;
 	
 	Return ExecuteInBackground;
@@ -2982,7 +2995,7 @@ Procedure SendThreadMessages(Val JobID)
 	
 	Messages = BackgroundJob.GetUserMessages(True);
 	For Each Message In Messages Do
-		// @skip-check query-in-loop - ветка с запросом вызывается только при первом вызове в сеансе
+		// @skip-check query-in-loop - 
 		SendClientNotification("UserMessage", Message);
 	EndDo;
 
@@ -3019,28 +3032,22 @@ EndProcedure
 //   Stream - ValueTableRow - the thread.
 //   Duration - Number - timeout duration, in seconds.
 //
-// Returns:
-//  Boolean - True if the thread has stopped, False if the thread is still running.
-//
-Function WaitForThreadCompletion(Stream, Duration = 1)
+Procedure WaitForThreadCompletion(Stream, Duration = 1)
 	
-	If ValueIsFilled(Stream.JobID) Then
-		
-		Job = BackgroundJobs.FindByUUID(Stream.JobID);
-		
-		If Job <> Undefined Then
-			Job = Job.WaitForExecutionCompletion(Duration);
-			IsJobCompleted = (Job.State <> BackgroundJobState.Active);
-			Return IsJobCompleted;
-		EndIf;
-		
+	If Not ValueIsFilled(Stream.JobID) Then
+		Return;
 	EndIf;
 	
-	Return True;
+	Job = BackgroundJobs.FindByUUID(Stream.JobID);
+	If Job <> Undefined Then
+		Job = Job.WaitForExecutionCompletion(Duration);
+	EndIf;
 	
-EndFunction
+EndProcedure
 
 Function HasCompletedThreads(Threads, EndEarlyIfError, ProcessID)
+	
+	SetPrivilegedMode(True);
 	
 	HasCompletedThreads = False;
 	IndexOf = Threads.Count() - 1;
@@ -3053,24 +3060,38 @@ Function HasCompletedThreads(Threads, EndEarlyIfError, ProcessID)
 			Continue;
 		EndIf;
 		
-		LastID_ = ThreadOfControlJobLastID(Stream);
+		ThisIsFlowOfCurrentProcess = (Stream.ProcessID = ProcessID);
+		
+		LastID_ = ThreadJobLastID(Stream);
 		Result = JobCompleted(LastID_, True);
 		
-		If Result.Status = "Running" Then
+		If Result.Status = "Running"
+		 Or Result.Status = "Error"
+		   And Result.Job = Undefined
+		   And Not ThisIsFlowOfCurrentProcess Then
 			Continue;
 		EndIf;
 		
-		UpdateInfoAboutThread(Stream);
-		ThisIsFlowOfCurrentProcess = (Stream.ProcessID = ProcessID);
+		IsStatusUpdated = True;
+		RefreshThreadInformationRecords(Stream, Undefined,,, IsStatusUpdated);
+		TheUpdatedStatus = Stream.Status;
+		
+		If IsStatusUpdated <> Undefined
+		   And TheUpdatedStatus = TimeConsumingOperationStatus().Running Then
+			Continue;
+		EndIf;
 		Threads.Delete(Stream);
 		HasCompletedThreads = True;
 		
-		If Result.Status = "Completed2" Then
+		If IsStatusUpdated <> Undefined
+		   And TheUpdatedStatus = TimeConsumingOperationStatus().Completed2 Then
 			Continue;
 		EndIf;
 		
-		If Result.Status = "Error" Then
-			WriteError(Result.ErrorText);
+		If IsStatusUpdated = True
+		   And TheUpdatedStatus = TimeConsumingOperationStatus().Error Then
+			
+			WriteError(Result.DetailErrorDescription);
 		EndIf;
 		
 		If EndEarlyIfError = True
@@ -3133,17 +3154,18 @@ Procedure DeleteNonExistingThreads()
 		If ThreadOfControl <> Undefined
 		   And ThreadOfControl.CreationDate + UndoTime > CurrentSessionDate Then
 			
-			If Not ValueIsFilled(ThreadOfControl.JobID)
-			   And ThreadOfControl.CreationDate + ObsolescenceDeadline > CurrentSessionDate Then
-				Continue;
-			EndIf;
-			JobID = ThreadOfControlJobLastID(ThreadOfControl);
+			JobID = ThreadJobLastID(ThreadOfControl);
 			Job = FindJobByID(JobID);
-			If Job <> Undefined
-			   And (Job.State = BackgroundJobState.Active
+			If Job = Undefined
+			   And (ThreadOfControl.Status = TimeConsumingOperationStatus().Running
+			      Or ThreadOfControl.CreationDate + ObsolescenceDeadline > CurrentSessionDate
+			      Or ThreadOfControl.Status = TimeConsumingOperationStatus().Error
+			        And ThreadOfControl.AttemptNumber < AttemptsNumber())
+			 Or Job <> Undefined
+			   And (    Job.State = BackgroundJobState.Active
+			      Or Job.End + ObsolescenceDeadline > CurrentSessionDate
 			      Or Job.State = BackgroundJobState.Failed
-			        And ThreadOfControl.AttemptNumber < AttemptsNumber()
-			        And ThreadOfControl.CreationDate + ObsolescenceDeadline > CurrentSessionDate) Then
+			        And ThreadOfControl.AttemptNumber < AttemptsNumber()) Then
 				Continue;
 			EndIf;
 		EndIf;
@@ -3152,7 +3174,7 @@ Procedure DeleteNonExistingThreads()
 		ThreadsProcess = AllThreads.Copy(Filter);
 		ThreadsProcess.Sort("ThreadID");
 		For Each ProcessThread In ThreadsProcess Do
-			JobID = ThreadOfControlJobLastID(ProcessThread);
+			JobID = ThreadJobLastID(ProcessThread);
 			Job = FindJobByID(JobID);
 			If Job <> Undefined
 			   And Job.State = BackgroundJobState.Active Then
@@ -3360,10 +3382,7 @@ EndFunction
 Procedure PrepareMultiThreadOperationForStartup(Val MethodName, ResultAddresses,
 			Val ProcessID, Val Portions, OperationUpdatedParameters = Undefined)
 	
-	UserName =  "";
-	If Not Users.IsFullUser() Then
-		UserName = InfoBaseUsers.CurrentUser().Name;
-	EndIf;
+	UserName = UserName();
 	CurrentSessionDate = CurrentSessionDate();
 	
 	SetPrivilegedMode(True);
@@ -3394,6 +3413,7 @@ Procedure PrepareMultiThreadOperationForStartup(Val MethodName, ResultAddresses,
 		Record = RecordSet.Add();
 		Record.ProcessID = ProcessID;
 		Record.ThreadID   = ThreadID;
+		Record.Status                = TimeConsumingOperationStatus().CreatedOn;
 		Record.AttemptNumber          = 0;
 		Record.CreationDate          = CurrentSessionDate;
 		Record.UserName       = UserName;
@@ -3431,21 +3451,91 @@ Procedure PrepareMultiThreadOperationForStartup(Val MethodName, ResultAddresses,
 	
 EndProcedure
 
-Procedure CheckIfCanRunMultiThreadLongRunningOperation(ExecutionParameters, ParametersSet)
+Procedure CheckIfCanRunMultiThreadLongRunningOperation(ExecutionParameters, ParametersSet, FunctionName)
+	
+	CommonClientServer.CheckParameter(FunctionName,
+		"ExecutionParameters", ExecutionParameters, Type("Structure"));
 	
 	If ParametersSet <> Undefined
 	   And TypeOf(ParametersSet) <> Type("Map")
 	   And TypeOf(ParametersSet) <> Type("Structure") Then
-		Raise(NStr("en = 'Multithreaded long-running operation has invalid type of parameter set.'"), 
-			ErrorCategory.ConfigurationError);
+		
+		ErrorText = NStr("en = 'Invalid parameter set type for a multithreaded long-running operation.'");
+		Raise(ErrorText, ErrorCategory.ConfigurationError);
 	EndIf;
 	
-	If Common.DataSeparationEnabled() And Not Common.SeparatedDataUsageAvailable() Then
-		Raise(NStr("en = 'Multi-threaded long-running operations in a shared session are not supported.'"),
-			ErrorCategory.ConfigurationError);
+	If Common.DataSeparationEnabled()
+	   And Not Common.SeparatedDataUsageAvailable() Then
+		
+		ErrorText = NStr("en = 'Invalid parameter set type for a multithreaded long-running operation.'");
+		Raise(ErrorText, ErrorCategory.ConfigurationError);
 	EndIf;
 	
 EndProcedure
+
+// See ExecuteFunctionInMultipleThreads
+Function RunMethodInMultipleThreads(Val MethodName, Val ExecutionParameters, Val MethodParametersSet,
+			Val IsFunctionExecution)
+	
+	NewExecutionParameters = FunctionExecutionParameters(Undefined);
+	FillPropertyValues(NewExecutionParameters, ExecutionParameters);
+	ExecutionParameters = NewExecutionParameters;
+	
+	FunctionName = ?(IsFunctionExecution, "TimeConsumingOperations.ExecuteFunctionInMultipleThreads",
+	"TimeConsumingOperations.ExecuteProcedureinMultipleThreads");
+
+	CheckIfCanRunMultiThreadLongRunningOperation(ExecutionParameters, MethodParametersSet, FunctionName);
+	
+	CheckAndFillResultAddress(ExecutionParameters, FunctionName);
+	
+	If ExecutionParameters.WaitCompletion = CommonBackgroundExecutionParameters().WaitCompletion Then
+		ExecutionParameters.WaitCompletion = 0;
+	EndIf;
+	
+	ResultAddresses = New Map;
+	
+	If TypeOf(MethodParametersSet) = Type("Map") Then
+		For Each ParameterFunctions In MethodParametersSet Do
+			StreamResultAddr = PutToTempStorage(Undefined, New UUID);
+			ResultAddresses.Insert(ParameterFunctions.Key, StreamResultAddr);
+		EndDo;
+		MethodParameters = MethodParametersSet.Count();
+	Else
+		MethodParameters = MethodParametersSet; // Structure
+		MethodParametersSet = New Map;
+	EndIf;
+	
+	ProcessID = New UUID;
+	MultithreadOperationParameters = MultithreadOperationParameters(ProcessID);
+	MultithreadOperationParameters.MethodName = MethodName;
+	MultithreadOperationParameters.IsFunction = ?(IsFunctionExecution, "Function", "Procedure");
+	MultithreadOperationParameters.ExecutionParameters = ExecutionParameters;
+	MultithreadOperationParameters.MethodParameters = MethodParameters;
+	
+	PrepareMultiThreadOperationForStartup(MethodName,
+		ResultAddresses, ProcessID, MethodParametersSet);
+	
+	RunResult = New Structure("Status, JobID, ResultAddress",
+		TimeConsumingOperationStatus().Running,, ExecutionParameters.ResultAddress);
+	ScheduleStartOfLongRunningOperationThreads(RunResult, MultithreadOperationParameters);
+	
+	// The procedure name must be as specified in the MultithreadProcessMethodName function.
+	RunResult = ExecuteFunction(ExecutionParameters,
+		"TimeConsumingOperations.ExecuteMultithreadedProcess", MultithreadOperationParameters);
+	
+	If RunResult.Status <> TimeConsumingOperationStatus().Running Then
+		DeleteDataAboutThreads(ProcessID);
+	Else
+		SetSafeModeDisabled(True);
+		SetPrivilegedMode(True);
+		RegisterThreadOfControlID(RunResult.JobID, ProcessID);
+		SetPrivilegedMode(False);
+		SetSafeModeDisabled(False);
+	EndIf;
+	
+	Return RunResult;
+	
+EndFunction
 
 // Returns:
 //  Structure:
@@ -3472,21 +3562,33 @@ Function AttemptsNumber()
 	Return 3;
 EndFunction
 
+Procedure RegisterThreadOfControlID(JobID, ProcessID)
+	
+	If SessionParameters.TimeConsumingOperations.RunOnes.Get(JobID) = Undefined Then
+		Properties = New Structure(SessionParameters.TimeConsumingOperations);
+		RunOnes = New Map(Properties.RunOnes);
+		RunOnes.Insert(JobID, ProcessID);
+		Properties.RunOnes = New FixedMap(RunOnes);
+		SessionParameters.TimeConsumingOperations = New FixedStructure(Properties);
+	EndIf;
+	
+EndProcedure
+
 Function IsThreadOfControlRestarted(JobID, Job)
 	
-	If Job <> Undefined
+	ProcessID = SessionParameters.TimeConsumingOperations.RunOnes.Get(JobID);
+	
+	If ProcessID = Undefined
+	 Or Job <> Undefined
 	   And Job.State <> BackgroundJobState.Failed
 	 Or Not Common.SeparatedDataUsageAvailable() Then
 		Return False;
 	EndIf;
 	
-	SetSafeModeDisabled(True);
-	SetPrivilegedMode(True);
-	
 	BlankID = CommonClientServer.BlankUUID();
 	
 	Query = New Query;
-	Query.SetParameter("JobID", JobID);
+	Query.SetParameter("ProcessID", ProcessID);
 	Query.SetParameter("ThreadID", BlankID);
 	Query.Text =
 	"SELECT
@@ -3499,8 +3601,8 @@ Function IsThreadOfControlRestarted(JobID, Job)
 	|FROM
 	|	InformationRegister.TimeConsumingOperations AS TimeConsumingOperations
 	|WHERE
-	|	TimeConsumingOperations.ThreadID = &ThreadID
-	|	AND TimeConsumingOperations.JobID = &JobID";
+	|	TimeConsumingOperations.ProcessID = &ProcessID
+	|	AND TimeConsumingOperations.ThreadID = &ThreadID";
 	
 	QueryResult = Query.Execute();
 	If QueryResult.IsEmpty() Then
@@ -3524,8 +3626,9 @@ Function IsThreadOfControlRestarted(JobID, Job)
 		ExecutionParameters.RunInBackground = True;
 		ExecutionParameters.IsThreadOfControlRestart = True;
 		
+		// The procedure name must be as specified in the MultithreadProcessMethodName function.
 		RunResult = ExecuteFunction(ExecutionParameters,
-			MultithreadProcessMethodName(), OperationParametersList);
+			"TimeConsumingOperations.ExecuteMultithreadedProcess", OperationParametersList);
 		
 		If Not ValueIsFilled(RunResult.JobID) Then
 			Raise(NStr("en = 'Empty UUID of the background job.'"), 
@@ -3546,9 +3649,7 @@ Function IsThreadOfControlRestarted(JobID, Job)
 		Properties.Restarted = New FixedMap(Restarted);
 		SessionParameters.TimeConsumingOperations = New FixedStructure(Properties);
 		
-		Stream.ThreadKey = New ValueStorage(RunResult.JobID, New Deflation(9));
-		RunResult.JobID = JobID;
-		UpdateInfoAboutThread(Stream, RunResult);
+		RefreshThreadInformationRecords(Stream, RunResult, True, True);
 	Except
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Error restarting the background job %1
@@ -3565,6 +3666,55 @@ Function IsThreadOfControlRestarted(JobID, Job)
 	Return True;
 	
 EndFunction
+
+Procedure SetCompletionForThreadOfControl(JobID, Result)
+	
+	ProcessID = SessionParameters.TimeConsumingOperations.RunOnes.Get(JobID);
+	If ProcessID = Undefined Then
+		Return;
+	EndIf;
+	
+	BlankID = CommonClientServer.BlankUUID();
+	
+	Query = New Query;
+	Query.SetParameter("ProcessID", ProcessID);
+	Query.SetParameter("ThreadID", BlankID);
+	Query.SetParameter("Status", TimeConsumingOperationStatus().Running);
+	Query.Text =
+	"SELECT TOP 1
+	|	TRUE AS TrueValue
+	|FROM
+	|	InformationRegister.TimeConsumingOperations AS TimeConsumingOperations
+	|WHERE
+	|	TimeConsumingOperations.ProcessID = &ProcessID
+	|	AND TimeConsumingOperations.ThreadID = &ThreadID
+	|	AND TimeConsumingOperations.Status = &Status";
+	
+	If Not Query.Execute().IsEmpty() Then
+		// Set the main thread's status to Completed.
+		RunResult = ThreadExecutionNewResult();
+		RunResult.Status                       = TimeConsumingOperationStatus()[Result.Status];
+		RunResult.ErrorInfo           = Result.ErrorInfo;
+		RunResult.BriefErrorDescription   = Result.BriefErrorDescription;
+		RunResult.DetailErrorDescription = Result.DetailErrorDescription;
+		MainThreadDescription = New Structure;
+		MainThreadDescription.Insert("ProcessID", ProcessID);
+		MainThreadDescription.Insert("ThreadID",   BlankID);
+		MainThreadDescription.Insert("JobID",  JobID);
+		MainThreadDescription.Insert("ThreadKey",
+			New ValueStorage(LastID_(JobID)));
+		
+		RefreshThreadInformationRecords(MainThreadDescription, RunResult,,, True);
+	EndIf;
+	
+	// Delete from the pool of running jobs.
+	Properties = New Structure(SessionParameters.TimeConsumingOperations);
+	RunOnes = New Map(Properties.RunOnes);
+	RunOnes.Delete(JobID);
+	Properties.RunOnes = New FixedMap(RunOnes);
+	SessionParameters.TimeConsumingOperations = New FixedStructure(Properties);
+	
+EndProcedure
 
 Procedure DeleteDataAboutThreads(ProcessID)
 	
@@ -3643,5 +3793,87 @@ Function EventLogEvent() Export
 EndFunction
 
 #EndRegion
+
+// See CommonOverridable.WhenSettingUpVerificationOfMethodsCalledAsArbitraryCode.
+Procedure WhenSettingUpVerificationOfMethodsCalledAsArbitraryCode(Settings) Export
+	
+	// Exceptions.
+	CheckException = Settings.CheckExceptions.Add();
+	CheckException.FullObjectName   = "CommonModule.TimeConsumingOperations";
+	CheckException.ProcedureName       = "ExecuteFunction";
+	CheckException.FragmentOfContent = "Return ExecuteInBackground(FunctionName, CallParameters, ExecutionParameters)";
+	
+	CheckException = Settings.CheckExceptions.Add();
+	CheckException.FullObjectName   = "CommonModule.TimeConsumingOperations";
+	CheckException.ProcedureName       = "ExecuteProcedure";
+	CheckException.FragmentOfContent = "Return ExecuteInBackground(ProcedureName, CallParameters, ExecutionParameters)";
+	
+	CheckException = Settings.CheckExceptions.Add();
+	CheckException.FullObjectName   = "CommonModule.TimeConsumingOperations";
+	CheckException.ProcedureName       = "CallProcedure";
+	CheckException.FragmentOfContent = "Common.ExecuteConfigurationMethod(ProcedureName, CallParameters)";
+	
+	CheckException = Settings.CheckExceptions.Add();
+	CheckException.FullObjectName   = "CommonModule.TimeConsumingOperations";
+	CheckException.ProcedureName       = "CallProcedure";
+	CheckException.FragmentOfContent = "Common.ExecuteObjectMethod(DataProcessorReportObject, NameParts[3], CallParameters)";
+	
+	CheckException = Settings.CheckExceptions.Add();
+	CheckException.FullObjectName   = "CommonModule.TimeConsumingOperations";
+	CheckException.ProcedureName       = "CallFunction";
+	CheckException.FragmentOfContent = "Result = Common.ExecuteConfigurationMethod(FunctionName, ProcedureParameters, True)";
+	
+	CheckException = Settings.CheckExceptions.Add();
+	CheckException.FullObjectName   = "CommonModule.TimeConsumingOperations";
+	CheckException.ProcedureName       = "CallFunction";
+	CheckException.FragmentOfContent = "Result = Common.ExecuteObjectMethod(DataProcessorReportObject, NameParts[3], ProcedureParameters, True)";
+	
+	CheckException = Settings.CheckExceptions.Add();
+	CheckException.FullObjectName   = "CommonModule.TimeConsumingOperations";
+	CheckException.ProcedureName       = "ExecuteMultithreadedProcess";
+	CheckException.FragmentOfContent = "Common.ExecuteConfigurationMethod(NameOfBatchAcquisitionMethod, BatchesAcquisitionParameters)";
+	
+	CheckException = Settings.CheckExceptions.Add();
+	CheckException.FullObjectName   = "CommonModule.TimeConsumingOperations";
+	CheckException.ProcedureName       = "ExecuteThread";
+	CheckException.FragmentOfContent = "RunResult = ExecuteInBackground(OperationParametersList.MethodName, MethodParameters, ExecutionParameters)";
+	
+	CheckException = Settings.CheckExceptions.Add();
+	CheckException.FullObjectName   = "CommonModule.TimeConsumingOperations";
+	CheckException.ProcedureName       = "RunReportObjectModuleProcedure";
+	CheckException.FragmentOfContent = "Common.ExecuteObjectMethod(Report, Parameters.MethodName, MethodParameters)";
+	
+	CheckException = Settings.CheckExceptions.Add();
+	CheckException.FullObjectName   = "CommonModule.TimeConsumingOperations";
+	CheckException.ProcedureName       = "RunDataProcessorObjectModuleProcedure";
+	CheckException.FragmentOfContent = "Common.ExecuteObjectMethod(DataProcessor, Parameters.MethodName, MethodParameters)";
+	
+	CheckException = Settings.CheckExceptions.Add();
+	CheckException.FullObjectName   = "CommonModule.TimeConsumingOperations";
+	CheckException.ProcedureName       = "StartBackgroundExecution";
+	CheckException.FragmentOfContent = "Common.ExecuteConfigurationMethod(ExportProcedureName, ExportProcedureParameters)";
+	
+	CheckException = Settings.CheckExceptions.Add();
+	CheckException.FullObjectName   = "CommonModule.TimeConsumingOperations";
+	CheckException.ProcedureName       = "StartBackgroundExecution";
+	CheckException.FragmentOfContent = "Common.ExecuteConfigurationMethod(ExportProcedureName, ExportProcedureParameters)";
+	
+	Methods = New Map;
+	Methods.Insert("RunDataProcessorObjectModuleProcedure", True);
+	Methods.Insert("RunReportObjectModuleProcedure", True);
+	Settings.ExceptionsWhenSpecifiedMethodIsNotCalled.Insert("CommonModule.TimeConsumingOperations", Methods);
+	
+EndProcedure
+
+// See StandardSubsystemsServer.WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode
+Procedure WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode(Methods) Export
+	
+	Methods.Insert("SessionParametersSetting");
+	Methods.Insert("ExecuteMultithreadedProcess", True);
+	Methods.Insert("ExecuteWithClientContext", True);
+	Methods.Insert("RunDataProcessorObjectModuleProcedure", True);
+	Methods.Insert("RunReportObjectModuleProcedure", True);
+	
+EndProcedure
 
 #EndRegion

@@ -1,5 +1,5 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
@@ -175,8 +175,14 @@ EndProcedure
 
 &AtClient
 Procedure DuplicatesSearchAreaOpening(Item, StandardProcessing)
+	
 	StandardProcessing = False;
+	If IsBlankString(DuplicatesSearchArea) Then
+		Return;
+	EndIf;
+
 	OpenForm(DuplicatesSearchArea + ".ListForm");
+
 EndProcedure
 
 &AtClient
@@ -717,7 +723,7 @@ Procedure ClearAllCheckBoxes(Command)
 EndProcedure
 
 &AtClient
-Procedure More(Command)
+Procedure ShowMoreDetails(Command)
 	Items.DetailsGroup1.Visible = Not Items.DetailsGroup1.Visible;
 	Items.MoreDetails.Title = ?(Items.DetailsGroup1.Visible, NStr("en = '<< Hide'"), NStr("en = 'Details >>'"));
 EndProcedure
@@ -968,6 +974,23 @@ Procedure WizardStepNext()
 		
 		If IsBlankString(DuplicatesSearchArea) Then
 			ShowMessageBox(, NStr("en = 'Select a search location'"));
+			Return;
+		EndIf;
+		
+		If AppliedRuleDetails <> Undefined And TakeAppliedRulesIntoAccount Then
+			SearchRulesAreSpecified = True;
+		Else
+			SearchRulesAreSpecified = False;
+			For Each RulesRow In SearchRules Do
+				If ValueIsFilled(RulesRow.Rule) Then
+					SearchRulesAreSpecified = True;
+					Break;
+				EndIf;
+			EndDo;
+		EndIf;
+		
+		If Not SearchRulesAreSpecified Then
+			ShowMessageBox(, NStr("en = 'Specify at least one duplicate search rule.'"));
 			Return;
 		EndIf;
 		
@@ -1740,7 +1763,6 @@ Function FindAndDeleteDuplicates()
 		
 		Items.Searching.StatePresentation.Text = NStr("en = 'Searching for duplicates…'");
 
-		ProcedureName = "DataProcessor.DuplicateObjectsDetection.ObjectModule.BackgroundSearchForDuplicates";
 		ProcedureParameters.Insert("DuplicatesSearchArea",     DuplicatesSearchArea);
 		ProcedureParameters.Insert("MaxDuplicates", 1500);
 		SearchRulesArray = New Array;
@@ -1755,7 +1777,10 @@ Function FindAndDeleteDuplicates()
 		StartSettings1 = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
 		StartSettings1.BackgroundJobDescription = NStr("en = 'Duplicate cleaner: Find duplicates'");
 		
-		Return TimeConsumingOperations.ExecuteInBackground(ProcedureName, ProcedureParameters, StartSettings1);
+		Return TimeConsumingOperations.ExecuteInBackground(
+			"DataProcessor.DuplicateObjectsDetection.ObjectModule.BackgroundSearchForDuplicates",
+			ProcedureParameters,
+			StartSettings1);
 		
 	ElsIf CurrentPage = Items.DeletionStep Then
 		
@@ -1767,13 +1792,14 @@ Function FindAndDeleteDuplicates()
 		
 		Items.Deletion.StatePresentation.Text = NStr("en = 'Processing duplicates…'");
 		
-		ProcedureName = "DataProcessor.DuplicateObjectsDetection.ObjectModule.BackgroundDuplicateDeletion";
-
 		StartSettings1 = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
 		StartSettings1.BackgroundJobDescription = NStr("en = 'Duplicate cleaner: Delete duplicates'");
 		
 		BatchesCount = DeletionParameters.Count();
-		Return TimeConsumingOperations.ExecuteFunctionInMultipleThreads(ProcedureName, StartSettings1, DeletionParameters);
+		Return TimeConsumingOperations.ExecuteFunctionInMultipleThreads(
+			"DataProcessor.DuplicateObjectsDetection.ObjectModule.BackgroundDuplicateDeletion",
+			StartSettings1,
+			DeletionParameters);
 		
 	EndIf;
 	
@@ -1832,11 +1858,11 @@ EndProcedure
 Function ProgressText(Val ProgressParameters, Val SourceProgressText)
 	
 	ThisIsReplacement = StrStartsWith(SourceProgressText, NStr("en = 'Replacing duplicates'"));
-	ProgressAttributeName = ?(ThisIsReplacement, "ProcessedItemsCount", "DeletedItemsCount");
+	ProgressAttributeName = ?(ThisIsReplacement, "ProcessedItemsCount_SSLyf", "DeletedItemsCount_SSLyf");
 	If ThisIsReplacement Then
-		ProcessedTotalCount = ProcessedTotalCount + ProgressParameters.ProcessedItemsCount;
+		ProcessedTotalCount = ProcessedTotalCount + ProgressParameters.ProcessedItemsCount_SSLyf;
 	Else
-		DeletedTotalCount = DeletedTotalCount + ProgressParameters.ProcessedItemsCount;
+		DeletedTotalCount = DeletedTotalCount + ProgressParameters.ProcessedItemsCount_SSLyf;
 	EndIf;
 	
 	ProgressText = StringFunctionsClientServer.SubstituteParametersToString(
@@ -1878,9 +1904,9 @@ Procedure FindAndDeleteDuplicatesCompletion(Result, AdditionalParameters) Export
 			Brief1 = NStr("en = 'Cannot delete the duplicates. Reason:'");
 		EndIf;
 		Brief1 = Brief1 + Chars.LF + Result.BriefErrorDescription;
-		More = Brief1 + Chars.LF + Chars.LF + Result.DetailErrorDescription;
+		ShowMoreDetails = Brief1 + Chars.LF + Chars.LF + Result.DetailErrorDescription;
 		Items.ErrorTextLabel.Title = Brief1;
-		Items.DetailsRef.ToolTip    = More;
+		Items.DetailsRef.ToolTip    = ShowMoreDetails;
 		GoToWizardStep1(Items.ErrorOccurredStep);
 		Return;
 	EndIf;

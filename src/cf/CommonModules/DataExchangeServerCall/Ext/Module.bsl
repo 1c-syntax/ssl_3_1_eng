@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -62,6 +61,18 @@ EndProcedure
 #EndRegion
 
 #Region Private
+
+// Toggles the display of the warning about cyclic sync settings.
+// The warning is located in the common form DataSyncSettings, which lists all sync settings.
+//
+// Parameters:
+//  Direction - Boolean - If True, hide; if False, display.
+//
+Procedure HideShowLoopingWarningFromUser(Val Direction) Export
+	
+	DataExchangeLoopControl.HideShowLoopingWarningFromUser(Direction);
+	
+EndProcedure
 
 // Executes data exchange process separately for each exchange setting line.
 // Data exchange process consists of two stages:
@@ -236,7 +247,7 @@ EndFunction
 Function NotExportedNodeObjectsMetadataNames(Val InfobaseNode) Export
 	Result = New Array;
 	
-	NotExportMode = Enums.ExchangeObjectExportModes.NotExport;
+	NotExportMode = Enums.ExchangeObjectExportModes.NotToExport;
 	ExportModes   = DataExchangeCached.UserExchangePlanComposition(InfobaseNode);
 	For Each KeyValue In ExportModes Do
 		If KeyValue.Value=NotExportMode Then
@@ -410,13 +421,13 @@ Function CheckTheNeedForADeferredNodeEntry(Val ObjectNode) Export
 	
 EndFunction
 
-// Determines if the exchange node is included in the determined type "DSLExchangePlans".
+// Determines if the exchange node is included in the ExchangePlansDSL type collection.
 // 
 // Parameters:
 //  Node - ExchangePlanRef
 // 
 // Returns:
-//  Boolean - The node is included in the BSD exchange plans.
+//  Boolean - The node is included in the DSL exchange plans.
 //
 Function SUBAssetIsIncludedInDSLExchangePlans(Node) Export
 	

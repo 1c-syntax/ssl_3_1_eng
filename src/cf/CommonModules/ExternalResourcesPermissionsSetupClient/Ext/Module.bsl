@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Internal
@@ -72,7 +71,7 @@ Procedure StartInitializingRequestForPermissionsToUseExternalResources(
 		
 		State = RequestForPermissionsToUseExternalResourcesState();
 		State.RequestsIDs = IDs;
-		State.NotifyDescription = ClosingNotification1;
+		State.CallbackDescription = ClosingNotification1;
 		State.OwnerForm = OwnerForm;
 		State.EnablingMode = EnablingMode;
 		State.DisablingMode = DisablingMode;
@@ -84,7 +83,7 @@ Procedure StartInitializingRequestForPermissionsToUseExternalResources(
 		FormParameters.Insert("DisablingMode", State.DisablingMode);
 		FormParameters.Insert("RecoveryMode", State.RecoveryMode);
 		
-		NotifyDescription = New CallbackDescription(
+		CallbackDescription = New CallbackDescription(
 			"AfterInitializeRequestForPermissionsToUseExternalResources",
 			ExternalResourcesPermissionsSetupClient,
 			State);
@@ -96,7 +95,7 @@ Procedure StartInitializingRequestForPermissionsToUseExternalResources(
 			,
 			,
 			,
-			NotifyDescription,
+			CallbackDescription,
 			FormWindowOpeningMode.LockWholeInterface);
 		
 	Else
@@ -134,7 +133,7 @@ Procedure AfterInitializeRequestForPermissionsToUseExternalResources(Result, Sta
 			FormParameters.Insert("RecoveryMode", State.RecoveryMode);
 			FormParameters.Insert("CheckMode", State.CheckMode);
 			
-			NotifyDescription = New CallbackDescription(
+			CallbackDescription = New CallbackDescription(
 				"AfterSetUpPermissionsToUseExternalResources",
 				ExternalResourcesPermissionsSetupClient,
 				State);
@@ -146,14 +145,14 @@ Procedure AfterInitializeRequestForPermissionsToUseExternalResources(Result, Sta
 				,
 				,
 				,
-				NotifyDescription,
+				CallbackDescription,
 				FormWindowOpeningMode.LockWholeInterface);
 			
 		Else
 			
 			// The requested permissions are excessive. Do not change security profiles on the cluster.
 			// 
-			CompleteSetUpPermissionsToUseExternalResourcesAsynchronously(State.NotifyDescription);
+			CompleteSetUpPermissionsToUseExternalResourcesAsynchronously(State.CallbackDescription);
 			
 		EndIf;
 		
@@ -161,7 +160,7 @@ Procedure AfterInitializeRequestForPermissionsToUseExternalResources(Result, Sta
 		
 		ExternalResourcesPermissionsSetupServerCall.CancelApplyRequestsToUseExternalResources(
 			State.RequestsIDs);
-		CancelSetUpPermissionsToUseExternalResourcesAsynchronously(State.NotifyDescription);
+		CancelSetUpPermissionsToUseExternalResourcesAsynchronously(State.CallbackDescription);
 		
 	EndIf;
 	
@@ -200,7 +199,7 @@ Procedure AfterSetUpPermissionsToUseExternalResources(Result, State) Export
 			FormParameters.Insert("Duration", 0);
 		EndIf;
 		
-		NotifyDescription = New CallbackDescription(
+		CallbackDescription = New CallbackDescription(
 			"AfterCompleteRequestForPermissionsToUseExternalResources",
 			ExternalResourcesPermissionsSetupClient,
 			State);
@@ -212,14 +211,14 @@ Procedure AfterSetUpPermissionsToUseExternalResources(Result, State) Export
 			,
 			,
 			,
-			NotifyDescription,
+			CallbackDescription,
 			FormWindowOpeningMode.LockWholeInterface);
 		
 	Else
 		
 		ExternalResourcesPermissionsSetupServerCall.CancelApplyRequestsToUseExternalResources(
 			State.RequestsIDs);
-		CancelSetUpPermissionsToUseExternalResourcesAsynchronously(State.NotifyDescription);
+		CancelSetUpPermissionsToUseExternalResourcesAsynchronously(State.CallbackDescription);
 		
 	EndIf;
 	
@@ -241,13 +240,13 @@ Procedure AfterCompleteRequestForPermissionsToUseExternalResources(Result, State
 		ShowUserNotification(NStr("en = 'Permission settings'"),,
 			NStr("en = 'Security profile settings are changed in the server cluster.'"));
 		
-		CompleteSetUpPermissionsToUseExternalResourcesAsynchronously(State.NotifyDescription);
+		CompleteSetUpPermissionsToUseExternalResourcesAsynchronously(State.CallbackDescription);
 		
 	Else
 		
 		ExternalResourcesPermissionsSetupServerCall.CancelApplyRequestsToUseExternalResources(
 			State.RequestsIDs);
-		CancelSetUpPermissionsToUseExternalResourcesAsynchronously(State.NotifyDescription);
+		CancelSetUpPermissionsToUseExternalResourcesAsynchronously(State.CallbackDescription);
 		
 	EndIf;
 	
@@ -257,15 +256,15 @@ EndProcedure
 // that were initially passed from the form, for which the wizard was opened returning the return code OK.
 //
 // Parameters:
-//  NotifyDescription - CallbackDescription - Description passed from the calling code.
+//  CallbackDescription - CallbackDescription - Description passed from the calling code.
 //
-Procedure CompleteSetUpPermissionsToUseExternalResourcesAsynchronously(Val NotifyDescription)
+Procedure CompleteSetUpPermissionsToUseExternalResourcesAsynchronously(Val CallbackDescription)
 	
 	ParameterName = "StandardSubsystems.NotificationOnApplyExternalResourceRequest";
 	If ApplicationParameters[ParameterName] = Undefined Then
 		ApplicationParameters.Insert(ParameterName, Undefined);
 	EndIf;
-	ApplicationParameters[ParameterName] = NotifyDescription;
+	ApplicationParameters[ParameterName] = CallbackDescription;
 	
 	AttachIdleHandler("FinishExternalResourcePermissionSetup", 0.1, True);
 	
@@ -275,15 +274,15 @@ EndProcedure
 // that were initially passed from the form, for which the wizard was opened returning the return code Cancel.
 //
 // Parameters:
-//  NotifyDescription - CallbackDescription - Description passed from the calling code.
+//  CallbackDescription - CallbackDescription - Description passed from the calling code.
 //
-Procedure CancelSetUpPermissionsToUseExternalResourcesAsynchronously(Val NotifyDescription)
+Procedure CancelSetUpPermissionsToUseExternalResourcesAsynchronously(Val CallbackDescription)
 	
 	ParameterName = "StandardSubsystems.NotificationOnApplyExternalResourceRequest";
 	If ApplicationParameters[ParameterName] = Undefined Then
 		ApplicationParameters.Insert(ParameterName, Undefined);
 	EndIf;
-	ApplicationParameters[ParameterName] = NotifyDescription;
+	ApplicationParameters[ParameterName] = CallbackDescription;
 	
 	AttachIdleHandler("CancelExternalResourcePermissionSetup", 0.1, True);
 	
@@ -328,7 +327,7 @@ EndProcedure
 //
 Procedure CheckPermissionsAppliedAfterOwnerFormClose(Result, State) Export
 	
-	OriginalOnCloseNotifyDescription = State.NotifyDescription;
+	OriginalOnCloseNotifyDescription = State.CallbackDescription;
 	If OriginalOnCloseNotifyDescription <> Undefined Then
 		RunCallback(OriginalOnCloseNotifyDescription, Result);
 	EndIf;
@@ -427,7 +426,7 @@ Function RequestForPermissionsToUseExternalResourcesState()
 	
 	// The original details of the notification that is triggered after the permission request is confirmed.
 	// 
-	Result.Insert("NotifyDescription", Undefined);
+	Result.Insert("CallbackDescription", Undefined);
 	
 	// Address in a temporary storage for storing data passed between forms.
 	Result.Insert("StorageAddress", "");
@@ -471,7 +470,7 @@ Function PermissionsApplicabilityCheckStateAfterCloseOwnerForm()
 	
 	// The original details of the form notification that triggers when permission applicability is checked.
 	// 
-	Result.Insert("NotifyDescription", Undefined);
+	Result.Insert("CallbackDescription", Undefined);
 	
 	Return Result;
 	
@@ -518,7 +517,7 @@ Procedure PlanPermissionApplyingCheckAfterOwnerFormClose(FormOwner, RequestsIDs)
 		EndIf;
 		
 		State = PermissionsApplicabilityCheckStateAfterCloseOwnerForm();
-		State.NotifyDescription = InitialNotifyDescription;
+		State.CallbackDescription = InitialNotifyDescription;
 		
 		PermissionsApplicabilityCheckNotifyDescription = New CallbackDescription(
 			"CheckPermissionsAppliedAfterOwnerFormClose",

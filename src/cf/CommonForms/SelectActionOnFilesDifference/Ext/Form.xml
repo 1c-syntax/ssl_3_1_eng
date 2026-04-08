@@ -376,7 +376,7 @@
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Open the local file copy.</v8:content>
+					<v8:content>Open a copy of the local file. The content may differ from the version in the app.</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>OpenExistingFile</Action>
@@ -392,7 +392,7 @@
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Replace the local file with the file stored in the app and open it.</v8:content>
+					<v8:content>Replace the local copy of the file with the version from the app and open it. You'll lose all changes to the local file.</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>GetFromApplication</Action>

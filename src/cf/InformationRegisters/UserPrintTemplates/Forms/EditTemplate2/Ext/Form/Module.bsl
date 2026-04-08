@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -118,10 +117,10 @@ EndProcedure
 Procedure ExitAppUpdate(Command)
 	
 #If WebClient Or MobileClient Then
-		NotifyDescription = New CallbackDescription("OnImportFile", ThisObject);
+		CallbackDescription = New CallbackDescription("OnImportFile", ThisObject);
 		ImportParameters = FileSystemClient.FileImportParameters();
 		ImportParameters.FormIdentifier = UUID;
-		FileSystemClient.ImportFile_(NotifyDescription, ImportParameters);
+		FileSystemClient.ImportFile_(CallbackDescription, ImportParameters);
 #Else
 		If Lower(TemplateType) = "mxl" Then
 			TemplateToChange.Hide();
@@ -258,8 +257,8 @@ EndProcedure
 &AtClient
 Procedure OpenThinClientTemplate()
 	
-	NotifyDescription = New CallbackDescription("OpenTemplateThinClientAfterCreateTempDirectory", ThisObject);
-	FileSystemClient.CreateTemporaryDirectory(NotifyDescription);
+	CallbackDescription = New CallbackDescription("OpenTemplateThinClientAfterCreateTempDirectory", ThisObject);
+	FileSystemClient.CreateTemporaryDirectory(CallbackDescription);
 	
 EndProcedure
 

@@ -461,8 +461,8 @@
 									<ContextMenu name="DeferredHandlersHandlerContextMenu" id="42"/>
 									<ExtendedTooltip name="DeferredHandlersHandlerExtendedTooltip" id="43"/>
 								</InputField>
-								<LabelField name="DeferredHandlersHandlerAddOn" id="150">
-									<DataPath>DeferredHandlers.HandlerAddOn</DataPath>
+								<LabelField name="DeferredHandlersAdditionHandler" id="150">
+									<DataPath>DeferredHandlers.HandlerSupplement</DataPath>
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
@@ -473,8 +473,8 @@
 									<EditMode>EnterOnInput</EditMode>
 									<CellHyperlink>true</CellHyperlink>
 									<ShowInHeader>false</ShowInHeader>
-									<ContextMenu name="DeferredHandlersHandlerAddOnContextMenu" id="151"/>
-									<ExtendedTooltip name="DeferredHandlersHandlerAddOnExtendedTooltip" id="152"/>
+									<ContextMenu name="DeferredHandlersAdditionHandlerContextMenu" id="151"/>
+									<ExtendedTooltip name="DeferredHandlersAdditionHandlerExtendedTooltip" id="152"/>
 								</LabelField>
 							</ChildItems>
 						</ColumnGroup>
@@ -540,6 +540,9 @@
 						</InputField>
 						<InputField name="DeferredHandlersExecutionDuration" id="77">
 							<DataPath>DeferredHandlers.ExecutionDuration</DataPath>
+							<UserVisible>
+								<xr:Common>false</xr:Common>
+							</UserVisible>
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
@@ -716,49 +719,85 @@
 			</ChildItems>
 		</UsualGroup>
 		<UsualGroup name="FooterGroup" id="153">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Footer</v8:content>
+				</v8:item>
+			</Title>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
 			<ExtendedTooltip name="FooterGroupExtendedTooltip" id="154"/>
 			<ChildItems>
 				<UsualGroup name="AssistanceRequiredGroup" id="155">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Need help?</v8:content>
+						</v8:item>
+					</Title>
 					<GroupVerticalAlign>Center</GroupVerticalAlign>
 					<Group>Vertical</Group>
 					<Behavior>PopUp</Behavior>
 					<ExtendedTooltip name="AssistanceRequiredGroupExtendedTooltip" id="156"/>
 					<ChildItems>
-						<UsualGroup name="TechnicalSupportGroup" id="157">
+						<UsualGroup name="GroupSupportRequests" id="157">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Support requests</v8:content>
+								</v8:item>
+							</Title>
 							<Group>Vertical</Group>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="TechnicalSupportGroupExtendedTooltip" id="158"/>
+							<ExtendedTooltip name="GroupSupportRequestsExtendedTooltip" id="158"/>
 							<ChildItems>
-								<LabelDecoration name="DescriptionOfSupportRequest" id="159">
-									<ContextMenu name="DescriptionOfSupportRequestContextMenu" id="160"/>
-									<ExtendedTooltip name="DescriptionOfSupportRequestExtendedTooltip" id="161"/>
+								<LabelDecoration name="SupportRequestDetails" id="159">
+									<ContextMenu name="SupportRequestDetailsContextMenu" id="160"/>
+									<ExtendedTooltip name="SupportRequestDetailsExtendedTooltip" id="161"/>
 								</LabelDecoration>
-								<Button name="QuestionInSupport" id="162">
+								<Button name="SupportTicket" id="162">
 									<Type>Hyperlink</Type>
-									<CommandName>Form.Command.QuestionInSupport</CommandName>
+									<CommandName>Form.Command.SupportTicket</CommandName>
 									<Picture>
 										<xr:Ref>CommonPicture.SendEmail</xr:Ref>
 										<xr:LoadTransparent>false</xr:LoadTransparent>
 									</Picture>
-									<ExtendedTooltip name="QuestionInSupportExtendedTooltip" id="163"/>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Contact support</v8:content>
+										</v8:item>
+									</Title>
+									<ExtendedTooltip name="SupportTicketExtendedTooltip" id="163"/>
 								</Button>
-								<Button name="InformationToSendToSupport" id="164">
+								<Button name="InfoForSupport" id="164">
 									<Type>Hyperlink</Type>
-									<CommandName>Form.Command.InformationToSendToSupport</CommandName>
+									<CommandName>Form.Command.InfoForSupport</CommandName>
 									<Picture>
 										<xr:Ref>CommonPicture.Download</xr:Ref>
 										<xr:LoadTransparent>false</xr:LoadTransparent>
 									</Picture>
-									<ExtendedTooltip name="InformationToSendToSupportExtendedTooltip" id="165"/>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Information to send to support</v8:content>
+										</v8:item>
+									</Title>
+									<ExtendedTooltip name="InfoForSupportExtendedTooltip" id="165"/>
 								</Button>
 							</ChildItems>
 						</UsualGroup>
 					</ChildItems>
 				</UsualGroup>
 				<CommandBar name="CommandBar" id="166">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Command bar</v8:content>
+						</v8:item>
+					</Title>
 					<HorizontalLocation>Right</HorizontalLocation>
 					<ExtendedTooltip name="CommandBarExtendedTooltip" id="167"/>
 					<ChildItems>
@@ -943,7 +982,7 @@
 						</v8:NumberQualifiers>
 					</Type>
 				</Column>
-				<Column name="HandlerAddOn" id="13">
+				<Column name="HandlerSupplement" id="13">
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -1236,11 +1275,23 @@
 			</Title>
 			<Action>CheckPatches</Action>
 		</Command>
-		<Command name="QuestionInSupport" id="10">
-			<Action>QuestionInSupport</Action>
+		<Command name="SupportTicket" id="10">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Contact support</v8:content>
+				</v8:item>
+			</Title>
+			<Action>SupportTicket</Action>
 		</Command>
-		<Command name="InformationToSendToSupport" id="11">
-			<Action>InformationToSendToSupport</Action>
+		<Command name="InfoForSupport" id="11">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Information to send to support</v8:content>
+				</v8:item>
+			</Title>
+			<Action>InfoForSupport</Action>
 		</Command>
 	</Commands>
 </Form>

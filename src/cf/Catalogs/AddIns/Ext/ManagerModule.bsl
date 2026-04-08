@@ -1,18 +1,17 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Public
 
-#Region ForCallsFromOtherSubsystems
+#Region InterfaceImplementation
 
 // StandardSubsystems.BatchEditObjects
 
@@ -149,73 +148,7 @@ EndProcedure
 Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 	Parameters.ProcessingCompleted = True;
 	
-	If CommonClientServer.CompareVersions(Parameters.SubsystemVersionAtStartUpdates, "3.1.5.220") < 0
-		And Common.SubsystemExists("StandardSubsystems.DigitalSignature")
-		And Common.SubsystemExists("OnlineUserSupport.GetAddIns")
-		And Not Common.DataSeparationEnabled() Then
-		
-		ComponentsToUse = AddInsServer.ComponentsToUse("ForImport"); //See GetAddIns.AddInsDetails
-		
-		If ComponentsToUse.Find("ExtraCryptoAPI", "Id") = Undefined Then 
-		
-			ModuleDigitalSignatureInternalClientServer = Common.CommonModule("DigitalSignatureInternalClientServer");
-			ModuleDigitalSignatureInternal = Common.CommonModule("DigitalSignatureInternal");
-			
-			ComponentDetails = ModuleDigitalSignatureInternalClientServer.ComponentDetails();
-			TheComponentOfTheLatestVersionFromTheLayout = StandardSubsystemsServer.TheComponentOfTheLatestVersion(
-				ComponentDetails.ObjectName, ComponentDetails.FullTemplateName);
-			
-			LayoutLocationSplit = StrSplit(TheComponentOfTheLatestVersionFromTheLayout.Location, ".");
-			
-			BinaryData = ModuleDigitalSignatureInternal.GetAddInData(
-				LayoutLocationSplit.Get(LayoutLocationSplit.UBound()));
-				
-			AddInParameters = AddInsInternal.ImportParameters();
-			AddInParameters.Id = ComponentDetails.ObjectName;
-			AddInParameters.Description = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = '%1 for 1C:Enterprise'", Common.DefaultLanguageCode()), "ExtraCryptoAPI");
-			AddInParameters.Version = TheComponentOfTheLatestVersionFromTheLayout.Version;
-			AddInParameters.ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Added automatically on %1.'", Common.DefaultLanguageCode()), CurrentSessionDate());
-			AddInParameters.UpdateFrom1CITSPortal = True;
-			AddInParameters.Data = BinaryData;
-			
-			AddInsInternal.LoadAComponentFromBinaryData(AddInParameters, False);
-		EndIf;
 	
-	EndIf;
-	
-	If CommonClientServer.CompareVersions(Parameters.SubsystemVersionAtStartUpdates, "3.1.9.163") < 0
-		And Common.SubsystemExists("StandardSubsystems.FilesOperations")
-		And Common.SubsystemExists("OnlineUserSupport.GetAddIns")
-		And Not Common.DataSeparationEnabled() Then
-		
-		ComponentsToUse = AddInsServer.ComponentsToUse("ForImport"); // See GetAddIns.AddInsDetails
-		ModuleFilesOperationsInternalClientServer = Common.CommonModule("FilesOperationsInternalClientServer");
-			
-		ComponentDetails = ModuleFilesOperationsInternalClientServer.ComponentDetails();
-		
-		If ComponentsToUse.Find(ComponentDetails.ObjectName, "Id") = Undefined Then 
-		
-			TheComponentOfTheLatestVersionFromTheLayout = StandardSubsystemsServer.TheComponentOfTheLatestVersion(
-				ComponentDetails.ObjectName, ComponentDetails.FullTemplateName);
-			
-			LayoutLocationSplit = StrSplit(TheComponentOfTheLatestVersionFromTheLayout.Location, ".");
-			BinaryData = GetCommonTemplate(LayoutLocationSplit.Get(LayoutLocationSplit.UBound()));
-				
-			AddInParameters = AddInsInternal.ImportParameters();
-			AddInParameters.Id = ComponentDetails.ObjectName;
-			AddInParameters.Description = NStr("en = 'Add-in to scan documents and images'");
-			AddInParameters.Version = TheComponentOfTheLatestVersionFromTheLayout.Version;
-			AddInParameters.ErrorDescription = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Added automatically on %1.'"), CurrentSessionDate());
-			AddInParameters.UpdateFrom1CITSPortal = True;
-			AddInParameters.Data = BinaryData;
-			
-			AddInsInternal.LoadAComponentFromBinaryData(AddInParameters, False);
-		EndIf;
-		
-	EndIf;
 
 	Selection = InfobaseUpdate.SelectRefsToProcess(Parameters.Queue, "Catalog.AddIns");
 	If Selection.Count() > 0 Then

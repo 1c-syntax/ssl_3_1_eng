@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -724,6 +723,7 @@ Procedure WriteCommonDocumentOriginalState(Document, State) Export
 			OriginalStateRecord.State = Catalogs.SourceDocumentsOriginalsStates.OriginalsNotAll;
 		EndIf;
 	Else
+		OriginalStateRecord.ChangeAuthor = Users.CurrentUser();
 		OriginalStateRecord.State = OriginalState;
 	EndIf;
 		
@@ -901,7 +901,7 @@ Procedure OnDefineCommandsAttachedToObject(FormSettings, Sources, AttachedReport
 	Command.FunctionalOptions = "UseSourceDocumentsOriginalsRecording";
 	Command.Handler = "SourceDocumentsOriginalsRecordingClient.Attachable_SetOriginalState";
 		
-	// A command for navigating to the state settings in the command bar submenu of the "Set state" list.
+	// A command for navigating to the state settings in the "Set state" submenu of the list command bar.
 	// Applicable if the user is assigned the required role.
 	If AccessRight("InteractiveInsert", Metadata.Catalogs.SourceDocumentsOriginalsStates) Then
 		Command = Commands.Add();
@@ -1687,5 +1687,12 @@ Function AccountingTableForOriginals()
 	Return Table;
 	
 EndFunction
+
+// See StandardSubsystemsServer.WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode
+Procedure WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode(Methods) Export
+	
+	Methods.Insert("WriteSourceDocumentOriginalState");
+	
+EndProcedure
 
 #EndRegion

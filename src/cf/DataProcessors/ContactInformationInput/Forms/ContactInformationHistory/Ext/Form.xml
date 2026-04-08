@@ -98,11 +98,11 @@
 						<CommandName>Form.StandardCommand.CustomizeForm</CommandName>
 						<ExtendedTooltip name="HistoryChangeFormExtendedTooltip" id="29"/>
 					</Button>
-					<Button name="FormHelp" id="26">
+					<Button name="FormHelp_SSLyf" id="26">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.StandardCommand.Help</CommandName>
 						<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-						<ExtendedTooltip name="FormHelpExtendedTooltip" id="27"/>
+						<ExtendedTooltip name="FormHelp_SSLyfExtendedTooltip" id="27"/>
 					</Button>
 				</ChildItems>
 			</AutoCommandBar>

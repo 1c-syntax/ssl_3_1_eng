@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Internal
@@ -227,10 +226,6 @@ Procedure UpdateAccessGroupsProfileByTemplate(TemplateName, Comment, IdentifierT
 		If ObjectOfProfile.DeletionMark <> IsDisconnection Then
 			ObjectOfProfile.SetDeletionMark(IsDisconnection);
 			If IsDisconnection Then
-				If SimplifiedMode Then
-					SendMessageAboutAccessGroupChanges(ObjectOfProfile);
-				EndIf;
-				
 				Return; 
 			EndIf;
 		EndIf;
@@ -264,7 +259,6 @@ Procedure UpdateAccessGroupsProfileByTemplate(TemplateName, Comment, IdentifierT
 	ObjectOfProfile.Write();
 	
 	If SimplifiedMode Then
-		SendMessageAboutAccessGroupChanges(ObjectOfProfile);
 		Return;
 	EndIf;
 	
@@ -288,7 +282,10 @@ Procedure UpdateAccessGroupsProfileByTemplate(TemplateName, Comment, IdentifierT
 	EndIf;
 EndProcedure
 
-Procedure SendUserGroupChangeMessage(GroupObject1, Delete = False, AllServiceUsersIDs = Undefined) Export
+Procedure SendUserGroupChangeMessage(GroupObject1, 
+														Delete = False, 
+														AllServiceUsersIDs = Undefined,
+														ShouldSendByInstantMessage = True) Export
 	SetPrivilegedMode(True);
 	
 	If Not IsCTLUserRightsSetupSupported() Then
@@ -296,7 +293,6 @@ Procedure SendUserGroupChangeMessage(GroupObject1, Delete = False, AllServiceUse
 	EndIf;
 	
 	ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
-	ModuleMessagesExchange = Common.CommonModule("MessagesExchange");
 	
 	UsersGroup = New Structure;
 	UsersGroup.Insert("Zone", ModuleSaaSOperations.SessionSeparatorValue());
@@ -312,10 +308,11 @@ Procedure SendUserGroupChangeMessage(GroupObject1, Delete = False, AllServiceUse
 			GroupObject1.Content.UnloadColumn("User"),
 			AllServiceUsersIDs));
 	
-	ModuleMessagesExchange.SendMessage(
+	SendMessage(
 		"AccessRights/UserGroups",
-		Common.ValueToJSON(UsersGroup),
-		ModuleSaaSOperations.ServiceManagerEndpoint());
+		UsersGroup,
+		ModuleSaaSOperations.ServiceManagerEndpoint(),
+		ShouldSendByInstantMessage);
 EndProcedure
 
 
@@ -326,15 +323,24 @@ EndProcedure
 //  Delete - Boolean
 //  AllServiceUsersIDs - Undefined, Map
 //
-Procedure SendMessageAboutAccessGroupChanges(GroupObject1, Delete = False, AllServiceUsersIDs = Undefined) Export
+Procedure SendMessageAboutAccessGroupChanges(GroupObject1, 
+													Delete = False, 
+													AllServiceUsersIDs = Undefined,
+													ShouldSendByInstantMessage = True) Export
 	SetPrivilegedMode(True);
 	
 	If Not IsCTLUserRightsSetupSupported() Then
 		Return;
 	EndIf;
 	
+	SimplifiedMode = AccessManagementInternal.SimplifiedAccessRightsSetupInterface();
+	ThisProfile = TypeOf(GroupObject1) = Type("CatalogObject.AccessGroupProfiles");
+	
+	If Not SimplifiedMode And ThisProfile Then
+		Return;
+	EndIf;
+	
 	ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
-	ModuleMessagesExchange = Common.CommonModule("MessagesExchange");
 	
 	AccessGroup = New Structure;
 	AccessGroup.Insert("Zone", ModuleSaaSOperations.SessionSeparatorValue());
@@ -345,8 +351,6 @@ Procedure SendMessageAboutAccessGroupChanges(GroupObject1, Delete = False, AllSe
 	AccessGroup.Insert("DeletionMark", GroupObject1.DeletionMark);
 	AccessGroup.Insert("Deleted", Delete);
 	
-	SimplifiedMode = AccessManagementInternal.SimplifiedAccessRightsSetupInterface();
-	
 	If Not GroupObject1.IsFolder Then
 	
 		UsersList = New Array;
@@ -356,15 +360,18 @@ Procedure SendMessageAboutAccessGroupChanges(GroupObject1, Delete = False, AllSe
 		
 		If SimplifiedMode 
 			Or (PersonalGroupsParent <> Undefined And PersonalGroupsParent = GroupObject1.Parent) Then
-			If TypeOf(GroupObject1) = Type("CatalogObject.AccessGroupProfiles") Then
+			
+			If ThisProfile Then
 				Profile = GroupObject1.Ref;
 			Else
 				Profile = GroupObject1.Profile;
+				AccessGroup.Deleted = False;
+				AccessGroup.DeletionMark = False;
 			EndIf;
 			
 			AccessGroup.Id = XMLString(Profile);
 			AccessGroup.Parent = XMLString(Catalogs.AccessGroups.EmptyRef());
-			UsersList = MembersByProfile(Profile);			
+			UsersList = MembersByProfile(Profile, PersonalGroupsParent);			
 						
 		Else
 			Profile = GroupObject1.Profile;
@@ -383,10 +390,6 @@ Procedure SendMessageAboutAccessGroupChanges(GroupObject1, Delete = False, AllSe
 			UsersList = 
 				ServiceUsersIDs(UsersReferences, AllServiceUsersIDs);
 			
-			If UsersReferences.Count() > 0 And UsersList.Count() = 0 And AccessGroup.IsAdmin Then
-				// It is done when writing an access group before writing the first administrator. The group will be sent later on.
-				Return;
-			EndIf;
 		EndIf;
 		
 		AccessGroup.Insert("Comment", GroupObject1.Comment);		
@@ -397,19 +400,16 @@ Procedure SendMessageAboutAccessGroupChanges(GroupObject1, Delete = False, AllSe
 		AccessGroup.Insert("UserGroups", ListOfUserGroups);
 		AccessGroup.Insert("ProfileId", XMLString(Profile));
 		
-		If UsersList.Count() > 0 And AccessGroup.Users.Count() = 0 And AccessGroup.IsAdmin Then
-			// It is done when writing an access group before writing the first administrator. The group will be sent later on.
-			Return;
-		EndIf;
 	EndIf;
 	
-	ModuleMessagesExchange.SendMessage(
+	SendMessage(
 		"AccessRights/AccessGroups",
-		Common.ValueToJSON(AccessGroup),
-		ModuleSaaSOperations.ServiceManagerEndpoint());
+		AccessGroup,
+		ModuleSaaSOperations.ServiceManagerEndpoint(),
+		ShouldSendByInstantMessage);
 EndProcedure
 
-Procedure SendAccessGroupsToServiceManager() Export
+Procedure SendAccessGroupsToServiceManager(ShouldSendByInstantMessage = True) Export
 	If Not IsCTLUserRightsSetupSupported() Then
 		Return;
 	EndIf;
@@ -445,6 +445,8 @@ Procedure SendAccessGroupsToServiceManager() Export
 	// ACC:96-on
 	
 	Query.Text = Query.Text + Common.QueryBatchSeparator() + QueryTextOfAccessGroupsSelection();
+	Query.SetParameter("PersonalAccessGroupsParent", 
+		Catalogs.AccessGroups.PersonalAccessGroupsParent(True));
 	
 	Result = Query.ExecuteBatch();
 	
@@ -462,14 +464,16 @@ Procedure SendAccessGroupsToServiceManager() Export
 	While SelectionUsersGroup.Next() Do
 		GroupObject = SelectionUsersGroup.Group.GetObject();
 		//@skip-check query-in-loop
-		SendUserGroupChangeMessage(GroupObject, , AllServiceUsersIDs);
+		SendUserGroupChangeMessage(
+			GroupObject, , AllServiceUsersIDs, ShouldSendByInstantMessage);
 	EndDo;
 	
 	SelectionAccessGroup = Result[2].Select();
 	While SelectionAccessGroup.Next() Do
 		GroupObject = SelectionAccessGroup.Group.GetObject();	
 		//@skip-check query-in-loop
-		SendMessageAboutAccessGroupChanges(GroupObject, , AllServiceUsersIDs);
+		SendMessageAboutAccessGroupChanges(
+			GroupObject, , AllServiceUsersIDs, ShouldSendByInstantMessage);
 	EndDo;
 EndProcedure
 
@@ -510,7 +514,7 @@ Procedure SendAccessGroupsToServiceManagerOnMigrateToNewVersion() Export
 				
 	BeginTransaction();
 	Try
-		SendAccessGroupsToServiceManager();
+		SendAccessGroupsToServiceManager(False);
 		CommitTransaction();
 	Except
 		RollbackTransaction();
@@ -597,7 +601,7 @@ Procedure AddLockByUserProfiles(Block, ProfilesInclude, AccessGroupsExclude, Per
 	LockItem.DataSource = ProfilesForLocking;
 EndProcedure
 
-Function MembersByProfile(Profile)
+Function MembersByProfile(Profile, PersonalGroupsParent)
 	// A profile lock is set earlier, when writing the access group
 	
 	Result = New Array();
@@ -613,8 +617,12 @@ Function MembersByProfile(Profile)
 	|	AND CAST(AccessGroups.User AS Catalog.Users) <> VALUE(Catalog.Users.EmptyRef)
 	|	AND VALUETYPE(AccessGroups.User) = TYPE(Catalog.Users)
 	|	AND CAST(AccessGroups.User AS
-	|		Catalog.Users).ServiceUserID <> &BlankID");
+	|		Catalog.Users).ServiceUserID <> &BlankID
+	|	AND (AccessGroups.Ref.Parent = &PersonalGroupsParent
+	|		OR &IsProfileAdministrator)");
 	Query.SetParameter("Profile", Profile);
+	Query.SetParameter("PersonalGroupsParent", PersonalGroupsParent);
+	Query.SetParameter("IsProfileAdministrator", Profile = AccessManagement.ProfileAdministrator());
 	Query.SetParameter("BlankID", 
 		New UUID("00000000-0000-0000-0000-000000000000"));
 		
@@ -832,10 +840,23 @@ Function QueryTextOfAccessGroupsSelection()
 			|	AccessGroups.Ref AS Group
 			|FROM
 			|	Catalog.AccessGroups AS AccessGroups
+			|WHERE
+			|	AccessGroups.Parent <> &PersonalAccessGroupsParent
 			|
 			|ORDER BY
-			|	Group HIERARCHY"
+			|	Group HIERARCHY";
 	EndIf;
 EndFunction
+
+Procedure SendMessage(Canal, Data, Recipient, IsInstant)
+	ModuleMessagesExchange = Common.CommonModule("MessagesExchange");
+	MessageText = Common.ValueToJSON(Data);
+	
+	If IsInstant Then
+		ModuleMessagesExchange.SendMessageNow(Canal, MessageText, Recipient);
+	Else
+		ModuleMessagesExchange.SendMessage(Canal, MessageText, Recipient);
+	EndIf;
+EndProcedure
 
 #EndRegion

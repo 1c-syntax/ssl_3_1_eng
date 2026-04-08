@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -43,6 +42,25 @@ EndProcedure
 Procedure ChoiceModeOnChange(Item)
 	
 	FormControl(ThisObject);
+	
+EndProcedure
+
+#EndRegion
+
+#Region FormTableItemsEventHandlersUsersTable
+
+&AtClient
+Procedure UsersTableWithoutUsingKeyOnChange(Item)
+	
+	CurrentData = Items.UsersTable.CurrentData;
+	If CurrentData = Undefined Then
+		Return;
+	EndIf;
+	
+	If CurrentData.Check = False Then
+		CurrentData.WithoutUsingKey = Not CurrentData.WithoutUsingKey;
+		ShowMessageBox(, NStr("en = 'First, select a user.'"));
+	EndIf;
 	
 EndProcedure
 
@@ -95,20 +113,23 @@ Procedure OK(Command)
 			If Items.UsersTable.Visible Then
 				For Each UserRow1 In UsersTable Do
 					If UserRow1.Check Then
-						Result.Users.Add(UserRow1.User);
+						UserData = New Structure("User, WithoutUsingKey");
+						FillPropertyValues(UserData, UserRow1);
+						Result.Users.Add(UserData);
 					EndIf;
 				EndDo;
 			Else
 				For Each UserRow1 In SelectedUsers Do
-					Result.Users.Add(UserRow1.User);
+					UserData = New Structure("User, WithoutUsingKey");
+					FillPropertyValues(UserData, UserRow1);
+					Result.Users.Add(UserData);
 				EndDo;
 			EndIf;
 		Else
-			Result.User = UsersClient.CurrentUser();	
+			Result.User = UsersClient.CurrentUser();
 		EndIf;
 		If Result.Users.Count() = 1 Then
-			Result.User = Result.Users[0];
-			Result.Users.Clear();
+			Result.User = Result.Users[0].User;
 		EndIf;
 	EndIf;
 	
@@ -208,12 +229,15 @@ Procedure FillInTheFullList(CertificateUsers, CertificateRecipient)
 	UsersArray = New Array;
 	If CertificateUsers <> Undefined Then
 		UsersArray = CertificateUsers;
+	ElsIf ValueIsFilled(CertificateRecipient) And ChoiceMode = "UsersList" Then
+		AddingOptions = New Structure("User, WithoutUsingKey", CertificateRecipient, False);
+		UsersArray.Add(AddingOptions);
 	EndIf;
 	
-	If ValueIsFilled(CertificateRecipient)
-		And ChoiceMode = "UsersList" Then
-		UsersArray.Add(CertificateRecipient);
-	EndIf;
+	UsersParameter = New Array;
+	For Each UserData In UsersArray Do
+		UsersParameter.Add(UserData.User);
+	EndDo;
 	
 	QueryText = 
 	"SELECT ALLOWED
@@ -242,18 +266,20 @@ Procedure FillInTheFullList(CertificateUsers, CertificateRecipient)
 	|	Users.Description";
 	
 	Query = New Query(QueryText);
-	Query.SetParameter("Users", UsersArray);
+	Query.SetParameter("Users", UsersParameter);
 	Query.SetParameter("CurrentUser", Users.AuthorizedUser());
 	Query.SetParameter("EmptyIDOfTheIBUser", New UUID("00000000-0000-0000-0000-000000000000"));
 	Query.SetParameter("CertificateRecipient", CertificateRecipient);
 	
 	Result = Query.Execute().Unload();
+	SelectedUsers.Clear();
+	
 	If Result.Count() > 30 Then
 		SelectedUsers.Clear();
-		For Each User In UsersArray Do
+		For Each UserData In UsersArray Do
 			NewRow = SelectedUsers.Add();
-			NewRow.User = User;
-			If User = CertificateRecipient Then
+			FillPropertyValues(NewRow, UserData);
+			If UserData.User = CertificateRecipient Then
 				NewRow.Main = True;
 			EndIf;
 		EndDo;
@@ -261,6 +287,14 @@ Procedure FillInTheFullList(CertificateUsers, CertificateRecipient)
 		Items.SelectedUsers.Visible = True;
 	Else
 		UsersTable.Load(Result);
+		For Each UserData In UsersArray Do
+			SearchParameters = New Structure;
+			SearchParameters.Insert("User", UserData.User);
+			TableRow = UsersTable.FindRows(SearchParameters);
+			If TableRow.Count() > 0 Then
+				TableRow[0].WithoutUsingKey = UserData.WithoutUsingKey;
+			EndIf;
+		EndDo;
 		Items.UsersTable.Visible = True;
 		Items.SelectedUsers.Visible = False;
 	EndIf;

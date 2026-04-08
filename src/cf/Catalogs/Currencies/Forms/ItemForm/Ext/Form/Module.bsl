@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -283,9 +282,9 @@ Procedure RateCalculationFormulaStartChoice(Item, ChoiceData, StandardProcessing
 	If CommonClient.SubsystemExists("StandardSubsystems.FormulasConstructor") Then
 		ModuleConstructorFormulaClient = CommonClient.CommonModule("FormulasConstructorClient");
 		StandardProcessing = False;
-		NotifyDescription = New CallbackDescription("WhenFinishedEditingFormulas", ThisObject);
+		CallbackDescription = New CallbackDescription("WhenFinishedEditingFormulas", ThisObject);
 		ModuleConstructorFormulaClient.StartEditingTheFormula(FormulaParameters(Object.RateCalculationFormula, UUID), 
-			NotifyDescription);
+			CallbackDescription);
 	EndIf;
 
 EndProcedure

@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -234,19 +233,13 @@ Function ConnectionIsSet() Export
 	Query = New HTTPRequest(ResourceAddress, Headers);
 	
 	Response = HTTPConnection.Get(Query);
-	
-	If Response.StatusCode = 200 Then
-		
-		Return True;
-		
-	Else
-		
-		ErrorMessage = NStr("en = 'User authentication failed.'");
-		ExchangeMessagesTransport.WriteMessageToRegistrationLog(ThisObject,,Response.GetBodyAsString());
+	If AnswerIsMistake(Response) Then
 		
 		Return False;
 		
 	EndIf;
+	
+	Return True;
 	
 EndFunction
 
@@ -614,7 +607,7 @@ Function GetFileFromStorageInService(HTTPConnection, Val FileID, Val PartSize = 
 	
 	File = New File(FileName);
 	
-	TempDirectory = GetTempFileName();
+	TempDirectory = GetTempFileName(); //
 	CreateDirectory(TempDirectory);
 	
 	ResultFileName = CommonClientServer.GetFullFileName(TempDirectory, File.Name);
@@ -707,6 +700,18 @@ Function AnswerIsMistake(Response, ActionOnExchange = Undefined)
 		Except
 			ErrorMessage = Body;
 		EndTry;
+		
+		If Response.StatusCode = 401 Then
+			
+			RefinementErrors = NStr("en = 'Error 401: HTTP service exchange_dsl_1_0_0_1 authorization error (access denied).'");
+			ErrorMessage = RefinementErrors + Chars.LF + Chars.LF + ErrorMessage
+			
+		ElsIf Response.StatusCode = 404 Then
+			
+			RefinementErrors = NStr("en = 'Error 404: HTTP service exchange_dsl_1_0_0_1 not found (the requested resource is missing on the server).'");
+			ErrorMessage = RefinementErrors + Chars.LF + Chars.LF + ErrorMessage
+			
+		EndIf;
 		
 		ExchangeMessagesTransport.WriteMessageToRegistrationLog(ThisObject, ActionOnExchange);
 		

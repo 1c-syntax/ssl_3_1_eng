@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 // There are two ways to parameterize a form:
@@ -539,8 +538,8 @@ Procedure ExportAdditionClearGeneralFilter(Command)
 	
 	TitleText = NStr("en = 'Confirm operation'");
 	QueryText   = NStr("en = 'Do you want to clear the common filter?'");
-	NotifyDescription = New CallbackDescription("ExportAdditionClearGeneralFilterCompletion", ThisObject);
-	ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.YesNo,,,TitleText);
+	CallbackDescription = New CallbackDescription("ExportAdditionClearGeneralFilterCompletion", ThisObject);
+	ShowQueryBox(CallbackDescription, QueryText, QuestionDialogMode.YesNo,,,TitleText);
 	
 EndProcedure
 
@@ -548,8 +547,8 @@ EndProcedure
 Procedure ExportAdditionClearDetailedFilter(Command)
 	TitleText = NStr("en = 'Confirm operation'");
 	QueryText   = NStr("en = 'Do you want to clear the detailed filter?'");
-	NotifyDescription = New CallbackDescription("ExportAdditionClearDetailedFilterCompletion", ThisObject);
-	ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.YesNo,,,TitleText);
+	CallbackDescription = New CallbackDescription("ExportAdditionClearDetailedFilterCompletion", ThisObject);
+	ShowQueryBox(CallbackDescription, QueryText, QuestionDialogMode.YesNo,,,TitleText);
 EndProcedure
 
 &AtClient
@@ -561,8 +560,8 @@ Procedure ExportAdditionFiltersHistory(Command)
 	Text = NStr("en = 'Save current setting…'");
 	VariantList.Add(1, Text, , PictureLib.SaveReportSettings);
 	
-	NotifyDescription = New CallbackDescription("ExportAdditionFilterHistoryMenuSelection", ThisObject);
-	ShowChooseFromMenu(NotifyDescription, VariantList, Items.ExportAdditionFiltersHistory);
+	CallbackDescription = New CallbackDescription("ExportAdditionFilterHistoryMenuSelection", ThisObject);
+	ShowChooseFromMenu(CallbackDescription, VariantList, Items.ExportAdditionFiltersHistory);
 	
 EndProcedure
 
@@ -958,8 +957,8 @@ Procedure ExportAdditionFilterHistoryMenuSelection(Val SelectedElement, Val Addi
 		QueryText = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'Do you want to restore ""%1"" settings?'"), SettingPresentation);
 		
-		NotifyDescription = New CallbackDescription("ExportAdditionFiltersHistoryCompletion", ThisObject, SettingPresentation);
-		ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.YesNo,,,TitleText);
+		CallbackDescription = New CallbackDescription("ExportAdditionFiltersHistoryCompletion", ThisObject, SettingPresentation);
+		ShowQueryBox(CallbackDescription, QueryText, QuestionDialogMode.YesNo,,,TitleText);
 		
 	ElsIf SettingPresentation=1 Then
 		// A save option is selected, opening the form of all settings.
@@ -993,8 +992,8 @@ Procedure ExecuteDataImportForRowContinued(Val SelectedRows)
 		NString = NStr("en = 'Errors occurred during data import.
 		                     |Do you want to view the event log?'");
 		
-		NotifyDescription = New CallbackDescription("GoToEventLog", ThisObject);
-		ShowQueryBox(NotifyDescription, NString, QuestionDialogMode.YesNo, ,DialogReturnCode.No);
+		CallbackDescription = New CallbackDescription("GoToEventLog", ThisObject);
+		ShowQueryBox(CallbackDescription, NString, QuestionDialogMode.YesNo, ,DialogReturnCode.No);
 		Return;
 	EndIf;
 		
@@ -1270,8 +1269,8 @@ Procedure InitializeExportAdditionAttributes()
 	
 	// Getting settings as a structure, settings will be saved implicitly to the form temporary storage.
 	ExportAdditionSettings = DataExchangeServer.InteractiveExportChange(
-		Object.InfobaseNode, ThisObject.UUID, ExportAdditionExtendedMode);
-		
+		Object.InfobaseNode, UUID, ExportAdditionExtendedMode);
+	
 	// Configure the form.
 	// Convert it into the form attribute of the type "DataProcessorObject" (to access the form seamlessly).
 	DataExchangeServer.InteractiveExportChangeAttributeBySettings(ThisObject, ExportAdditionSettings, "ExportAddition");
@@ -1732,6 +1731,7 @@ Procedure BackgroundJobStartClient(JobParameters, Cancel, GetPasswordFromSession
 	If Result.Status = "Running" Then
 		
 		TimeConsumingOperation = True;
+		JobID = BackgroundJobExecutionResult.JobID;
 		
 		IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 		IdleParameters.OutputIdleWindow  = False;
@@ -1882,8 +1882,6 @@ EndFunction
 Function Attachable_PageDataExchangeTasksCheck_OnNavigateNext(Cancel)
 	
 	CancelQueueAndResumeOnServer();
-	ExecuteMoveNext();
-	
 	Return Undefined;
 	
 EndFunction
@@ -1891,13 +1889,16 @@ EndFunction
 &AtServer
 Procedure CancelQueueAndResumeOnServer()
 	
-	ModuleDataExchangeInternalPublication = Common.CommonModule("DataExchangeInternalPublication");
-	ModuleDataExchangeInternalPublication.CancelTaskQueue(
-		Object.InfobaseNode, 
-	    ScenarioUsingInternalPublication,
-		IDOfExchangeViaInternalPublication,
-		CorrespondentDataArea);
+	If Common.SubsystemExists("StandardSubsystems.SaaSOperations.DataExchangeSaaS") Then
 		
+		ModuleDataExchangeInternalPublication = Common.CommonModule("DataExchangeInternalPublication");
+		ModuleDataExchangeInternalPublication.CancelTaskQueue(Object.InfobaseNode, 
+			ScenarioUsingInternalPublication,
+			IDOfExchangeViaInternalPublication,
+			CorrespondentDataArea);
+		
+	EndIf;
+	
 EndProcedure
 
 #EndRegion
@@ -2074,7 +2075,7 @@ Procedure Attachable_DataAnalysisCompletion()
 	EndIf;
 	
 	If ForceCloseForm Then
-		ThisObject.Close();
+		Close();
 	EndIf;
 
 	If Not SkipGettingData Then

@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 // Obsolete API for module ClusterAdministrationClientServer.
@@ -1353,7 +1352,7 @@ Function ExecuteCommand(Val Template, Val ClusterAdministrationParameters, Val P
 		EndDo;
 	EndIf;
 	
-	// ACC:223-off This code is required for backward compatibility. It is used in an obsolete API.
+	// ACC:222-off This code is required for backward compatibility. It is used in an obsolete API.
 	
 	ApplicationStartupParameters = CommonClientServer.ApplicationStartupParameters();
 	ApplicationStartupParameters.CurrentDirectory = PlatformExecutableFilesDirectory();
@@ -1363,7 +1362,7 @@ Function ExecuteCommand(Val Template, Val ClusterAdministrationParameters, Val P
 	
 	Result = CommonClientServer.StartApplication(CommandLine, ApplicationStartupParameters);
 	
-	// ACC:223-on
+	// ACC:222-on
 	
 	OutputStream = Result.OutputStream;
 	ErrorStream = Result.ErrorStream;

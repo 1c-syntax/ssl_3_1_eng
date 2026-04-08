@@ -73,10 +73,10 @@
 				<CommandName>Form.StandardCommand.CustomizeForm</CommandName>
 				<ExtendedTooltip name="FormCustomizeFormExtendedTooltip" id="159"/>
 			</Button>
-			<Button name="FormHelp" id="146">
+			<Button name="FormHelp_SSLyf" id="146">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.StandardCommand.Help</CommandName>
-				<ExtendedTooltip name="FormHelpExtendedTooltip" id="160"/>
+				<ExtendedTooltip name="FormHelp_SSLyfExtendedTooltip" id="160"/>
 			</Button>
 		</ChildItems>
 	</AutoCommandBar>

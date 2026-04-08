@@ -1713,8 +1713,8 @@
 															<UserVisible>
 																<xr:Common>false</xr:Common>
 															</UserVisible>
-															<ContextMenu name="BookmarksLinkContextMenu" id="941"/>
-															<ExtendedTooltip name="BookmarksLinkExtendedTooltip" id="942"/>
+															<ContextMenu name="TabsRefContextMenu" id="941"/>
+															<ExtendedTooltip name="TabsRefExtendedTooltip" id="942"/>
 														</InputField>
 													</ChildItems>
 												</Table>
@@ -2072,7 +2072,7 @@
 																<Title>
 																	<v8:item>
 																		<v8:lang>en</v8:lang>
-																		<v8:content>Move to folder…</v8:content>
+																		<v8:content>Move to folder...</v8:content>
 																	</v8:item>
 																</Title>
 																<ExtendedTooltip name="FoldersContextMenuMoveToFolderExtendedTooltip" id="513"/>
@@ -2638,7 +2638,7 @@
 												<Title>
 													<v8:item>
 														<v8:lang>en</v8:lang>
-														<v8:content>Move to folder…</v8:content>
+														<v8:content>Move to folder...</v8:content>
 													</v8:item>
 												</Title>
 												<ExtendedTooltip name="ListContextMenuMoveToFolderExtendedTooltip" id="550"/>
@@ -3346,7 +3346,7 @@ FROM
 					</dcsset:filter>
 					<dcsset:order>
 						<dcsset:item xsi:type="dcsset:OrderItemField">
-							<dcsset:field>Date</dcsset:field>
+							<dcsset:field>GetSessions</dcsset:field>
 							<dcsset:orderType>Desc</dcsset:orderType>
 						</dcsset:item>
 						<dcsset:viewMode>Normal</dcsset:viewMode>
@@ -4531,7 +4531,7 @@ FROM
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Move to folder…</v8:content>
+					<v8:content>Move to folder...</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>

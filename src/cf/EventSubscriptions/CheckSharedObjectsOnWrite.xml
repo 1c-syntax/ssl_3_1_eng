@@ -18,6 +18,8 @@
 				<v8:Type>cfg:ConstantValueManager.UseDataSynchronizationSaaS</v8:Type>
 				<v8:Type>cfg:ConstantValueManager.NotUseSeparationByDataAreas</v8:Type>
 				<v8:Type>cfg:ConstantValueManager.SynchronizeDataWithInternetApplicationsOnStart</v8:Type>
+				<v8:Type>cfg:ConstantValueManager.DirectoryOfBackupsOfBuiltInBinaryDataStorageForWindows</v8:Type>
+				<v8:Type>cfg:ConstantValueManager.PortionSizeOfFilesBeingMoved</v8:Type>
 				<v8:Type>cfg:ConstantValueManager.DeniedExtensionsList</v8:Type>
 				<v8:Type>cfg:ConstantValueManager.AdditionalReportAndDataProcessorFolderUsageSaaS</v8:Type>
 				<v8:Type>cfg:ConstantValueManager.AccessUpdateThreadsCount</v8:Type>
@@ -41,8 +43,10 @@
 				<v8:Type>cfg:ConstantValueManager.ExtractTextFilesOnServer</v8:Type>
 				<v8:Type>cfg:ConstantValueManager.InfobaseSecurityProfile</v8:Type>
 				<v8:Type>cfg:ConstantValueManager.RetryDataExchangeMessageImportBeforeStart</v8:Type>
+				<v8:Type>cfg:ConstantValueManager.UseFileArchive</v8:Type>
 				<v8:Type>cfg:ConstantValueManager.StandardSubsystemsStandaloneMode</v8:Type>
 				<v8:Type>cfg:ConstantValueManager.VolumePathIgnoreRegionalSettings</v8:Type>
+				<v8:Type>cfg:ConstantValueManager.TextInformingUserAboutUnavailabilityOfFileInArchive</v8:Type>
 				<v8:Type>cfg:ConstantValueManager.AllowScheduledJobsExecutionSaaS</v8:Type>
 				<v8:Type>cfg:ConstantValueManager.DataToChangeMultilanguageAttributes</v8:Type>
 				<v8:Type>cfg:ConstantValueManager.WindowsTemporaryFilesDerectory</v8:Type>
@@ -70,6 +74,7 @@
 				<v8:Type>cfg:ConstantValueManager.PerformanceMonitorRecordPeriod</v8:Type>
 				<v8:Type>cfg:ConstantValueManager.UseOptimizedStandaloneWorkstationCreationWriting</v8:Type>
 				<v8:Type>cfg:ConstantValueManager.FilesExtensionsListOpenDocument</v8:Type>
+				<v8:Type>cfg:ConstantValueManager.DirectoryOfBackupsOfBuiltInBinaryDataStorageForLinux</v8:Type>
 				<v8:Type>cfg:ConstantValueManager.MinimalARADPScheduledJobIntervalSaaS</v8:Type>
 				<v8:Type>cfg:ConstantValueManager.UseSeparationByDataAreas</v8:Type>
 				<v8:Type>cfg:ConstantValueManager.UseDataSynchronizationSaaSWithLocalApplication</v8:Type>
@@ -87,6 +92,7 @@
 				<v8:Type>cfg:ConstantValueManager.OrderOfDataToProcess</v8:Type>
 				<v8:Type>cfg:ConstantValueManager.LinuxTemporaryFilesDerectory</v8:Type>
 				<v8:Type>cfg:ConstantValueManager.LoadExtensionsThatChangeDataStructure</v8:Type>
+				<v8:Type>cfg:CatalogObject.GeneralSettingsForAuthorizationOfInternetServices</v8:Type>
 				<v8:Type>cfg:ConstantValueManager.DataImportTransactionItemCount</v8:Type>
 				<v8:Type>cfg:ConstantValueManager.RunPerformanceMeasurements</v8:Type>
 				<v8:Type>cfg:ConstantValueManager.LoadDataExchangeMessage</v8:Type>

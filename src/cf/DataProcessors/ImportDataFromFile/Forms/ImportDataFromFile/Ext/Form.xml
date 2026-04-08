@@ -456,9 +456,9 @@ Then import the spreadsheet to the application. The application supports the fol
 							<v8:content>Not found</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="NotFound4ExtendedTooltip" id="544"/>
+					<ExtendedTooltip name="CannotFindExtendedTooltip" id="544"/>
 					<ChildItems>
-						<UsualGroup name="GroupNotFound4" id="551">
+						<UsualGroup name="GroupCannotFind" id="551">
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
@@ -468,7 +468,7 @@ Then import the spreadsheet to the application. The application supports the fol
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="GroupNotFound4ExtendedTooltip" id="552"/>
+							<ExtendedTooltip name="GroupCannotFindExtendedTooltip" id="552"/>
 							<ChildItems>
 								<PictureDecoration name="InformationDecoration32" id="548">
 									<Title formatted="false">

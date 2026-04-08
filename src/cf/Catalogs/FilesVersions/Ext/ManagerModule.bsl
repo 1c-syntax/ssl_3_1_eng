@@ -1,18 +1,17 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Public
 
-#Region ForCallsFromOtherSubsystems
+#Region InterfaceImplementation
 
 // StandardSubsystems.BatchEditObjects
 
@@ -81,41 +80,52 @@ EndProcedure
 Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 
 	SelectionParameters = Parameters.SelectionParameters;
-	SelectionParameters.FullNamesOfObjects = "Catalog.FilesVersions";
+	SelectionParameters.FullNamesOfObjects = Metadata.Catalogs.FilesVersions.FullName();
 	SelectionParameters.SelectionMethod = InfobaseUpdate.RefsSelectionMethod();
 
 	QueryText =
 	"SELECT TOP 1000
-	|	FilesVersions.Ref AS Ref
+	|	FilesVersions.Ref AS Ref,
+	|	FilesVersions.UniversalModificationDate AS UniversalModificationDate
 	|FROM
 	|	Catalog.FilesVersions AS FilesVersions
 	|WHERE
-	|	FilesVersions.Ref > &Ref
-	|	AND FilesVersions.FileStorageType = VALUE(Enum.FileStorageTypes.InVolumesOnHardDrive)
+	|	FilesVersions.FileStorageType = VALUE(Enum.FileStorageTypes.InVolumesOnHardDrive)
+	|	AND (FilesVersions.UniversalModificationDate < &ModificationDate
+	|	OR FilesVersions.UniversalModificationDate = &ModificationDate
+	|	AND FilesVersions.Ref < &Ref)
 	|
 	|ORDER BY
-	|	Ref";
-
-	AllFilesProcessed = False;
-
+	|	UniversalModificationDate DESC,
+	|	Ref DESC";
+	
 	Query = New Query(QueryText);
-	Ref = EmptyRef(); 
-	While Not AllFilesProcessed Do
-
-		Query.SetParameter("Ref", Ref);
-		//@skip-check query-in-loop
-		VersionsForProcessing = Query.Execute().Unload().UnloadColumn("Ref");
-		InfobaseUpdate.MarkForProcessing(Parameters, VersionsForProcessing);
+	Query.SetParameter("ModificationDate", Date(3999, 12, 31));
+	Query.SetParameter("Ref", Catalogs.FilesVersions.GetRef(
+		New UUID("FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF")));
+	
+	While True Do
 		
-		RefsCount = VersionsForProcessing.Count();
-		If RefsCount < 1000 Then
-			AllFilesProcessed = True;
-		ElsIf RefsCount > 0 Then
-			Ref = VersionsForProcessing[RefsCount - 1];
+		//@skip-check query-in-loop - Batch-wise data processing
+		TheSampleTable = Query.Execute().Unload();
+		
+		If TheSampleTable.Count() = 0 Then
+			Break;
 		EndIf;
+		
+		VersionsForProcessing = TheSampleTable.UnloadColumn("Ref");
+		InfobaseUpdate.MarkForProcessing(Parameters, VersionsForProcessing);
 
+		If TheSampleTable.Count() < 1000 Then
+			Break;
+		EndIf;
+		
+		LastRow = TheSampleTable[TheSampleTable.Count() - 1];
+		Query.SetParameter("ModificationDate", LastRow.UniversalModificationDate);
+		Query.SetParameter("Ref", LastRow.Ref);
+		
 	EndDo;
-
+	
 EndProcedure
 
 Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
@@ -171,7 +181,7 @@ Function ProcessFileVersion(VersionRef)
 		VersionObject = Undefined;
 		ItIsRequiredToRecord = False;
 		
-		// @skip-check query-in-loop
+		// @skip-check query-in-loop - Batch processing of a large amount of data.
 		PathToFile = Common.ObjectAttributeValue(VersionRef, "PathToFile");
 		If StrStartsWith(PathToFile, "/") Or StrStartsWith(PathToFile, "\") Then
 			NewFilePath = Mid(PathToFile, 2);

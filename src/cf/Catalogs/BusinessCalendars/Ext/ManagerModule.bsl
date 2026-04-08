@@ -1,18 +1,17 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Public
 
-#Region ForCallsFromOtherSubsystems
+#Region InterfaceImplementation
 
 // CloudTechnology.ExportImportData
 
@@ -545,9 +544,8 @@ Function BusinessCalendarsDataFromXML(Val XMLData1, CalendarsTable, CalendarsCod
 	
 	CalendarsYears = ClassifierTable.Copy(, "Calendar,Year");
 	CalendarsYears.GroupBy("Calendar,Year");
-	If GenerateFullSet Then
-		AddCalendarsYearsAccordingToTheCalendarTable(CalendarsYears, CalendarsTable);
-	EndIf;
+	AddCalendarsYearsAccordingToTheCalendarTable(CalendarsYears, CalendarsTable);
+	CalendarsYears.Sort("Calendar, Year");
 	
 	RowFilter = New Structure("Calendar,Year");
 	For Each Combination In CalendarsYears Do
@@ -562,7 +560,7 @@ Function BusinessCalendarsDataFromXML(Val XMLData1, CalendarsTable, CalendarsCod
 			NewRow.BusinessCalendarCode = ClassifierRow.Calendar;
 			NewRow.DayKind = Enums.BusinessCalendarDaysKinds[ClassifierRow.DayType];
 			NewRow.Year = Number(ClassifierRow.Year);
-			NewRow.Date = Date(ClassifierRow.Date);
+			NewRow.Date = Date(ClassifierRow.GetSessions);
 			If ValueIsFilled(ClassifierRow.SwapDate) Then
 				NewRow.ReplacementDate = Date(ClassifierRow.SwapDate);
 			EndIf;
@@ -578,7 +576,7 @@ Function BusinessCalendarsDataFromXML(Val XMLData1, CalendarsTable, CalendarsCod
 				
 				FilterParameters = New Structure("BusinessCalendarCode,Date");
 				FilterParameters.BusinessCalendarCode = ClassifierRow.Calendar;
-				FilterParameters.Date = Date(ClassifierRow.Date);
+				FilterParameters.Date = Date(ClassifierRow.GetSessions);
 				FoundRows = DataTable.FindRows(FilterParameters);
 				If FoundRows.Count() > 0 Then
 					ClassifierRow.Calendar = BasicCalendarCode;
@@ -592,7 +590,7 @@ Function BusinessCalendarsDataFromXML(Val XMLData1, CalendarsTable, CalendarsCod
 				NewRow.BusinessCalendarCode = ClassifierRow.Calendar;
 				NewRow.DayKind = Enums.BusinessCalendarDaysKinds[ClassifierRow.DayType];
 				NewRow.Year = Number(ClassifierRow.Year);
-				NewRow.Date = Date(ClassifierRow.Date);
+				NewRow.Date = Date(ClassifierRow.GetSessions);
 				If ValueIsFilled(ClassifierRow.SwapDate) Then
 					NewRow.ReplacementDate = Date(ClassifierRow.SwapDate);
 				EndIf;
@@ -1017,7 +1015,7 @@ EndFunction
 // Parameters:
 //  BusinessCalendar - CatalogRef.BusinessCalendars - a current catalog item.
 //  YearNumber - Number - a number of the year for which the business calendar is to be recorded.
-//  BusinessCalendarData - 
+//  BusinessCalendarData - See Catalogs.BusinessCalendars.BusinessCalendarData
 //
 Procedure WriteBusinessCalendarData(BusinessCalendar, YearNumber, BusinessCalendarData) Export
 	
@@ -1563,6 +1561,13 @@ Procedure FillAreaParameters(Parameters, IndicatorsGroup)
 EndProcedure
 
 #EndRegion
+
+// See StandardSubsystemsServer.WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode
+Procedure WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode(Methods) Export
+	
+	Methods.Insert("FillDefaultBusinessCalendarsTimeConsumingOperation", True);
+	
+EndProcedure
 
 #EndRegion
 

@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -57,7 +56,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	If AreCertificateAdditionalPropertiesAvailable Then
 		Items.GroupLicenseCryptoPro.Visible = CertificateProperties.ContainsEmbeddedLicenseCryptoPro;
 		SignAlgorithm = DigitalSignatureInternalClientServer.SignAlgorithmPresentation(
-			CertificateProperties.AlgorithmOfPublicKey, True, True);
+			CertificateProperties.PublicKeyAlgorithm, True, True);
 		Items.GroupErrorGettingReviewLists.Visible = False;
 		AssignmentCodes = StrReplace(CertificateProperties.Purpose, Chars.LF, ", ");
 		For Each Address In CertificateProperties.AddressesOfRevocationLists Do
@@ -354,7 +353,7 @@ Procedure FillSubjectProperties(Certificate)
 	PropertiesPresentations = New Map;
 	PropertiesPresentations["CommonName"] = NStr("en = 'Common name'");
 	PropertiesPresentations["Country"] = NStr("en = 'Country'");
-	PropertiesPresentations["State_SSLym"] = NStr("en = 'State'");
+	PropertiesPresentations["State"] = NStr("en = 'State'");
 	PropertiesPresentations["Locality"] = NStr("en = 'Locality'");
 	PropertiesPresentations["Street"] = NStr("en = 'Street'");
 	PropertiesPresentations["Organization"] = NStr("en = 'Company'");
@@ -367,10 +366,20 @@ Procedure FillSubjectProperties(Certificate)
 	EndIf;
 	
 	For Each ListItem In PropertiesPresentations Do
-		PropertyValue = CommonClientServer.StructureProperty(Collection, ListItem.Key);
+		
+		If ListItem.Key = "NamePatronymic" Then
+			Name = CommonClientServer.StructureProperty(Collection, "Name");
+			MiddleName = CommonClientServer.StructureProperty(Collection, "MiddleName");
+			PropertyValue = ?(ValueIsFilled(Name), Name, "") + ?(ValueIsFilled(MiddleName), ?(ValueIsFilled(
+				Name), " ", "") + MiddleName, "");
+		Else
+			PropertyValue = CommonClientServer.StructureProperty(Collection, ListItem.Key);
+		EndIf;
+		
 		If Not ValueIsFilled(PropertyValue) Then
 			Continue;
 		EndIf;
+		
 		String = Subject.Add();
 		String.Property = ListItem.Value;
 		String.Value = PropertyValue;
@@ -386,7 +395,7 @@ Procedure FillIssuerProperties(Certificate)
 	PropertiesPresentations = New Map;
 	PropertiesPresentations["CommonName"] = NStr("en = 'Common name'");
 	PropertiesPresentations["Country"] = NStr("en = 'Country'");
-	PropertiesPresentations["State_SSLym"] = NStr("en = 'State'");
+	PropertiesPresentations["State"] = NStr("en = 'State'");
 	PropertiesPresentations["Locality"] = NStr("en = 'Locality'");
 	PropertiesPresentations["Street"] = NStr("en = 'Street'");
 	PropertiesPresentations["Organization"] = NStr("en = 'Company'");
@@ -428,11 +437,11 @@ Procedure FillInternalCertificateFields()
 		AddProperty(Certificate, "ValidTo",             NStr("en = 'End date'"));
 		
 		If AreCertificateAdditionalPropertiesAvailable Then
-			If ValueIsFilled(Certificate.UniversalStartDateOfPrivateKey) Then
-				AddProperty(Certificate, "UniversalStartDateOfPrivateKey",    NStr("en = 'Private key start date'"));
+			If ValueIsFilled(Certificate.StartUniversalDateOfPrivateKey) Then
+				AddProperty(Certificate, "StartUniversalDateOfPrivateKey",    NStr("en = 'Private key start date'"));
 			EndIf;
-			If ValueIsFilled(Certificate.UniversalEndDateOfPrivateKey) Then
-				AddProperty(Certificate, "UniversalEndDateOfPrivateKey", NStr("en = 'Private key end date'"));
+			If ValueIsFilled(Certificate.UniversalDateOfPrivateKeyExpiration) Then
+				AddProperty(Certificate, "UniversalDateOfPrivateKeyExpiration", NStr("en = 'Private key end date'"));
 			EndIf;
 		Else
 			If ValueIsFilled(CertificateAdditionalProperties.PrivateKeyStartDate) Then
@@ -464,7 +473,7 @@ Procedure FillInternalCertificateFields()
 		IDsNames.Add("2.5.29.19", NStr("en = 'Main limitations'"));
 		IDsNames.Add("1.2.643.2.2.49.2", NStr("en = 'Limited CryptoPro CSP license'"));
 				
-		Collection = Certificate.ДополненияСертификата;
+		Collection = Certificate.CertificateExtensions;
 		
 		NamesAndIDs = New Map;
 		
@@ -536,12 +545,18 @@ EndProcedure
 Procedure AddProperty(PropertiesValues, Property, Presentation, Lowercase = Undefined)
 	
 	Value = PropertiesValues[Property];
+	
 	If TypeOf(Value) = Type("Date") Then
 		Value = ToLocalTime(Value, SessionTimeZone());
+	ElsIf TypeOf(Value) = Type("Number") And Property = "2.5.29.15" Then
+		Value = DigitalSignatureInternal.UsingKeyAsString(Value);
 	ElsIf TypeOf(Value) = Type("FixedArray") Or TypeOf(Value) = Type("Array") Then
 		FixedArray = Value;
 		Value = "";
 		For Each ArrayElement In FixedArray Do
+			If TypeOf(ArrayElement) = Type("Date") Then
+				ArrayElement = StrTemplate("%1 UTC", ArrayElement);
+			EndIf;
 			Value = Value + ?(Value = "", "", Chars.LF) + TrimAll(ArrayElement);
 		EndDo;
 	EndIf;
@@ -685,7 +700,7 @@ Function CertificateAddress(RefThumbprint, FormIdentifier = Undefined)
 		Query = New Query;
 		Query.SetParameter("Thumbprint", RefThumbprint);
 		Query.Text =
-		"SELECT
+		"SELECT ALLOWED
 		|	Certificates.CertificateData
 		|FROM
 		|	Catalog.DigitalSignatureAndEncryptionKeysCertificates AS Certificates

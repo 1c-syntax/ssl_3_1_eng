@@ -1,5 +1,5 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
@@ -360,17 +360,17 @@ EndProcedure
 
 &AtClient
 Procedure ExpandAllUnsuccessfulReplacements(Command)
-	FormTree = Items.UnsuccessfulReplacements;
+	FormTree_ = Items.UnsuccessfulReplacements;
 	For Each Item In UnsuccessfulReplacements.GetItems() Do
-		FormTree.Expand(Item.GetID(), True);
+		FormTree_.Expand(Item.GetID(), True);
 	EndDo;
 EndProcedure
 
 &AtClient
 Procedure CollapseAllUnsuccessfulReplacements(Command)
-	FormTree = Items.UnsuccessfulReplacements;
+	FormTree_ = Items.UnsuccessfulReplacements;
 	For Each Item In UnsuccessfulReplacements.GetItems() Do
-		FormTree.Collapse(Item.GetID());
+		FormTree_.Collapse(Item.GetID());
 	EndDo;
 EndProcedure
 
@@ -1025,9 +1025,9 @@ Procedure AfterCompleteDeterminingUseLocations(Job, AdditionalParameters) Export
 	If Job.Status <> "Completed2" Then
 		Brief1 = NStr("en = 'Couldn''t find item occurrences:'") 
 			+ Chars.LF + Job.BriefErrorDescription;
-		More = Brief1 + Chars.LF + Chars.LF + Job.DetailErrorDescription;
+		ShowMoreDetails = Brief1 + Chars.LF + Chars.LF + Job.DetailErrorDescription;
 		Items.ErrorTextLabel.Title = Brief1;
-		Items.DetailsRef.ToolTip    = More;
+		Items.DetailsRef.ToolTip    = ShowMoreDetails;
 		GoToWizardStep1(Items.ErrorOccurredStep);
 		Activate();
 		Return;
@@ -1085,9 +1085,9 @@ Procedure AfterCompletionReplacingLinks(Job, AdditionalParameters) Export
 	
 	If Job.Status <> "Completed2" Then
 		Brief1 = NStr("en = 'Failed to replace items:'") + Chars.LF + Job.BriefErrorDescription;
-		More = Brief1 + Chars.LF + Chars.LF + Job.DetailErrorDescription;
+		ShowMoreDetails = Brief1 + Chars.LF + Chars.LF + Job.DetailErrorDescription;
 		Items.ErrorTextLabel.Title = Brief1;
-		Items.DetailsRef.ToolTip    = More;
+		Items.DetailsRef.ToolTip    = ShowMoreDetails;
 		GoToWizardStep1(Items.ErrorOccurredStep);
 		Activate();
 		Return;

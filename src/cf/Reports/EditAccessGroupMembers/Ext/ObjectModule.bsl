@@ -1,5 +1,5 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
@@ -11,7 +11,7 @@
 
 #Region Public
 
-#Region ForCallsFromOtherSubsystems
+#Region InterfaceImplementation
 
 // Configure report form.
 //
@@ -188,7 +188,7 @@ Function ChangesInComposition(Settings)
 	Columns.Add("Date",                         DateType);
 	Columns.Add("Author",                        StringType100);
 	Columns.Add("AuthorID",          StringType36);
-	Columns.Add("Package",                   StringType20);
+	Columns.Add("Application",                   StringType20);
 	Columns.Add("Computer",                    StringType);
 	Columns.Add("Session",                        NumberType);
 	Columns.Add(ConnectionColumnName,           NumberType);
@@ -241,7 +241,7 @@ Function ChangesInComposition(Settings)
 		EventProperties.Insert("Date",                Event.Date);
 		EventProperties.Insert("Author",               Event.UserName);
 		EventProperties.Insert("AuthorID", Event.User);
-		EventProperties.Insert("Package",          Event.ApplicationName);
+		EventProperties.Insert("Application",          Event.ApplicationName);
 		EventProperties.Insert("Computer",           Event.Computer);
 		EventProperties.Insert("Session",               Event.Session);
 		EventProperties.Insert(ConnectionColumnName,  Event.Join);

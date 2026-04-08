@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -46,6 +45,11 @@ Procedure BeforeWrite(Cancel)
 		ErrorText =
 			NStr("en = 'User groups can only be customized in the master node.'");
 		Raise ErrorText;
+	EndIf;
+	
+	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
+		ModuleAccessManagement = Common.CommonModule("AccessManagement");
+		ModuleAccessManagement.SetLockBeforeWriteToFileIB(, True);
 	EndIf;
 	
 EndProcedure
@@ -133,18 +137,26 @@ EndProcedure
 Procedure ClearCanSignInAttributeForAllExternalUsers()
 	
 	Query = New Query;
+	Query.SetParameter("BlankUUID",
+		CommonClientServer.BlankUUID());
 	Query.Text =
 	"SELECT
+	|	ExternalUsers.Ref AS Ref,
 	|	ExternalUsers.IBUserID AS Id
 	|FROM
-	|	Catalog.ExternalUsers AS ExternalUsers";
+	|	Catalog.ExternalUsers AS ExternalUsers
+	|WHERE
+	|	ExternalUsers.IBUserID <> &BlankUUID";
 	IDs = Query.Execute().Unload();
 	IDs.Indexes.Add("Id");
 	
 	IBUsers = InfoBaseUsers.GetUsers();
+	ChangedUsers = New Array;
+	
 	For Each IBUser In IBUsers Do
 		
-		If IDs.Find(IBUser.UUID, "Id") <> Undefined
+		FoundRow = IDs.Find(IBUser.UUID, "Id");
+		If FoundRow <> Undefined
 		   And Users.CanSignIn(IBUser) Then
 			
 			IBUser.StandardAuthentication    = False;
@@ -153,10 +165,11 @@ Procedure ClearCanSignInAttributeForAllExternalUsers()
 			IBUser.AccessTokenAuthentication = False;
 			IBUser.OSAuthentication             = False;
 			IBUser.Write();
+			ChangedUsers.Add(FoundRow.Ref);
 		EndIf;
 	EndDo;
 	
-	InformationRegisters.UsersInfo.UpdateRegisterData();
+	InformationRegisters.UsersInfo.UpdateRegisterData(ChangedUsers);
 	
 EndProcedure
 

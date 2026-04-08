@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -78,7 +77,11 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 	ElsIf EventName = "ConstantsSet.DistributedInfobaseNodePrefix" Then
 		
 		IBPrefix = Parameter;
-				
+		
+	ElsIf EventName = "ChangingVisibilityOfLoopingWarnings" Then
+		
+		AfterClosureOfFormOfExchangeCyclicityManagement();
+		
 	EndIf;
 	
 EndProcedure
@@ -486,9 +489,9 @@ Procedure OpenTheSynchronizationResults(CurrentRowData = Undefined, NameOfTheEve
 	FormParameters.Insert("SelectionOfExchangeNodes", SelectionOfExchangePlanNodes);
 	FormParameters.Insert("SelectingTypesOfWarnings", SelectingTypesOfWarnings);
 	
-	NotifyDescription = New CallbackDescription("AfterOpeningTheWarningsForm", ThisObject);
+	CallbackDescription = New CallbackDescription("AfterOpeningTheWarningsForm", ThisObject);
 	
-	OpenForm("InformationRegister.DataExchangeResults.Form.SynchronizationWarnings", FormParameters, ThisObject, , , , NotifyDescription);
+	OpenForm("InformationRegister.DataExchangeResults.Form.SynchronizationWarnings", FormParameters, ThisObject, , , , CallbackDescription);
 	
 EndProcedure
 
@@ -649,8 +652,7 @@ Procedure RunACommandWithAPreliminaryCheck(CommandByLine)
 	CommandsForAuthenticationVerification = 
 		"RunSync, 
 		|RunSyncWithAdditionalFilters,
-		|InitialDataExport,
-		|DeleteSynchronizationSetting";
+		|InitialDataExport";
 		
 	If StrFind(CommandsForAuthenticationVerification, CommandByLine) > 0 Then
 		
@@ -1329,11 +1331,43 @@ EndProcedure
 Procedure WarnAboutLoopDetailsURLProcessing(Item, FormattedStringURL, StandardProcessing)
 	
 	StandardProcessing = False;
-	OpenForm("InformationRegister.SynchronizationCircuit.Form.SynchronizationLoop",,,,,,,
-		FormWindowOpeningMode.LockOwnerWindow);
+	
+	If FormattedStringURL = "1" Then
+		
+		OpenForm("InformationRegister.SynchronizationCircuit.Form.SynchronizationLoop",,,,,,,
+			FormWindowOpeningMode.LockOwnerWindow);
+		
+	ElsIf FormattedStringURL = "2" Then
+		
+		HideLoopingWarningFromUser();
+		
+	EndIf;
 	
 EndProcedure
+
+&AtClient
+Procedure HideLoopingWarningFromUser()
 	
+	CallbackDescription = New CallbackDescription("AfterConfirmingThatWarningIsHidden", ThisObject);
+	
+	WarningText = NStr("en = 'To configure cyclic synchronization control, in the sync settings form, click More.'",
+		CommonClient.DefaultLanguageCode());
+		
+	TitleText = NStr("en = 'Hide warning about cyclic synchronization'",
+		CommonClient.DefaultLanguageCode());
+		
+	ShowMessageBox(CallbackDescription, WarningText, 30, TitleText);
+	
+EndProcedure
+
+&AtClient
+Procedure AfterConfirmingThatWarningIsHidden(Result) Export
+	
+	Items.InfoPanelLoopFound.Visible = False;
+	DataExchangeServerCall.HideShowLoopingWarningFromUser(True);
+	
+EndProcedure
+
 &AtClient
 Procedure DisabledScenariosWarningDetailsURLProcessing(Item, FormattedStringURL, StandardProcessing)
 	
@@ -1421,7 +1455,10 @@ Function DataSynchronizationState(ApplicationRow)
 			State.Presentation = NStr("en = 'Setup pending, received data to map'");
 		EndIf;
 	Else
-		If ApplicationRow.LastImportStartDate > ApplicationRow.LastImportEndDate Then
+		If ValueIsFilled(ApplicationRow.CurrentNodeAction) Then
+			State.Presentation = ApplicationRow.CurrentNodeAction;
+			State.Picture = 4;
+		ElsIf ApplicationRow.LastImportStartDate > ApplicationRow.LastImportEndDate Then
 			State.Presentation = NStr("en = 'Importing data…'");
 			State.Picture = 4;
 		ElsIf ApplicationRow.LastExportStartDate > ApplicationRow.LastExportEndDate Then
@@ -1741,9 +1778,10 @@ Procedure SetFormItemsView()
 	
 	Items.InfoPanelRestartRequired.Visible = 
 		IsRestartRequired And ApplicationsList.Count() > 0 And Not SaaSModel;
-	
-	Items.InfoPanelLoopFound.Visible = IsLoopDetected;
 		
+	LoopingWarningIsHidden = DataExchangeLoopControl.LoopingWarningIsHiddenFromUser();
+	Items.InfoPanelLoopFound.Visible = IsLoopDetected And Not LoopingWarningIsHidden;
+	
 	Items.ApplicationsListCanMigrateToWS.Visible = CanMigrateToWS;
 	
 	// Force disabling of visibility of commands of schedule setup and importing rules in SaaS.
@@ -1774,7 +1812,7 @@ Procedure SetFormItemsView()
 		
 	ElsIf DisabledScenarios.Count() > 1 Then
 				
-		Template = NStr("en = 'Some scenarios have been disabled due to runtime errors. Enable the scenario after you fix the issues.'");
+		Template = NStr("en = 'Some <a href = ""%1"">scenarios</a> have been disabled due to runtime errors. Enable the scenario after you fix the issues.'");
 		WarningText = StrTemplate(Template, "ScenariosList");
 		
 		Items.DisabledScenariosWarningDetails.Title = StringFunctions.FormattedString(WarningText);
@@ -1800,8 +1838,8 @@ Procedure RefreshApplicationsList(UpdateSaaSApplications = False)
 	If UpdateSaaSApplications
 		And HasConfiguredExchanges Then
 		UpdateSaaSApplications = False;
-		For Each Package In ApplicationsAfterUpdate Do
-			If ApplicationsBeforeUpdate.Find(Package) = Undefined Then
+		For Each Application In ApplicationsAfterUpdate Do
+			If ApplicationsBeforeUpdate.Find(Application) = Undefined Then
 				UpdateSaaSApplications = True;
 				Return;
 			EndIf;
@@ -1928,6 +1966,14 @@ Procedure GetDisabledScenarios()
 	
 	Array = Query.Execute().Unload().UnloadColumn("Ref");
 	DisabledScenarios.LoadValues(Array);
+	
+EndProcedure
+
+&AtServer
+Procedure AfterClosureOfFormOfExchangeCyclicityManagement()
+	
+	IsLoopDetected = DataExchangeLoopControl.HasLoop();
+	SetFormItemsView();
 	
 EndProcedure
 

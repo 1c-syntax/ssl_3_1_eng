@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -88,13 +87,13 @@ EndProcedure
 
 Procedure SuggestToImportClassifier() Export
 	
-	NotifyDescription = New CallbackDescription("OnGetAnswerToQuestionAboutClassifierImport", ThisObject);
+	CallbackDescription = New CallbackDescription("OnGetAnswerToQuestionAboutClassifierImport", ThisObject);
 	QuestionTitle = NStr("en = 'Import bank classifier'");
 	QueryText = NStr("en = 'Bank classifier has not been imported yet. Import now?'");
 	Buttons = New ValueList;
 	Buttons.Add(DialogReturnCode.Yes, NStr("en = 'Import'"));
 	Buttons.Add(DialogReturnCode.Cancel);
-	ShowQueryBox(NotifyDescription, QueryText, Buttons, , Buttons[0].Value, QuestionTitle);
+	ShowQueryBox(CallbackDescription, QueryText, Buttons, , Buttons[0].Value, QuestionTitle);
 
 EndProcedure
 

@@ -166,10 +166,10 @@
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="ShowServiceFilesExtendedTooltip" id="156"/>
 			</Button>
-			<Button name="FormHelp" id="90">
+			<Button name="FormHelp_SSLyf" id="90">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.StandardCommand.Help</CommandName>
-				<ExtendedTooltip name="FormHelpExtendedTooltip" id="96"/>
+				<ExtendedTooltip name="FormHelp_SSLyfExtendedTooltip" id="96"/>
 			</Button>
 			<SearchStringAddition name="SearchString" id="163">
 				<AdditionSource>
@@ -388,6 +388,12 @@
 			<ChildItems>
 				<PictureField name="ListSignedEncryptedPictureNumber" id="86">
 					<DataPath>List.SignedEncryptedPictureNumber</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Encrypted</v8:content>
+						</v8:item>
+					</Title>
 					<TitleLocation>None</TitleLocation>
 					<ToolTip>
 						<v8:item>
@@ -407,6 +413,34 @@
 					<FileDragMode>AsFile</FileDragMode>
 					<ContextMenu name="ListSignedEncryptedPictureNumberContextMenu" id="87"/>
 					<ExtendedTooltip name="ListSignedEncryptedPictureNumberExtendedTooltip" id="101"/>
+				</PictureField>
+				<PictureField name="ListImageNumberIsArchive" id="166">
+					<DataPath>List.ImageNumberIsArchive</DataPath>
+					<ReadOnly>true</ReadOnly>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Archived</v8:content>
+						</v8:item>
+					</Title>
+					<TitleLocation>None</TitleLocation>
+					<ToolTip>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Archived</v8:content>
+						</v8:item>
+					</ToolTip>
+					<HeaderPicture>
+						<xr:Ref>CommonPicture.FileArchive</xr:Ref>
+						<xr:LoadTransparent>false</xr:LoadTransparent>
+					</HeaderPicture>
+					<Width>2</Width>
+					<ValuesPicture>
+						<xr:Ref>CommonPicture.FileArchive</xr:Ref>
+						<xr:LoadTransparent>false</xr:LoadTransparent>
+					</ValuesPicture>
+					<ContextMenu name="ListImageNumberIsArchiveContextMenu" id="167"/>
+					<ExtendedTooltip name="ListImageNumberIsArchiveExtendedTooltip" id="168"/>
 				</PictureField>
 				<ColumnGroup name="ListPictureAndDescription" id="45">
 					<Title>
@@ -576,6 +610,7 @@
 			<UseAlways>
 				<Field>List.BeingEditedBy</Field>
 				<Field>List.CurrentUserEditsFile</Field>
+				<Field>List.ImageNumberIsArchive</Field>
 				<Field>List.Ref</Field>
 				<Field>List.StoreVersions</Field>
 			</UseAlways>
@@ -605,11 +640,147 @@
 	FilesInfo.Extension AS Extension,
 	FilesInfo.StoreVersions AS StoreVersions,
 	FilesInfo.SignedEncryptedPictureNumber AS SignedEncryptedPictureNumber,
-	FilesInfo.IsInternal AS IsInternal
+	FilesInfo.IsInternal AS IsInternal,
+	CASE
+		WHEN ISNULL(CASE
+					WHEN FilesInfo.File REFS Catalog.Files
+						THEN FilesToConnect.CurrentVersion.DateOfTransferToArchive
+					ELSE FilesInfo.DateOfTransferToArchive
+				END, DATETIME(1, 1, 1)) = DATETIME(1, 1, 1)
+			THEN -1
+		ELSE 0
+	END AS ImageNumberIsArchive
 FROM
 	InformationRegister.FilesInfo AS FilesInfo
+		LEFT JOIN Catalog.Files AS FilesToConnect
+		ON (FilesInfo.File = FilesToConnect.Ref)
 WHERE
 	NOT FilesInfo.File IS NULL</QueryText>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>PictureIndex</dcssch:dataPath>
+					<dcssch:field>PictureIndex</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Picture index</v8:content>
+						</v8:item>
+					</dcssch:title>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>CreationDate</dcssch:dataPath>
+					<dcssch:field>CreationDate</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>StoreVersions</dcssch:dataPath>
+					<dcssch:field>StoreVersions</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Size</dcssch:dataPath>
+					<dcssch:field>Size</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Size</v8:content>
+						</v8:item>
+					</dcssch:title>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>LongDesc</dcssch:dataPath>
+					<dcssch:field>LongDesc</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>DeletionMark</dcssch:dataPath>
+					<dcssch:field>DeletionMark</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>BeingEditedBy</dcssch:dataPath>
+					<dcssch:field>BeingEditedBy</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Author</dcssch:dataPath>
+					<dcssch:field>Author</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Description</dcssch:dataPath>
+					<dcssch:field>Description</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Ref</dcssch:dataPath>
+					<dcssch:field>Ref</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Reference</v8:content>
+						</v8:item>
+					</dcssch:title>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>CurrentUserEditsFile</dcssch:dataPath>
+					<dcssch:field>CurrentUserEditsFile</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>File being edited by current user</v8:content>
+						</v8:item>
+					</dcssch:title>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>FileOwner</dcssch:dataPath>
+					<dcssch:field>FileOwner</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>IsInternal</dcssch:dataPath>
+					<dcssch:field>IsInternal</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Extension</dcssch:dataPath>
+					<dcssch:field>Extension</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>SignedEncryptedPictureNumber</dcssch:dataPath>
+					<dcssch:field>SignedEncryptedPictureNumber</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>ImageNumberIsArchive</dcssch:dataPath>
+					<dcssch:field>ImageNumberIsArchive</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>"This is archive" picture index</v8:content>
+						</v8:item>
+					</dcssch:title>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>File</dcssch:dataPath>
+					<dcssch:field>File</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>FileStorageType</dcssch:dataPath>
+					<dcssch:field>FileStorageType</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>DateOfTransferToArchive</dcssch:dataPath>
+					<dcssch:field>DateOfTransferToArchive</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>ConditionallyTransferredToArchive</dcssch:dataPath>
+					<dcssch:field>ConditionallyTransferredToArchive</dcssch:field>
+				</Field>
+				<Parameter>
+					<dcssch:name>CurrentUser</dcssch:name>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Current user</v8:content>
+						</v8:item>
+					</dcssch:title>
+					<dcssch:valueType>
+						<v8:Type>cfg:CatalogRef.FileSynchronizationAccounts</v8:Type>
+						<v8:Type>cfg:CatalogRef.Users</v8:Type>
+					</dcssch:valueType>
+					<dcssch:value xsi:nil="true"/>
+					<dcssch:useRestriction>true</dcssch:useRestriction>
+				</Parameter>
 				<MainTable>InformationRegister.FilesInfo</MainTable>
 				<ListSettings>
 					<dcsset:filter>

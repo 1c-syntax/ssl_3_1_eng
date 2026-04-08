@@ -1,5 +1,5 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
@@ -224,7 +224,7 @@ EndFunction
 //
 // Parameters:
 //  InstalledExtensionsOnStartup - See InstalledExtensionsOnStartup
-//                                    - Undefined - Get for the current session.
+//                                    - Undefined - 
 //  IsCheckInCurrentSession - Boolean - Set to True if InstalledExtensionsOnStartup
 //                                    are obtained in the current session.
 //
@@ -336,7 +336,9 @@ Procedure RegisterExtensionsVersionUsage() Export
 	
 	JobParameters = CommonClientServer.ValueInArray(ExtensionsVersion);
 	
-	BackgroundJobs.Execute(ProcedureName, JobParameters,, JobDescription);
+	// The procedure name must be as specified in the ProcedureName variable.
+	BackgroundJobs.Execute("StandardSubsystemsServer.UpdateExtensionsVersionLastUsedDate",
+		JobParameters,, JobDescription);
 	
 EndProcedure
 
@@ -818,7 +820,7 @@ Function ExtensionsVersion(OnRegisterExtensionsVersionsUsage = False)
 			IndexOf = IndexOf - 1;
 		EndDo;
 		
-		// @skip-check query-in-loop - На каждой итерации необходимо загружать актуальные данные из ИБ.
+		// @skip-check query-in-loop - 
 		Selection = Query.Execute().Select();
 		If VersionFound(Selection, ExtensionsDetails) Then
 			If Not OnRegisterExtensionsVersionsUsage Then
@@ -828,7 +830,9 @@ Function ExtensionsVersion(OnRegisterExtensionsVersionsUsage = False)
 		EndIf;
 		
 		If Not ValueIsFilled(FoundJobs) Then
-			BackgroundJob = BackgroundJobs.Execute(ProcedureName, JobParameters,, JobDescription);
+			// The procedure name must be as specified in the ProcedureName variable.
+			BackgroundJob = BackgroundJobs.Execute("StandardSubsystemsServer.AddNewExtensionVersion",
+				JobParameters,, JobDescription);
 			FoundJobs.Add(BackgroundJob);
 		EndIf;
 		
@@ -837,7 +841,7 @@ Function ExtensionsVersion(OnRegisterExtensionsVersionsUsage = False)
 			TaskIds.Insert(FoundJob.UUID);
 		EndDo;
 		
-		// @skip-check query-in-loop - На каждой итерации необходимо загружать актуальные данные из ИБ.
+		// @skip-check query-in-loop - 
 		Selection = Query.Execute().Select();
 		If VersionFound(Selection, ExtensionsDetails) Then
 			If Not OnRegisterExtensionsVersionsUsage Then
@@ -867,7 +871,7 @@ Function ExtensionsVersion(OnRegisterExtensionsVersionsUsage = False)
 	
 EndFunction
 
-// Intended for function "ExtensionsVersion".
+// For the ExtensionsVersion function.
 Function JobStatesDetails(TaskIds)
 	
 	TaskDescription_ = New ValueList;
@@ -919,7 +923,7 @@ Function JobStatesDetails(TaskIds)
 	
 EndFunction
 
-// This method is required by ExtensionsVersion function.
+// For the ExtensionsVersion function.
 Procedure AddNewExtensionVersion(ExtensionsDetails, ExtensionsVersion = Undefined) Export
 	
 	Query = RequestExtensionsActiveVersions();
@@ -958,14 +962,13 @@ Procedure AddNewExtensionVersion(ExtensionsDetails, ExtensionsVersion = Undefine
 			If VersionFound(Selection, ExtensionsDetails) Then
 				ExtensionsVersion = Selection.Ref;
 			Else
-				Selection = QueryResult.Select();
-				If Selection.Next() And Selection.Count() = 1 Then
-					EnableDeleteObsoleteExtensionsVersionsParametersJob(True);
-				EndIf;
 				Object = ServiceItem();
 				Object.MetadataDetails = ExtensionsDetails;
 				Object.DateOfLastUse = RoundedSessionStartDate;
 				Object.Write();
+				If Selection.Count() = 1 Then
+					EnableDeleteObsoleteExtensionsVersionsParametersJob(True);
+				EndIf;
 				ExtensionsVersion = Object.Ref;
 			EndIf;
 			CommitTransaction();
@@ -977,7 +980,7 @@ Procedure AddNewExtensionVersion(ExtensionsDetails, ExtensionsVersion = Undefine
 	
 EndProcedure
 
-// Intended for "ExtensionsVersion" function and "AddNewExtensionVersion" procedure.
+// For the ExtensionsVersion function and the AddNewExtensionVersion procedure.
 Function RequestExtensionsActiveVersions()
 	
 	Query = New Query;
@@ -994,7 +997,7 @@ Function RequestExtensionsActiveVersions()
 	
 EndFunction
 
-// Intended for function "ExtensionsVersion".
+// For the ExtensionsVersion function.
 Function VersionFound(Selection, ExtensionsDetails)
 
 	While Selection.Next() Do
@@ -1007,7 +1010,7 @@ Function VersionFound(Selection, ExtensionsDetails)
 
 EndFunction
 
-// This method is required by ExtensionsVersion function.
+// For the ExtensionsVersion function.
 Function FlagOfAddingNewVersion()
 
 	Return Catalogs.ExtensionsVersions.GetRef(
@@ -1015,7 +1018,7 @@ Function FlagOfAddingNewVersion()
 
 EndFunction
 
-// For the ExtensionsVersion function and DeleteObsoleteParametersVersions,
+// For the ExtensionsVersion function and the DeleteObsoleteParametersVersions,
 // RegisterExtensionsVersionUsage procedures.
 //
 Function RoundedSessionStartDate(SessionStarted = '00010101')
@@ -1028,7 +1031,7 @@ Function RoundedSessionStartDate(SessionStarted = '00010101')
 
 EndFunction
 
-// For the ExtensionsVersion function and DeleteObsoleteParametersVersions,
+// For the ExtensionsVersion function and the DeleteObsoleteParametersVersions,
 // RegisterExtensionsVersionUsage procedures.
 //
 Function ServiceItem(Ref = Undefined)
@@ -1133,7 +1136,7 @@ Procedure DisableScheduledJobIfRequired()
 
 EndProcedure
 
-// Intended for function "LastExtensionsVersion".
+// For the LastExtensionsVersion function.
 //
 // Returns:
 //  Structure:
@@ -1153,7 +1156,7 @@ Function NewStoredPropertiesOfExtensionsVersion()
 	
 EndFunction
 
-// Intended for "RegisterExtensionsVersionUsage" procedure.
+// For the RegisterExtensionsVersionUsage procedure.
 Procedure UpdateExtensionsVersionLastUsedDate(ExtensionsVersion) Export
 
 	RoundedSessionStartDate = RoundedSessionStartDate();
@@ -1199,7 +1202,7 @@ Procedure UpdateExtensionsVersionLastUsedDate(ExtensionsVersion) Export
 
 EndProcedure
 
-// Intended for "RegisterExtensionsVersionUsage" procedure.
+// For the RegisterExtensionsVersionUsage procedure.
 Function RequestLastUsedDateCheck(ExtensionsVersion, RoundedSessionStartDate = Undefined)
 	
 	If RoundedSessionStartDate = Undefined Then
@@ -1223,8 +1226,8 @@ Function RequestLastUsedDateCheck(ExtensionsVersion, RoundedSessionStartDate = U
 	
 EndFunction
 
-// Intended for procedures "RegisterExtensionsVersionUsage",
-// "UpdateExtensionVersionLastUsedDate" and "AddNewExtensionVersion".
+// For the procedures RegisterExtensionsVersionUsage,
+// UpdateExtensionVersionLastUsedDate, and AddNewExtensionVersion.
 //
 Procedure UpdateLatestExtensionsVersion(ExtensionsVersion)
 
@@ -1260,7 +1263,9 @@ Procedure UpdateLatestExtensionsVersion(ExtensionsVersion)
 	
 	JobParameters = CommonClientServer.ValueInArray(ExtensionsVersion);
 	
-	BackgroundJobs.Execute(ProcedureName, JobParameters,, JobDescription);
+	// The procedure name must be as specified in the ProcedureName variable.
+	BackgroundJobs.Execute("StandardSubsystemsServer.InstallLatestExtensionVersions",
+		JobParameters,, JobDescription);
 	
 EndProcedure
 

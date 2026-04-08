@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -30,6 +29,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	// End StandardSubsystems.Properties
 	
+	FileHasBeenMovedToArchive = WorkingWithServerFileArchive.FileHasBeenTransferredToFileArchive(Object.CurrentVersion);
+
 	SetButtonsAvailability(ThisObject, Items);
 	
 	PrintWithStampAvailable = Common.SubsystemExists("StandardSubsystems.DigitalSignature")
@@ -296,12 +297,20 @@ Procedure DigitalSignaturesSelection(Item, RowSelected, Field, StandardProcessin
 	EndIf;
 	
 	CurrentData = Items.DigitalSignatures.CurrentData;
-	
 	ModuleDigitalSignatureClient = CommonClient.CommonModule("DigitalSignatureClient");
 	If Field.Name = "DigitalSignaturesBriefCheckResult"
 		And ValueIsFilled(CurrentData.CheckResult)
 		And (ValueIsFilled(CurrentData.CheckResult.AdditionalAttributesCheckError)
 		Or ValueIsFilled(CurrentData.CheckResult.SignatureMathValidationError)) Then
+		
+		AdditionalParameters = New Structure;
+		If ValueIsFilled(CurrentData.SignatureAddress) Then
+			AdditionalParameters.Insert("SignatureData",
+				CurrentData.SignatureAddress);
+		Else
+			ModuleDigitalSignatureClient.OpenSignature(CurrentData);
+			Return;
+		EndIf;
 		
 		FormParameters = New Structure;
 		FormParameters.Insert("WarningTitle", NStr("en = 'Signature verification'"));
@@ -311,16 +320,9 @@ Procedure DigitalSignaturesSelection(Item, RowSelected, Field, StandardProcessin
 		FormParameters.Insert("ShowNeedHelp", True);
 		FormParameters.Insert("ShowInstruction", True);
 		
-		AdditionalParameters = New Structure;
-		
 		If ValueIsFilled(CurrentData.CertificateAddress) Then
 			AdditionalParameters.Insert("CertificateData",
 			CurrentData.CertificateAddress);
-		EndIf;
-		
-		If ValueIsFilled(CurrentData.SignatureAddress) Then
-			AdditionalParameters.Insert("SignatureData",
-			CurrentData.SignatureAddress);
 		EndIf;
 		
 		FormParameters.Insert("AdditionalData", AdditionalParameters);
@@ -430,8 +432,8 @@ Procedure StandardSetDeletionMark(Command)
 	QueryText = StringFunctionsClientServer.SubstituteParametersToString(
 		QueryText, Object.Ref);
 		
-	NotifyDescription = New CallbackDescription("StandardSetDeletionMarkAnswerReceived", ThisObject);
-	ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.YesNo, , DialogReturnCode.Yes);
+	CallbackDescription = New CallbackDescription("StandardSetDeletionMarkAnswerReceived", ThisObject);
+	ShowQueryBox(CallbackDescription, QueryText, QuestionDialogMode.YesNo, , DialogReturnCode.Yes);
 EndProcedure
 
 &AtClient
@@ -463,6 +465,33 @@ EndProcedure
 #Region DigitalSignatureAndEncryptionCommandHandlers
 
 &AtClient
+Procedure SendForSigning(Command)
+	
+	If Not CommonClient.SubsystemExists("StandardSubsystems.DigitalSignature")
+		Then
+		Return;
+	EndIf;
+	
+	If IsNew()
+		Or ValueIsFilled(Object.BeingEditedBy)
+		Or Object.Encrypted Then
+		Return;
+	EndIf;
+	
+	If Modified Then
+		Write();
+	EndIf;
+	
+	CallbackDescription      = New CallbackDescription("OnGetSignature", ThisObject);
+	AdditionalParameters = New Structure("ResultProcessing", CallbackDescription);
+	ModuleDigitalSignatureClient = CommonClient.CommonModule("DigitalSignatureClient");
+	SigningParameters = ModuleDigitalSignatureClient.NewSignatureType();
+	SigningParameters.CanSelectLetterOfAuthority = True;
+	FilesOperationsClient.SendFileForSigning(Object.Ref, UUID, AdditionalParameters, SigningParameters);
+
+EndProcedure
+
+&AtClient
 Procedure Sign(Command)
 	
 	If Not CommonClient.SubsystemExists("StandardSubsystems.DigitalSignature") Then
@@ -479,10 +508,11 @@ Procedure Sign(Command)
 		Write();
 	EndIf;
 	
-	NotifyDescription      = New CallbackDescription("OnGetSignature", ThisObject);
-	AdditionalParameters = New Structure("ResultProcessing", NotifyDescription);
+	CallbackDescription      = New CallbackDescription("OnGetSignature", ThisObject);
+	AdditionalParameters = New Structure("ResultProcessing", CallbackDescription);
 	ModuleDigitalSignatureClient = CommonClient.CommonModule("DigitalSignatureClient");
 	SigningParameters = ModuleDigitalSignatureClient.NewSignatureType();
+	SigningParameters.AllowSendingForSigning = True;
 	SigningParameters.CanSelectLetterOfAuthority = True;
 	FilesOperationsClient.SignFile(Object.Ref, UUID, AdditionalParameters, SigningParameters);
 	
@@ -698,6 +728,10 @@ Procedure MarkAsManuallyVerified(Command)
 		Return;
 	EndIf;
 	
+	If FileHasBeenMovedToArchive Then
+		Return;
+	EndIf;
+	
 	ClosingNotification1 = New CallbackDescription("AfterSignatureAuthenticityJustificationEntered",
 		ThisObject);
 		
@@ -745,8 +779,8 @@ Procedure DeleteDS(Command)
 		Return;
 	EndIf;
 	
-	NotifyDescription = New CallbackDescription("DeleteDigitalSignatureAnswerReceived", ThisObject);
-	ShowQueryBox(NotifyDescription, NStr("en = 'Do you want to delete the selected signatures?'"), QuestionDialogMode.YesNo);
+	CallbackDescription = New CallbackDescription("DeleteDigitalSignatureAnswerReceived", ThisObject);
+	ShowQueryBox(CallbackDescription, NStr("en = 'Do you want to delete the selected signatures?'"), QuestionDialogMode.YesNo);
 	
 EndProcedure
 
@@ -856,8 +890,8 @@ Procedure EndEdit(Command)
 	EndIf;
 	
 	FileData = FileData(Object.Ref, UUID, "ServerCall");
-	NotifyDescription = New CallbackDescription("EndEditingPuttingCompleted", ThisObject);
-	FileUpdateParameters = FilesOperationsInternalClient.FileUpdateParameters(NotifyDescription, FileData.Ref, UUID);
+	CallbackDescription = New CallbackDescription("EndEditingPuttingCompleted", ThisObject);
+	FileUpdateParameters = FilesOperationsInternalClient.FileUpdateParameters(CallbackDescription, FileData.Ref, UUID);
 	FileUpdateParameters.StoreVersions = FileData.StoreVersions;
 	If Not CanCreateFileVersions Then
 		FileUpdateParameters.Insert("CreateNewVersion", False);
@@ -1064,9 +1098,6 @@ Function FileData(Val AttachedFile, Val FormIdentifier = Undefined, Val Mode = "
 	If Mode = "ToOpen" Then
 		Return FilesOperationsInternalServerCall.FileDataToOpen(
 			AttachedFile, Undefined, FormIdentifier);
-	ElsIf Mode = "ForSave" Then
-		Return FilesOperationsInternalServerCall.FileDataToSave(
-			AttachedFile,, FormIdentifier);
 	ElsIf Mode = "ServerCall" Then
 		FileDataParameters = FilesOperationsClientServer.FileDataParameters();
 		FileDataParameters.FormIdentifier = FormIdentifier;
@@ -1085,11 +1116,16 @@ Procedure OpenFileForViewing()
 	If IsNew() Then
 		Return;
 	EndIf;
+
+	FileBeingEdited = ValueIsFilled(Object.BeingEditedBy) And Object.BeingEditedBy = CurrentUser;	
+
+	FileGettingParameters = FilesOperationsClient.ParametersForAsynchronousFileReceipt("OpenFile");
+	FileGettingParameters.AttachedFile				= Object.Ref;
+	FileGettingParameters.OwnerForm					= ThisObject;
 	
-	FileBeingEdited = ValueIsFilled(Object.BeingEditedBy)
-		And Object.BeingEditedBy = CurrentUser;
-	FileData = FileData(Object.Ref, UUID, "ToOpen");
-	FilesOperationsClient.OpenFile(FileData, FileBeingEdited);
+	FileGettingParameters.ActionParameters.FileBeingEdited = FileBeingEdited;
+	
+	FilesOperationsClient.OpenFile(FileGettingParameters);	
 	
 EndProcedure
 
@@ -1113,8 +1149,11 @@ Procedure SaveAs()
 		Return;
 	EndIf;
 	
-	FileData = FileData(Object.Ref, UUID, "ForSave");
-	FilesOperationsInternalClient.SaveAs(Undefined, FileData, Undefined);
+	FileGettingParameters = FilesOperationsClient.ParametersForAsynchronousFileReceipt("SaveAs", "FilesOperationsInternal.FileDataToSaveAsynchronous");
+	FileGettingParameters.AttachedFile				= Object.Ref;
+	FileGettingParameters.OwnerForm					= ThisObject;
+	
+	FilesOperationsClient.SaveFileAs(FileGettingParameters);	
 	
 EndProcedure
 
@@ -1135,9 +1174,14 @@ Procedure DeleteFromSignatureListAndWriteFile()
 	ModuleDigitalSignature = Common.CommonModule("DigitalSignature");
 	
 	RowIndexes = New Array;
+	
 	For Each SelectedRowNumber In Items.DigitalSignatures.SelectedRows Do
 		RowToDelete = DigitalSignatures.FindByID(SelectedRowNumber);
-		RowIndexes.Add(RowToDelete.SequenceNumber);
+		If ValueIsFilled(RowToDelete.SequenceNumber) Then
+			RowIndexes.Add(RowToDelete.SequenceNumber);
+		Else
+			RowIndexes.Add(RowToDelete.SignatureID);
+		EndIf;
 	EndDo;
 	
 	ModuleDigitalSignature.DeleteSignature(Object.Ref, RowIndexes, UUID);
@@ -1211,6 +1255,10 @@ Function OtherCommandsNames()
 	CommandsNames.Add("OpenFileForViewing");
 	CommandsNames.Add("SaveAs");
 	
+	CommandsNames.Add("Print");
+	CommandsNames.Add("PrintWithStamp");
+	CommandsNames.Add("Send");
+	
 	Return CommandsNames;
 	
 EndFunction
@@ -1222,6 +1270,7 @@ Function FileChangeCommandsNames()
 	
 	CommandsNames.Add("Sign");
 	CommandsNames.Add("AddDSFromFile");
+	CommandsNames.Add("SendForSigning");
 	
 	CommandsNames.Add("DeleteDS");
 	
@@ -1335,6 +1384,38 @@ Function AvailableFormCommands(Form)
 		MakeCommandUnavailable(CommandsNames, "SaveChanges");
 		MakeCommandUnavailable(CommandsNames, "UpdateFromFileOnHardDrive");
 		
+	EndIf;
+	
+	FileIsArchived = Form.FileHasBeenMovedToArchive;
+	If FileIsArchived Then
+
+		MakeDSCommandsUnavailable(CommandsNames);
+		MakeCommandUnavailable(CommandsNames, "UpdateFromFileOnHardDrive");
+		MakeCommandUnavailable(CommandsNames, "EndEdit");
+		MakeCommandUnavailable(CommandsNames, "Edit");
+		MakeCommandUnavailable(CommandsNames, "Release");
+		MakeCommandUnavailable(CommandsNames, "Lock");
+		MakeCommandUnavailable(CommandsNames, "Encrypt");
+		MakeCommandUnavailable(CommandsNames, "Decrypt");
+		MakeCommandUnavailable(CommandsNames, "SaveChanges");
+
+		MakeCommandUnavailable(CommandsNames, "OpenCertificate");
+		MakeCommandUnavailable(CommandsNames, "OpenSignature");
+		MakeCommandUnavailable(CommandsNames, "VerifyDigitalSignature");
+		MakeCommandUnavailable(CommandsNames, "CheckEverything");
+		MakeCommandUnavailable(CommandsNames, "SaveSignature");
+		MakeCommandUnavailable(CommandsNames, "DeleteDS");
+		MakeCommandUnavailable(CommandsNames, "SaveWithDigitalSignature");
+
+		MakeCommandUnavailable(CommandsNames, "Sign");
+		
+		MakeCommandUnavailable(CommandsNames, "Send");
+		
+		MakeCommandUnavailable(CommandsNames, "Print");
+		MakeCommandUnavailable(CommandsNames, "PrintWithStamp");
+
+		MakeCommandUnavailable(CommandsNames, "MarkAsManuallyVerified");
+
 	EndIf;
 	
 	If Form.ReadOnly Then
@@ -1613,8 +1694,8 @@ Procedure CreateVersionCopy(Receiver, Source)
 	FileStorage1 = Undefined;
 	CurrentVersionAttributes = Common.ObjectAttributesValues(SourceAttributes.CurrentVersion, 
 		"FileStorageType,Size,Extension,TextStorage");
-	
-	If CurrentVersionAttributes.FileStorageType = Enums.FileStorageTypes.InInfobase Then
+
+	If WorkingWithFilesInBinaryDataWarehouseIsService.StorageTypeDoesNotUseDisks(CurrentVersionAttributes.FileStorageType) Then
 		FileStorage1 = FilesOperations.FileFromInfobaseStorage(SourceAttributes.CurrentVersion);
 	EndIf;
 	

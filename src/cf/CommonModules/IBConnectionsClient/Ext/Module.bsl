@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -405,22 +404,24 @@ Procedure SessionTerminationModeManagement(CurrentMode)
 	   And CurrentMode.Parameter = ServerNotificationsClient.SessionKey() Then
 		Return;
 	EndIf;
-		
-	LockBeginTime = CurrentMode.Begin;
-	LockEndTime = CurrentMode.End;
 	
-	// "ExitWithConfirmationTimeout" and "StopTimeout" are negative.
-	// Therefore, when comparing them to (LockBeginTime – CurrentMoment), the " less than or equal to"
-	// comparison is used ( <= ) as the difference tends towards zero.
-	WaitTimeout    = CurrentMode.SessionTerminationTimeout;
-	ExitWithConfirmationTimeout = WaitTimeout / 3;
-	StopTimeoutSaaS = 60; // One minute before the lock is set.
-	StopTimeout        = 0; // At the time when the lock is set.
-	CurrentMoment             = CurrentMode.CurrentSessionDate;
+	CurrentMoment            = CurrentMode.CurrentSessionDate;
+	LockEndTime = CurrentMode.End;
 	
 	If LockEndTime <> '00010101' And CurrentMoment > LockEndTime Then
 		Return;
 	EndIf;
+	
+	DataSeparationEnabled = CommonClient.DataSeparationEnabled();
+	
+	LockBeginTime  = CurrentMode.Begin;
+	WaitTimeout = CurrentMode.SessionTerminationTimeout;
+	
+	StopTimeoutSaaS = 60; // One minute before the lock is set.
+	StopTimeout               = 0;  // At the time when the lock is set.
+	ExitWithConfirmationTimeout         = 60 + ?(DataSeparationEnabled, StopTimeoutSaaS, StopTimeout);
+	WaitTimeout           = ?(WaitTimeout - 60 > ExitWithConfirmationTimeout,
+		WaitTimeout, ExitWithConfirmationTimeout + 60);
 	
 	LockBeginTimeDate  = Format(LockBeginTime, "DLF=DD");
 	LockBeginTimeTime = Format(LockBeginTime, "DLF=T");
@@ -430,7 +431,6 @@ Procedure SessionTerminationModeManagement(CurrentMode)
 		|%3'");
 	MessageText = StringFunctionsClientServer.SubstituteParametersToString(Template, LockBeginTimeDate, LockBeginTimeTime, MessageText);
 	
-	DataSeparationEnabled = CommonClient.DataSeparationEnabled();
 	If Not DataSeparationEnabled
 		And (Not ValueIsFilled(LockBeginTime) Or LockBeginTime - CurrentMoment < StopTimeout) Then
 		
@@ -679,18 +679,21 @@ Procedure ShowWarningOnExit(MessageText, LockBeginTime)
 		InformParameters.IsNotificationDisplayed = True;
 	EndIf;
 	
-	If Not InformParameters.ShowWarningOrQuestion Then
+	If InformParameters.WarningIsShown Then
 		Return;
 	EndIf;
 	
 	ShowMessageBox(, MessageText, 30);
+	
+	InformParameters.WarningIsShown = True;
 	
 EndProcedure
 
 // Returns:
 //  Structure:
 //   * IsNotificationDisplayed - Boolean
-//   * ShowWarningOrQuestion - Boolean
+//   * WarningIsShown - Boolean
+//   * QuestionIsShown - Boolean
 //
 Function InformParameters(LockBeginTime)
 	
@@ -699,18 +702,10 @@ Function InformParameters(LockBeginTime)
 	If Properties = Undefined Or Properties.LockBeginTime <> LockBeginTime Then
 		Properties = New Structure;
 		Properties.Insert("IsNotificationDisplayed", False);
-		Properties.Insert("ShowWarningOrQuestion", False);
-		Properties.Insert("LastQuestionOrWarningDate", '00010101');
+		Properties.Insert("WarningIsShown", False);
+		Properties.Insert("QuestionIsShown", False);
 		Properties.Insert("LockBeginTime", LockBeginTime);
 		ApplicationParameters.Insert(ParameterName, Properties);
-	EndIf;
-	
-	SessionDate = CommonClient.SessionDate();
-	If Properties.LastQuestionOrWarningDate + 50 < SessionDate Then
-		Properties.LastQuestionOrWarningDate = SessionDate;
-		Properties.ShowWarningOrQuestion = True;
-	Else
-		Properties.ShowWarningOrQuestion = False;
 	EndIf;
 	
 	Return Properties;
@@ -741,15 +736,17 @@ Procedure AskOnTermination(MessageText, LockBeginTime)
 		InformParameters.IsNotificationDisplayed = True;
 	EndIf;
 	
-	If Not InformParameters.ShowWarningOrQuestion Then
+	If InformParameters.QuestionIsShown Then
 		Return;
 	EndIf;
 	
 	QueryText = NStr("en = '%1
 		|Do you want to exit?'");
 	QueryText = StringFunctionsClientServer.SubstituteParametersToString(QueryText, MessageText);
-	NotifyDescription = New CallbackDescription("AskOnTerminationCompletion", ThisObject);
-	ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.YesNo, 30, DialogReturnCode.Yes);
+	CallbackDescription = New CallbackDescription("AskOnTerminationCompletion", ThisObject);
+	ShowQueryBox(CallbackDescription, QueryText, QuestionDialogMode.YesNo, 30, DialogReturnCode.Yes);
+	
+	InformParameters.QuestionIsShown = True;
 	
 EndProcedure
 
@@ -851,7 +848,7 @@ Function ProcessStartParameters(Val StartupParameters)
 		SetUserTerminationInProgressFlag(True);
 		CurrentMode = IBConnectionsServerCall.SessionLockParameters(True);
 		EndUserSessions(CurrentMode);
-		Return True; 
+		Return False; 
 		
 	EndIf;
 	Return False;

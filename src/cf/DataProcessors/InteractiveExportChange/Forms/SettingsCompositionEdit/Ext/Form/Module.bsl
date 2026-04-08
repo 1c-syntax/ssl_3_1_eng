@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -74,10 +73,10 @@ Procedure SettingVariantsBeforeDeleteRow(Item, Cancel)
 	QueryText = StrReplace(QueryText, "%1", SettingPresentation);
 	
 	AdditionalParameters = New Structure("SettingPresentation", SettingPresentation);
-	NotifyDescription = New CallbackDescription("DeleteSettingsVariantRequestNotification", ThisObject, 
+	CallbackDescription = New CallbackDescription("DeleteSettingsVariantRequestNotification", ThisObject, 
 		AdditionalParameters);
 	
-	ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.YesNo,,,TitleText);
+	ShowQueryBox(CallbackDescription, QueryText, QuestionDialogMode.YesNo,,,TitleText);
 EndProcedure
 
 #EndRegion
@@ -100,10 +99,10 @@ Procedure SaveSetting(Command)
 		QueryText = StrReplace(QueryText, "%1", CurrentSettingsItemPresentation);
 		
 		AdditionalParameters = New Structure("SettingPresentation", CurrentSettingsItemPresentation);
-		NotifyDescription = New CallbackDescription("SaveSettingsVariantRequestNotification", ThisObject, 
+		CallbackDescription = New CallbackDescription("SaveSettingsVariantRequestNotification", ThisObject, 
 			AdditionalParameters);
 			
-		ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.YesNo,,,TitleText);
+		ShowQueryBox(CallbackDescription, QueryText, QuestionDialogMode.YesNo,,,TitleText);
 		Return;
 	EndIf;
 	

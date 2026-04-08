@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -4072,7 +4071,7 @@ Function DescriptionOfTypesFromJSON(JSONText)
 					
 					ArrayOfNamesOfTypeDescriptions.Add(Type("Number"));
 					
-				ElsIf Upper(TypeNameByString) = Upper("Date") Then
+				ElsIf Upper(TypeNameByString) = Upper("GetSessions") Then
 					
 					ArrayOfNamesOfTypeDescriptions.Add(Type("Date"));
 					
@@ -4204,7 +4203,7 @@ Procedure SerializePrimitiveTypeDescription(JSONWriter, TypeOfTypeDescriptionVal
 			
 		EndIf;
 		
-		AddJSONPropertyAndValue(JSONWriter, "typeFeatures", "date");
+		AddJSONPropertyAndValue(JSONWriter, "typeFeatures", "getsessions");
 		AddJSONPropertyAndValue(JSONWriter, "typeDate", DescriptionOfDateParts);
 		
 	ElsIf TypeOfTypeDescriptionValue = Type("Boolean") Then
@@ -5050,7 +5049,7 @@ EndFunction
 //     * TagName - Arbitrary
 //     * KeySearchFieldArray - Array of Arbitrary
 //     * KeySearchFields - Arbitrary
-//     * Valid - Boolean
+//     * IsValid_ - Boolean
 // 
 Function SearchTabularSectionsCollection()
 	
@@ -5058,7 +5057,7 @@ Function SearchTabularSectionsCollection()
 	SearchInTabularSections.Columns.Add("TagName");
 	SearchInTabularSections.Columns.Add("KeySearchFieldArray");
 	SearchInTabularSections.Columns.Add("KeySearchFields");
-	SearchInTabularSections.Columns.Add("Valid", deTypeDetails("Boolean"));
+	SearchInTabularSections.Columns.Add("IsValid_", deTypeDetails("Boolean"));
 	
 	Return SearchInTabularSections;
 	
@@ -5928,7 +5927,7 @@ Procedure ImportConversionRule(ExchangeRules, XMLWriter)
 				TableRow.TagName               = CurrentRow;
 				TableRow.KeySearchFields        = SearchString;
 				TableRow.KeySearchFieldArray = StringFunctionsClientServer.SplitStringIntoSubstringsArray(SearchString);
-				TableRow.Valid                  = TableRow.KeySearchFieldArray.Count() <> 0;
+				TableRow.IsValid_                  = TableRow.KeySearchFieldArray.Count() <> 0;
 				
 			EndDo;
 			
@@ -6850,14 +6849,14 @@ Procedure ImportConversionRuleExchangeObjectsExportModes(XMLWriter)
 	Values.Insert("ExportByCondition",        "ExportByCondition");
 	Values.Insert("ExportIfNecessary", "ExportIfNecessary");
 	Values.Insert("ManualExport",          "ManualExport");
-	Values.Insert("NotExport",               "NotExport");
+	Values.Insert("NotToExport",               "NotToExport");
 	NewRow.PredefinedDataReadValues = Values;
 	
 	SearchInTabularSections = New ValueTable;
 	SearchInTabularSections.Columns.Add("TagName");
 	SearchInTabularSections.Columns.Add("KeySearchFieldArray");
 	SearchInTabularSections.Columns.Add("KeySearchFields");
-	SearchInTabularSections.Columns.Add("Valid", deTypeDetails("Boolean"));
+	SearchInTabularSections.Columns.Add("IsValid_", deTypeDetails("Boolean"));
 	NewRow.SearchInTabularSections = SearchInTabularSections;
 	
 	Managers[NewRow.Source].OCR = NewRow;
@@ -9204,7 +9203,7 @@ Function KeySearchFieldsByTabularSection(OCR, TabularSectionName, KeySearchField
 		Return False;
 	EndIf;
 	
-	If Not SearchDataInTS.Valid Then
+	If Not SearchDataInTS.IsValid_ Then
 		Return False;
 	EndIf;
 	
@@ -12265,8 +12264,8 @@ Function GetDataTypeForDestination(Value)
 	
 	DestinationType = deValueTypeAsString(Value);
 	
-	// If there's an OCR with the destination type set to "DestinationType", then:
-	// If there's a rule, keep the search result. Otherwise, keep "'.
+	// Find an OCR with the DestinationType destination type.
+	// If there is a rule, keep the search result. Otherwise, keep "".
 	TableRow = ConversionRulesTable.Find(DestinationType, "Receiver");
 	
 	If TableRow = Undefined Then

@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Internal
@@ -193,7 +192,7 @@ Procedure CheckPasswordSet(Form, PasswordIsSet, AuthorizedUser) Export
 	If PasswordIsSet Then
 		Items.PasswordExistsLabel.Title = NStr("en = 'The password is set.'");
 		Items.UserMustChangePasswordOnAuthorization.Title =
-			NStr("en = 'User must change password on next login'");
+			NStr("en = 'Require password change on next login'");
 	Else
 		Items.PasswordExistsLabel.Title = NStr("en = 'Blank password'");
 		Items.UserMustChangePasswordOnAuthorization.Title =

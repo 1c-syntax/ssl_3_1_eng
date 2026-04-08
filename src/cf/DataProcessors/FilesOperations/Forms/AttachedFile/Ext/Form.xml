@@ -150,7 +150,7 @@
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Commit</v8:content>
+									<v8:content>Finish editing</v8:content>
 								</v8:item>
 							</Title>
 							<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
@@ -320,6 +320,17 @@
 										</v8:item>
 									</Title>
 									<ExtendedTooltip name="FormSignExtendedTooltip" id="71"/>
+								</Button>
+								<Button name="FormSendForSigning" id="309">
+									<Type>CommandBarButton</Type>
+									<CommandName>Form.Command.SendForSigning</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Send for signing…</v8:content>
+										</v8:item>
+									</Title>
+									<ExtendedTooltip name="FormSendForSigningExtendedTooltip" id="310"/>
 								</Button>
 								<Button name="FormAddSignatureFromFile" id="20">
 									<Type>CommandBarButton</Type>
@@ -610,7 +621,7 @@
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Commit</v8:content>
+									<v8:content>Finish editing</v8:content>
 								</v8:item>
 							</Title>
 							<ExtendedTooltip name="EndEditExtendedTooltip" id="163"/>
@@ -1250,6 +1261,17 @@
 										</Title>
 										<ExtendedTooltip name="DigitalSignaturesExtendActionSignaturesExtendedTooltip" id="293"/>
 									</Button>
+									<Button name="DigitalSignaturesSendForSigning" id="311">
+										<Type>CommandBarButton</Type>
+										<CommandName>Form.Command.SendForSigning</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Send for signing…</v8:content>
+											</v8:item>
+										</Title>
+										<ExtendedTooltip name="DigitalSignaturesSendForSigningExtendedTooltip" id="312"/>
+									</Button>
 									<SearchStringAddition name="SearchStringDigitalSignatures" id="294">
 										<AdditionSource>
 											<Item>DigitalSignatures</Item>
@@ -1351,8 +1373,8 @@
 													<v8:content>Status</v8:content>
 												</v8:item>
 											</Title>
-											<ContextMenu name="DigitalSignaturesBriefVerificationResultContextMenu" id="307"/>
-											<ExtendedTooltip name="DigitalSignaturesBriefVerificationResultExtendedTooltip" id="308"/>
+											<ContextMenu name="DigitalSignaturesBriefCheckResultContextMenu" id="307"/>
+											<ExtendedTooltip name="DigitalSignaturesBriefCheckResultExtendedTooltip" id="308"/>
 										</InputField>
 										<InputField name="DigitalSignaturesSignatureValidationDate" id="151">
 											<DataPath>DigitalSignatures.SignatureValidationDate</DataPath>
@@ -1773,6 +1795,11 @@
 						</v8:StringQualifiers>
 					</Type>
 				</Column>
+				<Column name="SignatureID" id="31">
+					<Type>
+						<v8:Type>v8:UUID</v8:Type>
+					</Type>
+				</Column>
 			</Columns>
 		</Attribute>
 		<Attribute name="EncryptionCertificates" id="7">
@@ -2073,6 +2100,11 @@
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>
 		</Attribute>
+		<Attribute name="FileHasBeenMovedToArchive" id="10">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Attribute>
 	</Attributes>
 	<Commands>
 		<Command name="StandardSaveAndClose" id="1">
@@ -2278,13 +2310,13 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Commit</v8:content>
+					<v8:content>Finish editing</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Save the file and release it in the infobase.</v8:content>
+					<v8:content>Finalize changes and make the file available for editing.</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Picture>
@@ -2653,6 +2685,15 @@
 				</v8:item>
 			</ToolTip>
 			<Action>ExtendActionSignatures</Action>
+		</Command>
+		<Command name="SendForSigning" id="32">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Send for signing…</v8:content>
+				</v8:item>
+			</Title>
+			<Action>SendForSigning</Action>
 		</Command>
 	</Commands>
 	<Parameters>

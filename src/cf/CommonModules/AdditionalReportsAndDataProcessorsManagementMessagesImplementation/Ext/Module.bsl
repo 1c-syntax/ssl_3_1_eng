@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Private
@@ -131,12 +130,12 @@ EndProcedure
 // Parameters:
 //  ExtensionID - UUID - a reference to the item
 //                            of the SuppliedAdditionalReportsAndDataProcessors catalog.
-//  DisableReason - EnumRef.ReasonsForDisablingAdditionalReportsAndDataProcessorsSaaS
+//  TurnedOffReason - EnumRef.ReasonsForDisablingAdditionalReportsAndDataProcessorsSaaS
 //
-Procedure DisableAdditionalReportOrDataProcessor(Val ExtensionID, Val DisableReason = Undefined) Export
+Procedure DisableAdditionalReportOrDataProcessor(Val ExtensionID, Val TurnedOffReason = Undefined) Export
 	
-	If DisableReason = Undefined Then
-		DisableReason = Enums.ReasonsForDisablingAdditionalReportsAndDataProcessorsSaaS.LockByServiceAdministrator;
+	If TurnedOffReason = Undefined Then
+		TurnedOffReason = Enums.ReasonsForDisablingAdditionalReportsAndDataProcessorsSaaS.LockByServiceAdministrator;
 	EndIf;
 	
 	SetPrivilegedMode(True);
@@ -147,8 +146,8 @@ Procedure DisableAdditionalReportOrDataProcessor(Val ExtensionID, Val DisableRea
 		
 		Object = SuppliedDataProcessor.GetObject();
 		
-		Object.Publication = Enums.AdditionalReportsAndDataProcessorsPublicationOptions.isDisabled;
-		Object.DisableReason = DisableReason;
+		Object.Publication = Enums.AdditionalReportsAndDataProcessorsPublicationOptions.TurnedOff;
+		Object.TurnedOffReason = TurnedOffReason;
 		
 		Object.Write();
 		

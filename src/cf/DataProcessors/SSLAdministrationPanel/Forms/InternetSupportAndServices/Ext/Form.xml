@@ -439,9 +439,9 @@ If the external service is not used, presentation declension is carried out usin
 					<ShowTitle>false</ShowTitle>
 					<ExtendedTooltip name="InflectionSettingsGroupExtendedTooltip" id="1713"/>
 					<ChildItems>
-						<Button name="MorpherServiceAccessSetting" id="1714">
+						<Button name="MorpherServiceAccessSettings" id="1714">
 							<Type>Hyperlink</Type>
-							<CommandName>Form.Command.MorpherServiceAccessSetting</CommandName>
+							<CommandName>Form.Command.MorpherServiceAccessSettings</CommandName>
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
@@ -449,7 +449,7 @@ If the external service is not used, presentation declension is carried out usin
 								</v8:item>
 							</Title>
 							<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
-							<ExtendedTooltip name="MorpherServiceAccessSettingExtendedTooltip" id="1715">
+							<ExtendedTooltip name="MorpherServiceAccessSettingsExtendedTooltip" id="1715">
 								<AutoMaxWidth>false</AutoMaxWidth>
 								<Title formatted="false">
 									<v8:item>
@@ -1044,14 +1044,14 @@ The collected data does not contain any personal information; it only contains s
 			</Title>
 			<Action>CurrenciesRatesImport</Action>
 		</Command>
-		<Command name="MorpherServiceAccessSetting" id="17">
+		<Command name="MorpherServiceAccessSettings" id="17">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
 					<v8:content>Configure access to Morpher service</v8:content>
 				</v8:item>
 			</Title>
-			<Action>MorpherServiceAccessSetting</Action>
+			<Action>MorpherServiceAccessSettings</Action>
 		</Command>
 		<Command name="MonitoringCenter_Settings" id="18">
 			<Title>

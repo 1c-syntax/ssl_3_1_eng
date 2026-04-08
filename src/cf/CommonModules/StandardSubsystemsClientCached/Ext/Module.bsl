@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Private
@@ -199,16 +198,21 @@ Procedure WriteIndicators(OnStart, Indicators, TotalDuration)
 	
 	Comment = StrConcat(Indicators, Chars.LF);
 	
-	CallStack = "";
+	CallsStack = "";
 	Try
 		Raise NStr("en = 'Call stack:'");
 	Except
-		CallStack = ErrorProcessing.DetailErrorDescription(ErrorInfo());
+		CallsStack = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 	EndTry;
 	
-	StandardSubsystemsServerCall.WritePerformanceIndicators(OnStart, Comment, CallStack);
+	StandardSubsystemsServerCall.WritePerformanceIndicators(OnStart, Comment, CallsStack);
 	
 EndProcedure
+
+// See ServerNotificationsInternalClientServer.AreClientNotificationsAvailable
+Function AreClientNotificationsAvailable() Export
+	Return ServerNotificationsInternalClientServer.AreClientNotificationsAvailable();
+EndFunction
 
 #Region ForMetadataObjectIDsCatalog
 

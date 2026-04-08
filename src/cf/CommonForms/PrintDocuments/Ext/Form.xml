@@ -261,6 +261,12 @@
 								<Button name="SaveButton" id="102">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.SaveToComputer</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Save…</v8:content>
+										</v8:item>
+									</Title>
 									<ExtendedTooltip name="SaveButtonExtendedTooltip" id="159"/>
 								</Button>
 								<Popup name="SubmenuSend" id="293">
@@ -506,6 +512,12 @@
 						<Button name="SaveButtonAllActions" id="196">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.Command.SaveToComputer</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Save…</v8:content>
+								</v8:item>
+							</Title>
 							<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 							<ExtendedTooltip name="SaveButtonAllActionsExtendedTooltip" id="197"/>
 						</Button>
@@ -1808,6 +1820,18 @@
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
 		<Command name="SaveToComputer" id="8">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Save…</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Save on disk or as an object attachment.</v8:content>
+				</v8:item>
+			</ToolTip>
 			<Picture>
 				<xr:Ref>StdPicture.SaveFile</xr:Ref>
 				<xr:LoadTransparent>true</xr:LoadTransparent>

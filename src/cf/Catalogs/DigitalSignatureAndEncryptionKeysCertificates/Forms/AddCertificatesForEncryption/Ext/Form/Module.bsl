@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -70,14 +69,14 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If Items.CertificatesIndividual.Visible And ToSearchForIndividuals.Count() > 0 Then
 		
-		Persons = DigitalSignatureInternal.GetIndividualsByCertificateFieldIssuedTo(ToSearchForIndividuals);
+		IndividualsByFullName = DigitalSignatureInternal.GetIndividualsByCertificateFieldIssuedTo(ToSearchForIndividuals);
 		For Each CurrentRow In Certificates Do
 			
 			If ValueIsFilled(CurrentRow.Individual) Then
 				Continue;
 			EndIf;
 			
-			ArrayOfValues = Persons.Get(CurrentRow.IssuedTo);
+			ArrayOfValues = IndividualsByFullName.Get(CurrentRow.IssuedTo);
 			If TypeOf(ArrayOfValues) = Type("Array") And ArrayOfValues.Count() = 1 Then
 				CurrentRow.Individual = ArrayOfValues[0];
 				CurrentRow.Refresh = True;
@@ -235,6 +234,8 @@ Procedure PopulateCertificatesInTable()
 	Query = New Query;
 	Query.SetParameter("Thumbprints", Certificates.Unload(, "Thumbprint"));
 	
+	SetPrivilegedMode(True);
+	
 	Query.Text =
 	"SELECT
 	|	Thumbprints.Thumbprint
@@ -255,6 +256,8 @@ Procedure PopulateCertificatesInTable()
 	
 	Selection = Query.Execute().Select();
 	
+	SetPrivilegedMode(False);
+	
 	While Selection.Next() Do
 		
 		CertificateRow = Certificates.FindRows(New Structure("Thumbprint", Selection.Thumbprint));
@@ -263,7 +266,18 @@ Procedure PopulateCertificatesInTable()
 			If Items.CertificatesIndividual.Visible Then
 				CurrentRow.Individual = Selection.Individual;
 			EndIf;
-			CurrentRow.Certificate     = Selection.Ref;
+			
+			If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
+				ModuleAccessManagement = Common.CommonModule("AccessManagement");
+				ReadingAllowed = ModuleAccessManagement.ReadingAllowed(Selection.Ref);
+			Else
+				ReadingAllowed = AccessRight("Read", Selection.Ref.Metadata());
+			EndIf;
+			If ReadingAllowed Then // Protection against data errors (duplicate certificates).
+				CurrentRow.Certificate = Selection.Ref;
+			EndIf;
+			
+			CurrentRow.AlreadyAdded = True;
 			
 		EndDo;
 		
@@ -301,11 +315,11 @@ Procedure IndividualStartChoice(StandardProcessing)
 		Return;
 	EndIf;
 	
-	Persons = Result.Persons.Get(CurrentData.IssuedTo);
+	IndividualsForFullName = Result.Persons.Get(CurrentData.IssuedTo);
 	
 	StandardProcessing = False;
 	
-	If Persons = Undefined Then
+	If IndividualsForFullName = Undefined Then
 		ChoiceProcessing = New CallbackDescription("OnCloseIndividualChoiceForm", ThisObject);
 		FormParameters = New Structure;
 		FormParameters.Insert("ChoiceMode", True);
@@ -314,9 +328,9 @@ Procedure IndividualStartChoice(StandardProcessing)
 		Return;
 	EndIf;
 	
-	If Persons.Count() = 1 Then
-		If CurrentData.Individual <> Persons[0] Then
-			CurrentData.Individual = Persons[0];
+	If IndividualsForFullName.Count() = 1 Then
+		If CurrentData.Individual <> IndividualsForFullName[0] Then
+			CurrentData.Individual = IndividualsForFullName[0];
 		Else
 			ChoiceProcessing = New CallbackDescription("OnCloseIndividualChoiceForm", ThisObject);
 			FormParameters = New Structure;
@@ -332,7 +346,7 @@ Procedure IndividualStartChoice(StandardProcessing)
 	Filter = FixedSettings.Filter.Items.Add(Type("DataCompositionFilterItem"));
 	Filter.LeftValue = New DataCompositionField("Ref");
 	Filter.ComparisonType = DataCompositionComparisonType.InList;
-	Filter.RightValue = Persons;
+	Filter.RightValue = IndividualsForFullName;
 	Filter.Use = True;
 	
 	FormParameters = New Structure;
@@ -361,6 +375,8 @@ Function AddCertificatesToCatalogAtServer()
 			Else
 				Continue;
 			EndIf;
+		ElsIf CurrentRow.AlreadyAdded Then
+			Continue;
 		EndIf;
 		
 		CertificateParameters.Insert("Description", CurrentRow.Presentation);

@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -233,6 +232,30 @@ Procedure ReportDistributionPickAddlReport(FormItem) Export
 	
 EndProcedure
 
+// Attachable command clarifying handler.
+//
+// Parameters:
+//   ObjectsToPrint - Array of AnyRef - references to the selected objects for which a command is being executed.
+//   ExecutionParameters - See AttachableCommandsClient.CommandExecuteParameters
+//
+Procedure BeforeExecutingPrintCommands(ObjectsToPrint, ExecutionParameters) Export
+	
+	StartupOption = ExecutionParameters.CommandDetails.AdditionalParameters.AdditionalParameters.StartupOption;
+	If StartupOption = PredefinedValue("Enum.AdditionalDataProcessorsCallMethods.ClientMethodCall")
+	 Or StartupOption = PredefinedValue("Enum.AdditionalDataProcessorsCallMethods.OpeningForm") Then
+		Return;
+	EndIf;
+	
+	StandardProcessing = True;
+	AdditionalReportsAndDataProcessorsClientOverridable.BeforeExecuteExternalPrintFormPrintCommand(
+		ObjectsToPrint, StandardProcessing);
+	
+	If StandardProcessing And AdditionalReportsAndDataProcessorsServerCall.ConductingIsAvailable(ObjectsToPrint) Then
+		ExecutionParameters.PostingRequired = True;
+	EndIf;
+	
+EndProcedure
+
 // External print command handler.
 //
 // Parameters:
@@ -258,7 +281,7 @@ Procedure ExecuteAssignablePrintCommand(CommandToExecute, Form) Export
 	ElsIf StartupOption = PredefinedValue("Enum.AdditionalDataProcessorsCallMethods.ClientMethodCall") Then
 		ExecuteDataProcessorClientMethod(CommandToExecute, Form, CommandToExecute.PrintObjects);
 	Else
-		ExecutePrintFormOpening(CommandToExecute, Form, CommandToExecute.PrintObjects);
+		ExecutePrintFormOpening(CommandToExecute, Form, CommandToExecute.PrintObjects, True);
 	EndIf;
 	
 EndProcedure
@@ -451,7 +474,9 @@ Procedure ExecuteDataProcessorClientMethod(CommandToExecute, Form, RelatedObject
 			EndIf;
 		EndDo;
 		
-		StandardSubsystemsClient.NotifyFormsAboutChange(CreatedObjectTypes);
+		For Each Type In CreatedObjectTypes Do
+			NotifyChanged(Type);
+		EndDo
 		
 	ElsIf CommandToExecute.Kind = PredefinedValue("Enum.AdditionalReportsAndDataProcessorsKinds.PrintForm") Then
 		
@@ -469,7 +494,9 @@ Procedure ExecuteDataProcessorClientMethod(CommandToExecute, Form, RelatedObject
 			EndIf;
 		EndDo;
 		
-		StandardSubsystemsClient.NotifyFormsAboutChange(ModifiedObjectTypes);
+		For Each Type In ModifiedObjectTypes Do
+			NotifyChanged(Type);
+		EndDo
 		
 	ElsIf CommandToExecute.Kind = PredefinedValue("Enum.AdditionalReportsAndDataProcessorsKinds.Report") Then
 		
@@ -482,13 +509,16 @@ Procedure ExecuteDataProcessorClientMethod(CommandToExecute, Form, RelatedObject
 EndProcedure
 
 // Generates a spreadsheet document in the Print subsystem form.
-Procedure ExecutePrintFormOpening(CommandToExecute, Form, RelatedObjects) Export
+Procedure ExecutePrintFormOpening(CommandToExecute, Form, RelatedObjects, FromPlugInCommands = False) Export
 	
-	StandardProcessing = True;
-	// ACC:222-off For backward compatibility.
-	AdditionalReportsAndDataProcessorsClientOverridable.BeforeExecuteExternalPrintFormPrintCommand(
-		RelatedObjects, StandardProcessing);
-	// ACC:222-on
+	If FromPlugInCommands Then
+		StandardProcessing = False;
+	Else
+		StandardProcessing = True;
+		AdditionalReportsAndDataProcessorsClientOverridable.BeforeExecuteExternalPrintFormPrintCommand(
+			RelatedObjects, StandardProcessing);
+	EndIf;
+	
 	If CommonClient.SubsystemExists("StandardSubsystems.Print") Then
 		ModulePrintManagerInternalClient = CommonClient.CommonModule("PrintManagementInternalClient");
 		ModulePrintManagerInternalClient.ExecutePrintFormOpening(

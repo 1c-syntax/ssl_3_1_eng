@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Variables
@@ -1342,6 +1341,8 @@ Procedure SetPeriodEndClosingDateChoiceProcessingContinue(Response, ValueSelecte
 		Return;
 	EndIf;
 	
+	DetachIdleHandler("UpdateUserDataIdleHandler");
+	
 	SetPeriodEndClosingDates = ValueSelected;
 	ChangeSettingOfPeriodEndClosingDate(ValueSelected, True);
 	
@@ -1607,7 +1608,7 @@ Procedure ClosingDatesBeforeDeleteRowCompletion(Response, SelectedRows) Export
 		EndIf;	
 		
 		CurrentSection = CurrentData.GetParent();
-		// @skip-check query-in-loop - По-объектная запись данных
+		// @skip-check query-in-loop 
 		DeleteUserRecord(LocksAddress, 
 			?(CurrentSection <> Undefined, CurrentSection.Section, Undefined), 
 			CurrentData.Object, CurrentUser);
@@ -2863,7 +2864,7 @@ Procedure DeleteUserRecord(Val LocksAddress, Val Section, Val Object, Val User)
 	EndIf;
 	
 	For Each CurrentObject In Objects Do
-		// @skip-check query-in-loop - В этом вызове ветка с запросом не выполняется
+		// @skip-check query-in-loop - 
 		LockUserRecordAtServer(LocksAddress,
 			Section, CurrentObject, User);
 	EndDo;
@@ -3409,7 +3410,7 @@ Procedure ChangeSettingOfPeriodEndClosingDate(Val ValueSelected, Val DeleteExtra
 			
 			// Lock records to delete.
 			For Each RecordKeyValues In RecordKeysValues Do
-				// @skip-check query-in-loop - По-объектная запись данных
+				// @skip-check query-in-loop 
 				LockUserRecordAtServer(LocksAddress,
 					RecordKeyValues.Section,
 					RecordKeyValues.Object,
@@ -3418,7 +3419,7 @@ Procedure ChangeSettingOfPeriodEndClosingDate(Val ValueSelected, Val DeleteExtra
 			
 			// Delete locked records.
 			For Each RecordKeyValues In RecordKeysValues Do
-				// @skip-check query-in-loop - По-объектная запись данных
+				// @skip-check query-in-loop 
 				DeleteUserRecord(LocksAddress,
 					RecordKeyValues.Section,
 					RecordKeyValues.Object,
@@ -3653,7 +3654,7 @@ Procedure EditPeriodEndClosingDateInFormCompletion(SelectedRows) Export
 	// Locking records of the selected rows.
 	For Each SelectedRow In SelectedRows Do
 		CurrentData = ClosingDates.FindByID(SelectedRow);
-		// @skip-check query-in-loop - В этом вызове ветка с запросом не выполняется
+		// @skip-check query-in-loop - 
 		ReadProperties = LockUserRecordAtServer(LocksAddress,
 			CurrentSection(CurrentData), CurrentData.Object, CurrentUser);
 		
@@ -3834,7 +3835,7 @@ Procedure LockAndWriteBlankDates(LocksAddress, Section, Object, User, Comment)
 	EndIf;
 	
 	For Each CurrentObject In ObjectsForAdding Do
-		// @skip-check query-in-loop - По-объектная запись данных
+		// @skip-check query-in-loop 
 		LockUserRecordAtServer(LocksAddress,
 			Section, CurrentObject, User);
 	EndDo;

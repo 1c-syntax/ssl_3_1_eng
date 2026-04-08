@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Variables
@@ -323,34 +322,37 @@ Procedure BeforeWriteAtServer(Cancel, CurrentObject, WriteMode, PostingMode)
 	HTMLDocumentOfCurrentEmailPrepared = False;
 	
 	// Preparing an HTML document from the formatted document content.
-	If MessageFormat = Enums.EmailEditingMethods.HTML
-		 And CurrentObject.EmailStatus = Enums.OutgoingEmailStatuses.Draft Then
-		
-		AttachmentsNamesToIDsMapsTable.Clear();
-		
-		AttachmentsStructure = New Structure;
-		EmailTextFormattedDocument.GetHTML(CurrentObject.HTMLText, AttachmentsStructure);
-		For Each Attachment In AttachmentsStructure Do
+	If CurrentObject.EmailStatus = Enums.OutgoingEmailStatuses.Draft Then
+	
+		If MessageFormat = Enums.EmailEditingMethods.HTML Then
 			
-			NewRow = AttachmentsNamesToIDsMapsTable.Add();
-			NewRow.FileName = Attachment.Key;
-			NewRow.FileIDForHTML = New UUID;
-			NewRow.Picture = Attachment.Value;
+			AttachmentsNamesToIDsMapsTable.Clear();
 			
-		EndDo;
-		
-		If AttachmentsNamesToIDsMapsTable.Count() > 0 Then
+			AttachmentsStructure = New Structure;
+			EmailTextFormattedDocument.GetHTML(CurrentObject.HTMLText, AttachmentsStructure);
+			For Each Attachment In AttachmentsStructure Do
+				
+				NewRow = AttachmentsNamesToIDsMapsTable.Add();
+				NewRow.FileName = Attachment.Key;
+				NewRow.FileIDForHTML = New UUID;
+				NewRow.Picture = Attachment.Value;
+				
+			EndDo;
 			
-			HTMLDocument = Interactions.GetHTMLDocumentObjectFromHTMLText(CurrentObject.HTMLText);
-			Interactions.ChangePicturesNamesToMailAttachmentsIDsInHTML(
-			    HTMLDocument, AttachmentsNamesToIDsMapsTable.Unload());
-			HTMLDocumentOfCurrentEmailPrepared = True;
+			If AttachmentsNamesToIDsMapsTable.Count() > 0 Then
+				
+				HTMLDocument = Interactions.GetHTMLDocumentObjectFromHTMLText(CurrentObject.HTMLText);
+				Interactions.ChangePicturesNamesToMailAttachmentsIDsInHTML(
+				    HTMLDocument, AttachmentsNamesToIDsMapsTable.Unload());
+				HTMLDocumentOfCurrentEmailPrepared = True;
+				
+			EndIf;
+			
+		Else
+			
+			CurrentObject.Text = EmailText;
 			
 		EndIf;
-		
-	Else
-		
-		CurrentObject.Text = EmailText;
 		
 	EndIf;
 	
@@ -1234,6 +1236,12 @@ Procedure AvailabilityControl()
 	EndIf;
 	Items.FormWriteAndClose.Visible = Not Items.Send.Visible;
 	
+	If Object.EmailStatus = PredefinedValue("Enum.OutgoingEmailStatuses.Outgoing") Then
+		Items.PostingDate.Title = NStr("en = 'Queued for sending'");
+	Else
+		Items.PostingDate.Title = NStr("en = 'Sent'");
+	EndIf;
+		
 	Items.SendingDateRelevanceGroup.Enabled = (Object.EmailStatus <> PredefinedValue("Enum.OutgoingEmailStatuses.Sent")); 
 
 EndProcedure
@@ -1379,11 +1387,11 @@ Procedure AddEmail(Command)
 	OpeningParameters.Insert("ChoiceMode", True);
 	OpeningParameters.Insert("CloseOnChoice", True);
 	OpeningParameters.Insert("OnlyEmail", True);
-	NotifyDescription = New CallbackDescription("AddEmailCompletion", ThisObject);
+	CallbackDescription = New CallbackDescription("AddEmailCompletion", ThisObject);
 	OpenForm("DocumentJournal.Interactions.ListForm",
 	             OpeningParameters,
 	             ThisObject,,,,
-	             NotifyDescription,
+	             CallbackDescription,
 	             FormWindowOpeningMode.LockOwnerWindow);
 	
 EndProcedure
@@ -1518,9 +1526,12 @@ Procedure SaveAttachment(Command)
 	If Not ValueIsFilled(CurrentData.Ref) Then
 		Return;
 	EndIf;
-		
-	FileData = FilesOperationsClient.FileData(CurrentData.Ref, UUID);
-	FilesOperationsClient.SaveFileAs(FileData);
+
+	FileGettingParameters = FilesOperationsClient.ParametersForAsynchronousFileReceipt("SaveAs", "FilesOperationsInternal.FileDataEmailManagementAsynchronous");
+	FileGettingParameters.AttachedFile	= CurrentData.Ref;
+	FileGettingParameters.OwnerForm 		= ThisObject;
+
+	FilesOperationsClient.SaveFileAs(FileGettingParameters);
 	
 EndProcedure
 
@@ -2574,12 +2585,12 @@ Function ExecuteSendingAtServer()
 		
 		ErrorInfo = ErrorInfo();
 		
-		If Not EmailOperationsInternalClientServer.ThisIsErrorInWorkOfInternetMail(ErrorInfo) Then
+		If Not EmailOperationsInternalClientServer.IsInternetMailError(ErrorInfo) Then
 			Raise;
 		EndIf;
 		
 		ErrorText = EmailOperations.ExtendedErrorPresentation(
-			ErrorInfo, Common.DefaultLanguageCode());
+			ErrorInfo, Common.DefaultLanguageCode(), , EmailObject.Account);
 		WriteLogEvent(EmailManagement.EventLogEvent(),
 			EventLogLevel.Error, , EmailObject.Ref, ErrorText);
 		

@@ -274,10 +274,10 @@
 						</Button>
 					</ChildItems>
 				</ButtonGroup>
-				<Button name="FormHelp" id="73">
+				<Button name="FormHelp_SSLyf" id="73">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.StandardCommand.Help</CommandName>
-					<ExtendedTooltip name="FormHelpExtendedTooltip" id="108"/>
+					<ExtendedTooltip name="FormHelp_SSLyfExtendedTooltip" id="108"/>
 				</Button>
 				<SearchStringAddition name="ExternalUsersSearch" id="229">
 					<AdditionSource>

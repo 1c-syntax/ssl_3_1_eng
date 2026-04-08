@@ -1,5 +1,5 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
@@ -99,7 +99,7 @@ Procedure ActivateBot(Command)
 	EndIf;
 	
 	Try
-		ActivateServer();
+		SetAsActiveServer();
 	Except
 		ErrorInfo = ErrorInfo();
 		Refinement = CommonClientServer.ExceptionClarification(ErrorInfo, 
@@ -137,7 +137,7 @@ EndProcedure
 #Region Private
 
 &AtServer
-Procedure ActivateServer()
+Procedure SetAsActiveServer()
 	
 	IntegrationParameters = ConversationsInternal.IntegrationParameters();
 	IntegrationParameters.Id = Parameters.Id;

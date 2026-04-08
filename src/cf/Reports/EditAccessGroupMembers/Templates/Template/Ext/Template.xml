@@ -173,8 +173,8 @@
 			</valueType>
 		</field>
 		<field xsi:type="DataSetFieldField">
-			<dataPath>Package</dataPath>
-			<field>Package</field>
+			<dataPath>Application</dataPath>
+			<field>Application</field>
 			<title xsi:type="v8:LocalStringType">
 				<v8:item>
 					<v8:lang>en</v8:lang>
@@ -1014,7 +1014,7 @@ their profile, access group, user group, and the user itself.</v8:content>
 								<dcsset:periodAdditionEnd xsi:type="xs:dateTime">0001-01-01T00:00:00</dcsset:periodAdditionEnd>
 							</dcsset:item>
 							<dcsset:item xsi:type="dcsset:GroupItemField">
-								<dcsset:field>Package</dcsset:field>
+								<dcsset:field>Application</dcsset:field>
 								<dcsset:groupType>Items</dcsset:groupType>
 								<dcsset:periodAdditionType>None</dcsset:periodAdditionType>
 								<dcsset:periodAdditionBegin xsi:type="xs:dateTime">0001-01-01T00:00:00</dcsset:periodAdditionBegin>
@@ -1058,7 +1058,7 @@ their profile, access group, user group, and the user itself.</v8:content>
 									<dcsset:field>AuthorID</dcsset:field>
 								</dcsset:item>
 								<dcsset:item xsi:type="dcsset:SelectedItemField">
-									<dcsset:field>Package</dcsset:field>
+									<dcsset:field>Application</dcsset:field>
 								</dcsset:item>
 								<dcsset:item xsi:type="dcsset:SelectedItemField">
 									<dcsset:field>Computer</dcsset:field>
@@ -1128,7 +1128,7 @@ their profile, access group, user group, and the user itself.</v8:content>
 									<dcsset:appearance>
 										<dcscor:item xsi:type="dcsset:SettingsParameterValue">
 											<dcscor:parameter>ЦветТекста</dcscor:parameter>
-											<dcscor:value xsi:type="v8ui:Color">auto</dcscor:value>
+											<dcscor:value xsi:type="v8ui:Color">style:InaccessibleCellTextColor</dcscor:value>
 										</dcscor:item>
 									</dcsset:appearance>
 								</dcsset:item>

@@ -1350,7 +1350,7 @@ Inactive users are hidden from the user lists.
 					</Attribute>
 					<Attribute uuid="a1afacc5-f49a-4df2-a44d-479594d50179">
 						<Properties>
-							<Name>State_SSLym</Name>
+							<Name>State</Name>
 							<Synonym>
 								<v8:item>
 									<v8:lang>en</v8:lang>

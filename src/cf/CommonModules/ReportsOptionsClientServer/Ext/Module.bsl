@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -64,7 +63,7 @@ Function ParseSearchStringIntoWordArray(SearchString) Export
 			Or (CharCode >= 65 And CharCode <= 90) // Uppercase Latin characters
 			Or (CharCode >= 97 And CharCode <= 122) // Lowercase Latin characters
 			Or (CharCode >= 1040 And CharCode <= 1103) // Cyrillic characters.
-			Or CharCode = 95 Then // Underline ( _ ) character.
+			Or CharCode = 95 Then // Underscore ( _ ) character.
 			Word = Word + Char(CharCode);
 			WordLength = WordLength + 1;
 		ElsIf Word <> "" Then

@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -32,7 +31,7 @@ Procedure FillCheckProcessing(Cancel, CheckedAttributes)
 	
 	If Not AdditionalReportsAndDataProcessors.CheckGlobalDataProcessor(Kind) Then
 		If Not UseForObjectForm And Not UseForListForm 
-			And Publication <> Enums.AdditionalReportsAndDataProcessorsPublicationOptions.isDisabled Then
+			And Publication <> Enums.AdditionalReportsAndDataProcessorsPublicationOptions.TurnedOff Then
 			Common.MessageToUser(
 				NStr("en = 'Disable publication or select at least one of the forms to use.'"),,, 
 				"Object.UseForObjectForm", Cancel);
@@ -86,7 +85,7 @@ Procedure FillCheckProcessing(Cancel, CheckedAttributes)
 					ObjectName,
 					String(Enums.AdditionalReportsAndDataProcessorsPublicationOptions.Used),
 					String(Enums.AdditionalReportsAndDataProcessorsPublicationOptions.DebugMode),
-					String(Enums.AdditionalReportsAndDataProcessorsPublicationOptions.isDisabled));
+					String(Enums.AdditionalReportsAndDataProcessorsPublicationOptions.TurnedOff));
 			Else
 				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'The name %1 of the %2 report or data processor is not unique. The same name is assigned to another report or data processor.'"),
@@ -125,7 +124,7 @@ Procedure BeforeWrite(Cancel)
 	
 	// Attribute connection with deletion mark.
 	If DeletionMark Then
-		Publication = Enums.AdditionalReportsAndDataProcessorsPublicationOptions.isDisabled;
+		Publication = Enums.AdditionalReportsAndDataProcessorsPublicationOptions.TurnedOff;
 	EndIf;
 	
 	// Cache of standard checks.
@@ -223,7 +222,7 @@ Procedure BeforeWriteGlobalDataProcessors(Cancel)
 	
 	CommandsTable = AdditionalProperties.RelevantCommands; // CatalogTabularSection.AdditionalReportsAndDataProcessors.Commands
 	JobsToUpdate = New Map;
-	PublicationEnabled = (Publication <> Enums.AdditionalReportsAndDataProcessorsPublicationOptions.isDisabled);
+	PublicationEnabled = (Publication <> Enums.AdditionalReportsAndDataProcessorsPublicationOptions.TurnedOff);
 	
 	// Scheduled jobs must be changed in the privileged mode.
 	SetPrivilegedMode(True);
@@ -285,7 +284,7 @@ Procedure OnWriteGlobalDataProcessor(Cancel)
 		Return;
 	EndIf;
 	
-	PublicationEnabled = (Publication <> Enums.AdditionalReportsAndDataProcessorsPublicationOptions.isDisabled);
+	PublicationEnabled = (Publication <> Enums.AdditionalReportsAndDataProcessorsPublicationOptions.TurnedOff);
 	
 	// Scheduled jobs must be changed in the privileged mode.
 	SetPrivilegedMode(True);

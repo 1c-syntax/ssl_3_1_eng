@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -24,14 +23,14 @@ EndProcedure
 &AtClient
 Procedure OnOpen(Cancel)
 	CurParameters = SetFormParameters();
-	ExpandNodes(CurParameters.Marked);
+	ExpandNodes(CurParameters.Marked_SSLyf);
 	Items.ExchangeNodesTree.CurrentRow = CurParameters.CurrentRow;
 EndProcedure
 
 &AtClient
 Procedure OnReopen()
 	CurParameters = SetFormParameters();
-	ExpandNodes(CurParameters.Marked);
+	ExpandNodes(CurParameters.Marked_SSLyf);
 	Items.ExchangeNodesTree.CurrentRow = CurParameters.CurrentRow;
 EndProcedure
 
@@ -96,9 +95,9 @@ EndProcedure
 //
 
 &AtClient
-Procedure ExpandNodes(Marked) 
-	If Marked <> Undefined Then
-		For Each CurID In Marked Do
+Procedure ExpandNodes(Marked_SSLyf) 
+	If Marked_SSLyf <> Undefined Then
+		For Each CurID In Marked_SSLyf Do
 			CurRow = ExchangeNodesTree.FindByID(CurID);
 			CurParent = CurRow.GetParent();
 			If CurParent <> Undefined Then
@@ -131,9 +130,9 @@ Function SelectedNodes(NewData = Undefined)
 	
 	If NewData <> Undefined Then
 		// Install.
-		Marked = New Array;
-		InternalMarkSelectedNodes(ThisObject(), ExchangeNodesTree, NewData, Marked);
-		Return Marked;
+		Marked_SSLyf = New Array;
+		InternalMarkSelectedNodes(ThisObject(), ExchangeNodesTree, NewData, Marked_SSLyf);
+		Return Marked_SSLyf;
 	EndIf;
 	
 	// Receive.
@@ -150,14 +149,14 @@ Function SelectedNodes(NewData = Undefined)
 EndFunction
 
 &AtServer
-Procedure InternalMarkSelectedNodes(CurrentObject, Data, NewData, Marked)
+Procedure InternalMarkSelectedNodes(CurrentObject, Data, NewData, Marked_SSLyf)
 	For Each CurRow In Data.GetItems() Do
 		If NewData.Find(CurRow.Ref) <> Undefined Then
 			CurRow.Check = True;
 			CurrentObject.SetMarksUp(CurRow);
-			Marked.Add(CurRow.GetID());
+			Marked_SSLyf.Add(CurRow.GetID());
 		EndIf;
-		InternalMarkSelectedNodes(CurrentObject, CurRow, NewData, Marked);
+		InternalMarkSelectedNodes(CurrentObject, CurRow, NewData, Marked_SSLyf);
 	EndDo;
 EndProcedure
 
@@ -190,7 +189,7 @@ EndProcedure
 &AtServer
 Function SetFormParameters()
 	
-	Result = New Structure("CurrentRow, Marked");
+	Result = New Structure("CurrentRow, Marked_SSLyf");
 	
 	// Multiple item selection.
 	Items.ExchangeNodesTreeCheck.Visible = Parameters.MultipleChoice;
@@ -206,10 +205,10 @@ Function SetFormParameters()
 	
 	// Positioning.
 	If MultipleChoice And TypeOf(Parameters.ChoiceInitialValue) = Type("Array") Then 
-		Marked = SelectedNodes(Parameters.ChoiceInitialValue);
-		Result.Marked = Marked;
-		If Marked.Count() > 0 Then
-			Result.CurrentRow = Marked[0];
+		Marked_SSLyf = SelectedNodes(Parameters.ChoiceInitialValue);
+		Result.Marked_SSLyf = Marked_SSLyf;
+		If Marked_SSLyf.Count() > 0 Then
+			Result.CurrentRow = Marked_SSLyf[0];
 		EndIf;
 			
 	ElsIf Parameters.ChoiceInitialValue <> Undefined Then

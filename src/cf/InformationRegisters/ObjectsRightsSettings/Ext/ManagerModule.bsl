@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -20,6 +19,13 @@
 //
 Procedure UpdateAvailableRightsForObjectsRightsSettings(HasChanges = Undefined) Export
 	
+	ParameterName = "StandardSubsystems.AccessManagement.RightsForObjectsRightsSettingsAvailable";
+	
+	If AccessManagementInternal.IsRecordLevelRestrictionDisabled() Then
+		StandardSubsystemsServer.DeleteApplicationOperationParameter(ParameterName, HasChanges);
+		Return;
+	EndIf;
+	
 	SessionProperties = AccessManagementInternalCached.DescriptionPropertiesAccessTypesSession().SessionProperties;
 	NewValue = "";
 	CheckedPossibleSessionPermissions(SessionProperties, NewValue);
@@ -28,12 +34,10 @@ Procedure UpdateAvailableRightsForObjectsRightsSettings(HasChanges = Undefined) 
 	Try
 		HasCurrentChanges = False;
 		
-		StandardSubsystemsServer.UpdateApplicationParameter(
-			"StandardSubsystems.AccessManagement.RightsForObjectsRightsSettingsAvailable",
+		StandardSubsystemsServer.UpdateApplicationParameter(ParameterName,
 			NewValue, HasCurrentChanges);
 		
-		StandardSubsystemsServer.AddApplicationParameterChanges(
-			"StandardSubsystems.AccessManagement.RightsForObjectsRightsSettingsAvailable",
+		StandardSubsystemsServer.AddApplicationParameterChanges(ParameterName,
 			?(HasCurrentChanges,
 			  New FixedStructure("HasChanges", True),
 			  New FixedStructure()) );
@@ -55,10 +59,16 @@ EndProcedure
 //
 Procedure UpdateAuxiliaryRegisterDataByConfigurationChanges1() Export
 	
+	ParameterName = "StandardSubsystems.AccessManagement.UpdatedPossibleRightsForSettingRightsObjects";
+	
+	If AccessManagementInternal.IsRecordLevelRestrictionDisabled() Then
+		StandardSubsystemsServer.DeleteExtensionParameter(ParameterName, Undefined);
+		Return;
+	EndIf;
+	
 	Cache = AccessManagementInternalCached.DescriptionPossibleSessionRightsForSettingObjectRights();
 	NewValue = Cache.HashSum;
 	
-	ParameterName = "StandardSubsystems.AccessManagement.UpdatedPossibleRightsForSettingRightsObjects";
 	PreviousValue2 = StandardSubsystemsServer.ExtensionParameter(ParameterName, True);
 	
 	If PreviousValue2 = NewValue Then
@@ -114,14 +124,20 @@ EndProcedure
 //                         The access right names specified in the overridable 
 //                         OnFillAvailableRightsForObjectsRightsSettings procedure:
 //                         # <RightName1> = Undefined
-//                                                 = Boolean —
-//                                                       Undefined — the right is not configured,
-//                                                       True — the right is allowed,
-//                                                       False — the right is prohibited.
+//                                                 = Boolean -
+//                                                       Undefined - The right is not set,
+//                                                       True - The right is allowed,
+//                                                       False - the right is prohibited.
 //                         # <RightName2> = Undefined
-//                                                 = Boolean — similar.
+//                                                 = Boolean - Same as above.
+//
+//  Undefined - Access-level restriction is disabled in the overriding module.
 //
 Function Read(Val ObjectReference) Export
+	
+	If AccessManagementInternal.IsRecordLevelRestrictionDisabled() Then
+		Return Undefined;
+	EndIf;
 	
 	AvailableRights = AccessManagementInternal.RightsForObjectsRightsSettingsAvailable();
 	
@@ -279,6 +295,10 @@ EndFunction
 //  Inherit - Boolean - a flag of inheriting parent right settings.
 //
 Procedure Write(Val ObjectReference, Val Settings, Val Inherit) Export
+	
+	If AccessManagementInternal.IsRecordLevelRestrictionDisabled() Then
+		Return;
+	EndIf;
 	
 	AvailableRights = AccessManagementInternal.RightsForObjectsRightsSettingsAvailable();
 	RightsDetails = AvailableRights.ByRefsTypes.Get(TypeOf(ObjectReference)); // Array of See AvailableRightProperties
@@ -442,6 +462,12 @@ EndProcedure
 //                  True is set, otherwise, it does not change.
 //
 Procedure UpdateAuxiliaryRegisterData(HasChanges = Undefined) Export
+	
+	If AccessManagementInternal.IsRecordLevelRestrictionDisabled() Then
+		AccessManagementInternal.ClearInformationRegister(
+			Metadata.InformationRegisters.ObjectsRightsSettings.FullName(), HasChanges);
+		Return;
+	EndIf;
 	
 	SetPrivilegedMode(True);
 	
@@ -677,7 +703,8 @@ Function RightsForObjectsRightsSettingsAvailable() Export
 	Cache = AccessManagementInternalCached.DescriptionPossibleSessionRightsForSettingObjectRights();
 	
 	CurrentSessionDate = CurrentSessionDate();
-	If Cache.Validation.Date + 3 > CurrentSessionDate Then
+	If Cache.Validation.Date + 3 > CurrentSessionDate
+	 Or AccessManagementInternal.IsRecordLevelRestrictionDisabled() Then
 		Return Cache.PossibleSessionRights;
 	EndIf;
 	
@@ -792,7 +819,7 @@ EndFunction
 //
 // Parameters:
 //  AccessKindsProperties - See AccessManagementInternal.AccessKindsProperties
-//                       - Undefined.
+//                       - Undefined
 //  HashSum - String - Return value.
 //
 // Returns:

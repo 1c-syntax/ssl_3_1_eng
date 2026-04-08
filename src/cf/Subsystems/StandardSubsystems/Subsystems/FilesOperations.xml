@@ -139,6 +139,28 @@
 				<xr:Item xsi:type="xr:MDObjectRef">InformationRegister.FileRepository</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">Catalog.BinaryDataStorage</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.FilesOperationsLocalization</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">InformationRegister.FileArchiveWorkSettings</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">InformationRegister.BackupHistoryOfBuiltInBinaryDataStorage</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">InformationRegister.InformationAboutStoringDeduplicatedFiles</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">Constant.UseFileArchive</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">Constant.PortionSizeOfFilesBeingMoved</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">Constant.TextInformingUserAboutUnavailabilityOfFileInArchive</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">Constant.DirectoryOfBackupsOfBuiltInBinaryDataStorageForWindows</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">Constant.DirectoryOfBackupsOfBuiltInBinaryDataStorageForLinux</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">Enum.TypesOfFileStorage</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">Enum.WaysToStoreFiles</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">Enum.ActionsInFileArchiveWorkSettings</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">Enum.TypesOfBackupsOfBuiltInBinaryDataStorage</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.WorkingWithServerFileArchive</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.WorkingWithClientServerFileArchive</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.WorkingWithFilesInBinaryDataWarehouseIsService</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.WorkingWithBinaryDataStoresServer</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">FunctionalOption.UseFileArchive</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">InformationRegister.BinaryDataStorageLocations</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">ScheduledJob.BackupOfBuiltInBinaryDataStorage</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">ScheduledJob.TransferringFilesBetweenOperationalStorageAndFileArchive</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.FileArchive</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">DataProcessor.BinaryDataStorageManagement</xr:Item>
 			</Content>
 		</Properties>
 		<ChildObjects/>

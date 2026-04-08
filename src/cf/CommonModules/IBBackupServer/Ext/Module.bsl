@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Internal
@@ -119,23 +118,23 @@ Procedure OnFillToDoList(ToDoList) Export
 				"DataProcessor.IBBackupSetup.Form.BackupSetup",
 				"DataProcessor.IBBackupSetup.Form.BackupSetupClientServer");
 			
-			ToDoItem = ToDoList.Add();
-			ToDoItem.Id  = "SetUpBackup" + StrReplace(Section.FullName(), ".", "");
-			ToDoItem.HasToDoItems       = NotificationOption = "NotConfiguredYet";
-			ToDoItem.Presentation  = NStr("en = 'Set up backup'");
-			ToDoItem.Important         = True;
-			ToDoItem.Form          = BackupSettingFormName;
-			ToDoItem.Owner       = Section;
+			CaseFile = ToDoList.Add();
+			CaseFile.Id  = "SetUpBackup" + StrReplace(Section.FullName(), ".", "");
+			CaseFile.HasToDoItems       = NotificationOption = "NotConfiguredYet";
+			CaseFile.Presentation  = NStr("en = 'Set up backup'");
+			CaseFile.Important         = True;
+			CaseFile.Form          = BackupSettingFormName;
+			CaseFile.Owner       = Section;
 		EndIf;
 		
 		If Not DisabledNotificationOfBackupExecution Then
-			ToDoItem = ToDoList.Add();
-			ToDoItem.Id  = "ExecuteBackup" + StrReplace(Section.FullName(), ".", "");
-			ToDoItem.HasToDoItems       = NotificationOption = "Overdue";
-			ToDoItem.Presentation  = NStr("en = 'Backup required'");
-			ToDoItem.Important         = True;
-			ToDoItem.Form          = "DataProcessor.IBBackup.Form.DataBackup";
-			ToDoItem.Owner       = Section;
+			CaseFile = ToDoList.Add();
+			CaseFile.Id  = "ExecuteBackup" + StrReplace(Section.FullName(), ".", "");
+			CaseFile.HasToDoItems       = NotificationOption = "Overdue";
+			CaseFile.Presentation  = NStr("en = 'Backup required'");
+			CaseFile.Important         = True;
+			CaseFile.Form          = "DataProcessor.IBBackup.Form.DataBackup";
+			CaseFile.Owner       = Section;
 		EndIf;
 		
 	EndDo;

@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Internal
@@ -611,24 +610,24 @@ Procedure ShortenFileName(FileName) Export
 	String = "";
 	RowBalance = "";
 	LineSize = 0;
-	MaximumRowSize = BytesLimit - 32;
+	MaximumStringSize = BytesLimit - 32;
 	
 	ExtensionSize = StringSizeInBytes(File.Extension);
-	ShortenAlongWithExtension = ExtensionSize > 32;
+	ShortenWithExtension = ExtensionSize > 32;
 	
-	If ShortenAlongWithExtension Then
-		AbbreviatedName = File.Name;
+	If ShortenWithExtension Then
+		ShortenableName = File.Name;
 	Else
-		AbbreviatedName = File.BaseName;
+		ShortenableName = File.BaseName;
 		LineSize = ExtensionSize;
 	EndIf;
 	
-	For CharacterNumber = 1 To StrLen(AbbreviatedName) Do
-		Char = Mid(AbbreviatedName, CharacterNumber, 1);
+	For CharacterNumber = 1 To StrLen(ShortenableName) Do
+		Char = Mid(ShortenableName, CharacterNumber, 1);
 		SymbolSize = StringSizeInBytes(Char);
 		
-		If LineSize + SymbolSize > MaximumRowSize Then
-			RowBalance = Mid(AbbreviatedName, CharacterNumber);
+		If LineSize + SymbolSize > MaximumStringSize Then
+			RowBalance = Mid(ShortenableName, CharacterNumber);
 			Break;
 		EndIf;
 		
@@ -639,7 +638,7 @@ Procedure ShortenFileName(FileName) Export
 	FileName = String;
 	
 	HashSum = CalculateStringHashByMD5Algorithm(RowBalance);
-	FileName = File.Path + FileName + HashSum + ?(ShortenAlongWithExtension, "", File.Extension);
+	FileName = File.Path + FileName + HashSum + ?(ShortenWithExtension, "", File.Extension);
 	
 EndProcedure
 
@@ -924,7 +923,7 @@ Procedure AttachAddInSSLAfterAttachmentAttempt(Attached, Context) Export
 		Try
 			Attachable_Module = NewAddInObject(Context);
 		Except
-			// The error text has already been composed to the NewAddInObject, you just need to notify.
+			// The error message has already been compiled in the NewAddInObject. Now, notify the user.
 			ErrorText = ErrorProcessing.BriefErrorDescription(ErrorInfo());
 			AttachAddInSSLNotifyOnError(ErrorText, Context);
 			Return;
@@ -1013,12 +1012,9 @@ Procedure AttachAddInSSLStartInstallation(Context)
 	Notification = New CallbackDescription(
 		"AttachAddInSSLAfterInstallation", ThisObject, Context);
 	
-	InstallationContext = New Structure;
-	InstallationContext.Insert("Notification", Notification);
-	InstallationContext.Insert("Location", Context.Location);
-	InstallationContext.Insert("ExplanationText", Context.ExplanationText);
-	InstallationContext.Insert("Id", Context.Id);
-	InstallationContext.Insert("ShouldShowInstallationPrompt", Context.ShouldShowInstallationPrompt);
+	InstallationContext = AddInAttachmentContext();
+	FillPropertyValues(InstallationContext, Context);
+	InstallationContext.Notification = Notification;
 	
 	InstallAddInSSL(InstallationContext);
 	
@@ -1064,7 +1060,88 @@ Procedure AttachAddInSSLOnProcessError(ErrorInfo, StandardProcessing, Context) E
 	
 EndProcedure
 
-// Creates an instance of external component (or a couple of instances)
+// Creates one or more instances of the add-in.
+Async Function NewAddInObjectAsync(Context)
+	
+	AddInContainsOneObjectClass = (Context.ObjectsCreationIDs.Count() = 0);
+	
+	If AddInContainsOneObjectClass Then 
+		
+		Try                         
+			ComponentID = "AddIn." + Context.SymbolicName + "." + Context.Id;
+#If WebClient Then
+			Attachable_Module = Await CreateAddInObjectAsync(ComponentID);
+#Else 
+			Attachable_Module = New(ComponentID);
+#EndIf
+			If Attachable_Module = Undefined Then 
+				Raise NStr("en = 'The keyword ""New"" returned ""Undefined"".'");
+			EndIf;                   
+			
+		Except
+			Attachable_Module = Undefined;
+			ErrorText = ErrorProcessing.BriefErrorDescription(ErrorInfo());
+		EndTry;
+		
+		If Attachable_Module = Undefined Then 
+			
+			Raise StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'Cannot create an object for add-in ""%1"" attached on the client
+				           |%2
+				           |Reason:
+				           |%3'"),
+				Context.Id,
+				Context.Location,
+				ErrorText);
+			
+		EndIf;
+		
+	Else 
+		
+		AttachableModules = New Map;
+		For Each ObjectID In Context.ObjectsCreationIDs Do 
+			
+			Try              
+				ComponentID = "AddIn." + Context.SymbolicName + "." + ObjectID;
+#If WebClient Then
+				Attachable_Module = Await CreateAddInObjectAsync(ComponentID);
+#Else 
+				Attachable_Module = New(ComponentID);
+#EndIf
+				If Attachable_Module = Undefined Then 
+					Raise NStr("en = 'The keyword ""New"" returned ""Undefined"".'");
+				EndIf;
+			Except
+				Attachable_Module = Undefined;
+				ErrorText = ErrorProcessing.BriefErrorDescription(ErrorInfo());
+			EndTry;
+			
+			If Attachable_Module = Undefined Then 
+				
+				Raise StringFunctionsClientServer.SubstituteParametersToString(
+					NStr("en = 'Cannot create object ""%1"" for add-in ""%2"" attached on the client
+					           |%3
+					           |Reason:
+					           |%4'"),
+					ObjectID,
+					Context.Id,
+					Context.Location,
+					ErrorText);
+				
+			EndIf;
+			
+			AttachableModules.Insert(ObjectID, Attachable_Module);
+			
+		EndDo;
+		
+		Attachable_Module = New FixedMap(AttachableModules);
+		
+	EndIf;
+	
+	Return Attachable_Module;
+	
+EndFunction
+
 Function NewAddInObject(Context)
 	
 	AddInContainsOneObjectClass = (Context.ObjectsCreationIDs.Count() = 0);
@@ -1244,17 +1321,12 @@ Async Function AttachAddInSSLAfterAttachmentAttemptAsync(Attached, Context)
 		Attachable_Module = Undefined;
 		
 		Try
-			Attachable_Module = NewAddInObject(Context);
+			Attachable_Module = Await NewAddInObjectAsync(Context);
 		Except
-			// The error text has already been composed to the NewAddInObject, you just need to notify.
+			// The error text has already been generated in "NewAddInObjectAsync". Notify the user.
 			ErrorText = ErrorProcessing.BriefErrorDescription(ErrorInfo());
 			Return AddInAttachmentError(ErrorText);
 		EndTry;
-		
-#If WebClient Then
-		SystemInfo = New SystemInfo;
-		Await PauseAsync(2);
-#EndIf
 
 		If Context.Cached Then
 			WriteAddInObjectToCache(
@@ -1272,11 +1344,8 @@ Async Function AttachAddInSSLAfterAttachmentAttemptAsync(Attached, Context)
 		
 		If Context.SuggestInstall And Not Context.WasInstallationAttempt Then 
 			
-			InstallationContext = New Structure;
-			InstallationContext.Insert("Location",			Context.Location);
-			InstallationContext.Insert("ExplanationText",			Context.ExplanationText);
-			InstallationContext.Insert("Id",				Context.Id);
-			InstallationContext.Insert("ShouldShowInstallationPrompt", Context.ShouldShowInstallationPrompt);
+			InstallationContext = AddInAttachmentContext();
+			FillPropertyValues(InstallationContext, Context);
 			InstallResult = Await InstallAddInSSLAsync(InstallationContext);
 			
 			If InstallResult.IsSet Then 
@@ -1336,17 +1405,6 @@ Async Function AttachAddInSSLAfterAttachmentAttemptAsync(Attached, Context)
 		
 	EndIf;
 	 
-EndFunction
-
-Async Function PauseAsync(TimeInSeconds)
-	
-	EndDate = CurrentDate() + TimeInSeconds; // ACC:143 - Session date is not used in interval checks
-	While CurrentDate() < EndDate Do         // ACC:143 - Session date is not used in interval checks
-		Await 1;
-	EndDo;
-	
-	Return Undefined;
-	
 EndFunction
 
 Function IsTemplate(Location)
@@ -1564,7 +1622,7 @@ EndProcedure
 Procedure RegisterCOMConnectorOnCheckAnswerAboutRestart(Response, Context) Export
 	
 	If Response = DialogReturnCode.Yes Then
-		ApplicationParameters.Insert("StandardSubsystems.SkipExitConfirmation", True);
+		StandardSubsystemsClient.SkipExitConfirmation();
 		Exit(True, True);
 	Else 
 		RegisterCOMConnectorNotifyOnError(Context);
@@ -1745,7 +1803,7 @@ EndFunction
 
 Procedure EditIindicatorsCalculationItemProperty(FormItems, TagName, PropertyName, PropertyValue)
 	
-	ItemsNamesList = StringFunctionsClientServer.SubstituteParametersToString("%1, %1%2", TagName, "More");
+	ItemsNamesList = StringFunctionsClientServer.SubstituteParametersToString("%1, %1%2", TagName, "SeeMore");
 	ItemsNames = StrSplit(ItemsNamesList, ", ", False);
 	
 	For Each Name In ItemsNames Do 

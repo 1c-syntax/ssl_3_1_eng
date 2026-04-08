@@ -12,7 +12,7 @@
 		<xr:Item>
 			<xr:Presentation/>
 			<xr:CheckState>0</xr:CheckState>
-			<xr:Value xsi:type="xs:string">ButtonsPanel</xr:Value>
+			<xr:Value xsi:type="xs:string">ButtonPanel</xr:Value>
 		</xr:Item>
 	</MobileDeviceCommandBarContent>
 	<CommandSet>
@@ -50,7 +50,7 @@
 			<ShowTitle>false</ShowTitle>
 			<ExtendedTooltip name="GroupCommandBarExtendedTooltip" id="56"/>
 			<ChildItems>
-				<UsualGroup name="ButtonsPanel" id="15">
+				<UsualGroup name="ButtonPanel" id="15">
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>

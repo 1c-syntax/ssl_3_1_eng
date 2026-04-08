@@ -244,7 +244,7 @@
 		<objectName>DataSet</objectName>
 	</dataSet>
 	<parameter>
-		<name>SMSMessageRecipients</name>
+		<name>Recipients</name>
 		<title xsi:type="v8:LocalStringType">
 			<v8:item>
 				<v8:lang>en</v8:lang>
@@ -319,7 +319,7 @@
 			<dcsset:dataParameters>
 				<dcscor:item xsi:type="dcsset:SettingsParameterValue">
 					<dcscor:use>false</dcscor:use>
-					<dcscor:parameter>SMSMessageRecipients</dcscor:parameter>
+					<dcscor:parameter>Recipients</dcscor:parameter>
 					<dcscor:value xsi:nil="true"/>
 					<dcsset:viewMode>Normal</dcsset:viewMode>
 					<dcsset:userSettingID>1180d09d-4a77-4722-adba-c6e6414fd51a</dcsset:userSettingID>
@@ -522,7 +522,7 @@
 			<dcsset:dataParameters>
 				<dcscor:item xsi:type="dcsset:SettingsParameterValue">
 					<dcscor:use>false</dcscor:use>
-					<dcscor:parameter>SMSMessageRecipients</dcscor:parameter>
+					<dcscor:parameter>Recipients</dcscor:parameter>
 					<dcscor:value xsi:nil="true"/>
 					<dcsset:viewMode>Normal</dcsset:viewMode>
 					<dcsset:userSettingID>1c4b0698-504d-451e-a3dd-3ba286183a57</dcsset:userSettingID>
@@ -725,7 +725,7 @@
 			<dcsset:dataParameters>
 				<dcscor:item xsi:type="dcsset:SettingsParameterValue">
 					<dcscor:use>false</dcscor:use>
-					<dcscor:parameter>SMSMessageRecipients</dcscor:parameter>
+					<dcscor:parameter>Recipients</dcscor:parameter>
 					<dcscor:value xsi:nil="true"/>
 					<dcsset:viewMode>Normal</dcsset:viewMode>
 					<dcsset:userSettingID>085bf8f7-3672-4ea5-817a-e0b9895465e9</dcsset:userSettingID>
@@ -928,7 +928,7 @@
 			<dcsset:dataParameters>
 				<dcscor:item xsi:type="dcsset:SettingsParameterValue">
 					<dcscor:use>false</dcscor:use>
-					<dcscor:parameter>SMSMessageRecipients</dcscor:parameter>
+					<dcscor:parameter>Recipients</dcscor:parameter>
 					<dcscor:value xsi:nil="true"/>
 					<dcsset:viewMode>Normal</dcsset:viewMode>
 					<dcsset:userSettingID>f19d7fa1-2395-484c-a3db-6b2be621b42e</dcsset:userSettingID>
@@ -1141,7 +1141,7 @@
 			<dcsset:dataParameters>
 				<dcscor:item xsi:type="dcsset:SettingsParameterValue">
 					<dcscor:use>false</dcscor:use>
-					<dcscor:parameter>SMSMessageRecipients</dcscor:parameter>
+					<dcscor:parameter>Recipients</dcscor:parameter>
 					<dcscor:value xsi:nil="true"/>
 					<dcsset:viewMode>Normal</dcsset:viewMode>
 					<dcsset:userSettingID>c66f8252-e767-48b1-8975-b9b3bf8c70ad</dcsset:userSettingID>
@@ -1354,7 +1354,7 @@
 			<dcsset:dataParameters>
 				<dcscor:item xsi:type="dcsset:SettingsParameterValue">
 					<dcscor:use>false</dcscor:use>
-					<dcscor:parameter>SMSMessageRecipients</dcscor:parameter>
+					<dcscor:parameter>Recipients</dcscor:parameter>
 					<dcscor:value xsi:nil="true"/>
 					<dcsset:viewMode>Normal</dcsset:viewMode>
 					<dcsset:userSettingID>ad452494-8d10-456c-a9d2-ac1962a25826</dcsset:userSettingID>

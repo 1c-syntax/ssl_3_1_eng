@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -20,7 +19,7 @@
 // Returns:
 //   Structure - Report settings (additional properties) that are stored in the form data::
 //       
-//       * GenerateImmediately - Boolean - Default value of the "Generate on open" checkbox.
+//       * GenerateImmediately - Boolean - Default value of the "Generate on opening" checkbox.
 //           If the checkbox is selected, the report is generated when it is opened,
 //           when user settings are selected, or when another report option is selected.
 //       

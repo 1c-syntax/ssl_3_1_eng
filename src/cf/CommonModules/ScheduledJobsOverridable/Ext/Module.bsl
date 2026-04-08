@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -50,11 +49,11 @@
 //        For example, CurrencyRateImport scheduled job. Scheduled jobs operating with external resources are
 //        automatically disabled in the copy of the infobase and are blocked if the
 //        "Allow access to web services" functional option is disabled. The default value is False.
-//    * CanAccessExternalResources - Boolean - "True" if the scheduled job accesses external resources
-//        (web services) without modifying them, such as the "CurrenciesRatesImport" task.
-//        Scheduled jobs that interact with web  services are not executed when the
-//        "Allow access to web services" functional option is disabled. The default value is "False".
-//        
+//    * CanAccessExternalResources - Boolean - If UseExternalResources is set to False, but the scheduled job accesses external resources
+//        (web services), for example, the ImportCurrenciesRates job,
+//        then this flag should be set to True. By default, it equals the UseExternalResources parameter.
+//        Scheduled jobs that work with Internet services will not run if the "Allow access to web services"
+//        functional option is disabled.
 //    * IsParameterized             - Boolean - True if the scheduled job is parameterized.
 //        The default value is False.
 //

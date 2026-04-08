@@ -1,0 +1,386 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.18">
+	<AutoCommandBar name="FormCommandBar" id="-1">
+		<ChildItems>
+			<Popup name="OperationsWithSettings" id="47">
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Actions with settings</v8:content>
+					</v8:item>
+				</Title>
+				<ExtendedTooltip name="OperationsWithSettingsExtendedTooltip" id="48"/>
+				<ChildItems>
+					<Button name="FormAdd" id="49">
+						<Type>CommandBarButton</Type>
+						<CommandName>Form.Item.MetadataObjectsTree.StandardCommand.Add</CommandName>
+						<ExtendedTooltip name="FormAddExtendedTooltip" id="50"/>
+					</Button>
+					<Button name="FormDelete" id="51">
+						<Type>CommandBarButton</Type>
+						<CommandName>Form.Item.MetadataObjectsTree.StandardCommand.Delete</CommandName>
+						<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
+						<ExtendedTooltip name="FormDeleteExtendedTooltip" id="52"/>
+					</Button>
+				</ChildItems>
+			</Popup>
+			<Button name="MoveFiles" id="53">
+				<Type>CommandBarButton</Type>
+				<CommandName>Form.Command.MoveFiles</CommandName>
+				<Title>
+					<v8:item>
+						<v8:lang>en</v8:lang>
+						<v8:content>Transfer files</v8:content>
+					</v8:item>
+				</Title>
+				<ExtendedTooltip name="MoveFilesExtendedTooltip" id="54"/>
+			</Button>
+		</ChildItems>
+	</AutoCommandBar>
+	<Events>
+		<Event name="OnCreateAtServer">OnCreateAtServer</Event>
+	</Events>
+	<ChildItems>
+		<UsualGroup name="SettingsComposerUserSettingsList" id="1">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>User settings group</v8:content>
+				</v8:item>
+			</Title>
+			<VerticalStretch>false</VerticalStretch>
+			<Group>Vertical</Group>
+			<ShowTitle>false</ShowTitle>
+			<ExtendedTooltip name="SettingsComposerUserSettingsListExtendedTooltip" id="2"/>
+		</UsualGroup>
+		<Table name="MetadataObjectsTree" id="3">
+			<Representation>Tree</Representation>
+			<AutoInsertNewRow>true</AutoInsertNewRow>
+			<InitialTreeView>ExpandAllLevels</InitialTreeView>
+			<EnableStartDrag>true</EnableStartDrag>
+			<EnableDrag>true</EnableDrag>
+			<DataPath>MetadataObjectsTree</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Metadata object tree</v8:content>
+				</v8:item>
+			</Title>
+			<ContextMenu name="MetadataObjectsTreeContextMenu" id="4"/>
+			<AutoCommandBar name="MetadataObjectsTreeCommandBar" id="5">
+				<Autofill>false</Autofill>
+			</AutoCommandBar>
+			<ExtendedTooltip name="MetadataObjectsTreeExtendedTooltip" id="6"/>
+			<SearchStringAddition name="MetadataObjectsTreeSearchString" id="7">
+				<AdditionSource>
+					<Item>MetadataObjectsTree</Item>
+					<Type>SearchStringRepresentation</Type>
+				</AdditionSource>
+				<ContextMenu name="MetadataObjectsTreeSearchStringContextMenu" id="8"/>
+				<ExtendedTooltip name="MetadataObjectsTreeSearchStringExtendedTooltip" id="9"/>
+			</SearchStringAddition>
+			<ViewStatusAddition name="MetadataObjectsTreeViewStatus" id="10">
+				<AdditionSource>
+					<Item>MetadataObjectsTree</Item>
+					<Type>ViewStatusRepresentation</Type>
+				</AdditionSource>
+				<ContextMenu name="MetadataObjectsTreeViewStatusContextMenu" id="11"/>
+				<ExtendedTooltip name="MetadataObjectsTreeViewStatusExtendedTooltip" id="12"/>
+			</ViewStatusAddition>
+			<SearchControlAddition name="MetadataObjectsTreeSearchControl" id="13">
+				<AdditionSource>
+					<Item>MetadataObjectsTree</Item>
+					<Type>SearchControl</Type>
+				</AdditionSource>
+				<ContextMenu name="MetadataObjectsTreeSearchControlContextMenu" id="14"/>
+				<ExtendedTooltip name="MetadataObjectsTreeSearchControlExtendedTooltip" id="15"/>
+			</SearchControlAddition>
+			<Events>
+				<Event name="BeforeAddRow">MetadataObjectsTreeBeforeAddRow</Event>
+				<Event name="BeforeDeleteRow">MetadataObjectsTreeBeforeDeleteRow</Event>
+				<Event name="OnActivateField">MetadataObjectsTreeOnActivateField</Event>
+				<Event name="ChoiceProcessing">MetadataObjectsTreeChoiceProcessing</Event>
+				<Event name="BeforeRowChange">MetadataObjectsTreeBeforeRowChange</Event>
+			</Events>
+			<ChildItems>
+				<InputField name="MetadataObjectsTreeObjectDescriptionSynonym" id="22" DisplayImportance="VeryHigh">
+					<DataPath>MetadataObjectsTree.ObjectDescriptionSynonym</DataPath>
+					<ReadOnly>true</ReadOnly>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Object with files</v8:content>
+						</v8:item>
+					</Title>
+					<EditMode>EnterOnInput</EditMode>
+					<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
+					<ContextMenu name="MetadataObjectsTreeObjectDescriptionSynonymContextMenu" id="23"/>
+					<ExtendedTooltip name="MetadataObjectsTreeObjectDescriptionSynonymExtendedTooltip" id="24"/>
+				</InputField>
+				<InputField name="MetadataObjectsTreeFileOwnerType" id="31">
+					<DataPath>MetadataObjectsTree.FileOwnerType</DataPath>
+					<UserVisible>
+						<xr:Common>false</xr:Common>
+					</UserVisible>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>File catalog</v8:content>
+						</v8:item>
+					</Title>
+					<EditMode>EnterOnInput</EditMode>
+					<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
+					<ContextMenu name="MetadataObjectsTreeFileOwnerTypeContextMenu" id="32"/>
+					<ExtendedTooltip name="MetadataObjectsTreeFileOwnerTypeExtendedTooltip" id="33"/>
+				</InputField>
+				<InputField name="MetadataObjectsTreeAction" id="19">
+					<DataPath>MetadataObjectsTree.Action</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Action</v8:content>
+						</v8:item>
+					</Title>
+					<EditMode>EnterOnInput</EditMode>
+					<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
+					<ContextMenu name="MetadataObjectsTreeActionContextMenu" id="20"/>
+					<ExtendedTooltip name="MetadataObjectsTreeActionExtendedTooltip" id="21"/>
+					<Events>
+						<Event name="OnChange">MetadataObjectsTreeActionOnChange</Event>
+						<Event name="Clearing">MetadataObjectsTreeActionClearing</Event>
+					</Events>
+				</InputField>
+				<InputField name="MetadataObjectsTreeTransferToFileArchiveInDays" id="28">
+					<DataPath>MetadataObjectsTree.TransferToFileArchiveInDays</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Archive after (days)</v8:content>
+						</v8:item>
+					</Title>
+					<EditMode>EnterOnInput</EditMode>
+					<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
+					<ContextMenu name="MetadataObjectsTreeTransferToFileArchiveInDaysContextMenu" id="29"/>
+					<ExtendedTooltip name="MetadataObjectsTreeTransferToFileArchiveInDaysExtendedTooltip" id="30"/>
+					<Events>
+						<Event name="OnChange">MetadataObjectsTreeTransferToFileArchiveInDaysOnChange</Event>
+					</Events>
+				</InputField>
+			</ChildItems>
+		</Table>
+		<UsualGroup name="GroupStateOfFileTransfer" id="55">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>File transfer status</v8:content>
+				</v8:item>
+			</Title>
+			<HorizontalStretch>true</HorizontalStretch>
+			<VerticalStretch>false</VerticalStretch>
+			<Group>AlwaysHorizontal</Group>
+			<ShowTitle>false</ShowTitle>
+			<BackColor>style:TotalsGroupBackground</BackColor>
+			<ExtendedTooltip name="GroupStateOfFileTransferExtendedTooltip" id="56"/>
+			<ChildItems>
+				<PictureDecoration name="PictureInformation" id="57">
+					<Title formatted="false">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Info picture</v8:content>
+						</v8:item>
+					</Title>
+					<Picture>
+						<xr:Ref>StdPicture.DialogInformation</xr:Ref>
+						<xr:LoadTransparent>true</xr:LoadTransparent>
+					</Picture>
+					<ContextMenu name="PictureInformationContextMenu" id="58"/>
+					<ExtendedTooltip name="PictureInformationExtendedTooltip" id="59"/>
+				</PictureDecoration>
+				<UsualGroup name="GroupCurrentFileTransferState" id="60">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>File transfer status</v8:content>
+						</v8:item>
+					</Title>
+					<Group>AlwaysHorizontal</Group>
+					<ShowTitle>false</ShowTitle>
+					<ExtendedTooltip name="GroupCurrentFileTransferStateExtendedTooltip" id="61"/>
+					<ChildItems>
+						<LabelDecoration name="LabelDecoration" id="62">
+							<AutoMaxWidth>false</AutoMaxWidth>
+							<AutoMaxHeight>false</AutoMaxHeight>
+							<HorizontalStretch>false</HorizontalStretch>
+							<VerticalStretch>true</VerticalStretch>
+							<Title formatted="false">
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>File transfer status:</v8:content>
+								</v8:item>
+							</Title>
+							<Border width="3">
+								<v8ui:style xsi:type="v8ui:ControlBorderType">WithoutBorder</v8ui:style>
+							</Border>
+							<ContextMenu name="LabelDecorationContextMenu" id="63"/>
+							<ExtendedTooltip name="LabelDecorationExtendedTooltip" id="64"/>
+						</LabelDecoration>
+						<LabelDecoration name="LabelCurrentState" id="65">
+							<AutoMaxWidth>false</AutoMaxWidth>
+							<AutoMaxHeight>false</AutoMaxHeight>
+							<VerticalStretch>true</VerticalStretch>
+							<TextColor>style:AccentColor</TextColor>
+							<Title formatted="false">
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Not performed</v8:content>
+								</v8:item>
+							</Title>
+							<ContextMenu name="LabelCurrentStateContextMenu" id="66"/>
+							<ExtendedTooltip name="LabelCurrentStateExtendedTooltip" id="67"/>
+						</LabelDecoration>
+					</ChildItems>
+				</UsualGroup>
+			</ChildItems>
+		</UsualGroup>
+	</ChildItems>
+	<Attributes>
+		<Attribute name="List" id="1">
+			<Type>
+				<v8:Type>cfg:DynamicList</v8:Type>
+			</Type>
+			<MainAttribute>true</MainAttribute>
+			<Settings xsi:type="DynamicList">
+				<ManualQuery>false</ManualQuery>
+				<DynamicDataRead>true</DynamicDataRead>
+				<MainTable>InformationRegister.FileArchiveWorkSettings</MainTable>
+				<ListSettings>
+					<dcsset:filter>
+						<dcsset:viewMode>Normal</dcsset:viewMode>
+						<dcsset:userSettingID>dfcece9d-5077-440b-b6b3-45a5cb4538eb</dcsset:userSettingID>
+					</dcsset:filter>
+					<dcsset:order>
+						<dcsset:viewMode>Normal</dcsset:viewMode>
+						<dcsset:userSettingID>88619765-ccb3-46c6-ac52-38e9c992ebd4</dcsset:userSettingID>
+					</dcsset:order>
+					<dcsset:conditionalAppearance>
+						<dcsset:viewMode>Normal</dcsset:viewMode>
+						<dcsset:userSettingID>b75fecce-942b-4aed-abc9-e6a02e460fb3</dcsset:userSettingID>
+					</dcsset:conditionalAppearance>
+					<dcsset:itemsViewMode>Normal</dcsset:itemsViewMode>
+					<dcsset:itemsUserSettingID>911b6018-f537-43e8-a417-da56b22f9aec</dcsset:itemsUserSettingID>
+				</ListSettings>
+			</Settings>
+		</Attribute>
+		<Attribute name="MetadataObjectsTree" id="2">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Metadata object tree</v8:content>
+				</v8:item>
+			</Title>
+			<Type>
+				<v8:Type>v8:ValueTree</v8:Type>
+			</Type>
+			<Columns>
+				<Column name="FileOwner" id="1">
+					<Type>
+						<v8:TypeSet>cfg:AnyIBRef</v8:TypeSet>
+					</Type>
+				</Column>
+				<Column name="Action" id="2">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Action</v8:content>
+						</v8:item>
+					</Title>
+					<Type>
+						<v8:Type>cfg:EnumRef.ActionsInFileArchiveWorkSettings</v8:Type>
+					</Type>
+				</Column>
+				<Column name="ObjectDescriptionSynonym" id="3">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>File location</v8:content>
+						</v8:item>
+					</Title>
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>0</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Column>
+				<Column name="IsFile" id="4">
+					<Type>
+						<v8:Type>xs:boolean</v8:Type>
+					</Type>
+				</Column>
+				<Column name="TransferToFileArchiveInDays" id="5">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Archive after (days)</v8:content>
+						</v8:item>
+					</Title>
+					<Type>
+						<v8:Type>xs:decimal</v8:Type>
+						<v8:NumberQualifiers>
+							<v8:Digits>5</v8:Digits>
+							<v8:FractionDigits>0</v8:FractionDigits>
+							<v8:AllowedSign>Nonnegative</v8:AllowedSign>
+						</v8:NumberQualifiers>
+					</Type>
+				</Column>
+				<Column name="FileOwnerType" id="6">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>File catalog</v8:content>
+						</v8:item>
+					</Title>
+					<Type>
+						<v8:Type>cfg:CatalogRef.ExtensionObjectIDs</v8:Type>
+						<v8:Type>cfg:CatalogRef.MetadataObjectIDs</v8:Type>
+					</Type>
+				</Column>
+				<Column name="DetailedInfoAvailable" id="7">
+					<Type>
+						<v8:Type>xs:boolean</v8:Type>
+					</Type>
+				</Column>
+			</Columns>
+		</Attribute>
+		<Attribute name="BackgroundJobIdentifier" id="3">
+			<Type>
+				<v8:Type>v8:UUID</v8:Type>
+			</Type>
+		</Attribute>
+	</Attributes>
+	<Commands>
+		<Command name="MoveFiles" id="1">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Transfer files</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Move files</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Action>MoveFiles</Action>
+		</Command>
+	</Commands>
+	<Parameters>
+		<Parameter name="AllowedToOpenForm">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Parameter>
+	</Parameters>
+</Form>

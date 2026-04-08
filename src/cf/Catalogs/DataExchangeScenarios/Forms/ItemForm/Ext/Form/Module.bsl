@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Variables
@@ -278,8 +277,8 @@ Procedure EditScheduledJobSchedule()
 	Dialog = New ScheduledJobDialog(JobSchedule);
 	
 	// Opening a dialog box for editing the schedule.
-	NotifyDescription = New CallbackDescription("EditScheduledJobScheduleCompletion", ThisObject);
-	Dialog.Show(NotifyDescription);
+	CallbackDescription = New CallbackDescription("EditScheduledJobScheduleCompletion", ThisObject);
+	Dialog.Show(CallbackDescription);
 	
 EndProcedure
 
@@ -289,6 +288,7 @@ Procedure EditScheduledJobScheduleCompletion(Schedule, AdditionalParameters) Exp
 	If Schedule <> Undefined Then
 		
 		If DataSeparationEnabled 
+			And Schedule.RepeatPeriodInDay <> 0
 			And Schedule.RepeatPeriodInDay < 15 * 60 Then
 			
 			Schedule.RepeatPeriodInDay = 15 * 60;

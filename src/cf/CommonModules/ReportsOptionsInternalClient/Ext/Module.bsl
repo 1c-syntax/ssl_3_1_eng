@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Internal
@@ -637,6 +636,10 @@ EndProcedure
 
 Procedure DisableFilter(Form, TitleProperties, DetailsData = Undefined) Export 
 	
+	If Not TheActionIsAvailable(Form, , TitleProperties) Then 
+		Return;
+	EndIf;
+	
 	ThisIsAGrouping = (DetailsData <> Undefined
 		And DetailsData.Type = ReportsOptionsInternalClientServer.TheTypeOfTheDecryptionElementIsGrouping());
 	
@@ -837,8 +840,8 @@ Procedure InsertAFieldInTheGroupingFields(Group, Group2, SelectedField, CurrentF
 		Return;
 	EndIf;
 	
-	TheCurrentFieldIsAPeriod = (FieldRoles.TimeIntervals_[CurrentField] <> Undefined);
-	TheSelectedFieldIsAPeriod = (FieldRoles.TimeIntervals_[SelectedField.Field] <> Undefined);
+	TheCurrentFieldIsAPeriod = (FieldRoles.TimeIntervals[CurrentField] <> Undefined);
+	TheSelectedFieldIsAPeriod = (FieldRoles.TimeIntervals[SelectedField.Field] <> Undefined);
 	
 	If TheCurrentFieldIsAPeriod And Not TheSelectedFieldIsAPeriod
 		Or Not TheCurrentFieldIsAPeriod And TheSelectedFieldIsAPeriod Then 
@@ -2310,7 +2313,7 @@ Procedure SelectAReportFieldFromTheMenu(Form, Command, CollectionName = "Selecte
 	
 	If ReportFields.Count() > 20
 		Or ReportFields.Count() = 1
-		And ReportFields.FindByValue("More") <> Undefined Then 
+		And ReportFields.FindByValue("SeeMore") <> Undefined Then 
 		
 		SelectAReportField(Form, CommandAction(Command), CollectionName, Handler);
 		Return;
@@ -2356,7 +2359,7 @@ Procedure AfterSelectingAField(SelectedField, AdditionalParameters) Export
 	Form = AdditionalParameters.Form;
 	Field = ?(TypeOf(SelectedField) = Type("ValueListItem"), SelectedField.Value, SelectedField);
 	
-	If Field = "More" Then 
+	If Field = "SeeMore" Then 
 		
 		SelectAReportField(Form, AdditionalParameters.Action, AdditionalParameters.CollectionName);
 		Return;
@@ -2408,8 +2411,8 @@ Function ReportFields(Form, Command, CollectionName)
 		Return Undefined;
 	EndIf;
 	
-	If ReportFields.FindByValue("More") = Undefined Then 
-		ReportFields.Add("More", NStr("en = 'More…'"));
+	If ReportFields.FindByValue("SeeMore") = Undefined Then 
+		ReportFields.Add("SeeMore", NStr("en = 'More…'"));
 	EndIf;
 	
 	Return ReportFields;
@@ -2600,12 +2603,12 @@ Procedure ExcludeUnavailableReportFields(MainField, Form, Command)
 			MainField.Delete(IndexOf);
 			
 		ElsIf TitleProperties.Period
-			And FieldRoles.TimeIntervals_[AvailableField.Field] = Undefined Then 
+			And FieldRoles.TimeIntervals[AvailableField.Field] = Undefined Then 
 			
 			MainField.Delete(IndexOf);
 			
 		ElsIf Not TitleProperties.Period
-			And FieldRoles.TimeIntervals_[AvailableField.Field] <> Undefined Then 
+			And FieldRoles.TimeIntervals[AvailableField.Field] <> Undefined Then 
 			
 			MainField.Delete(IndexOf);
 			
@@ -3107,10 +3110,10 @@ EndProcedure
 
 #Region Details
 
-Procedure ExecuteDecryption(ExecutedAction, ChosenActionParameter, AdditionalParameters) Export 
+Procedure ExecuteDecryption(ChosenAction, ChosenActionParameter, AdditionalParameters) Export 
 	
-	If ExecutedAction = Undefined
-		Or ExecutedAction = DataCompositionDetailsProcessingAction.None Then 
+	If ChosenAction = Undefined
+		Or ChosenAction = DataCompositionDetailsProcessingAction.None Then 
 		
 		Return;
 	EndIf;
@@ -3124,12 +3127,12 @@ Procedure ExecuteDecryption(ExecutedAction, ChosenActionParameter, AdditionalPar
 		
 		TitleProperties = AreaProperties.TitleProperties;
 		
-		If TypeOf(ExecutedAction) = Type("String")
-			And TitleProperties.Property(ExecutedAction)
-			And Not TitleProperties[ExecutedAction] Then 
+		If TypeOf(ChosenAction) = Type("String")
+			And TitleProperties.Property(ChosenAction)
+			And Not TitleProperties[ChosenAction] Then 
 			
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Action ""%1"" is unavailable'"), Menu.FindByValue(ExecutedAction));
+				NStr("en = 'Action ""%1"" is unavailable'"), Menu.FindByValue(ChosenAction));
 			
 			ShowMessageBox(, MessageText);
 			
@@ -3141,25 +3144,25 @@ Procedure ExecuteDecryption(ExecutedAction, ChosenActionParameter, AdditionalPar
 		
 	EndIf;
 	
-	If TypeOf(ExecutedAction) = Type("String")
-		And ExecutedAction = "DisableFilter" Then 
+	If TypeOf(ChosenAction) = Type("String")
+		And ChosenAction = "DisableFilter" Then 
 		
 		DisableFilter(Form, AreaProperties.TitleProperties, Data);
 		Return;
 		
 	EndIf;
 	
-	If TypeOf(ExecutedAction) = Type("DataCompositionComparisonType")
-		Or TypeOf(ExecutedAction) = Type("String") And StrStartsWith(ExecutedAction, "FilterCommand") Then 
+	If TypeOf(ChosenAction) = Type("DataCompositionComparisonType")
+		Or TypeOf(ChosenAction) = Type("String") And StrStartsWith(ChosenAction, "FilterCommand") Then 
 		
-		FilterCommand(Form, ExecutedAction, AreaProperties.TitleProperties, Data);
+		FilterCommand(Form, ChosenAction, AreaProperties.TitleProperties, Data);
 		Return;
 		
 	EndIf;
 	
-	If TypeOf(ExecutedAction) = Type("DataCompositionSortDirection") Then 
+	If TypeOf(ChosenAction) = Type("DataCompositionSortDirection") Then 
 		
-		If ExecutedAction = DataCompositionSortDirection.Asc Then 
+		If ChosenAction = DataCompositionSortDirection.Asc Then 
 			Command = Form.Commands.Find("SortAsc");
 		Else
 			Command = Form.Commands.Find("SortDesc");
@@ -3170,53 +3173,53 @@ Procedure ExecuteDecryption(ExecutedAction, ChosenActionParameter, AdditionalPar
 		
 	EndIf;
 	
-	If TypeOf(ExecutedAction) = Type("String")
-		And ExecutedAction = "ClearAppearance" Then 
+	If TypeOf(ChosenAction) = Type("String")
+		And ChosenAction = "ClearAppearance" Then 
 		
 		ClearAppearance(Form, AreaProperties.TitleProperties);
 		Return;
 		
 	EndIf;
 	
-	If TypeOf(ExecutedAction) = Type("String")
-		And (ExecutedAction = "HighlightInRed"
-		Or ExecutedAction = "HighlightInYellow"
-		Or ExecutedAction = "HighlightInGreen"
-		Or ExecutedAction = "FormatNegativeValues"
-		Or ExecutedAction = "FormatPositiveValues"
-		Or ExecutedAction = "SetRowHeight"
-		Or ExecutedAction = "SetColumnWidth"
-		Or ExecutedAction = "ApplyAppearanceMore") Then 
+	If TypeOf(ChosenAction) = Type("String")
+		And (ChosenAction = "HighlightInRed"
+		Or ChosenAction = "HighlightInYellow"
+		Or ChosenAction = "HighlightInGreen"
+		Or ChosenAction = "FormatNegativeValues"
+		Or ChosenAction = "FormatPositiveValues"
+		Or ChosenAction = "SetRowHeight"
+		Or ChosenAction = "SetColumnWidth"
+		Or ChosenAction = "ApplyAppearanceMore") Then 
 		
-		Command = Form.Commands.Find(ExecutedAction);
+		Command = Form.Commands.Find(ChosenAction);
 		
 		If Command = Undefined Then
-			Command = ExecutedAction;
+			Command = ChosenAction;
 		EndIf;
 		
-		If ExecutedAction = "HighlightInRed"
-			Or ExecutedAction = "FormatNegativeValues" Then 
+		If ChosenAction = "HighlightInRed"
+			Or ChosenAction = "FormatNegativeValues" Then 
 			
 			HighlightInRed(Form, Command, AreaProperties.TitleProperties, Data.Values);
 			
-		ElsIf ExecutedAction = "HighlightInYellow" Then 
+		ElsIf ChosenAction = "HighlightInYellow" Then 
 			
 			HighlightInYellow(Form, Command, AreaProperties.TitleProperties, Data.Values);
 			
-		ElsIf ExecutedAction = "HighlightInGreen"
-			Or ExecutedAction = "FormatPositiveValues" Then 
+		ElsIf ChosenAction = "HighlightInGreen"
+			Or ChosenAction = "FormatPositiveValues" Then 
 			
 			HighlightInGreen(Form, Command, AreaProperties.TitleProperties, Data.Values);
 			
-		ElsIf ExecutedAction = "SetRowHeight" Then 
+		ElsIf ChosenAction = "SetRowHeight" Then 
 			
 			SetRowHeight(Form, Command, AreaProperties.TitleProperties);
 			
-		ElsIf ExecutedAction = "SetColumnWidth" Then 
+		ElsIf ChosenAction = "SetColumnWidth" Then 
 			
 			SetColumnWidth(Form, Command, AreaProperties.TitleProperties);
 			
-		ElsIf ExecutedAction = "ApplyAppearanceMore" Then 
+		ElsIf ChosenAction = "ApplyAppearanceMore" Then 
 			
 			ApplyAppearanceMore(Form, Command, AreaProperties.TitleProperties, Data.Values);
 			
@@ -3226,14 +3229,14 @@ Procedure ExecuteDecryption(ExecutedAction, ChosenActionParameter, AdditionalPar
 		
 	EndIf;
 	
-	If ExecutedAction = DataCompositionDetailsProcessingAction.OpenValue Then
+	If ChosenAction = DataCompositionDetailsProcessingAction.OpenValue Then
 		
 		ShowValue(, Data.Value);
 		Return;
 		
 	EndIf;
 	
-	If ExecutedAction =  "DecodeByDetailedRecords" Then 
+	If ChosenAction =  "DecodeByDetailedRecords" Then 
 		ChosenActionParameter = New DataCompositionSettings;
 		DataCompositionGroup = ChosenActionParameter.Structure.Add(Type("DataCompositionGroup"));
 		DataCompositionGroup.Name = "Details";
@@ -3243,7 +3246,7 @@ Procedure ExecuteDecryption(ExecutedAction, ChosenActionParameter, AdditionalPar
 		Return;
 	EndIf;
 	
-	If ExecutedAction = DataCompositionDetailsProcessingAction.DrillDown Then
+	If ChosenAction = DataCompositionDetailsProcessingAction.DrillDown Then
 		
 		AdditionalParameters.Insert("Settings", ChosenActionParameter);
 		OpenReportForm(Form, AdditionalParameters);
@@ -3254,8 +3257,7 @@ EndProcedure
 
 Procedure OpenReportForm(Form, OpeningParameters)
 	
-	If OpeningParameters.Data <> Undefined 
-	   And OpeningParameters.Data.Type = ReportsOptionsInternalClientServer.TypeOfProps() Then
+	If OpeningParameters.Data <> Undefined And Not OpeningParameters.Data.DecryptionIsAvailable Then
 		ShowMessageBox(, NStr("en = 'Cannot drill down detailed records.'"));
 		Return;
 	EndIf;
@@ -3267,7 +3269,7 @@ Procedure OpenReportForm(Form, OpeningParameters)
 		Form.ReportDetailsData, OpeningParameters.Details, OpeningParameters.Settings); 
 	
 	VariantPresentation = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = '%1 (Details)'"), Form.CurrentVariantPresentation);
+		NStr("en = '%1 (Drill-down)'"), Form.CurrentVariantPresentation);
 	
 	FormParameters = New Structure;
 	FormParameters.Insert("Details", Details);
@@ -3385,6 +3387,10 @@ Function ReportTitleProperties(Form)
 		Headers = ReportHeaders(Form);
 		Field = Form.ReportSpreadsheetDocument; // FormField, FormFieldExtensionForASpreadsheetDocumentField
 		Area = Field.CurrentArea; // SpreadsheetDocumentRange
+
+		If TypeOf(Area) <> Type("SpreadsheetDocumentRange") Then
+			Return Undefined;
+		EndIf;
 		
 		Return Headers[Area.Name];
 		
@@ -3598,7 +3604,7 @@ Function ActionOnTheFieldIsAvailable(Action, TitleProperties)
 	
 EndFunction
 
-Procedure AskAboutUserNotification(NotifyDescription, UsersCount) Export 
+Procedure AskAboutUserNotification(CallbackDescription, UsersCount) Export 
 	
 	RepresentationOfTheNumberOfUsers = StringFunctionsClientServer.StringWithNumberForAnyLanguage(
 		NStr("en = '; %1 user; ; %1 users; %1 users; %1 users'"),
@@ -3608,7 +3614,7 @@ Procedure AskAboutUserNotification(NotifyDescription, UsersCount) Export
 		NStr("en = 'Do you want to notify in chat %1 that this option will be displayed on their report panel?'"),
 		RepresentationOfTheNumberOfUsers);
 	
-	ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.YesNo, 60, DialogReturnCode.No);
+	ShowQueryBox(CallbackDescription, QueryText, QuestionDialogMode.YesNo, 60, DialogReturnCode.No);
 	
 EndProcedure
 

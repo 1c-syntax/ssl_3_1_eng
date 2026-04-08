@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -303,8 +302,8 @@ Procedure ModifySchedule(Command)
 	
 	Dialog = New ScheduledJobDialog(Schedule);
 	
-	NotifyDescription = New CallbackDescription("ChangeScheduleAfterSetUpSchedule", ThisObject);
-	Dialog.Show(NotifyDescription);
+	CallbackDescription = New CallbackDescription("ChangeScheduleAfterSetUpSchedule", ThisObject);
+	Dialog.Show(CallbackDescription);
 	
 EndProcedure
 
@@ -312,8 +311,8 @@ EndProcedure
 Procedure InformationForTechnicalSupport(Command)
 	
 	If Not IsBlankString(ScriptDirectory) Then
-		NotifyDescription = New CallbackDescription("BeginFindingFilesCompletion", ThisObject);
-		BeginFindingFiles(NotifyDescription, ScriptDirectory, "log*.txt");
+		CallbackDescription = New CallbackDescription("BeginFindingFilesCompletion", ThisObject);
+		BeginFindingFiles(CallbackDescription, ScriptDirectory, "log*.txt");
 	EndIf;
 	
 EndProcedure
@@ -789,9 +788,9 @@ Procedure ChangeScheduleAfterQuery(Result, NewSchedule) Export
 		NewSchedule.RepeatPause = 60;
 		SetDeferredUpdateSchedule(NewSchedule);
 	Else
-		NotifyDescription = New CallbackDescription("ChangeScheduleAfterSetUpSchedule", ThisObject);
+		CallbackDescription = New CallbackDescription("ChangeScheduleAfterSetUpSchedule", ThisObject);
 		Dialog = New ScheduledJobDialog(NewSchedule);
-		Dialog.Show(NotifyDescription);
+		Dialog.Show(CallbackDescription);
 	EndIf;
 	
 EndProcedure
@@ -915,7 +914,6 @@ Function ProblemSituationsInUpdateHandlers()
 	
 	Query = New Query;
 	Query.SetParameter("ExecutionMode", Enums.HandlersExecutionModes.Deferred);
-	Query.SetParameter("Status", Enums.UpdateHandlersStatuses.Completed);
 	Query.Text =
 		"SELECT
 		|	UpdateHandlers.HandlerName AS HandlerName,
@@ -924,7 +922,21 @@ Function ProblemSituationsInUpdateHandlers()
 		|	InformationRegister.UpdateHandlers AS UpdateHandlers
 		|WHERE
 		|	UpdateHandlers.ExecutionMode = &ExecutionMode";
-	Result = Query.Execute().Unload();
+	
+	Block = New DataLock;
+	LockItem = Block.Add("InformationRegister.UpdateHandlers");
+	LockItem.Mode = DataLockMode.Shared;
+	BeginTransaction();
+	Try
+		Block.Lock();
+	
+		Result = Query.Execute().Unload();
+		
+		CommitTransaction();
+	Except
+		RollbackTransaction();
+		Raise;
+	EndTry;
 	
 	IssuesCount = 0;
 	For Each String In Result Do

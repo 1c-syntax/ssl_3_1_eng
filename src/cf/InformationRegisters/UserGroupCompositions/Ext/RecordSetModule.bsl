@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -21,7 +20,7 @@ Var OldRecords; // Filled by "BeforeWrite" to use "OnWrite".
 Procedure BeforeWrite(Cancel, Replacing)
 	
 	// ACC:75-off - The DataExchange.Load check must follow the logging of changes.
-	If UsersInternalCached.ShouldRegisterChangesInAccessRights() Then
+	If UsersInternal.ShouldRegisterChangesInAccessRights() Then
 		PrepareChangesForLogging(ThisObject, Replacing, OldRecords);
 	EndIf;
 	// ACC:75-on
@@ -35,7 +34,7 @@ EndProcedure
 Procedure OnWrite(Cancel, Replacing)
 	
 	// ACC:75-off - The DataExchange.Load check must follow the logging of changes.
-	If UsersInternalCached.ShouldRegisterChangesInAccessRights() Then
+	If UsersInternal.ShouldRegisterChangesInAccessRights() Then
 		DoLogChanges(ThisObject, Replacing, OldRecords);
 	EndIf;
 	// ACC:75-on

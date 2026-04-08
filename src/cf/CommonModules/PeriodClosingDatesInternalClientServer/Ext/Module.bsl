@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Private
@@ -131,7 +130,7 @@ Procedure UpdatePeriodEndClosingDateDisplayOnChange(Context) Export
 	If Context.PeriodEndClosingDateDetails = "" Or Context.PeriodEndClosingDateDetails = "Custom" Then
 		Context.Items.Custom.CurrentPage = ?(Context.PeriodEndClosingDateDetails = "",
 			Context.Items.CustomNotUsed, Context.Items.CustomDateUsed);
-		EditFormat = ?(Context.RecordExists, "DP=01.01.0001", "");
+		EditFormat = ?(Context.RecordExists, "DE=01.01.0001", "");
 		Context.Items.PeriodEndClosingDateSimpleMode.EditFormat = EditFormat;
 		Context.Items.PeriodEndClosingDate.EditFormat = EditFormat;
 		Context.Items.PeriodEndClosingDateProperties.CurrentPage = Context.Items.GroupLessOptions;

@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -79,9 +78,9 @@ Procedure SynchronizationsFilterPresentationStartChoice(Item, ChoiceData, Standa
 	OpeningParameters.Insert("ArrayOfExchangePlanNodes", ValuesCache.ArrayOfExchangePlanNodes);
 	OpeningParameters.Insert("SelectionOfExchangePlanNodes", ValuesCache.SelectionOfExchangePlanNodes);
 	
-	NotifyDescription = New CallbackDescription("AfterSelectingTheExchangeNodes", ThisObject);
+	CallbackDescription = New CallbackDescription("AfterSelectingTheExchangeNodes", ThisObject);
 	
-	OpenForm("InformationRegister.DataExchangeResults.Form.SynchronizationsFilter", OpeningParameters, ThisObject, , , , NotifyDescription);
+	OpenForm("InformationRegister.DataExchangeResults.Form.SynchronizationsFilter", OpeningParameters, ThisObject, , , , CallbackDescription);
 	
 EndProcedure
 
@@ -114,9 +113,9 @@ Procedure WarningsTypesFilterPresentationStartChoice(Item, ChoiceData, StandardP
 	OpeningParameters = New Structure;
 	OpeningParameters.Insert("SelectingTypesOfWarnings", ValuesCache.SelectingTypesOfWarnings);
 	
-	NotifyDescription = New CallbackDescription("AfterSelectionByTypeOfWarnings", ThisObject);
+	CallbackDescription = New CallbackDescription("AfterSelectionByTypeOfWarnings", ThisObject);
 	
-	OpenForm("InformationRegister.DataExchangeResults.Form.WarningsFilterByTypes", OpeningParameters, ThisObject, , , , NotifyDescription);
+	OpenForm("InformationRegister.DataExchangeResults.Form.WarningsFilterByTypes", OpeningParameters, ThisObject, , , , CallbackDescription);
 	
 EndProcedure
 

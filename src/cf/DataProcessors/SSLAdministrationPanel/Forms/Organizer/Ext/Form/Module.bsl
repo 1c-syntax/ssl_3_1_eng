@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Variables
@@ -230,9 +229,9 @@ EndProcedure
 Procedure TasksMonitoringUsageOnChange(Item)
 	
 	If CommonClient.SubsystemExists("StandardSubsystems.EmailOperations") And TasksMonitoringUsage Then
-		NotifyDescription = New CallbackDescription("TasksMonitoringUsageMailAvailabilityCheckCompleted", ThisObject);
+		CallbackDescription = New CallbackDescription("TasksMonitoringUsageMailAvailabilityCheckCompleted", ThisObject);
 		ModuleEmailOperationsClient = CommonClient.CommonModule("EmailOperationsClient");
-		ModuleEmailOperationsClient.CheckAccountForSendingEmailExists(NotifyDescription);
+		ModuleEmailOperationsClient.CheckAccountForSendingEmailExists(CallbackDescription);
 	Else
 		TasksMonitoringUsageMailAvailabilityCheckCompleted(True);
 	EndIf;
@@ -267,10 +266,10 @@ EndProcedure
 Procedure NotifyPerformersAboutNewTasksUsageOnChange(Item)
 	
 	If CommonClient.SubsystemExists("StandardSubsystems.EmailOperations") And NotifyPerformersAboutNewTasksUsage Then
-		NotifyDescription = New CallbackDescription(
+		CallbackDescription = New CallbackDescription(
 			"NotifyPerformersAboutNewTasksUsageEmailAvailabilityCheckCompleted", ThisObject);
 		ModuleEmailOperationsClient = CommonClient.CommonModule("EmailOperationsClient");
-		ModuleEmailOperationsClient.CheckAccountForSendingEmailExists(NotifyDescription);
+		ModuleEmailOperationsClient.CheckAccountForSendingEmailExists(CallbackDescription);
 	Else
 		NotifyPerformersAboutNewTasksUsageEmailAvailabilityCheckCompleted(True);
 	EndIf;

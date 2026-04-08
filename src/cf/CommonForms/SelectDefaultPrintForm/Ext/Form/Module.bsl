@@ -1,5 +1,5 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
@@ -30,6 +30,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	ProcessSetIDs();
 	
 	Cnt = 0;
+	
 	For Each Command In Parameters.PrintCommands Do
 		Cnt = Cnt + 1;
 		If Command.DefaultPrintForm Then
@@ -54,6 +55,20 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 EndProcedure
 
+&AtServer
+Procedure FillCheckProcessingAtServer(Cancel, CheckedAttributes)
+	
+	AttributesToExclude = New Array;
+	AttributesToExclude.Add("DefaultPrintForm");
+	Common.DeleteNotCheckedAttributesFromArray(CheckedAttributes, AttributesToExclude);
+	
+	If Not ValueIsFilled(DefaultPrintForm) Then
+		Common.MessageToUser(NStr("en = 'Default print form is not selected'"), , "DefaultPrintForm");
+		Cancel = True;
+	EndIf;
+	
+EndProcedure
+
 #EndRegion
 
 #Region FormCommandsEventHandlers
@@ -61,6 +76,8 @@ EndProcedure
 &AtClient
 Procedure SelectAndGenerate(Command)
 	
+	ClearMessages();
+
 	If CheckFilling() Then
 		Close(DefaultPrintForm - 1);
 	EndIf;

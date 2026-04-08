@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Variables
@@ -68,6 +67,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	If Not Settings.MultilanguageData Or LanguagesCount = 1 Then
 		Items.AdditionalLanguagesGroup.Visible = False;
 		Items.MainLanguageGroup.Visible        = False;
+		AdditionalLanguagesCount               = 0;
 	Else
 		DisplayAdditionalLanguagesSettings(Settings, AdditionalLanguagesCount);
 	EndIf;
@@ -510,11 +510,11 @@ Function DataCorrect()
 				
 				If CurrentLanguageSeqNumber = LanguageSeqNumber Then
 					If StrCompare(DefaultLanguage, ThisObject[TagName]) = 0 Then
-						ShowMessageBox(Undefined, NStr("en = 'Invalid regional settings.'"));
+						ShowMessageBox(Undefined, NStr("en = 'Invalid regional settings'"));
 						Return False;
 					EndIf;
 				ElsIf StrCompare(ThisObject[TagName], ThisObject[CurrentItemName]) = 0 Then
-					ShowMessageBox(Undefined, NStr("en = 'Invalid regional settings.'"));
+					ShowMessageBox(Undefined, NStr("en = 'Invalid regional settings'"));
 					Return False;
 				EndIf;
 			EndDo;

@@ -1,5 +1,5 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
@@ -290,17 +290,17 @@ EndProcedure
 
 &AtClient
 Procedure ExpandAllUnsuccessfulReplacements(Command)
-	FormTree = Items.UnsuccessfulReplacements;
+	FormTree_ = Items.UnsuccessfulReplacements;
 	For Each Item In UnsuccessfulReplacements.GetItems() Do
-		FormTree.Expand(Item.GetID(), True);
+		FormTree_.Expand(Item.GetID(), True);
 	EndDo;
 EndProcedure
 
 &AtClient
 Procedure CollapseAllUnsuccessfulReplacements(Command)
-	FormTree = Items.UnsuccessfulReplacements;
+	FormTree_ = Items.UnsuccessfulReplacements;
 	For Each Item In UnsuccessfulReplacements.GetItems() Do
-		FormTree.Collapse(Item.GetID());
+		FormTree_.Collapse(Item.GetID());
 	EndDo;
 EndProcedure
 
@@ -932,13 +932,13 @@ EndProcedure
 &AtServerNoContext
 Function ReplaceReferences(Val MethodParameters, Val UUID)
 	
-	MethodName = "DuplicateObjectsDetection.ReplaceReferences";
 	MethodDescription = NStr("en = 'Duplicate cleaner: Replace references'");
 	
 	StartSettings1 = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
 	StartSettings1.BackgroundJobDescription = MethodDescription;
 	
-	Return TimeConsumingOperations.ExecuteInBackground(MethodName, MethodParameters, StartSettings1);
+	Return TimeConsumingOperations.ExecuteInBackground("DuplicateObjectsDetection.ReplaceReferences",
+		MethodParameters, StartSettings1);
 	
 EndFunction
 
@@ -954,9 +954,9 @@ Procedure AfterCompletionReplacingLinks(Job, AdditionalParameters) Export
 	If Job.Status <> "Completed2" Then
 		// Background job is completed with error.
 		Brief1 = NStr("en = 'Items were not replaced due to:'") + Chars.LF + Job.BriefErrorDescription;
-		More = Brief1 + Chars.LF + Chars.LF + Job.DetailErrorDescription;
+		ShowMoreDetails = Brief1 + Chars.LF + Chars.LF + Job.DetailErrorDescription;
 		Items.ErrorTextLabel.Title = Brief1;
-		Items.DetailsRef.ToolTip    = More;
+		Items.DetailsRef.ToolTip    = ShowMoreDetails;
 		GoToWizardStep1(Items.ErrorOccurredStep);
 		Activate();
 		Return;

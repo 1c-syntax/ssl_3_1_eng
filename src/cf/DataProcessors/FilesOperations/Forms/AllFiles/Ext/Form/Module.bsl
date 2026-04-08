@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -29,6 +28,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	OnChangeUseOfSigningOrEncryptionAtServer();
 	
 	URL = "e1cib/app/" + FormName;
+	
+	WorkingWithServerFileArchive.VisibilityOfListFieldImageNumberIsArchive(Items.ListImageNumberIsArchive);
+
 EndProcedure
 
 &AtClient
@@ -43,6 +45,10 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 		ElsIf Source <> Undefined Then
 			Items.List.CurrentRow = Source;
 		EndIf;
+		
+		If Parameter.Event = "FilesChangedWhenWorkingWithArchive" Then
+			SetFileCommandsAvailability();
+		EndIf;		
 	ElsIf Upper(EventName) = Upper("Write_ConstantsSet")
 	   And (Upper(Source) = Upper("UseDigitalSignature")
 		  Or Upper(Source) = Upper("UseEncryption")) Then
@@ -62,11 +68,11 @@ EndProcedure
 
 &AtClient
 Procedure ListSelection(Item, RowSelected, Field, StandardProcessing)
-	
+
 	StandardProcessing = False;
-	FileData = FilesOperationsInternalServerCall.FileDataToOpen(Items.List.CurrentData.Ref, Undefined, UUID);
-	FilesOperationsInternalClient.OpenFileWithNotification(Undefined, FileData);
-	
+
+	OpenFile();
+
 EndProcedure
 
 &AtClient
@@ -90,9 +96,23 @@ Procedure OpenForViewing(Command)
 		Return;
 	EndIf;
 	
-	FileData = FilesOperationsInternalServerCall.FileDataToOpen(Items.List.CurrentData.Ref, Undefined, UUID);
-	FilesOperationsClient.OpenFile(FileData);
+	OpenFile();
 	
+EndProcedure
+
+&AtClient
+Procedure OpenFile()
+
+	CurrentData = Items.List.CurrentData;
+
+	FileGettingParameters = FilesOperationsClient.ParametersForAsynchronousFileReceipt("OpenFileWithNotification");
+	FileGettingParameters.AttachedFile				= CurrentData.Ref;
+	FileGettingParameters.OwnerForm					= ThisObject;
+	FileGettingParameters.CheckPresenceOfFileInArchive	= False;
+	FileGettingParameters.FileInArchive						= CurrentData.ImageNumberIsArchive = 0;
+
+	FilesOperationsClient.OpenFile(FileGettingParameters);
+
 EndProcedure
 
 &AtClient
@@ -101,9 +121,16 @@ Procedure SaveAs(Command)
 	If Not FileCommandsAvailable() Then 
 		Return;
 	EndIf;
+
+	CurrentData = Items.List.CurrentData;
 	
-	FileData = FilesOperationsInternalServerCall.FileDataToSave(Items.List.CurrentData.Ref, , UUID);
-	FilesOperationsInternalClient.SaveAs(Undefined, FileData, Undefined);
+	FileGettingParameters = FilesOperationsClient.ParametersForAsynchronousFileReceipt("SaveAs", "FilesOperationsInternal.FileDataToSaveAsynchronous");
+	FileGettingParameters.AttachedFile				= CurrentData.Ref;
+	FileGettingParameters.OwnerForm					= ThisObject;
+	FileGettingParameters.CheckPresenceOfFileInArchive	= False;
+	FileGettingParameters.FileInArchive						= CurrentData.ImageNumberIsArchive = 0;
+	
+	FilesOperationsClient.SaveFileAs(FileGettingParameters);	
 	
 EndProcedure
 

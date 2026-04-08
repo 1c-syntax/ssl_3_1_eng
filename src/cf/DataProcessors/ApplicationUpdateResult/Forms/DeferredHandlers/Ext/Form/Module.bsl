@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -71,18 +70,18 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Items.Status.ChoiceList.Add(TheValueIsBeingExecuted, TheValueIsBeingExecuted);
 	Items.Status.ChoiceList.Add(TheValueIsCompleted, TheValueIsCompleted);
 	
-	// 
-	If Common.SubsystemExists("StandardSubsystems.ContactingTechnicalSupport") Then
+	// StandardSubsystems.SupportRequests
+	If Common.SubsystemExists("StandardSubsystems.SupportRequests") Then
 		
-		ModuleForContactingTechnicalSupportService = Common.CommonModule(
-			"ContactingTechnicalSupportInternal");
+		ModuleSupportRequestsInternal = Common.CommonModule(
+			"SupportRequestsInternal");
 		
-		ModuleForContactingTechnicalSupportService.OnCreateAtServer(ThisObject);
+		ModuleSupportRequestsInternal.OnCreateAtServer(ThisObject);
 		
 	Else
 		Items.AssistanceRequiredGroup.Visible = False;
 	EndIf;
-	// End StandardSubsystems.ContactingTechnicalSupport
+	// End StandardSubsystems.SupportRequests
 	
 EndProcedure
 
@@ -147,7 +146,7 @@ Procedure DeferredHandlersSelection(Item, RowSelected, Field, StandardProcessing
 		Return;
 	EndIf;
 	
-	If Field = Items.DeferredHandlersHandlerAddOn
+	If Field = Items.DeferredHandlersAdditionHandler
 	   And Item.CurrentData.IsObsoleteDataCleanupHandler Then
 		
 		OpenForm("DataProcessor.ApplicationUpdateResult.Form.ClearObsoleteData");
@@ -316,31 +315,31 @@ EndProcedure
 Procedure CheckPatches(Command)
 	Result = AvailableFixesOnServer();
 	
-	NotifyDescription = New CallbackDescription("CheckAvailableFixesContinued", ThisObject, Result);
-	InfobaseUpdateClient.ProcessManualPatchCheckResult(Result, NotifyDescription);
+	CallbackDescription = New CallbackDescription("CheckAvailableFixesContinued", ThisObject, Result);
+	InfobaseUpdateClient.ProcessManualPatchCheckResult(Result, CallbackDescription);
 EndProcedure
 
 &AtClient
-Procedure QuestionInSupport(Command)
+Procedure SupportTicket(Command)
 	
-	// 
-	If CommonClient.SubsystemExists("StandardSubsystems.ContactingTechnicalSupport") Then
+	// StandardSubsystems.SupportRequests
+	If CommonClient.SubsystemExists("StandardSubsystems.SupportRequests") Then
 		
-		ModuleForContactingTechnicalSupportServiceClient = CommonClient.CommonModule(
-			"ContactingTechnicalSupportInternalClient");
+		ModuleSupportRequestsInternalClient = CommonClient.CommonModule(
+			"SupportRequestsInternalClient");
 		
-		RequestParameters_ = ModuleForContactingTechnicalSupportServiceClient.RequestParameters_();
-		RequestParameters_.Subject = NStr("en = 'Не удалось обновить приложение на новую версию'");
+		RequestParameters_ = ModuleSupportRequestsInternalClient.RequestParameters_();
+		RequestParameters_.Subject = NStr("en = 'Failed to update the application'");
 		
 		TechnologicalInfo = New Array;
 		TechnologicalInfo.Add(RequestParameters_.TechnologicalInfo);
 		
 		StatusError = PredefinedValue("Enum.UpdateHandlersStatuses.Error");
 		FilterParameter = New Structure("Status", StatusError);
-		ErrorsFound = DeferredHandlers.FindRows(FilterParameter);
+		FoundErrors = DeferredHandlers.FindRows(FilterParameter);
 		
-		For Each ErrorFound In ErrorsFound Do
-			TechnologicalInfo.Add(ErrorFound.UpdateProcessInformation);
+		For Each FoundError In FoundErrors Do
+			TechnologicalInfo.Add(FoundError.UpdateProcessInformation);
 			TechnologicalInfo.Add(Chars.LF);
 		EndDo;
 		
@@ -351,35 +350,35 @@ Procedure QuestionInSupport(Command)
 		RequestParameters_.EventLogFilter.Insert("EndDate", DeferredUpdateEndTime);
 		RequestParameters_.EventLogFilter.Insert("Session", CurrentSessionNumber);
 		
-		ModuleForContactingTechnicalSupportServiceClient.SendQuestionToSupport(
+		ModuleSupportRequestsInternalClient.SubmitSupportTicket(
 			ThisObject,
 			RequestParameters_);
 		
 	EndIf;
-	// End StandardSubsystems.ContactingTechnicalSupport
+	// End StandardSubsystems.SupportRequests
 	
 EndProcedure
 
 &AtClient
-Procedure InformationToSendToSupport(Command)
+Procedure InfoForSupport(Command)
 	
-	// 
-	If CommonClient.SubsystemExists("StandardSubsystems.ContactingTechnicalSupport") Then
+	// StandardSubsystems.SupportRequests
+	If CommonClient.SubsystemExists("StandardSubsystems.SupportRequests") Then
 		
-		ModuleForContactingTechnicalSupportServiceClient = CommonClient.CommonModule(
-			"ContactingTechnicalSupportInternalClient");
+		ModuleSupportRequestsInternalClient = CommonClient.CommonModule(
+			"SupportRequestsInternalClient");
 		
-		RequestParameters_ = ModuleForContactingTechnicalSupportServiceClient.RequestParameters_();
+		RequestParameters_ = ModuleSupportRequestsInternalClient.RequestParameters_();
 		
 		TechnologicalInfo = New Array;
 		TechnologicalInfo.Add(RequestParameters_.TechnologicalInfo);
 		
 		StatusError = PredefinedValue("Enum.UpdateHandlersStatuses.Error");
 		FilterParameter = New Structure("Status", StatusError);
-		ErrorsFound = DeferredHandlers.FindRows(FilterParameter);
+		FoundErrors = DeferredHandlers.FindRows(FilterParameter);
 		
-		For Each ErrorFound In ErrorsFound Do
-			TechnologicalInfo.Add(ErrorFound.UpdateProcessInformation);
+		For Each FoundError In FoundErrors Do
+			TechnologicalInfo.Add(FoundError.UpdateProcessInformation);
 			TechnologicalInfo.Add(Chars.LF);
 		EndDo;
 		
@@ -390,12 +389,12 @@ Procedure InformationToSendToSupport(Command)
 		RequestParameters_.EventLogFilter.Insert("EndDate", DeferredUpdateEndTime);
 		RequestParameters_.EventLogFilter.Insert("Session", CurrentSessionNumber);
 		
-		ModuleForContactingTechnicalSupportServiceClient.DownloadInformationToSendToSupport(
+		ModuleSupportRequestsInternalClient.DownloadInfoForSupport(
 			ThisObject,
 			RequestParameters_);
 		
 	EndIf;
-	// End StandardSubsystems.ContactingTechnicalSupport
+	// End StandardSubsystems.SupportRequests
 	
 EndProcedure
 
@@ -413,10 +412,10 @@ Procedure SetConditionalAppearance()
 	Item = ConditionalAppearance.Items.Add();
 	
 	ItemField = Item.Fields.Items.Add();
-	ItemField.Field = New DataCompositionField(Items.DeferredHandlersHandlerAddOn.Name);
+	ItemField.Field = New DataCompositionField(Items.DeferredHandlersAdditionHandler.Name);
 	
 	ItemFilter = Item.Filter.Items.Add(Type("DataCompositionFilterItem"));
-	ItemFilter.LeftValue = New DataCompositionField("DeferredHandlers.HandlerAddOn");
+	ItemFilter.LeftValue = New DataCompositionField("DeferredHandlers.HandlerSupplement");
 	ItemFilter.ComparisonType = DataCompositionComparisonType.NotFilled;
 
 	Item.Appearance.SetParameterValue("Visible", False);
@@ -681,7 +680,7 @@ Procedure GenerateDeferredHandlerTable(AllHandlersExecuted = True, InitialFillin
 		RowIndex = DeferredHandlers.IndexOf(ObsoleteDataCleanupHandlerRow);
 		DeferredHandlers.Move(RowIndex, DeferredHandlers.Count() - 1 - RowIndex);
 		ObsoleteDataCleanupHandlerRow.IsObsoleteDataCleanupHandler = True;
-		ObsoleteDataCleanupHandlerRow.HandlerAddOn =
+		ObsoleteDataCleanupHandlerRow.HandlerSupplement =
 			NStr("en = 'View and clear obsolete data manually.'");
 	EndIf;
 	
@@ -696,23 +695,23 @@ Procedure GenerateDeferredHandlerTable(AllHandlersExecuted = True, InitialFillin
 	Items.CheckPatches.Visible = UpdateInfo.DeferredUpdateCompletedSuccessfully <> True
 		And InfobaseUpdateInternal.CanCheckForPatchesManually();
 	
-	// 
-	If Common.SubsystemExists("StandardSubsystems.ContactingTechnicalSupport") Then
+	// StandardSubsystems.SupportRequests
+	If Common.SubsystemExists("StandardSubsystems.SupportRequests") Then
 		
-		ModuleForContactingTechnicalSupportService = Common.CommonModule(
-			"ContactingTechnicalSupportInternal");
+		ModuleSupportRequestsInternal = Common.CommonModule(
+			"SupportRequestsInternal");
 		
 		FilterParameter = New Structure("Status", Enums.UpdateHandlersStatuses.Error);
-		ErrorsFound = DeferredHandlers.FindRows(FilterParameter);
+		FoundErrors = DeferredHandlers.FindRows(FilterParameter);
 		
-		If ErrorsFound.Count() > 0 Then
-			ModuleForContactingTechnicalSupportService.ShowHelpNeededSection(Items);
+		If FoundErrors.Count() > 0 Then
+			ModuleSupportRequestsInternal.ShowNeedHelpSection(Items);
 		Else
-			ModuleForContactingTechnicalSupportService.HideHelpNeededSection(Items);
+			ModuleSupportRequestsInternal.HideNeedHelpSection(Items);
 		EndIf;
 		
 	EndIf;
-	// End StandardSubsystems.ContactingTechnicalSupport
+	// End StandardSubsystems.SupportRequests
 	
 EndProcedure
 
@@ -1040,7 +1039,8 @@ Function StartingPatchInstallation()
 	
 	ExecutionParameters = TimeConsumingOperations.FunctionExecutionParameters(UUID);
 	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Install patches following an update error.'");
-	Return TimeConsumingOperations.ExecuteFunction(ExecutionParameters, "GetApplicationUpdates.DownloadAndInstallFixes");
+	Return TimeConsumingOperations.ExecuteFunction(ExecutionParameters,
+		"InfobaseUpdateInternal.DownloadAndInstallFixes");
 	
 EndFunction
 

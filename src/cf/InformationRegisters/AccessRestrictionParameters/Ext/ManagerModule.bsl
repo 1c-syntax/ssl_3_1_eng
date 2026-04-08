@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -22,6 +21,12 @@
 //                  the "LimitAccessAtRecordLevelUniversally" constant is disabled.
 //
 Procedure UpdateRegisterData(HasChanges = Undefined, ShouldUpdateIgnoringUsage = False) Export
+	
+	If AccessManagementInternal.IsRecordLevelRestrictionDisabled() Then
+		AccessManagementInternal.ClearInformationRegister(
+			Metadata.InformationRegisters.AccessRestrictionParameters.FullName(), HasChanges);
+		Return;
+	EndIf;
 	
 	If Not ShouldUpdateIgnoringUsage
 	   And Not AccessManagementInternal.LimitAccessAtRecordLevelUniversally() Then
@@ -79,8 +84,11 @@ Procedure UpdateRegisterDataInBackground(HasChanges)
 	OperationParametersList.WithDatabaseExtensions = True;
 	OperationParametersList.WaitCompletion = Undefined;
 	
-	ProcedureName = "InformationRegisters.AccessRestrictionParameters.HandlerForLongTermUpdateOperationInBackground";
-	TimeConsumingOperation = TimeConsumingOperations.ExecuteInBackground(ProcedureName, Undefined, OperationParametersList);
+	TimeConsumingOperation = TimeConsumingOperations.ExecuteInBackground(
+		"InformationRegisters.AccessRestrictionParameters.HandlerForLongTermUpdateOperationInBackground",
+		Undefined,
+		OperationParametersList);
+	
 	ErrorTitle = NStr("en = 'Cannot update access restriction parameters due to:'") + Chars.LF;
 	
 	If TimeConsumingOperation.Status <> "Completed2" Then
@@ -154,18 +162,23 @@ EndProcedure
 //
 Procedure UpdateAccessRestrictionTextsVersion(HasChanges = Undefined) Export
 	
+	ParameterName = "StandardSubsystems.AccessManagement.AccessRestrictionTextsVersion";
+	
+	If AccessManagementInternal.IsRecordLevelRestrictionDisabled() Then
+		StandardSubsystemsServer.DeleteApplicationOperationParameter(ParameterName, HasChanges);
+		Return;
+	EndIf;
+	
 	TextsVersion = AccessRestrictionTextsVersion();
 	
 	BeginTransaction();
 	Try
 		HasCurrentChanges = False;
 		
-		StandardSubsystemsServer.UpdateApplicationParameter(
-			"StandardSubsystems.AccessManagement.AccessRestrictionTextsVersion",
+		StandardSubsystemsServer.UpdateApplicationParameter(ParameterName,
 			TextsVersion, HasCurrentChanges);
 		
-		StandardSubsystemsServer.AddApplicationParameterChanges(
-			"StandardSubsystems.AccessManagement.AccessRestrictionTextsVersion",
+		StandardSubsystemsServer.AddApplicationParameterChanges(ParameterName,
 			?(HasCurrentChanges,
 			  New FixedStructure("HasChanges", True),
 			  New FixedStructure()) );
@@ -186,6 +199,10 @@ EndProcedure
 // rights based on access values saved to access restriction parameters.
 //
 Procedure ScheduleAccessUpdateByConfigurationChanges() Export
+	
+	If AccessManagementInternal.IsRecordLevelRestrictionDisabled() Then
+		Return;
+	EndIf;
 	
 	SetPrivilegedMode(True);
 	
@@ -247,6 +264,10 @@ Procedure OnChangeCacheStructureVersion(OldCacheStructureVersion, NewParameters)
 		ScheduleUpdate3(NewParameters, "NewCacheStructure26");
 	EndIf;
 	
+	If OldVersion.Main < 29 Then
+		ScheduleUpdate4(NewParameters, "NewCacheStructure29");
+	EndIf;
+	
 EndProcedure
 
 Function VersionComposition(Version)
@@ -289,7 +310,8 @@ Procedure ScheduleUpdate(Parameters, DataAccessKeys, AllowedAccessKeys, LongDesc
 	EndDo;
 	
 	PlanningParameters = AccessManagementInternal.AccessUpdatePlanningParameters();
-	PlanningParameters.ListsRestrictionsVersions = Parameters.ListsRestrictionsVersions;
+	PlanningParameters.ListsRestrictionsVersions  = Parameters.ListsRestrictionsVersions;
+	PlanningParameters.AllListsIDs = Parameters.AllListsIDs;
 	
 	PlanningParameters.DataAccessKeys = DataAccessKeys;
 	PlanningParameters.AllowedAccessKeys = AllowedAccessKeys;
@@ -309,7 +331,8 @@ EndProcedure
 Procedure ScheduleAccessGroupsSetsUpdate(Parameters, LongDesc)
 	
 	PlanningParameters = AccessManagementInternal.AccessUpdatePlanningParameters(False);
-	PlanningParameters.ListsRestrictionsVersions = Parameters.ListsRestrictionsVersions;
+	PlanningParameters.ListsRestrictionsVersions  = Parameters.ListsRestrictionsVersions;
+	PlanningParameters.AllListsIDs = Parameters.AllListsIDs;
 	
 	PlanningParameters.AllowedAccessKeys = False;
 	PlanningParameters.IsUpdateContinuation = True;
@@ -335,7 +358,8 @@ Procedure ScheduleUpdate1(Parameters, LongDesc)
 	EndIf;
 	
 	PlanningParameters = AccessManagementInternal.AccessUpdatePlanningParameters();
-	PlanningParameters.ListsRestrictionsVersions = Parameters.ListsRestrictionsVersions;
+	PlanningParameters.ListsRestrictionsVersions  = Parameters.ListsRestrictionsVersions;
+	PlanningParameters.AllListsIDs = Parameters.AllListsIDs;
 	
 	PlanningParameters.DataAccessKeys = False;
 	PlanningParameters.AllowedAccessKeys = True;
@@ -383,7 +407,8 @@ Procedure ScheduleUpdate2(Parameters, LongDesc)
 	EndIf;
 	
 	PlanningParameters = AccessManagementInternal.AccessUpdatePlanningParameters();
-	PlanningParameters.ListsRestrictionsVersions = Parameters.ListsRestrictionsVersions;
+	PlanningParameters.ListsRestrictionsVersions  = Parameters.ListsRestrictionsVersions;
+	PlanningParameters.AllListsIDs = Parameters.AllListsIDs;
 	
 	PlanningParameters.DataAccessKeys = True;
 	PlanningParameters.AllowedAccessKeys = False;
@@ -433,7 +458,8 @@ Procedure ScheduleUpdate3(Parameters, LongDesc)
 	EndIf;
 	
 	PlanningParameters = AccessManagementInternal.AccessUpdatePlanningParameters();
-	PlanningParameters.ListsRestrictionsVersions = Parameters.ListsRestrictionsVersions;
+	PlanningParameters.ListsRestrictionsVersions  = Parameters.ListsRestrictionsVersions;
+	PlanningParameters.AllListsIDs = Parameters.AllListsIDs;
 	
 	PlanningParameters.DataAccessKeys = False;
 	PlanningParameters.AllowedAccessKeys = True;
@@ -462,6 +488,55 @@ Procedure AddLists3(Lists, AdditionalContext)
 		EndIf;
 		Lists.Add(MetadataObject.FullName());
 	EndDo;
+	
+EndProcedure
+
+// Intended for procedure "UpdateRegisterDataByConfigurationChanges".
+Procedure ScheduleUpdate4(Parameters, LongDesc)
+	
+	DataRestrictionsDetails = AccessManagementInternal.DataRestrictionsDetails();
+	ExternalUsersEnabled = Constants.UseExternalUsers.Get();
+	
+	Lists = New Array;
+	ListsForExternalUsers = New Array;
+	For Each KeyAndValue In DataRestrictionsDetails Do
+		AddLists4(Lists, KeyAndValue.Key, KeyAndValue.Value.Text);
+		If ExternalUsersEnabled Then
+			AddLists4(ListsForExternalUsers,
+				KeyAndValue.Key, KeyAndValue.Value.TextForExternalUsers1);
+		EndIf;
+	EndDo;
+	
+	PlanningParameters = AccessManagementInternal.AccessUpdatePlanningParameters();
+	PlanningParameters.ListsRestrictionsVersions  = Parameters.ListsRestrictionsVersions;
+	PlanningParameters.AllListsIDs = Parameters.AllListsIDs;
+	
+	PlanningParameters.DataAccessKeys = False;
+	PlanningParameters.AllowedAccessKeys = True;
+	PlanningParameters.ForExternalUsers = False;
+	PlanningParameters.IsUpdateContinuation = True;
+	PlanningParameters.LongDesc = LongDesc;
+	AccessManagementInternal.ScheduleAccessUpdate(Lists, PlanningParameters);
+	
+	PlanningParameters.ForUsers = False;
+	PlanningParameters.ForExternalUsers = True;
+	PlanningParameters.LongDesc = LongDesc;
+	AccessManagementInternal.ScheduleAccessUpdate(ListsForExternalUsers, PlanningParameters);
+	
+EndProcedure
+
+// For the ScheduleUpdate4 procedure.
+Procedure AddLists4(Lists, FullName, Text)
+	
+	Separator = ", " + Chars.LF + Chars.Tab;
+	WordBeingSearchedFor = Upper("EmptyRef");
+	
+	StringParts1 = StrSplit(Upper(Text), Separator);
+	If StringParts1.Find(WordBeingSearchedFor) = Undefined Then
+		Return;
+	EndIf;
+	
+	Lists.Add(FullName);
 	
 EndProcedure
 
@@ -544,6 +619,13 @@ Procedure EnableUniversalRecordLevelAccessRestriction() Export
 EndProcedure
 
 #EndRegion
+
+// See StandardSubsystemsServer.WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode
+Procedure WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode(Methods) Export
+	
+	Methods.Insert("HandlerForLongTermUpdateOperationInBackground", True);
+	
+EndProcedure
 
 #EndRegion
 

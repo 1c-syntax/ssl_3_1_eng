@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -285,7 +284,7 @@ EndProcedure
 // Parameters:
 //   ExchangePlanName - String - The name of the peer infobase's exchange plan whose 
 //                    counterpart is being searched for in the configuration metadata.
-//   SettingID- String - ID of the setting option ("SetupOption") of the peer infobase.
+//   SettingID - String - ID of the setting option ("SetupOption") of the peer infobase.
 //   FoundNameOfExchangePlan - String - If the infobase contains an exchange plan named "ExchangePlanName", the parameter is set to "ExchangePlanName".
 //       Otherwise, the parameter is assigned the name of the global exchange plan.
 //       The parameter is overridable
@@ -316,6 +315,17 @@ EndProcedure
 //
 Procedure WhenRedefiningAttributesOfReferenceTypeOfExchangePlanSSUBAsset(ExchangePlanNodeObject, Result) Export 
 
+EndProcedure
+
+// Determines whether the synchronization setup is completed.
+// Parameters:
+//
+//  StandardProcessing - Boolean - Execution flag
+//  SettingCompleted - Boolean - If True, synchronization setup is completed.
+//  ExchangeNode - ExchangePlanObject - Target exchange node.
+//
+Procedure WhenDeterminingWhetherSynchronizationSettingHasEnded(StandardProcessing, SettingCompleted, ExchangeNode = Undefined) Export
+	
 EndProcedure
 
 #Region ObsoleteProceduresAndFunctions

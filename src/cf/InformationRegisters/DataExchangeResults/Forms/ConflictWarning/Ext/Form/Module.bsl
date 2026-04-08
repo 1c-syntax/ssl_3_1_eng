@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -81,7 +80,8 @@ Procedure ShowDifferences(Command)
 	If ThisApplicationVersion = 0
 		Or VersionFromOtherApplication = 0 Then
 		
-		CommonClient.MessageToUser(NStr("en = 'There must be two object versions for comparison.'"), CommonClient.DefaultLanguageCode());
+		MessageText = NStr("en = 'There must be two object versions for comparison.'", CommonClient.DefaultLanguageCode());
+		CommonClient.MessageToUser(MessageText);
 		Return;
 		
 	EndIf;
@@ -140,8 +140,8 @@ Procedure ReviseConflictResolutionResult(Command)
 		
 	EndIf;
 	
-	NotifyDescription = New CallbackDescription("CompleteTheRevisionOfTheResultOfTheCollision", ThisObject);
-	ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.YesNo);
+	CallbackDescription = New CallbackDescription("CompleteTheRevisionOfTheResultOfTheCollision", ThisObject);
+	ShowQueryBox(CallbackDescription, QueryText, QuestionDialogMode.YesNo);
 	
 EndProcedure
 

@@ -69,7 +69,7 @@
 				<xr:Item xsi:type="xr:MDObjectRef">Enum.LabelsDisplayOptions</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">DefinedType.LabelsOwner</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.EditLabels</xr:Item>
-				<xr:Item xsi:type="xr:MDObjectRef">StyleItem.LabelTextColor_SSLym</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">StyleItem.LabelTextColor</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">StyleItem.LabelsFont</xr:Item>
 			</Content>
 		</Properties>

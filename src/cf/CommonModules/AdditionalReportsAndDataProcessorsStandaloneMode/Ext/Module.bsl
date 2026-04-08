@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Internal
@@ -243,7 +242,7 @@ Procedure BeforeWriteAdditionalDataProcessor(Source, Cancel) Export
 	
 	If Common.IsStandaloneWorkplace() Then
 		
-		If (Source.DeletionMark Or Source.Publication = Enums.AdditionalReportsAndDataProcessorsPublicationOptions.isDisabled) And IsServiceProcessing(Source.Ref) Then
+		If (Source.DeletionMark Or Source.Publication = Enums.AdditionalReportsAndDataProcessorsPublicationOptions.TurnedOff) And IsServiceProcessing(Source.Ref) Then
 			
 			Raise StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Additional report or data processor %1 was imported from the service and cannot be disabled from the standalone workstation.

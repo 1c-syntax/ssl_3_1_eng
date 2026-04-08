@@ -1,5 +1,5 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
@@ -35,7 +35,7 @@ Procedure OnDefineMinAndRecommended1CEnterpriseVersions(MinPlatformVersion, Reco
 EndProcedure
 
 // Called when the minimum and recommended 1C:Enterprise versions are incorrectly specified
-// in the procedure "OnDefineMinimalAndRecommended1CEnterpriseVersion".
+// in the OnDefineMinAndRecommended1CEnterpriseVersions procedure.
 //
 // Parameters:
 //  MinSpecified - String

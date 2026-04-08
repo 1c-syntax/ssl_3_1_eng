@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -1311,7 +1310,7 @@ Function ReplaceReferences(Val ReplacementPairs, Val ReplacementParameters = Und
 		
 		ProgressText = NStr("en = 'Replacing duplicates…'");
 		AdditionalProgressParameters = New Structure;
-		AdditionalProgressParameters.Insert("ProcessedItemsCount", 0);
+		AdditionalProgressParameters.Insert("ProcessedItemsCount_SSLyf", 0);
 		
 		DuplicateCount = Duplicates.Count();
 		
@@ -1320,7 +1319,7 @@ Function ReplaceReferences(Val ReplacementPairs, Val ReplacementParameters = Und
 			HadErrors = Result.HasErrors;
 			Result.HasErrors = False;
 			
-			// @skip-check query-in-loop
+			// @skip-check query-in-loop - Batch processing of a large amount of data.
 			ReplaceRefsUsingShortTransactions(Result, ExecutionParameters, Duplicate1, SearchTable);
 					
 			If Not Result.HasErrors Then
@@ -1328,21 +1327,21 @@ Function ReplaceReferences(Val ReplacementPairs, Val ReplacementParameters = Und
 			EndIf;
 			Result.HasErrors = Result.HasErrors Or HadErrors;
 			
-			AdditionalProgressParameters.ProcessedItemsCount = 
-				AdditionalProgressParameters.ProcessedItemsCount + 1;
+			AdditionalProgressParameters.ProcessedItemsCount_SSLyf = 
+				AdditionalProgressParameters.ProcessedItemsCount_SSLyf + 1;
 			
 			AddToReferenceReplacementStatistics(Statistics, Duplicate1, Result.HasErrors);
 			
-			If AdditionalProgressParameters.ProcessedItemsCount >9 Then
-				TimeConsumingOperations.ReportProgress(AdditionalProgressParameters.ProcessedItemsCount,
+			If AdditionalProgressParameters.ProcessedItemsCount_SSLyf >9 Then
+				TimeConsumingOperations.ReportProgress(AdditionalProgressParameters.ProcessedItemsCount_SSLyf,
 					ProgressText, AdditionalProgressParameters);
-				AdditionalProgressParameters.ProcessedItemsCount = 0;
+				AdditionalProgressParameters.ProcessedItemsCount_SSLyf = 0;
 			EndIf;
 			
 		EndDo;
 		
-		If AdditionalProgressParameters.ProcessedItemsCount > 0 Then
-			TimeConsumingOperations.ReportProgress(AdditionalProgressParameters.ProcessedItemsCount, 
+		If AdditionalProgressParameters.ProcessedItemsCount_SSLyf > 0 Then
+			TimeConsumingOperations.ReportProgress(AdditionalProgressParameters.ProcessedItemsCount_SSLyf, 
 				ProgressText, AdditionalProgressParameters);
 		EndIf;
 		
@@ -1427,8 +1426,10 @@ Function UsageInstances(Val RefSet, Val ResultAddress = "", AdditionalParameters
 	
 	UsageInstances = New ValueTable;
 	
+	ExceptionsToSearchForRegistersSubordinateToRegistrar = CommonClientServer.StructureProperty(
+		AdditionalParameters, "ExceptionsToSearchForRegistersSubordinateToRegistrar", Undefined);
 	SetPrivilegedMode(True);
-	UsageInstances = FindByRef(RefSet); // See UsageInstances.
+	UsageInstances = FindByRef(RefSet, , , ExceptionsToSearchForRegistersSubordinateToRegistrar); // See UsageInstances.
 	SetPrivilegedMode(False);
 	
 	// UsageInstances - ValueTable - A table where:
@@ -1552,18 +1553,21 @@ EndFunction
 // Returns:
 //   Structure:
 //   * AdditionalRefSearchExceptions - Map - allows you to expand the reference search exceptions
-// 			See CommonOverridable.OnAddReferenceSearchExceptions
+//          See CommonOverridable.OnAddReferenceSearchExceptions.
 //   * CancelRefsSearchExceptions - Array of MetadataObject - completely cancels the reference search exceptions for
 //                                                                 metadata objects.
+//   * ExceptionsToSearchForRegistersSubordinateToRegistrar - Array of MetadataObject - if the registers subordinate to the recorder are specified, See CommonOverridable.OnAddReferenceSearchExceptions
+//          they must be added.
 //
 Function UsageInstancesSearchParameters() Export
-
+	
 	SearchParameters = New Structure;
 	SearchParameters.Insert("AdditionalRefSearchExceptions", New Map);
 	SearchParameters.Insert("CancelRefsSearchExceptions", New Map);
-
+	SearchParameters.Insert("ExceptionsToSearchForRegistersSubordinateToRegistrar", New Array);
+	
 	Return SearchParameters;
-
+	
 EndFunction
 
 // Returns an exception when searching for object usage locations.
@@ -1796,7 +1800,8 @@ Function CommonModule(Name) Export
 		Raise(StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Invalid parameter %1 in %2. Common module ""%3"" does not exist.'"), 
 			"Name", "Common.CommonModule", Name), 
-			ErrorCategory.ConfigurationError);
+			ErrorCategory.ConfigurationError,
+			"StandardSubsystems.Core.ThisIsErrorOfGettingGenericModuleByName");
 	EndIf;
 	
 	Return Module;
@@ -2310,7 +2315,7 @@ Function CommonCoreParameters(ShouldReturnCachedValue = True) Export
 	Result.Insert("RecommendedPlatformVersion", Result.MinPlatformVersion);
 	Result.Insert("ShouldIncludeFullStackInLongRunningOperationErrors", False);
 	Result.Insert("DisableMetadataObjectsIDs", False);
-	// Instead, use MinPlatformVersion and RecommendedPlatformVersion properties :
+	// Instead, use the MinPlatformVersion and RecommendedPlatformVersion properties:
 	Result.Insert("MinPlatformVersion1", "");
 	Result.Insert("MustExit", False); // Aborting startup if the current version is earlier than the minimum version.
 	
@@ -3433,6 +3438,8 @@ Function COMConnectorID(Val COMConnectorName) Export
 	
 	If COMConnectorName = "v83.COMConnector" Then
 		Return "181E893D-73A4-4722-B61D-D604B3D67D47";
+	ElsIf COMConnectorName = "v85.COMConnector" Then
+		Return "BBAB44B3-6C80-43B1-AFEC-3094B12122BE";
 	EndIf;
 	
 	Raise(StringFunctionsClientServer.SubstituteParametersToString(
@@ -3743,12 +3750,21 @@ EndFunction
 // Checks whether the metadata object belongs to the reference type.
 //
 // Parameters:
-//  MetadataObject - MetadataObject - object to compare against the specified type.
+//  ObjectDetails - MetadataObject, Type - object to compare against the specified type.
 // 
 // Returns:
 //   Boolean - True if the object is a reference type object.
 //
-Function IsRefTypeObject(MetadataObject) Export
+Function IsRefTypeObject(ObjectDetails) Export
+	
+	If TypeOf(ObjectDetails) = Type("Type") Then
+		MetadataObject = Metadata.FindByType(ObjectDetails);
+		If MetadataObject = Undefined Then
+			Return False;
+		EndIf;
+	Else
+		MetadataObject = ObjectDetails;
+	EndIf;
 	
 	MetadataObjectName = MetadataObject.FullName();
 	Position = StrFind(MetadataObjectName, ".");
@@ -4217,8 +4233,8 @@ Function ObjectKindByType(ObjectType) Export
 	
 	Else
 		Raise(StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Invalid data type of parameter ""%1"" in function ""%2"": ""%3"".'"), String(ObjectType)),
-			"ObjectType", "Common.ObjectKindByType", ErrorCategory.ConfigurationError);
+			NStr("en = 'Invalid data type of parameter ""%1"" in function ""%2"": ""%3"".'"), "ObjectType",
+			"Common.ObjectKindByType", String(ObjectType)), ErrorCategory.ConfigurationError);
 	EndIf;
 	
 EndFunction
@@ -4864,7 +4880,7 @@ EndFunction
 //                   query parameters and filters.
 //               - Filter - Record set filter. In this case, "Replacement" is set to "True".
 //
-//  Replacing - РежимЗамещения, Boolean - Indicates how the parameter is passed to the "BeforeWrite" event subscription.
+//  Replacing - ReplacementMode, Boolean - Indicates how the parameter is passed to the "BeforeWrite" event subscription.
 //            - Undefined - Sets the parameter to the value of the "Replacing" property
 //                of the "AdditionalProperties" structure for the given record set.
 //                If the property is missing, it is set to "True".
@@ -4925,9 +4941,7 @@ Function FilterSetRecordsFromDatabase(RecordSet, Replacing = Undefined, Query = 
 			
 			ExpectedTypes = CommonClientServer.ValueInArray(Type("Boolean"));
 			If StandardSubsystemsCached.RecordSetAdditionMode() <> Undefined Then
-				// ACC:488-off - Support of new 1C:Enterprise types (the executable code is safe)
-				ExpectedTypes.Add(Eval("Type(""ReplacementMode"")"));
-				// ACC:488-on
+				ExpectedTypes.Add(StandardSubsystemsCached.TypeSubstitutionMode());
 			EndIf;
 			CommonClientServer.CheckParameter("Common.FilterSetRecordsFromDatabase",
 				ParameterName, Mode.Replacing, ExpectedTypes);
@@ -5027,7 +5041,7 @@ EndFunction
 //               - CalculationRegisterRecordSet - The record set used
 //                   to detect changes.
 //
-//  Replacing - РежимЗамещения, Boolean - Indicates how the parameter is passed to the "BeforeWrite" event subscription.
+//  Replacing - ReplacementMode, Boolean - Indicates how the parameter is passed to the "BeforeWrite" event subscription.
 //            - Undefined - Sets the parameter to the value of the "Replacing" property
 //                of the "AdditionalProperties" structure for the given record set.
 //                If the property is missing, it is set to "True".
@@ -5103,7 +5117,7 @@ EndFunction
 //               - CalculationRegisterRecordSet - The record set used
 //                   to detect changes.
 //
-//  Replacing - РежимЗамещения, Boolean - Indicates how the parameter is passed to the "BeforeWrite" event subscription.
+//  Replacing - ReplacementMode, Boolean - Indicates how the parameter is passed to the "BeforeWrite" event subscription.
 //
 //  OnlyChanges - Boolean - If it is set to "True", the result will contain
 //                      only modified rows (that is, "RowChangeKind" is 0).
@@ -5112,7 +5126,7 @@ EndFunction
 //  ValueTable:
 //   * LineChangeType - Number - "1" if the row was added,
 //       "-1" if it was removed, and "0" if it wasn't modified.
-//   The further fields are from the "RecordsFromDatabase" table.
+//   The further fields are from the RecordsFromDatabase table.
 //
 Function SetRecordsChange(RecordsFromDatabase, RecordSet, Replacing, OnlyChanges = False) Export
 	
@@ -6002,8 +6016,8 @@ EndFunction
 //  Procedure OnWriteAtServer(Cancel, CurrentObject, WriteParameters)
 //      If CurrentUserCanChangePassword Then
 //          LoginAndPassword = New Structure;
-//          LoginAndPassword .Insert("Login", Login);
-//          LoginAndPassword .Insert("Password", Password);
+//          LoginAndPassword.Insert("Login", Login);
+//          LoginAndPassword.Insert("Password", Password);
 //          SetPrivilegedMode(True);
 //          Common.WriteDataToSecureStorage(CurrentObject.Ref, LoginAndPassword, Undefined);
 //          SetPrivilegedMode(False);
@@ -6425,43 +6439,34 @@ EndFunction
 // restrict attaching external modules in unsafe mode.
 //
 
-// Executes the export procedure by the name with the configuration privilege level.
+// Executes the export procedure or function by the name with the configuration privilege level.
 // To enable the security profile for calling the Execute() operator, the safe mode with the security profile of the infobase
 // is used
 // (if no other safe mode was set in stack previously).
 //
 // Parameters:
-//  MethodName  - String - the name of the export procedure in format
-//                       <object name>.<procedure name>, where <object name> - is
-//                       a common module or object manager module.
-//  Parameters  - Array - the parameters are passed to <ExportProcedureName>
-//                        according to the array item order.
-// 
+//  MethodName  - String - Name of the export procedure or function in the following format
+//                       <ObjectName>.<RoutineName>
+//                       (Where ObjectName is a common module or object manager module.)
+//  Parameters  - Array - The parameters are passed to <MethodName> 
+//                        according to the order of elements in the array.
+//  IsFunction - Boolean - Set to True if calling a function.
+//
+// Returns:
+//  Arbitrary - In case a function was called. Otherwise, Undefined.
+//
 // Example:
 //  Parameters = New Array();
 //  Parameters.Add("1");
 //  Common.ExecuteConfigurationMethod("MyCommonModule.MyProcedure", Parameters);
 //
-Procedure ExecuteConfigurationMethod(Val MethodName, Val Parameters = Undefined) Export
+Function ExecuteConfigurationMethod(Val MethodName, Val Parameters = Undefined, IsFunction = False) Export
 	
 	CheckConfigurationProcedureName(MethodName);
 	
-	If SubsystemExists("StandardSubsystems.SecurityProfiles") Then
-		ModuleSafeModeManager = CommonModule("SafeModeManager");
-		If ModuleSafeModeManager.UseSecurityProfiles()
-			And Not ModuleSafeModeManager.SafeModeSet() Then
-			
-			InfobaseProfile = ModuleSafeModeManager.InfobaseSecurityProfile();
-			If ValueIsFilled(InfobaseProfile) Then
-				
-				SetSafeMode(InfobaseProfile);
-				If SafeMode() = True Then
-					SetSafeMode(False);
-				EndIf;
-				
-			EndIf;
-			
-		EndIf;
+	SecurityProfileIB = StandardSubsystemsServer.SecurityProfileForRunCalculate();
+	If ValueIsFilled(SecurityProfileIB) Then
+		SetSafeMode(SecurityProfileIB);
 	EndIf;
 	
 	ParametersString = "";
@@ -6472,11 +6477,15 @@ Procedure ExecuteConfigurationMethod(Val MethodName, Val Parameters = Undefined)
 		ParametersString = Mid(ParametersString, 1, StrLen(ParametersString) - 1);
 	EndIf;
 	
-	Execute MethodName + "(" + ParametersString + ")";
+	If IsFunction Then
+		Return Eval(MethodName + "(" + ParametersString + ")"); // ACC:488 The code being executed is safe.
+	EndIf;
 	
-EndProcedure
+	Execute MethodName + "(" + ParametersString + ")"; // ACC:487 The code being executed is safe.
+	
+EndFunction
 
-// Executes the export procedure of the 1C:Enterprise language object by name.
+// Executes the export procedure or function of the 1C:Enterprise language object by name.
 // To enable the security profile for calling the Execute() operator, the safe mode with the security profile of the infobase
 // is used
 // (if no other safe mode was set in stack previously).
@@ -6486,8 +6495,12 @@ EndProcedure
 //  MethodName - String       - the name of export procedure of the data processor object module.
 //  Parameters - Array       - the parameters are passed to <ProcedureName>
 //                             according to the array item order.
+//  IsFunction - Boolean      - Set to True if calling a function.
 //
-Procedure ExecuteObjectMethod(Val Object, Val MethodName, Val Parameters = Undefined) Export
+// Returns:
+//  Arbitrary - In case a function was called. Otherwise, Undefined.
+//
+Function ExecuteObjectMethod(Val Object, Val MethodName, Val Parameters = Undefined, IsFunction = False) Export
 	
 	// Method name validation.
 	Try
@@ -6497,29 +6510,25 @@ Procedure ExecuteObjectMethod(Val Object, Val MethodName, Val Parameters = Undef
 		EndIf;
 	Except
 		Raise(StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Invalid value of the %1 parameter in %3: %2.'"), 
+				NStr("en = 'Invalid value of the %1 parameter in %3: %2.'"),
 				"MethodName", MethodName, "Common.ExecuteObjectMethod"),
 			ErrorCategory.ConfigurationError);
 	EndTry;
 	
-	If SubsystemExists("StandardSubsystems.SecurityProfiles") Then
-		ModuleSafeModeManager = CommonModule("SafeModeManager");
-		If ModuleSafeModeManager.UseSecurityProfiles()
-			And Not ModuleSafeModeManager.SafeModeSet() Then
-			
-			ModuleSafeModeManager = CommonModule("SafeModeManager");
-			InfobaseProfile = ModuleSafeModeManager.InfobaseSecurityProfile();
-			
-			If ValueIsFilled(InfobaseProfile) Then
-				
-				SetSafeMode(InfobaseProfile);
-				If SafeMode() = True Then
-					SetSafeMode(False);
-				EndIf;
-				
-			EndIf;
-			
-		EndIf;
+	Try
+		StandardSubsystemsServer.CheckMethodToCallAsArbitraryCode(MethodName,, Object);
+	Except
+		ErrorInfo = ErrorInfo();
+		ErrorTitle = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Invalid value of parameter %1 in %3: %2'"),
+			"MethodName", MethodName, "Common.ExecuteObjectMethod");
+		Refinement = CommonClientServer.ExceptionClarification(ErrorInfo, ErrorTitle);
+		Raise(Refinement.Text, Refinement.Category,,, ErrorInfo);
+	EndTry;
+	
+	SecurityProfileIB = StandardSubsystemsServer.SecurityProfileForRunCalculate();
+	If ValueIsFilled(SecurityProfileIB) Then
+		SetSafeMode(SecurityProfileIB);
 	EndIf;
 	
 	ParametersString = "";
@@ -6530,9 +6539,13 @@ Procedure ExecuteObjectMethod(Val Object, Val MethodName, Val Parameters = Undef
 		ParametersString = Mid(ParametersString, 1, StrLen(ParametersString) - 1);
 	EndIf;
 	
-	Execute "Object." + MethodName + "(" + ParametersString + ")";
+	If IsFunction Then
+		Return Eval("Object." + MethodName + "(" + ParametersString + ")"); // ACC:488 The code being executed is safe.
+	EndIf;
 	
-EndProcedure
+	Execute "Object." + MethodName + "(" + ParametersString + ")"; // ACC:487 The code being executed is safe.
+	
+EndFunction
 
 // Executes any algorithm written in 1C:Enterprise language after setting
 // the script execution safe mode and date separation safe mode for
@@ -6571,14 +6584,14 @@ EndProcedure
 //
 //  Example 1
 //  Parameters = New Structure;
-//  Parameters .Insert("Val1", 1);
-//  Parameters .Insert("Val2", 10);
-//  Common.ExecuteInSafeMode("Parameters.Val1= Parameters.Val2", Parameters);
+//  Parameters.Insert("Value1", 1);
+//  Parameters.Insert("Value2", 10);
+//  Common.ExecuteInSafeMode("Parameters.Value1= Parameters.Value2", Parameters);
 //
 //  Example 2
 //  Parameters = New Structure;
-//  Parameters .Insert("Источник", Источник);
-//  Parameters .Insert("Результат", Undefined);
+//  Parameters.Insert("Source", Source);
+//  Parameters.Insert("Result", Undefined);
 //  AlgorithmCheckParameters = Common.AlgorithmCheckParameters();
 //  AlgorithmCheckParameters.InvalidMethods.Add("Write");
 //  AlgorithmCheckParameters.InvalidMethods.Add("Base64Value");
@@ -6604,11 +6617,11 @@ Procedure ExecuteInSafeMode(Val Algorithm, Val Parameters = Undefined,
 	
 	Try
 		If TransactionActive() Then
-			Execute Algorithm;
+			Execute Algorithm; // ACC:487 - Code is executed in safe mode.
 		Else
 			BeginTransaction(); // ACC:326 - Force-termination of a transaction.
 			Try
-				Execute Algorithm;
+				Execute Algorithm; // ACC:487 - Code is executed in safe mode.
 				RollbackTransaction();
 			Except
 				RollbackTransaction();
@@ -6690,11 +6703,11 @@ Function CalculateInSafeMode(Val Expression, Val Parameters = Undefined,
 	
 	Try
 		If TransactionActive() Then
-			Result = Eval(Expression);
+			Result = Eval(Expression); // ACC:488 - Code is executed in safe mode.
 		Else
 			BeginTransaction(); // ACC:326 - Force-termination of a transaction.
 			Try
-				Result = Eval(Expression);
+				Result = Eval(Expression); // ACC:488 - Code is executed in safe mode.
 				RollbackTransaction();
 			Except
 				RollbackTransaction();
@@ -7572,24 +7585,24 @@ Procedure ShortenFileName(FileName) Export
 	String = "";
 	RowBalance = "";
 	LineSize = 0;
-	MaximumRowSize = BytesLimit - 32;
+	MaximumStringSize = BytesLimit - 32;
 	
 	ExtensionSize = StringSizeInBytes(File.Extension);
-	ShortenAlongWithExtension = ExtensionSize > 32;
+	ShortenWithExtension = ExtensionSize > 32;
 	
-	If ShortenAlongWithExtension Then
-		AbbreviatedName = File.Name;
+	If ShortenWithExtension Then
+		ShortenableName = File.Name;
 	Else
-		AbbreviatedName = File.BaseName;
+		ShortenableName = File.BaseName;
 		LineSize = ExtensionSize;
 	EndIf;
 	
-	For CharacterNumber = 1 To StrLen(AbbreviatedName) Do
-		Char = Mid(AbbreviatedName, CharacterNumber, 1);
+	For CharacterNumber = 1 To StrLen(ShortenableName) Do
+		Char = Mid(ShortenableName, CharacterNumber, 1);
 		SymbolSize = StringSizeInBytes(Char);
 		
-		If LineSize + SymbolSize > MaximumRowSize Then
-			RowBalance = Mid(AbbreviatedName, CharacterNumber);
+		If LineSize + SymbolSize > MaximumStringSize Then
+			RowBalance = Mid(ShortenableName, CharacterNumber);
 			Break;
 		EndIf;
 		
@@ -7603,7 +7616,7 @@ Procedure ShortenFileName(FileName) Export
 	DataHashing.Append(RowBalance);
 	HashSum = StrReplace(DataHashing.HashSum, " ", "");
 	
-	FileName = File.Path + FileName + HashSum + ?(ShortenAlongWithExtension, "", File.Extension);
+	FileName = File.Path + FileName + HashSum + ?(ShortenWithExtension, "", File.Extension);
 	
 EndProcedure
 
@@ -7667,16 +7680,29 @@ Function TemplateExists(FullTemplateName) Export
 	Template = Metadata.FindByFullName(FullTemplateName);
 	If TypeOf(Template) = Type("MetadataObject") Then 
 		
-		Var_533_Template = New Structure("TemplateType");
-		FillPropertyValues(Var_533_Template, Template);
+		Var_536_Template = New Structure("TemplateType");
+		FillPropertyValues(Var_536_Template, Template);
 		TemplateType = Undefined;
-		If Var_533_Template.Property("TemplateType", TemplateType) Then 
+		If Var_536_Template.Property("TemplateType", TemplateType) Then 
 			Return TemplateType <> Undefined;
 		EndIf;
 		
 	EndIf;
 	
 	Return False;
+	
+EndFunction
+
+Function DomainNameCorrect(DomainName_SSLy) Export
+	
+	If StrLen(DomainName_SSLy) > 255 Then
+		Return False;
+	EndIf;
+	
+	Expression = "(?:xn--[a-z0-9-]{1,59})(?:\.xn--[a-z0-9-]{1,59})*"
+		+ "|(?!^\d+$)(?:(?!-)[a-z0-9-]{1,63}(?<!-))(?:\.(?!-)[a-z0-9-]{1,63}(?<!-))*";
+	
+	Return StrLikeByRegularExpression(DomainName_SSLy, Expression, True);
 	
 EndFunction
 
@@ -8321,7 +8347,7 @@ EndProcedure
 Function ModifiedObjectsOnReplaceInObject(ExecutionParameters, UsageInstance1, RowsToProcess)
 	Data = UsageInstance1.Data;
 	SequencesDetails = SequencesDetails(UsageInstance1.Metadata);
-	RegisterRecordsDetails            = RegisterRecordsDetails(UsageInstance1.Metadata);
+	RegisterRecordsDetails            = RegisterRecordsDetails(UsageInstance1.Metadata, ExecutionParameters);
 	TaskDetails				= TaskDetails(UsageInstance1.Metadata);
 	
 	SetPrivilegedMode(True);
@@ -8715,7 +8741,8 @@ EndProcedure
 
 // Parameters:
 //   MetadataObject - MetadataObject
-// 	
+//   ExecutionParameters - See UsageInstancesSearchParameters
+// 
 // Returns:
 //  Array of Structure:
 //   * FieldList - Structure
@@ -8724,14 +8751,26 @@ EndProcedure
 //   * RecordSet - InformationRegisterRecordSet
 //   * LockSpace - String
 //
-Function RegisterRecordsDetails(Val MetadataObject)
+Function RegisterRecordsDetails(Val MetadataObject, ExecutionParameters = Undefined)
 	
 	RegisterRecordsDetails = New Array;
 	If Not Metadata.Documents.Contains(MetadataObject) Then
 		Return RegisterRecordsDetails;
 	EndIf;
 	
+	Exceptions = RefSearchExclusions();
+	
 	For Each Movement In MetadataObject.RegisterRecords Do
+		
+		If Exceptions[Movement] = "*" Then
+			If ExecutionParameters <> Undefined And ExecutionParameters.ShouldDeleteDirectly Then
+				CommonClientServer.SupplementArray(
+					ExecutionParameters.UsageInstancesSearchParameters.ExceptionsToSearchForRegistersSubordinateToRegistrar,
+					CommonClientServer.ValueInArray(Movement), True);
+			EndIf;
+			
+			Continue;
+		EndIf;
 		
 		If Metadata.AccumulationRegisters.Contains(Movement) Then
 			RecordSet = AccumulationRegisters[Movement.Name].CreateRecordSet();
@@ -8757,7 +8796,7 @@ Function RegisterRecordsDetails(Val MetadataObject)
 		
 		// Ref fields and candidate dimensions.
 // @skip-check query-in-loop - An empty request to obtain a list of table fields.
-		// @skip-check query-in-loop - Пустой запрос для получения списка полей таблицы.
+		// @skip-check query-in-loop - 
 		LongDesc = ObjectFieldLists(RecordSet, Movement.Dimensions, ExcludeFields);
 		If LongDesc.FieldList.Count() = 0 Then
 			// No need to process.
@@ -8796,7 +8835,7 @@ Function SequencesDetails(Val Meta)
 		
 		TableName = Sequence.FullName();
 		
-		// @skip-check query-in-loop - Пустой запрос для получения списка полей таблицы.
+		// @skip-check query-in-loop - 
 		LongDesc = ObjectFieldLists(TableName, Sequence.Dimensions, "Recorder");
 		If LongDesc.FieldList.Count() > 0 Then
 			
@@ -8933,7 +8972,7 @@ Function RecordsSetDetails(Val MetadataTables)
 	
 	// Candidate Ref fields and a dimension set.
 // @skip-check query-in-loop - An empty request to obtain a list of table fields.
-	// @skip-check query-in-loop - Пустой запрос для получения списка полей таблицы.
+	// @skip-check query-in-loop - 
 	KeyDetails = ObjectFieldLists(TableName, MetadataTables.Dimensions, "Period, Recorder");
 	
 	If Metadata.InformationRegisters.Contains(MetadataTables) Then
@@ -9048,18 +9087,21 @@ Procedure ReplaceInRowCollection(CollectionKind, CollectionName, Object, Collect
 EndProcedure
 
 Procedure ImportModifiedSetToAccountingRegister(RecordSet, ChangedCollection, ModifiedAttributesNames)
+
 	NotModifiedDimensions = New Map;
 	ChangedDimensions = New Map;
+	UnmodifiedResources = New Map;
+	ModifiedResources = New Map;
 	RegisterMetadata = RecordSet.Metadata();
 	
 	For Each Dimension In RegisterMetadata.Dimensions Do
 		DimensionsNames = New Array;
 		
 		If Dimension.Balance Or Not RegisterMetadata.Correspondence Then
-			DimensionsNames.Add(Dimension.Name);			
-		Else	
+			DimensionsNames.Add(Dimension.Name);
+		Else
 			DimensionsNames.Add(Dimension.Name + "Dr");
-			DimensionsNames.Add(Dimension.Name + "Cr");		
+			DimensionsNames.Add(Dimension.Name + "Cr");
 		EndIf;
 		
 		For Each DimensionName In DimensionsNames Do
@@ -9071,13 +9113,40 @@ Procedure ImportModifiedSetToAccountingRegister(RecordSet, ChangedCollection, Mo
 		EndDo;
 	EndDo;
 	
-	For Cnt = 0 To RecordSet.Count()-1 Do
+	For Each Resource In RegisterMetadata.Resources Do
+		ResourceNames = New Array;
+		
+		If Resource.Balance Or Not RegisterMetadata.Correspondence Then
+			ResourceNames.Add(Resource.Name);
+		Else
+			ResourceNames.Add(Resource.Name + "Dr");
+			ResourceNames.Add(Resource.Name + "Cr");
+		EndIf;
+		
+		For Each ResourceName In ResourceNames Do
+			If ModifiedAttributesNames.Find(ResourceName) = Undefined Then
+				UnmodifiedResources.Insert(ResourceName, RecordSet.UnloadColumn(ResourceName));
+			Else
+				ModifiedResources.Insert(ResourceName, RecordSet.UnloadColumn(ResourceName));
+			EndIf;
+		EndDo;
+	EndDo;
+	
+	For Cnt = 0 To RecordSet.Count() - 1 Do
 	
 		For Each ValueDimensionName In ChangedDimensions Do
 			If RecordSet[Cnt][ValueDimensionName.Key] = NULL Then
 				ValueDimensionName.Value[Cnt] = NULL;
 			Else
 				ValueDimensionName.Value[Cnt] = ChangedCollection[Cnt][ValueDimensionName.Key];
+			EndIf;
+		EndDo;
+		
+		For Each NameOfValueResource In ModifiedResources Do
+			If RecordSet[Cnt][NameOfValueResource.Key] = NULL Then
+				NameOfValueResource.Value[Cnt] = NULL;
+			Else
+				NameOfValueResource.Value[Cnt] = ChangedCollection[Cnt][NameOfValueResource.Key];
 			EndIf;
 		EndDo;
 	
@@ -9092,6 +9161,15 @@ Procedure ImportModifiedSetToAccountingRegister(RecordSet, ChangedCollection, Mo
 	For Each ValueDimensionsInColumn In ChangedDimensions Do
 		RecordSet.LoadColumn(ValueDimensionsInColumn.Value, ValueDimensionsInColumn.Key);
 	EndDo;
+	
+	For Each ValueDimensionsInColumn In UnmodifiedResources Do
+		RecordSet.LoadColumn(ValueDimensionsInColumn.Value, ValueDimensionsInColumn.Key);
+	EndDo;
+	
+	For Each ValueDimensionsInColumn In ModifiedResources Do
+		RecordSet.LoadColumn(ValueDimensionsInColumn.Value, ValueDimensionsInColumn.Key);
+	EndDo;
+
 EndProcedure
 
 Procedure WriteObjectWithMessageInterception(Val Object, Val Action, Val WriteMode, Val WriteParameters)
@@ -9815,7 +9893,8 @@ Function ServerManagerModule(Name)
 		Raise(StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Invalid value of parameter ""%1"" in function ""%2"". Metadata object doesn''t exist: ""%3"".'"), 
 			"Name", "Common.ServerManagerModule", Name),
-			ErrorCategory.ConfigurationError);
+			ErrorCategory.ConfigurationError,
+			"StandardSubsystems.Core.ThisIsErrorGettingManagerModuleByName");
 	EndIf;
 	
 	// ACC:488-disable CalculateInSafeMode is not used, to avoid calling CommonModule recursively.
@@ -10258,7 +10337,7 @@ Function ClearNonExistentRefs(Value)
 		Count = Value.Count();
 		For Number = 1 To Count Do
 			ReverseIndex = Count - Number;
-			// @skip-check query-in-loop - выборка ссылок из разных таблиц.
+			// @skip-check query-in-loop - 
 			If ClearNonExistentRefs(Value[ReverseIndex]) Then
 				Value.Delete(ReverseIndex);
 			EndIf;
@@ -10270,7 +10349,7 @@ Function ClearNonExistentRefs(Value)
 		Or Type = Type("Map") Then
 		
 		For Each KeyAndValue In Value Do
-			// @skip-check query-in-loop - выборка ссылок из разных таблиц.
+			// @skip-check query-in-loop - 
 			If ClearNonExistentRefs(KeyAndValue.Value) Then
 				Value.Insert(KeyAndValue.Key, Undefined);
 			EndIf;
@@ -10473,6 +10552,17 @@ Procedure CheckConfigurationProcedureName(Val ProcedureName)
 			ErrorCategory.ConfigurationError);
 	EndTry;
 	
+	Try
+		StandardSubsystemsServer.CheckMethodToCallAsArbitraryCode(ProcedureName);
+	Except
+		ErrorInfo = ErrorInfo();
+		ErrorTitle = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Invalid value of %1 parameter (passed value: ""%2"") in %3:'"),
+			"ProcedureName", ProcedureName, "Common.ExecuteConfigurationMethod");
+		Refinement = CommonClientServer.ExceptionClarification(ErrorInfo, ErrorTitle);
+		Raise(Refinement.Text, Refinement.Category,,, ErrorInfo);
+	EndTry;
+	
 EndProcedure
 
 // Returns an object manager by name.
@@ -10616,112 +10706,31 @@ Function ObjectManagerByName(Name)
 	
 EndFunction
 
-// Call an export procedure by the name with the configuration privilege level.
-// To enable the security profile for calling the Execute() operator, the safe mode with the security profile of the configuration
-// is used
-// (if no other safe mode was set in stack previously).
+// Instead, use ExecuteConfigurationMethod.
 //
 // Parameters:
-//  MethodName  - String - the name of the export function in format
-//                       <object name>.<procedure name>, where <object name> - is
-//                       a common module or object manager module.
-//  Parameters  - Array - the parameters are passed to the <MethodName> function
-//                        according to the array item order.
+//  MethodName - See ExecuteConfigurationMethod.MethodName
+//  Parameters - See ExecuteConfigurationMethod.Parameters
 //
 // Returns:
-//  Arbitrary - the called function result.
+//  See ExecuteConfigurationMethod
 //
-Function CallConfigurationFunction(Val MethodName, Val Parameters = Undefined) Export
-	
-	CheckConfigurationProcedureName(MethodName);
-	
-	If SubsystemExists("StandardSubsystems.SecurityProfiles") Then
-		ModuleSafeModeManager = CommonModule("SafeModeManager");
-		If ModuleSafeModeManager.UseSecurityProfiles()
-			And Not ModuleSafeModeManager.SafeModeSet() Then
-			
-			InfobaseProfile = ModuleSafeModeManager.InfobaseSecurityProfile();
-			If ValueIsFilled(InfobaseProfile) Then
-				
-				SetSafeMode(InfobaseProfile);
-				If SafeMode() = True Then
-					SetSafeMode(False);
-				EndIf;
-				
-			EndIf;
-			
-		EndIf;
-	EndIf;
-	
-	ParametersString = "";
-	If Parameters <> Undefined And Parameters.Count() > 0 Then
-		For IndexOf = 0 To Parameters.UBound() Do 
-			ParametersString = ParametersString + "Parameters[" + XMLString(IndexOf) + "],";
-		EndDo;
-		ParametersString = Mid(ParametersString, 1, StrLen(ParametersString) - 1);
-	EndIf;
-	
-	Return Eval(MethodName + "(" + ParametersString + ")"); // ACC:488 The code being executed is safe.
-	
+Function CallConfigurationFunction(MethodName, Parameters = Undefined) Export
+	Return ExecuteConfigurationMethod(MethodName, Parameters, True);
 EndFunction
 
-// Call the export function of the 1C:Enterprise script language object by name.
-// To enable the security profile for calling the Execute() operator, the safe mode with the security profile of the configuration
-// is used
-// (if no other safe mode was set in stack previously).
+// Instead, use ExecuteObjectMethod.
 //
 // Parameters:
-//  Object    - Arbitrary - 1C:Enterprise language object that contains the methods (for example, DataProcessorObject).
-//  MethodName - String       - the name of export function of the data processor object module.
-//  Parameters - Array       - the parameters are passed to the <MethodName> function
-//                             according to the array item order.
+//  Object    - See ExecuteObjectMethod.Object
+//  MethodName - See ExecuteObjectMethod.MethodName
+//  Parameters - See ExecuteObjectMethod.Parameters
 //
 // Returns:
-//  Arbitrary - the called function result.
+//  See ExecuteObjectMethod
 //
-Function CallObjectFunction(Val Object, Val MethodName, Val Parameters = Undefined) Export
-	
-	// Method name validation.
-	Try
-		Test = New Structure;
-		Test.Insert(MethodName, MethodName);
-	Except
-		Raise(StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Incorrect value of parameter %1 in %3: %2.'"), 
-			"MethodName", MethodName, "Common.ExecuteObjectMethod"),
-			ErrorCategory.ConfigurationError);
-	EndTry;
-	
-	If SubsystemExists("StandardSubsystems.SecurityProfiles") Then
-		ModuleSafeModeManager = CommonModule("SafeModeManager");
-		If ModuleSafeModeManager.UseSecurityProfiles()
-			And Not ModuleSafeModeManager.SafeModeSet() Then
-			
-			ModuleSafeModeManager = CommonModule("SafeModeManager");
-			InfobaseProfile = ModuleSafeModeManager.InfobaseSecurityProfile();
-			
-			If ValueIsFilled(InfobaseProfile) Then
-				
-				SetSafeMode(InfobaseProfile);
-				If SafeMode() = True Then
-					SetSafeMode(False);
-				EndIf;
-				
-			EndIf;
-			
-		EndIf;
-	EndIf;
-	
-	ParametersString = "";
-	If Parameters <> Undefined And Parameters.Count() > 0 Then
-		For IndexOf = 0 To Parameters.UBound() Do 
-			ParametersString = ParametersString + "Parameters[" + XMLString(IndexOf) + "],";
-		EndDo;
-		ParametersString = Mid(ParametersString, 1, StrLen(ParametersString) - 1);
-	EndIf;
-	
-	Return Eval("Object." + MethodName + "(" + ParametersString + ")"); // ACC:488 The code being executed is safe.
-	
+Function CallObjectFunction(Object, MethodName, Parameters = Undefined) Export
+	Return ExecuteObjectMethod(Object, MethodName, Parameters, True);
 EndFunction
 
 #EndRegion
@@ -11042,6 +11051,9 @@ Function FoundCalls(Algorithm, SearchBars, Ending = Undefined)
 						FoundCalls.Add(SearchString);
 					EndIf;
 					Break;
+				ElsIf SymbolValue = "/" Then
+					FoundCalls.Add(SearchString);
+					Break;
 				ElsIf ValueIsFilled(TrimAll(SymbolValue)) Then
 					Break;
 				EndIf;
@@ -11113,6 +11125,13 @@ Function BlacklistedModules()
 EndFunction
 
 #EndRegion
+
+// See StandardSubsystemsServer.WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode
+Procedure WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode(Methods) Export
+	
+	Methods.Insert("RefsToObjectFound", True);
+	
+EndProcedure
 
 #EndRegion
 

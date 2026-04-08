@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -354,8 +353,9 @@ EndProcedure
 // Parameters:
 //  FileID - UUID - an ID of the file being received.
 //  FileName           - String - a file name from the storage.
+//  DeleteFileFromStorage - Boolean - Indicates if the information about the exchange message file must be removed from the storage.
 //
-Procedure OnReceiveFileFromStorage(Val FileID, FileName) Export
+Procedure OnReceiveFileFromStorage(Val FileID, FileName, DeleteFileFromStorage = True) Export
 	
 	QueryText =
 	"SELECT
@@ -381,9 +381,11 @@ Procedure OnReceiveFileFromStorage(Val FileID, FileName) Export
 	FileName = Selection.FileName;
 	
 	// Deleting information about an exchange message file from the storage
-	RecordStructure = New Structure;
-	RecordStructure.Insert("MessageID", String(FileID));
-	InformationRegisters.DataAreasDataExchangeMessages.DeleteRecord(RecordStructure);
+	If DeleteFileFromStorage Then
+		RecordStructure = New Structure;
+		RecordStructure.Insert("MessageID", String(FileID));
+		InformationRegisters.DataAreasDataExchangeMessages.DeleteRecord(RecordStructure);
+	EndIf;
 	
 EndProcedure
 
@@ -670,8 +672,8 @@ EndProcedure
 // Parameters:
 //   Parameters - Structure - a handler parameter structure:
 //     * SeparatedHandlers - ValueTable
-//                              - Undefined - see details
-//       of the NewUpdateHandlersTable function of the InfobaseUpdate common module.
+//                              - Undefined - See the description
+//       of the InfobaseUpdate.NewUpdateHandlerTable function.
 //       Undefined is passed upon direct call (without using the infobase version
 //       update functionality).
 // 
@@ -795,18 +797,32 @@ EndProcedure
 //
 Procedure OnSendDataToSlave(DataElement, ItemSend, Val InitialImageCreating, Recipient) Export
 	
-	If Recipient = Undefined Then
-		
-		//
-		
-	ElsIf ItemSend = DataItemSend.Delete
-		Or ItemSend = DataItemSend.Ignore Then
+	If Recipient = Undefined 
+		Or ItemSend = DataItemSend.Delete
+		Or ItemSend = DataItemSend.Ignore
+		Or TypeOf(DataElement) = Type("ObjectDeletion")
+		Then
 		
 		// No overriding for a standard data processor.
+		Return;
 		
-	ElsIf InitialImageCreating
-		And Common.DataSeparationEnabled()
+	EndIf;
+	
+	// For objects separated by an auxiliary delimiter, clear the delimiter
+	// information when exporting from data area to a local workstation.
+	// Previously, this was done only when creating the initial image,  
+	// as there were no objects involved in recurring exchange.
+	
+	If Common.DataSeparationEnabled()
 		And StandaloneModeInternal.IsStandaloneWorkstationNode(Recipient.Ref) Then
+		
+		If Not Recipient.AdditionalProperties.Property("MetadataProperties1") Then
+			
+			// Added for recurring exchange because, when creating the initial image, it is added from
+			// StandaloneWorkstationCreationWizard.WriteInstallationPackageToTempStorage().
+			Recipient.AdditionalProperties.Insert("MetadataProperties1", New Map);
+			
+		EndIf;
 		
 		ItemMetadata = DataElement.Metadata();
 		
@@ -817,8 +833,14 @@ Procedure OnSendDataToSlave(DataElement, ItemSend, Val InitialImageCreating, Rec
 		EndIf;
 		
 		If MetadataProperties1.IsSeparatedMetadataObject Then
-		
-			ItemSend = DataItemSend.Ignore;
+			
+			If InitialImageCreating Then
+				
+				// When creating the initial image, separated objects are not included in
+				// the image (1cv8.1CD) and will be exported separately.
+				ItemSend = DataItemSend.Ignore;
+				
+			EndIf;
 			
 			If MetadataProperties1.IsSeparatedMetadataObjectAuxiliaryData Then
 				
@@ -839,9 +861,13 @@ Procedure OnSendDataToSlave(DataElement, ItemSend, Val InitialImageCreating, Rec
 				
 			EndIf;
 			
-			StandaloneModeInternal.OpenRecordInitialImageData(Recipient);
-			StandaloneModeInternal.WriteInitialImageDataElement(DataElement, MetadataProperties1, Recipient);
-			StandaloneModeInternal.CloseInitialImageDataWrite(Recipient);
+			If InitialImageCreating Then
+				
+				StandaloneModeInternal.OpenRecordInitialImageData(Recipient);
+				StandaloneModeInternal.WriteInitialImageDataElement(DataElement, MetadataProperties1, Recipient);
+				StandaloneModeInternal.CloseInitialImageDataWrite(Recipient);
+				
+			EndIf;
 			
 		EndIf;
 		
@@ -1035,7 +1061,44 @@ Procedure GetDataExchangesStates(TempTablesManager) Export
 	|FROM
 	|	InformationRegister.DataAreasSuccessfulDataExchangeStates AS SuccessfulDataExchangesStates
 	|WHERE
-	|	SuccessfulDataExchangesStates.ActionOnExchange = VALUE(Enum.ActionsOnExchange.DataExport)");
+	|	SuccessfulDataExchangesStates.ActionOnExchange = VALUE(Enum.ActionsOnExchange.DataExport)	
+	|;
+	|
+	|////////////////////////////////////////////////////////////////////////////////
+	|SELECT
+	|	DataExchangeTasksInternalPublication.InfobaseNode AS InfobaseNode,
+	|	MIN(DataExchangeTasksInternalPublication.TaskNumber) AS TaskNumber
+	|INTO OpenExchangeTasks
+	|FROM
+	|	InformationRegister.DataExchangeTasksInternalPublication AS DataExchangeTasksInternalPublication
+	|WHERE
+	|	DataExchangeTasksInternalPublication.OperationSuccessful = FALSE
+	|	AND DataExchangeTasksInternalPublication.OperationFailed = FALSE
+	|
+	|GROUP BY
+	|	DataExchangeTasksInternalPublication.InfobaseNode
+	|;
+	|
+	|////////////////////////////////////////////////////////////////////////////////
+	|SELECT
+	|	OpenExchangeTasks.InfobaseNode AS InfobaseNode,
+	|	MAX(DataExchangeTasksInternalPublication.Action) AS Action
+	|INTO CurrentNodeTasks
+	|FROM
+	|	OpenExchangeTasks AS OpenExchangeTasks
+	|		INNER JOIN InformationRegister.DataExchangeTasksInternalPublication AS DataExchangeTasksInternalPublication
+	|		ON OpenExchangeTasks.InfobaseNode = DataExchangeTasksInternalPublication.InfobaseNode
+	|			AND OpenExchangeTasks.TaskNumber = DataExchangeTasksInternalPublication.TaskNumber
+	|WHERE
+	|	DataExchangeTasksInternalPublication.OperationSuccessful = FALSE
+	|	AND DataExchangeTasksInternalPublication.OperationFailed = FALSE
+	|
+	|GROUP BY
+	|	OpenExchangeTasks.InfobaseNode
+	|;
+	|
+	|////////////////////////////////////////////////////////////////////////////////
+	|DROP OpenExchangeTasks");
 	
 	Query.TempTablesManager = TempTablesManager;
 	Query.Execute();
@@ -2271,9 +2334,9 @@ Function RequiredPlatformVersion() Export
 	If ValueIsFilled(PlatformVersion) Then
 		Return PlatformVersion;
 	EndIf;
-	
-	SystemInfo = New SystemInfo;
-	PlatformVersion = StrSplit(SystemInfo.AppVersion, ".");
+
+	PlatformVersion = StandardSubsystemsServer.CompatibilityModeVersion();
+	PlatformVersion = StrSplit(PlatformVersion, ".");
 	
 	// Deleting an additional number (last number) from the version number
 	PlatformVersion.Delete(3);

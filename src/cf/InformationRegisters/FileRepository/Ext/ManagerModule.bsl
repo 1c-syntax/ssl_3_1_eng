@@ -1,71 +1,110 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Internal
 
-Procedure WriteBinaryData(Val File, Val BinaryData) Export
+Procedure WriteBinaryData(Val File, Val BinaryData, Val RecordingParametersVIB = Undefined) Export
 	
-	Hashing = New DataHashing(HashFunction.SHA256);
-
-	IsEmptyBinaryData = (BinaryData = Undefined);
-	If IsEmptyBinaryData Then
-		EmptyBinaryData = GetBinaryDataFromString("");
-		Hashing.Append(EmptyBinaryData);
-		Size = EmptyBinaryData.Size();
-	Else
-		Hashing.Append(BinaryData);
-		Size = BinaryData.Size();
+	If RecordingParametersVIB = Undefined Then
+		RecordingParametersVIB = WorkingWithServerFileArchive.CompletedParametersOfEntryInInformationDatabase(File);
 	EndIf;
-	Hash = GetBase64StringFromBinaryData(Hashing.HashSum);
-	
+
+	HashingResult = WorkingWithServerFileArchive.ResultOfHashingBinaryData(BinaryData);
+	IsEmptyBinaryData = HashingResult.IsEmptyBinaryData;
+	Size					= HashingResult.Size;
+	Hash						= HashingResult.Hash;
+
 	BeginTransaction();
 	Try
 		Block = New DataLock;
 		LockItem = Block.Add("Catalog.BinaryDataStorage");
 		LockItem.SetValue("Hash", Hash);
 		Block.Lock();
-		
+
 		DeleteBinaryData(File);
-		
-		Query = New Query;
-		Query.SetParameter("Hash", Hash);
-		Query.SetParameter("Size", Size);
-		Query.Text =
-		"SELECT
-		|	BinaryDataStorage.Ref AS Ref
-		|FROM
-		|	Catalog.BinaryDataStorage AS BinaryDataStorage
-		|WHERE
-		|	BinaryDataStorage.Hash = &Hash
-		|	AND BinaryDataStorage.Size = &Size";
-		Selection = Query.Execute().Select();
-		BinaryDataStorageRef = Undefined;
-		If Selection.Next() Then
-			BinaryDataStorageRef = Selection.Ref;
+
+		BinaryDataStoresAreAvailable = WorkingWithServerFileArchive.BinaryDataStoresAreAvailable();
+
+		InformationAboutBinaryDataStore = WorkingWithServerFileArchive.InformationAboutBinaryDataStorageElementByHashAndSize(Hash, Size);
+		BinaryDataStorageRef = InformationAboutBinaryDataStore.BinaryDataStorageRef;
+
+		If ValueIsFilled(BinaryDataStorageRef) Then
+
+			If InformationAboutBinaryDataStore.StoredDataSize = 0 Then
+				BinaryDataStorageObject = BinaryDataStorageRef.GetObject();
+				BinaryDataStorageObject.BinaryData = ?(IsEmptyBinaryData,
+					Undefined, New ValueStorage(BinaryData, New Deflation(9)));
+				BinaryDataStorageObject.Write();
+			EndIf;			
+
+			If Not RecordingParametersVIB.ThisIsEntryInFileArchive
+				And Not RecordingParametersVIB.DoNotModifyBinaryData
+				And BinaryDataStoresAreAvailable
+				And WorkingWithServerFileArchive.BinaryDataStoreIsPresentInFileArchive(BinaryDataStorageRef) Then
+
+				NameOfAttributeForWritingBinaryData = WorkingWithFilesInBinaryDataWarehouseIsService.DetermineAttributesOfBinaryDataStorageByFileStorageType(RecordingParametersVIB.FileStorageType);
+
+				BinaryDataForRecording = ?(IsEmptyBinaryData, Undefined, New ValueStorage(BinaryData, New Deflation(9)));				
+
+				If NameOfAttributeForWritingBinaryData = "BinaryData" Then
+					BinaryDataStorageObject = BinaryDataStorageRef.GetObject();
+					BinaryDataStorageObject.BinaryData = BinaryDataForRecording;
+					BinaryDataStorageObject.Write();
+				Else
+					BinaryDataValue = New Structure(NameOfAttributeForWritingBinaryData, BinaryDataForRecording);
+					InformationRegisters.BinaryDataStorageLocations.AddEditEntry(BinaryDataStorageRef, BinaryDataValue);
+				EndIf;
+
+				InformationRegisters.InformationAboutStoringDeduplicatedFiles.AddRecord(BinaryDataStorageRef, RecordingParametersVIB);
+
+			EndIf;				
+
 		Else
 			BinaryDataStorageObject = Catalogs.BinaryDataStorage.CreateItem();
 			BinaryDataStorageObject.Size = Size;
 			BinaryDataStorageObject.Hash = Hash;
-			BinaryDataStorageObject.BinaryData = ?(IsEmptyBinaryData,
-				Undefined, New ValueStorage(BinaryData, New Deflation(9)));
+
+			If BinaryDataStoresAreAvailable And RecordingParametersVIB.ThisIsEntryInFileArchive Then
+				BinaryDataForRecording = ?(ValueIsFilled(RecordingParametersVIB.BinaryDataOfArchive), 
+												New ValueStorage(RecordingParametersVIB.BinaryDataOfArchive, New Deflation(9)),
+												Undefined);
+			Else
+				BinaryDataForRecording = ?(IsEmptyBinaryData, Undefined, New ValueStorage(BinaryData, New Deflation(9)));
+			EndIf;
+
+			If BinaryDataStoresAreAvailable Then
+				NameOfAttributeForWritingBinaryData = WorkingWithFilesInBinaryDataWarehouseIsService.DetermineAttributesOfBinaryDataStorageByFileStorageType(RecordingParametersVIB.FileStorageType, RecordingParametersVIB.ThisIsEntryInFileArchive);
+			Else
+				NameOfAttributeForWritingBinaryData = "BinaryData";
+			EndIf;
+			
+			If NameOfAttributeForWritingBinaryData = "BinaryData" Then
+				BinaryDataStorageObject[NameOfAttributeForWritingBinaryData] = BinaryDataForRecording;			
+			EndIf;
+
 			BinaryDataStorageObject.Write();
 			BinaryDataStorageRef = BinaryDataStorageObject.Ref;
+
+			If NameOfAttributeForWritingBinaryData <> "BinaryData" Then
+
+				BinaryDataValue = New Structure(NameOfAttributeForWritingBinaryData, BinaryDataForRecording);
+				InformationRegisters.BinaryDataStorageLocations.AddEditEntry(BinaryDataStorageRef, BinaryDataValue);
+
+			EndIf;
+
+			InformationRegisters.InformationAboutStoringDeduplicatedFiles.AddRecord(BinaryDataStorageRef, RecordingParametersVIB);
 		EndIf;
-		
-		Record = CreateRecordManager();
-		Record.File = File;
-		Record.BinaryDataStorage = BinaryDataStorageRef;
-		Record.Write(False);
-		
+
+		AddRecord(File, BinaryDataStorageRef, False);
+
 		CommitTransaction();	
 	Except
 		RollbackTransaction();
@@ -111,6 +150,11 @@ Procedure DeleteBinaryData(File) Export
 			|WHERE
 			|	FileRepository.BinaryDataStorage = &BinaryDataStorage";
 			If Query.Execute().IsEmpty() Then
+
+                InformationRegisters.BinaryDataStorageLocations.DeleteRecord(Selection.BinaryDataStorage);
+
+				InformationRegisters.InformationAboutStoringDeduplicatedFiles.DeleteRecord(Selection.BinaryDataStorage);
+
 				DataStorage = Selection.BinaryDataStorage.GetObject();
 				DataStorage.DataExchange.Load = True;
 				DataStorage.Delete();
@@ -199,6 +243,7 @@ Procedure TransferData_(ShouldReportProgress = False, ResultAddress = Undefined)
 			
 			BinaryData = Selection.FileBinaryData.Get();
 			If TypeOf(BinaryData) = Type("Picture") Then
+
 				BinaryData = BinaryData.GetBinaryData();
 
 			ElsIf TypeOf(BinaryData) <> Type("BinaryData") Then
@@ -221,9 +266,10 @@ Procedure TransferData_(ShouldReportProgress = False, ResultAddress = Undefined)
 				Continue;
 			EndIf;
 			
-			// @skip-check query-in-loop 
+			// @skip-check query-in-loop . 
 			If Not RecordExists(File) Then
-				WriteBinaryData(File, BinaryData);
+				RecordingParametersVIB = WorkingWithServerFileArchive.CompletedParametersOfEntryInInformationDatabase(File);
+				WriteBinaryData(File, BinaryData, RecordingParametersVIB);
 			EndIf;
 			
 			Record = InformationRegisters.DeleteFilesBinaryData.CreateRecordManager();
@@ -252,6 +298,15 @@ Procedure TransferData_(ShouldReportProgress = False, ResultAddress = Undefined)
 		PutToTempStorage(Errors, ResultAddress);
 	EndIf;
 	
+EndProcedure
+
+Procedure AddRecord(File, BinaryDataStorageRef, Replace = True) Export
+
+	Record = CreateRecordManager();
+	Record.File = File;
+	Record.BinaryDataStorage = BinaryDataStorageRef;
+	Record.Write(Replace);	
+
 EndProcedure
 
 #Region UpdateHandlers
@@ -341,8 +396,9 @@ Procedure TransferFilesBinaryDataToFileStorageInfoRegister(Selection)
 			WriteFileVersionManager.Read();
 			
 			BinaryData = WriteFileVersionManager.StoredFile.Get();
-			// @skip-check query-in-loop 
-			WriteBinaryData(Selection.Ref, BinaryData);
+			RecordingParametersVIB = WorkingWithServerFileArchive.CompletedParametersOfEntryInInformationDatabase(Selection.Ref);
+			// @skip-check query-in-loop .
+			WriteBinaryData(Selection.Ref, BinaryData, RecordingParametersVIB);
 
 			InfobaseUpdate.MarkProcessingCompletion(Selection.Ref);
 			ObjectsProcessed = ObjectsProcessed + 1;
@@ -423,8 +479,9 @@ Procedure ToCreateTheMissingVersionFile(Selection)
 				BinaryFilesData.File = FileRef;
 				BinaryFilesData.Read();
 				If BinaryFilesData.Selected() Then
-					// @skip-check query-in-loop 
-					WriteBinaryData(Version.Ref, BinaryFilesData.FileBinaryData.Get());
+					RecordingParametersVIB = WorkingWithServerFileArchive.CompletedParametersOfEntryInInformationDatabase(Version);
+					// @skip-check query-in-loop .
+					WriteBinaryData(Version.Ref, BinaryFilesData.FileBinaryData.Get(), RecordingParametersVIB);
 					BinaryFilesData.Delete();
 				EndIf;
 				
@@ -477,6 +534,13 @@ Function RecordExists(File)
 	Return Not Query.Execute().IsEmpty();
 	
 EndFunction
+
+// See StandardSubsystemsServer.WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode
+Procedure WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode(Methods) Export
+	
+	Methods.Insert("TransferData_", True);
+	
+EndProcedure
 
 #EndRegion
 

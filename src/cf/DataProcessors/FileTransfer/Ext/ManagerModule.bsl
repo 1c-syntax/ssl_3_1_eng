@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -191,16 +190,21 @@ Procedure MoveToVolumes(FileObject1, VolumeProperties, Parameters)
 EndProcedure
 
 Procedure MoveToInfobase(FileObject1, VolumeProperties, Parameters)
+
 	FileData = FilesOperationsInVolumesInternal.FileData(FileObject1.Ref);
-	FilesOperationsInternal.WriteFileToInfobase(FileObject1.Ref, FileData);
-	
+
 	PathToFile = FilesOperationsInVolumesInternal.FullFileNameInVolume(
 					New Structure("Volume, PathToFile", FileObject1.Volume, FileObject1.PathToFile));
-	
+
 	FileObject1.Volume = Undefined;
 	FileObject1.PathToFile = "";
 	FileObject1.FileStorageType = Enums.FileStorageTypes.InInfobase;
-	FileObject1.Write();
+	FileObject1.Write();	
+
+	RecordingParametersVIB = WorkingWithServerFileArchive.CompletedParametersOfEntryInInformationDatabase(FileObject1);
+
+	FilesOperationsInternal.WriteFileToInfobase(FileObject1.Ref, FileData, RecordingParametersVIB);
+
 	FilesOperationsInVolumesInternal.DeleteFile(PathToFile);
 EndProcedure
 
@@ -215,7 +219,7 @@ EndProcedure
 //   * DetailErrorDescription - String
 //   * Version - DefinedType.AttachedFile
 //
-Function TransferError(FileRef, ErrorInfo)
+Function TransferError(FileRef, ErrorInfo) Export
 
 	ErrorDescription = New Structure;
 	ErrorDescription.Insert("FileName","");
@@ -237,6 +241,13 @@ Procedure ThrowAnExceptionWhenTheVolumeSizeIsExceeded(Val VolumeProperties, Val 
 		Raise NStr("en = 'Volume size limit exceeded.'");
 	EndIf;
 
+EndProcedure
+
+// See StandardSubsystemsServer.WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode
+Procedure WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode(Methods) Export
+	
+	Methods.Insert("ExecuteFileTransfer", True);
+	
 EndProcedure
 
 #EndRegion

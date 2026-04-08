@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -39,9 +38,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		If Not OpenRequest Then
 			IssuedCertificates = ProcessingApplicationForNewQualifiedCertificateIssue.IssuedCertificates(Object.Ref);
 		EndIf;
-		If Not AccessRight("Insert", Metadata.Catalogs.DigitalSignatureAndEncryptionKeysCertificates) Then
-		CommonClientServer.SetFormItemProperty(Items,
-			"FormReissueCertificate", "Visible", False);
+		If Not DigitalSignatureInternal.YouHaveRightToAddCertificatesToCatalog() Then
+			CommonClientServer.SetFormItemProperty(Items,
+				"FormReissueCertificate", "Visible", False);
 		EndIf;
 	Else
 		CommonClientServer.SetFormItemProperty(Items,
@@ -100,6 +99,13 @@ EndProcedure
 &AtServer
 Procedure OnReadAtServer(CurrentObject)
 	
+	// StandardSubsystems.AccessManagement
+	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
+		ModuleAccessManagement = Common.CommonModule("AccessManagement");
+		ModuleAccessManagement.OnReadAtServer(ThisObject, CurrentObject);
+	EndIf;
+	// End StandardSubsystems.AccessManagement
+	
 	// StandardSubsystems.AttachableCommands
 	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
 		ModuleAttachableCommandsClientServer = Common.CommonModule("AttachableCommandsClientServer");
@@ -110,6 +116,9 @@ Procedure OnReadAtServer(CurrentObject)
 	If CertificateAddress <> Undefined Then
 		OnCreateAtServerOnReadAtServer();
 	EndIf;
+	
+	Items.FormClearPersonalSettings.Visible = AccessRight("SaveUserData",
+		Metadata);
 	
 EndProcedure
 
@@ -136,6 +145,18 @@ Procedure AfterWrite(WriteParameters)
 	EndIf;
 	
 	Notify("Write_DigitalSignatureAndEncryptionKeysCertificates", AdditionalParameters, Object.Ref);
+	
+EndProcedure
+
+&AtServer
+Procedure AfterWriteAtServer(CurrentObject, WriteParameters)
+	
+	// StandardSubsystems.AccessManagement
+	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
+		ModuleAccessManagement = Common.CommonModule("AccessManagement");
+		ModuleAccessManagement.AfterWriteAtServer(ThisObject, CurrentObject, WriteParameters);
+	EndIf;
+	// End StandardSubsystems.AccessManagement
 	
 EndProcedure
 
@@ -242,8 +263,8 @@ Procedure DecorationReissuedURLProcessing(Item, FormattedStringURL, StandardProc
 	If IssuedCertificates.Count() = 1 Then
 		OpenCertificateAfterSelectionFromList(IssuedCertificates[0], Undefined);
 	Else	
-		NotifyDescription = New CallbackDescription("OpenCertificateAfterSelectionFromList", ThisObject, Item);
-		ShowChooseFromList(NotifyDescription, IssuedCertificates);
+		CallbackDescription = New CallbackDescription("OpenCertificateAfterSelectionFromList", ThisObject, Item);
+		ShowChooseFromList(CallbackDescription, IssuedCertificates);
 	EndIf;
 	
 EndProcedure
@@ -422,9 +443,9 @@ Procedure ChangePIN(Command)
 EndProcedure
 
 &AtClient
-Procedure EditFirstNameAndPatronymic(Command)
+Procedure EditNameAndMiddleName(Command)
 	
-	OpenForm("Catalog.DigitalSignatureAndEncryptionKeysCertificates.Form.EditFirstNameAndPatronymic",
+	OpenForm("Catalog.DigitalSignatureAndEncryptionKeysCertificates.Form.EditNameAndMiddleName",
 		New Structure("Name, MiddleName", Object.Name, Object.MiddleName), ThisObject,,,,
 		New CallbackDescription("EditFirstNameAndPatronymicContinuation", ThisObject),
 		FormWindowOpeningMode.LockOwnerWindow);
@@ -468,6 +489,15 @@ Procedure Attachable_UpdateCommands()
 	EndIf;
 EndProcedure
 // End StandardSubsystems.AttachableCommands
+
+&AtClient
+Procedure ClearPersonalSettings(Command)
+
+	CommonClient.CommonSettingsStorageDelete(Object.Ref, Undefined,
+		UserName());
+	SigningAllowed = False;
+
+EndProcedure
 
 #EndRegion
 
@@ -523,7 +553,7 @@ Procedure OnCreateAtServerOnReadAtServer()
 		If Not ThisIsTheAuthor And Not CertificateIsAvailable Then
 			// Standard users can change only their own certificates.
 			ReadOnly = True;
-			Items.EditFirstNameAndPatronymic.Visible = False;
+			Items.EditNameAndMiddleName.Visible = False;
 			
 		Else
 			// Standard users cannot change access rights.
@@ -545,20 +575,20 @@ Procedure OnCreateAtServerOnReadAtServer()
 		Return; // Certificate = Undefined.
 	EndIf;
 	
-	EditFirstNameAndPatronymic = False;
+	EditNameAndMiddleName = False;
 	SubjectProperties = DigitalSignature.CertificateSubjectProperties(Certificate);
 	If SubjectProperties.LastName <> Undefined Then
 		Items.LastName.ReadOnly = True;
 	EndIf;
 	If SubjectProperties.Name <> Undefined Then
 		If StrFind(SubjectProperties.Name, " ") <> 0 Then
-			EditFirstNameAndPatronymic = True;
+			EditNameAndMiddleName = True;
 		EndIf;
 		Items.Name.ReadOnly = True;
 	EndIf;
 	If SubjectProperties.Property("MiddleName") And SubjectProperties.MiddleName <> Undefined Then
 		If StrFind(SubjectProperties.MiddleName, " ") <> 0 Then
-			EditFirstNameAndPatronymic = True;
+			EditNameAndMiddleName = True;
 		EndIf;
 		Items.MiddleName.ReadOnly = True;
 	EndIf;
@@ -592,7 +622,7 @@ Procedure OnCreateAtServerOnReadAtServer()
 		    Not Items.LastName.ReadOnly   And Not ValueIsFilled(Object.LastName)
 		Or Not Items.Name.ReadOnly       And Not ValueIsFilled(Object.Name)
 		Or Not Items.MiddleName.ReadOnly  And Not ValueIsFilled(Object.MiddleName)
-		Or EditFirstNameAndPatronymic And Items.EditFirstNameAndPatronymic.Visible;
+		Or EditNameAndMiddleName And Items.EditNameAndMiddleName.Visible;
 	
 	Items.FormShowAutoPopulatedAttributes.Check =
 		Items.FieldsAutoPopulatedFromCertificateData.Visible;
@@ -712,7 +742,7 @@ Procedure RefreshVisibilityWarnings(Val CryptoCertificate = Undefined)
 			
 			DataWarnings = ResultofCertificateAuthorityVerification.Warning;
 			
-			If ResultofCertificateAuthorityVerification.Valid_SSLyf
+			If ResultofCertificateAuthorityVerification.Valid
 				And Not ValueIsFilled(DataWarnings.ErrorText) Then
 					
 				Items.GroupWarning.Visible = ValueIsFilled(DataWarnings.AdditionalInfo);
@@ -778,7 +808,10 @@ Procedure UsersListCompletion(SelectionResult, AdditionalParameters) Export
 	If SelectionResult <> Undefined And TypeOf(SelectionResult) = Type("Structure") Then
 		Object.Users.Clear();
 		Object.User = SelectionResult.User;
-		CommonClientServer.SupplementTableFromArray(Object.Users, SelectionResult.Users, "User");
+		For Each UserData In SelectionResult.Users Do
+			NewRow = Object.Users.Add();
+			FillPropertyValues(NewRow, UserData);
+		EndDo;
 		CreateAListOfUsers();
 		Modified = True;
 	EndIf;
@@ -854,8 +887,10 @@ Procedure OpenTheListOfUsers(DisplayMode)
 	
 	UsersArray = New Array;
 	For Each TableRow In Object.Users Do
-		UsersArray.Add(TableRow.User);
-	EndDo;	
+		UserData = New Structure("User, WithoutUsingKey");
+		FillPropertyValues(UserData, TableRow);
+		UsersArray.Add(UserData);
+	EndDo;
 	
 	CompletionNotification = New CallbackDescription("UsersListCompletion", ThisObject);
 	

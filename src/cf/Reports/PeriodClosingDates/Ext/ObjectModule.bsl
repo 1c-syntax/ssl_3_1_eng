@@ -1,18 +1,17 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Public
 
-#Region ForCallsFromOtherSubsystems
+#Region InterfaceImplementation
 
 // StandardSubsystems.ReportsOptions
 
@@ -118,7 +117,7 @@ Function ClosingDatesPrepared(DataParameters)
 	
 	Query = New Query;
 	Query.Text = QueryText();
-	Query.SetParameter("SpecifiedRecipients",     UserParameterValue(DataParameters, "SMSMessageRecipients"));
+	Query.SetParameter("SpecifiedRecipients",     UserParameterValue(DataParameters, "Recipients"));
 	Query.SetParameter("SpecifiedSections",      UserParameterValue(DataParameters, "Sections"));
 	Query.SetParameter("SpecifiedObjects",      UserParameterValue(DataParameters, "Objects"));
 	Query.SetParameter("PeriodClosingDates", PeriodClosingDatesInternal.CalculatedPeriodClosingDates());

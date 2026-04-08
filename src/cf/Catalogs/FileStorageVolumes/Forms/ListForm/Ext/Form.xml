@@ -1,5 +1,12 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.18">
+	<Title>
+		<v8:item>
+			<v8:lang>en</v8:lang>
+			<v8:content>Storage volumes</v8:content>
+		</v8:item>
+	</Title>
+	<AutoTitle>false</AutoTitle>
 	<MobileDeviceCommandBarContent>
 		<xr:Item>
 			<xr:Presentation/>
@@ -81,6 +88,33 @@
 				</Button>
 			</ChildItems>
 		</CommandBar>
+		<UsualGroup name="BinaryDataStorageManagementGroup" id="84">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Manage binary data storages</v8:content>
+				</v8:item>
+			</Title>
+			<GroupHorizontalAlign>Right</GroupHorizontalAlign>
+			<Group>AlwaysHorizontal</Group>
+			<Behavior>Usual</Behavior>
+			<ShowTitle>false</ShowTitle>
+			<ExtendedTooltip name="BinaryDataStorageManagementGroupExtendedTooltip" id="85"/>
+			<ChildItems>
+				<Button name="ManageBinaryDataStoresButton" id="86">
+					<Type>Hyperlink</Type>
+					<GroupHorizontalAlign>Right</GroupHorizontalAlign>
+					<CommandName>Form.Command.ConfigureBinaryDataStores</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Manage binary data storages</v8:content>
+						</v8:item>
+					</Title>
+					<ExtendedTooltip name="ManageBinaryDataStoresButtonExtendedTooltip" id="87"/>
+				</Button>
+			</ChildItems>
+		</UsualGroup>
 		<Table name="List" id="1">
 			<Representation>List</Representation>
 			<CommandBarLocation>None</CommandBarLocation>
@@ -259,6 +293,11 @@
 					<ContextMenu name="ListRefContextMenu" id="26"/>
 					<ExtendedTooltip name="ListRefExtendedTooltip" id="27"/>
 				</LabelField>
+				<LabelField name="ListTypeOfFileStorageVolume" id="81">
+					<DataPath>List.TypeOfFileStorageVolume</DataPath>
+					<ContextMenu name="ListTypeOfFileStorageVolumeContextMenu" id="82"/>
+					<ExtendedTooltip name="ListTypeOfFileStorageVolumeExtendedTooltip" id="83"/>
+				</LabelField>
 			</ChildItems>
 		</Table>
 	</ChildItems>
@@ -298,6 +337,11 @@
 					<dcsset:itemsUserSettingID>911b6018-f537-43e8-a417-da56b22f9aec</dcsset:itemsUserSettingID>
 				</ListSettings>
 			</Settings>
+		</Attribute>
+		<Attribute name="ProcessedTypeOfFileStorageVolume" id="2">
+			<Type>
+				<v8:Type>cfg:EnumRef.TypesOfFileStorage</v8:Type>
+			</Type>
 		</Attribute>
 	</Attributes>
 	<Commands>
@@ -347,5 +391,27 @@
 			</Title>
 			<Action>CheckIntegrity</Action>
 		</Command>
+		<Command name="ConfigureBinaryDataStores" id="4">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Configure binary data storage</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Configure binary data storage</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Action>ConfigureBinaryDataStores</Action>
+		</Command>
 	</Commands>
+	<Parameters>
+		<Parameter name="ValueOfSelectionByTypeOfFileStorageVolume">
+			<Type>
+				<v8:Type>cfg:EnumRef.TypesOfFileStorage</v8:Type>
+			</Type>
+		</Parameter>
+	</Parameters>
 </Form>

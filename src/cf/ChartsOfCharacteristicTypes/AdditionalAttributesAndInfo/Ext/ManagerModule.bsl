@@ -1,18 +1,17 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Public
 
-#Region ForCallsFromOtherSubsystems
+#Region InterfaceImplementation
 
 // StandardSubsystems.BatchEditObjects
 
@@ -39,7 +38,7 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// Standard subsystems.Forbidding editingrequisitobjects
+// StandardSubsystems.ObjectAttributesLock
 
 // Returns:
 //   See ObjectAttributesLockOverridable.OnDefineLockedAttributes.LockedAttributes.
@@ -58,7 +57,7 @@ EndFunction
 
 // End StandardSubsystems.ObjectAttributesLock
 
-// 
+// StandardSubsystems.AccessManagement
 
 // Parameters:
 //   Restriction - See AccessManagementOverridable.OnFillAccessRestriction.Restriction.
@@ -655,7 +654,7 @@ Procedure ChangePropertySetting(Parameters, StorageAddress) Export
 						AnalysisQuery.SetParameter("AllSetsForObject",
 							PropertyManagerInternal.GetObjectPropertySets(
 								Selection.Object).UnloadColumn("Set"));
-						// @skip-check query-in-loop
+						// @skip-check query-in-loop - 
 						Replace = AnalysisQuery.Execute().IsEmpty();
 					EndIf;
 					OldRecordSet.Filter.Object.Set(Selection.Object);
@@ -745,7 +744,7 @@ Procedure ChangePropertySetting(Parameters, StorageAddress) Export
 							AnalysisQuery.SetParameter("AllSetsForObject",
 								PropertyManagerInternal.GetObjectPropertySets(
 									Selection.Ref).UnloadColumn("Set"));
-							// @skip-check query-in-loop
+							// @skip-check query-in-loop - 
 							Replace = AnalysisQuery.Execute().IsEmpty();
 						EndIf;
 						For Each String In CurrentObject.AdditionalAttributes Do
@@ -897,7 +896,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			Object = Ref.GetObject();
 			
 			If Not ValueIsFilled(Object.Name) Then
-				// @skip-check query-in-loop
+				// @skip-check query-in-loop - 
 				SetAttributeName(Selection, Object);
 			Else
 				PropertyManagerInternal.DeleteDisallowedCharacters(Object.Name);
@@ -925,7 +924,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			
 			If Not ValueIsFilled(Object.IDForFormulas) Then
 				TitleForFormulas = TitleForIDGeneration(Object.Title, Object.Presentations);
-				// @skip-check query-in-loop
+				// @skip-check query-in-loop - 
 				Object.IDForFormulas = UUIDForFormulas(TitleForFormulas, Object.Ref);
 			EndIf;
 			
@@ -995,6 +994,13 @@ Function NameUsed(Ref, Name)
 	Return Not Query.Execute().IsEmpty();
 	
 EndFunction
+
+// See StandardSubsystemsServer.WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode
+Procedure WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode(Methods) Export
+	
+	Methods.Insert("ChangePropertySetting", True);
+	
+EndProcedure
 
 #EndRegion
 

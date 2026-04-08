@@ -179,11 +179,11 @@
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>File storage</v8:content>
+											<v8:content>Store files in</v8:content>
 										</v8:item>
 									</Title>
 									<AutoMaxWidth>false</AutoMaxWidth>
-									<MaxWidth>30</MaxWidth>
+									<MaxWidth>35</MaxWidth>
 									<ListChoiceMode>true</ListChoiceMode>
 									<TextEdit>false</TextEdit>
 									<ChoiceList>
@@ -194,7 +194,7 @@
 												<Presentation>
 													<v8:item>
 														<v8:lang>en</v8:lang>
-														<v8:content>Infobase</v8:content>
+														<v8:content>in database</v8:content>
 													</v8:item>
 												</Presentation>
 												<Value xsi:type="xs:string">InInfobase</Value>
@@ -207,7 +207,7 @@
 												<Presentation>
 													<v8:item>
 														<v8:lang>en</v8:lang>
-														<v8:content>Volumes on server</v8:content>
+														<v8:content>in volumes (network directories)</v8:content>
 													</v8:item>
 												</Presentation>
 												<Value xsi:type="xs:string">InVolumesOnHardDrive</Value>
@@ -220,7 +220,7 @@
 												<Presentation>
 													<v8:item>
 														<v8:lang>en</v8:lang>
-														<v8:content>Infobase and volumes on server</v8:content>
+														<v8:content>in database or volumes</v8:content>
 													</v8:item>
 												</Presentation>
 												<Value xsi:type="xs:string">InInfobaseAndVolumesOnHardDrive</Value>
@@ -856,8 +856,8 @@ The application will try to autodetect encoding for such files.</v8:content>
 							<TitleLocation>Right</TitleLocation>
 							<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
 							<CheckBoxType>Auto</CheckBoxType>
-							<ContextMenu name="SynchronizeFiles1ContextMenu" id="2221"/>
-							<ExtendedTooltip name="SynchronizeFiles1ExtendedTooltip" id="2222">
+							<ContextMenu name="SyncFiles1ContextMenu" id="2221"/>
+							<ExtendedTooltip name="SyncFiles1ExtendedTooltip" id="2222">
 								<Title formatted="false">
 									<v8:item>
 										<v8:lang>en</v8:lang>
@@ -1158,6 +1158,115 @@ You will be able to search for text within such files.</v8:content>
 				</UsualGroup>
 			</ChildItems>
 		</UsualGroup>
+		<UsualGroup name="FileArchiveGroup" id="2231">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>File archive</v8:content>
+				</v8:item>
+			</Title>
+			<Group>Vertical</Group>
+			<ExtendedTooltip name="FileArchiveGroupExtendedTooltip" id="2232"/>
+			<ChildItems>
+				<UsualGroup name="GeneralFileArchiveSettingsGroup" id="2233">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>File archive settings</v8:content>
+						</v8:item>
+					</Title>
+					<Group>AlwaysHorizontal</Group>
+					<ShowTitle>false</ShowTitle>
+					<ExtendedTooltip name="GeneralFileArchiveSettingsGroupExtendedTooltip" id="2234"/>
+					<ChildItems>
+						<CheckBoxField name="UseFileArchive" id="2235">
+							<DataPath>UseFileArchive</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Use file archive</v8:content>
+								</v8:item>
+							</Title>
+							<CheckBoxType>Auto</CheckBoxType>
+							<ContextMenu name="UseFileArchiveContextMenu" id="2236"/>
+							<ExtendedTooltip name="UseFileArchiveExtendedTooltip" id="2237"/>
+							<Events>
+								<Event name="OnChange">UseFileArchiveOnChange</Event>
+							</Events>
+						</CheckBoxField>
+						<Button name="SettingUpWorkWithFileArchive" id="2238">
+							<Type>Hyperlink</Type>
+							<AutoMaxWidth>false</AutoMaxWidth>
+							<CommandName>Form.Command.SettingUpWorkWithFileArchive</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Configure file archive</v8:content>
+								</v8:item>
+							</Title>
+							<ExtendedTooltip name="SettingUpWorkWithFileArchiveExtendedTooltip" id="2239"/>
+						</Button>
+						<Button name="CatalogOfFileStorageVolumesArchived" id="2240">
+							<Type>Hyperlink</Type>
+							<CommandName>Form.Command.CatalogOfFileStorageVolumesArchived</CommandName>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Archive volumes</v8:content>
+								</v8:item>
+							</Title>
+							<ExtendedTooltip name="CatalogOfFileStorageVolumesArchivedExtendedTooltip" id="2241"/>
+						</Button>
+					</ChildItems>
+				</UsualGroup>
+				<UsualGroup name="GroupTextInformingUser" id="2242">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>User message</v8:content>
+						</v8:item>
+					</Title>
+					<Group>Vertical</Group>
+					<ShowTitle>false</ShowTitle>
+					<ExtendedTooltip name="GroupTextInformingUserExtendedTooltip" id="2243"/>
+					<ChildItems>
+						<InputField name="TextInformingUserAboutUnavailabilityOfFileInArchive" id="2244">
+							<DataPath>ConstantsSet.TextInformingUserAboutUnavailabilityOfFileInArchive</DataPath>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>User message</v8:content>
+								</v8:item>
+							</Title>
+							<AutoMaxWidth>false</AutoMaxWidth>
+							<MaxWidth>62</MaxWidth>
+							<Height>2</Height>
+							<HorizontalStretch>true</HorizontalStretch>
+							<VerticalStretch>false</VerticalStretch>
+							<MultiLine>true</MultiLine>
+							<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
+							<ContextMenu name="TextInformingUserAboutUnavailabilityOfFileInArchiveContextMenu" id="2245"/>
+							<ExtendedTooltip name="TextInformingUserAboutUnavailabilityOfFileInArchiveExtendedTooltip" id="2246"/>
+							<Events>
+								<Event name="OnChange">TextInformingUserAboutUnavailabilityOfFileInArchiveOnChange</Event>
+							</Events>
+						</InputField>
+						<LabelDecoration name="ExplanationInBuiltInBinaryDataStore" id="2247">
+							<AutoMaxWidth>false</AutoMaxWidth>
+							<TextColor>style:NoteText</TextColor>
+							<Title formatted="false">
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>The message shown when the file archive is unavailable.</v8:content>
+								</v8:item>
+							</Title>
+							<ContextMenu name="ExplanationInBuiltInBinaryDataStoreContextMenu" id="2248"/>
+							<ExtendedTooltip name="ExplanationInBuiltInBinaryDataStoreExtendedTooltip" id="2249"/>
+						</LabelDecoration>
+					</ChildItems>
+				</UsualGroup>
+			</ChildItems>
+		</UsualGroup>
 	</ChildItems>
 	<Attributes>
 		<Attribute name="ConstantsSet" id="1">
@@ -1181,6 +1290,7 @@ You will be able to search for text within such files.</v8:content>
 				<Field>ConstantsSet.StoreFilesInVolumesOnHardDrive</Field>
 				<Field>ConstantsSet.SystemTitle</Field>
 				<Field>ConstantsSet.TextFilesExtensionsList</Field>
+				<Field>ConstantsSet.TextInformingUserAboutUnavailabilityOfFileInArchive</Field>
 				<Field>ConstantsSet.UseAdditionalAttributesAndInfo</Field>
 				<Field>ConstantsSet.UseBusinessProcessesAndTasks</Field>
 				<Field>ConstantsSet.UseDataSynchronization</Field>
@@ -1188,6 +1298,7 @@ You will be able to search for text within such files.</v8:content>
 				<Field>ConstantsSet.UseDigitalSignature</Field>
 				<Field>ConstantsSet.UseEmailClient</Field>
 				<Field>ConstantsSet.UseExternalUsers</Field>
+				<Field>ConstantsSet.UseFileArchive</Field>
 				<Field>ConstantsSet.UseNotes</Field>
 				<Field>ConstantsSet.UseObjectsVersioning</Field>
 				<Field>ConstantsSet.UseOtherInteractions</Field>
@@ -1302,6 +1413,22 @@ You will be able to search for text within such files.</v8:content>
 				<v8:Type>xs:boolean</v8:Type>
 			</Type>
 		</Attribute>
+		<Attribute name="BinaryDataStoresAreAvailable" id="7">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Attribute>
+		<Attribute name="UseFileArchive" id="8">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Use file archive</v8:content>
+				</v8:item>
+			</Title>
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Attribute>
 	</Attributes>
 	<Commands>
 		<Command name="CatalogFileStorageVolumes" id="37">
@@ -1374,6 +1501,36 @@ You will be able to search for text within such files.</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>StartDeduplication</Action>
+		</Command>
+		<Command name="CatalogOfFileStorageVolumesArchived" id="3">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Archive file volumes catalog</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Archive file volumes catalog</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Action>CatalogOfFileStorageVolumesArchived</Action>
+		</Command>
+		<Command name="SettingUpWorkWithFileArchive" id="4">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Configure file archive</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Configure file archive</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Action>SettingUpWorkWithFileArchive</Action>
 		</Command>
 	</Commands>
 </Form>

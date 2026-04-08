@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Internal
@@ -237,9 +236,9 @@ EndFunction
 // Parameters:
 //  OnStart - Boolean
 //  Indicators - String
-//  CallStack - String
+//  CallsStack - String
 //
-Procedure WritePerformanceIndicators(Val OnStart, Val Indicators, Val CallStack) Export
+Procedure WritePerformanceIndicators(Val OnStart, Val Indicators, Val CallsStack) Export
 	
 	EventName = ?(OnStart,
 		NStr("en = 'Client parameters on startup.Performance indicators'",
@@ -247,7 +246,7 @@ Procedure WritePerformanceIndicators(Val OnStart, Val Indicators, Val CallStack)
 		NStr("en = 'Client parameters.Performance indicators'",
 			Common.DefaultLanguageCode()));
 	
-	Comment = Indicators + Chars.LF + Chars.LF + CallStack;
+	Comment = Indicators + Chars.LF + Chars.LF + CallsStack;
 	
 	WriteLogEvent(EventName,
 		EventLogLevel.Information,,, Comment);
@@ -261,7 +260,7 @@ Procedure WritePerformanceIndicators(Val OnStart, Val Indicators, Val CallStack)
 		
 		ModuleCommonCTL = Common.CommonModule("CommonCTL");
 		ModuleCommonCTL.TechnologyLogEntry(EventName, Indicators);
-		ModuleCommonCTL.TechnologyLogEntry(EventNameStack, CallStack);
+		ModuleCommonCTL.TechnologyLogEntry(EventNameStack, CallsStack);
 	EndIf;
 	
 EndProcedure

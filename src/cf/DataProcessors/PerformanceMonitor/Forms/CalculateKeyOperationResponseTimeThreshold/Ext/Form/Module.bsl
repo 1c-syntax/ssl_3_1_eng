@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -49,7 +48,7 @@ Procedure EvaluateResponseTimeThreshold(Command)
 		APDEXScoreChart.ChartType = ChartType.Line;
 		APDEXScoreChart.PlotArea.ValuesScale.TitleText = NStr("en = 'Number of samples'");
 		APDEXScoreChart.Clear();
-		Series = APDEXScoreChart.Series.Add("Time execution, From1");		
+		Series = APDEXScoreChart.Series.Add("Time ofexecution, From1");		
 		For Each Measurement In CalculationResult1.Measurements Do
 			For Each Record In Measurement Do
 				Point = APDEXScoreChart.Points.Add(Record.Key);
@@ -164,8 +163,8 @@ Function CalculateResponseTimeThresholdAtServer(PickingParameters)
 		And Counter < MaxNumberOfIterations
 		Do
 		Counter = Counter + 1;
-		DataMin = DeviationAPDEX(Minimum, CurrentResponseTimeThreshold, TTM, PickingParameters.TargetAPDEX); // @skip-check query-in-loop - Итеративный подбор.
-		DataMax = DeviationAPDEX(Maximum, CurrentResponseTimeThreshold, TTM, PickingParameters.TargetAPDEX); // @skip-check query-in-loop - Итеративный подбор.
+		DataMin = DeviationAPDEX(Minimum, CurrentResponseTimeThreshold, TTM, PickingParameters.TargetAPDEX); // @skip-check query-in-loop - 
+		DataMax = DeviationAPDEX(Maximum, CurrentResponseTimeThreshold, TTM, PickingParameters.TargetAPDEX); // @skip-check query-in-loop - 
 		
 		If Maximum - Minimum <= 0.002 Then
 			Break;

@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Variables
@@ -125,10 +124,7 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 	If (EventName = "Write_SpreadsheetDocument" Or EventName = "Write_OfficeDocument" 
 		Or EventName = "Write_UserPrintTemplates") Then
 		
-		IsSourceMatchesDestination = True;
-		If Parameter.TemplateForObjectExport Then
-			IsSourceMatchesDestination = (ExportTemplates = Parameter.TemplateForObjectExport);
-		EndIf;
+		IsSourceMatchesDestination = (ExportTemplates = Parameter.TemplateForObjectExport);
 		
 		If Not ReadOnly
 		   And IsSourceMatchesDestination Then
@@ -477,9 +473,9 @@ Procedure AddTemplate(Command)
 	NotificationParameters.Insert("Copy", False);
 	NotificationParameters.Insert("TemplateType", "MXL");
 	NotificationParameters.Insert("TemplateForObjectExport", False);
-	NotifyDescription = New CallbackDescription("OnSelectingLayoutName", ThisObject, NotificationParameters);
+	CallbackDescription = New CallbackDescription("OnSelectingLayoutName", ThisObject, NotificationParameters);
 	UniqueDescr = AssignUniqueDescription(NStr("en = 'New print form'"), False);
-	ShowInputString(NotifyDescription, UniqueDescr, NStr("en = 'Enter a template description'"), 100, False)
+	ShowInputString(CallbackDescription, UniqueDescr, NStr("en = 'Enter a template description'"), 100, False)
 	
 EndProcedure
 
@@ -495,9 +491,9 @@ Procedure AddOfficeOpenXMLTemplate(Command)
 	NotificationParameters.Insert("Copy", False);
 	NotificationParameters.Insert("TemplateType", "DOCX");
 	NotificationParameters.Insert("TemplateForObjectExport", False);
-	NotifyDescription = New CallbackDescription("OnSelectingLayoutName", ThisObject, NotificationParameters);
+	CallbackDescription = New CallbackDescription("OnSelectingLayoutName", ThisObject, NotificationParameters);
 	UniqueDescr = AssignUniqueDescription(NStr("en = 'New print form'"), False);
-	ShowInputString(NotifyDescription, UniqueDescr, NStr("en = 'Enter a template description'"), 100, False)
+	ShowInputString(CallbackDescription, UniqueDescr, NStr("en = 'Enter a template description'"), 100, False)
 	
 EndProcedure
 
@@ -530,10 +526,10 @@ Procedure AddExportTemplate(Command)
 	NotificationParameters.Insert("Copy", False);
 	NotificationParameters.Insert("TemplateType", "MXL");
 	NotificationParameters.Insert("TemplateForObjectExport", True);
-	NotifyDescription = New CallbackDescription("OnSelectingLayoutName", ThisObject, NotificationParameters);
+	CallbackDescription = New CallbackDescription("OnSelectingLayoutName", ThisObject, NotificationParameters);
 	UniqueDescr = AssignUniqueDescription(NStr("en = 'New export form'"), False);
 	ToolTip = NStr("en = 'Enter a template description'");
-	ShowInputString(NotifyDescription, UniqueDescr, ToolTip, 100, False);
+	ShowInputString(CallbackDescription, UniqueDescr, ToolTip, 100, False);
 	
 EndProcedure
 
@@ -629,7 +625,7 @@ Procedure OpenPrintFormTemplateForEdit()
 	CurrentData = Items.Templates.CurrentData;
 	
 	If CurrentData.Changed And Not CurrentData.ChangedTemplateUsed Then
-		NotifyDescription = New CallbackDescription("OpenPrintFormTemplateForEditingFollowUp", ThisObject, CurrentData);
+		CallbackDescription = New CallbackDescription("OpenPrintFormTemplateForEditingFollowUp", ThisObject, CurrentData);
 		QueryText = NStr("en = 'An edited version of this template is available.
 		|You can switch to the custom template or continue with the standard one.
 		|'");
@@ -639,7 +635,7 @@ Procedure OpenPrintFormTemplateForEdit()
 		Buttons.Add(False, NStr("en = 'Standard template'"));
 		Buttons.Add(Undefined, NStr("en = 'Cancel'"));
 		
-		ShowQueryBox(NotifyDescription, QueryText, Buttons, , , NStr("en = 'Which template do you want to proceed with?'"));
+		ShowQueryBox(CallbackDescription, QueryText, Buttons, , , NStr("en = 'Which template do you want to proceed with?'"));
 		Return;
 	EndIf;
 	
@@ -803,12 +799,12 @@ Procedure SetCommandBarButtonsEnabled()
 	Items.TemplatesContextMenuDeleteModifiedTemplate.Visible = DeleteModifiedTemplateEnabled And Not ReadOnly;
 	Items.TemplatesContextMenuDeleteTemplate.Visible = RemoveLayoutVisibility And Not ReadOnly;
 	Items.TemplatesAvailabilityConditions.Enabled = CurrentTemplateSelected And CurrentTemplate.AvailableSettingVisibility;
-	Items.TemplatesCopy.Enabled = CurrentTemplateSelected And CurrentTemplate.IsPrintForm And Not SeveralTemplatesSelected And CurrentTemplate.AvailableCreate And Not ReadOnly;
-	Items.TemplatesAddTemplate.Enabled = CurrentTemplateSelected And CurrentTemplate.AvailableCreate;
-	Items.TemplatesAddOfficeOpenXMLTemplate.Enabled = CurrentTemplateSelected And CurrentTemplate.AvailableCreate;
+	Items.TemplatesCopy.Enabled = CurrentTemplateSelected And CurrentTemplate.IsPrintForm And Not SeveralTemplatesSelected And CurrentTemplate.AvailableCreating And Not ReadOnly;
+	Items.TemplatesAddTemplate.Enabled = CurrentTemplateSelected And CurrentTemplate.AvailableCreating;
+	Items.TemplatesAddOfficeOpenXMLTemplate.Enabled = CurrentTemplateSelected And CurrentTemplate.AvailableCreating;
 	Items.TemplatesChangeTemplate.Enabled = CurrentTemplateSelected And Not CurrentTemplate.IsFolder;
 	Items.FormShowInList.Enabled = DisplayInListIsAvailable;
-	Items.TemplatesAddExportTemplate.Enabled = CurrentTemplateSelected And CurrentTemplate.AvailableCreate;
+	Items.TemplatesAddExportTemplate.Enabled = CurrentTemplateSelected And CurrentTemplate.AvailableCreating;
 	
 EndProcedure
 
@@ -831,10 +827,10 @@ Procedure Copy(Command)
 		NotificationParameters.Insert("ExportSaveFormat");
 		
 	EndIf;
-	NotifyDescription = New CallbackDescription("OnSelectingLayoutName", ThisObject, NotificationParameters);
+	CallbackDescription = New CallbackDescription("OnSelectingLayoutName", ThisObject, NotificationParameters);
 	CurrentTemplate = Items.Templates.CurrentData;
 	CopyDescr = AssignUniqueDescription(CurrentTemplate.Presentation);
-	ShowInputString(NotifyDescription, CopyDescr, NStr("en = 'Enter a template description'"), 100, False)
+	ShowInputString(CallbackDescription, CopyDescr, NStr("en = 'Enter a template description'"), 100, False)
 	
 EndProcedure
 
@@ -933,7 +929,7 @@ Procedure GoToList()
 	For Each ClientApplicationWindow In GetWindows() Do
 		If ClientApplicationWindow.GetURL() = ListURL Then
 			Form = ClientApplicationWindow.Content[0];
-			NotifyDescription = New CallbackDescription("GoToListCompletion", ThisObject, 
+			CallbackDescription = New CallbackDescription("GoToListCompletion", ThisObject, 
 				New Structure("Form, URL", Form, ListURL));
 			Buttons = New ValueList;
 			Buttons.Add("Reopen", NStr("en = 'Reopen'"));
@@ -941,7 +937,7 @@ Procedure GoToList()
 			QueryText = 
 				NStr("en = 'The list is already open. Reopen the list
 				|to see the changes in Print menu?'");
-			ShowQueryBox(NotifyDescription, QueryText, Buttons, , "Reopen");
+			ShowQueryBox(CallbackDescription, QueryText, Buttons, , "Reopen");
 			Return;
 		EndIf;
 	EndDo;
@@ -1193,7 +1189,7 @@ Procedure FillPrintFormsTemplatesTable(Branch1)
 	GroupOther.Used = True;
 	GroupOther.Owner = Catalogs.MetadataObjectIDs.EmptyRef();
 	GroupOther.SearchString = Lower(GroupOther.Presentation);
-	GroupOther.AvailableCreate = False;
+	GroupOther.AvailableCreating = False;
 	LayoutGroups.Insert(Catalogs.MetadataObjectIDs.EmptyRef(), GroupOther);
 	
 	AddingTemplatesIsAvailable = AccessRight("Insert", Metadata.Catalogs.PrintFormTemplates); 
@@ -1208,7 +1204,7 @@ Procedure FillPrintFormsTemplatesTable(Branch1)
 		LayoutGroup.Used = True;
 		LayoutGroup.Owner = Owner.Value;
 		LayoutGroup.SearchString = Lower(LayoutGroup.Presentation);
-		LayoutGroup.AvailableCreate = False;
+		LayoutGroup.AvailableCreating = False;
 		LayoutGroup.GetItems().Add();
 		
 		LayoutGroups.Insert(Owner.Value, LayoutGroup);
@@ -1250,7 +1246,7 @@ Procedure OutputCollection(Val Branch1, Val MetadataObjectCollection)
 			NewBranch.IsSubsection = MetadataObjectCollection <> Metadata.Subsystems;
 		Else
 			NewBranch.Owner = Common.MetadataObjectID(NewBranch.Id, False);
-			NewBranch.AvailableCreate = Common.IsRefTypeObject(MetadataObject);
+			NewBranch.AvailableCreating = Common.IsRefTypeObject(MetadataObject);
 			NewBranch.GetItems().Add();
 		EndIf;
 		
@@ -2008,7 +2004,7 @@ EndProcedure
 Procedure AddMetadataObjectTreeItem(ItemParameters)
 	
 	NewBranch = Templates.GetItems().Add();
-	NewBranch.Presentation = ItemParameters.Name;
+	NewBranch.Presentation = ItemParameters.Synonym;
 	NewBranch.PictureGroup = ItemParameters.Picture;
 	NewBranch.Id = ItemParameters.Name;
 	NewBranch.UsagePicture = -1;
@@ -2017,7 +2013,7 @@ Procedure AddMetadataObjectTreeItem(ItemParameters)
 	NewBranch.SearchString = Lower(NewBranch.Presentation);
 	
 	NewBranch.Owner = Common.MetadataObjectID(NewBranch.Id, False);
-	NewBranch.AvailableCreate = False;
+	NewBranch.AvailableCreating = False;
 	
 	CollectionArray = New Array; // Array of Метаданные
 	For Each MetadataObjectFullName In ObjectsWithPrintCommands Do

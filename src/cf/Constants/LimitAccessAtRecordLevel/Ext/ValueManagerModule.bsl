@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -25,11 +24,13 @@ Procedure BeforeWrite(Cancel)
 		Return;
 	EndIf;
 	
-	PreviousValue2 = Constants.LimitAccessAtRecordLevel.Get();
+	PreviousValue2 = AccessManagementInternal.ConstantLimitAccessAtRecordLevel();
 	
 	If Value = PreviousValue2 Then
 		Return;
 	EndIf;
+	
+	AccessManagementInternal.CheckIsAccessRestrictionDisabled();
 	
 	If Common.IsStandaloneWorkplace() Then
 		ErrorText =
@@ -70,7 +71,12 @@ EndProcedure
 // For internal use only.
 Procedure RegisterChangeUponDataImport(DataElement) Export
 	
-	If DataElement.Value = Constants.LimitAccessAtRecordLevel.Get() Then
+	CurrentValue = AccessManagementInternal.ConstantLimitAccessAtRecordLevel();
+	
+	If DataElement.Value = CurrentValue
+	 Or AccessManagementInternal.IsRecordLevelRestrictionDisabled()
+	 Or Common.DataSeparationEnabled() Then
+		// In the SWS, right settings are locked for editing and are not imported into the data area.
 		Return;
 	EndIf;
 	
@@ -84,6 +90,7 @@ Procedure ProcessChangeRegisteredUponDataImport() Export
 	
 	If Common.DataSeparationEnabled() Then
 		// In the SWS, right settings are locked for editing and are not imported into the data area.
+		UsersInternal.RegisterRefs("LimitAccessAtRecordLevel", Null);
 		Return;
 	EndIf;
 	
@@ -92,8 +99,10 @@ Procedure ProcessChangeRegisteredUponDataImport() Export
 		Return;
 	EndIf;
 	
-	AccessManagementInternal.OnChangeAccessRestrictionAtRecordLevel(
-		Constants.LimitAccessAtRecordLevel.Get());
+	CurrentValue = AccessManagementInternal.ConstantLimitAccessAtRecordLevel();
+	If Not AccessManagementInternal.IsRecordLevelRestrictionDisabled() Then
+		AccessManagementInternal.OnChangeAccessRestrictionAtRecordLevel(CurrentValue);
+	EndIf;
 	
 	UsersInternal.RegisterRefs("LimitAccessAtRecordLevel", Null);
 	

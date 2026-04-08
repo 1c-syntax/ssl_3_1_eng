@@ -140,8 +140,8 @@
 					</Title>
 					<ExtendedTooltip name="AddresseesPageExtendedTooltip" id="45"/>
 					<ChildItems>
-						<InputField name="SMSMessageRecipients" id="37">
-							<DataPath>Record.SMSMessageRecipients</DataPath>
+						<InputField name="Recipients" id="37">
+							<DataPath>Record.Recipients</DataPath>
 							<TitleLocation>None</TitleLocation>
 							<AutoMaxWidth>false</AutoMaxWidth>
 							<AutoMaxHeight>false</AutoMaxHeight>

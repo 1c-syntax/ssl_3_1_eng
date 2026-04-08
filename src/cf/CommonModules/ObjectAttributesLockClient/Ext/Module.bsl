@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -72,10 +71,10 @@ Procedure AllowObjectAttributeEdit(Val Form, ContinuationHandler = Undefined,
 	Parameters.Insert("LockedAttributes", LockedAttributes);
 	Parameters.Insert("ContinuationHandler", ContinuationHandler);
 	
-	NotifyDescription = New CallbackDescription("AllowEditingObjectAttributesAfterFormClosed",
+	CallbackDescription = New CallbackDescription("AllowEditingObjectAttributesAfterFormClosed",
 		ObjectAttributesLockInternalClient, Parameters);
 	
-	OpenForm(NameOfUnlockForm, FormParameters, , , , , NotifyDescription);
+	OpenForm(NameOfUnlockForm, FormParameters, , , , , CallbackDescription);
 	
 EndProcedure
 
@@ -123,16 +122,16 @@ EndProcedure
 // without using the SetFormItemEnabled function.
 //
 // Parameters:
-//  Form        - ClientApplicationForm - — a form in which editing object attributes must be allowed, where:
+//  Form        - ClientApplicationForm - Form where you want to allow editing object attributes, where:
 //    * Items - FormAllItems:
 //        ** AllowObjectAttributeEdit - FormButton
-//  Attributes    - Array of String - attribute names to mark as allowed for editing.
-//  EditingAllowed - Boolean - flag that shows whether you want to allow attribute editing.
+//  Attributes    - Array of String - Attribute names to mark as allowed for editing.
+//  EditingAllowed - Boolean - Flag that shows whether you want to allow attribute editing.
 //                            The value will not be set to True if you are not authorized to edit the attribute.
-//                          - Undefined - do not change the attribute editing status.
+//                          - Undefined - Do not change the attribute editing status.
 //  RightToEdit - Boolean - flag used to override availability
 //                        of unlocking attributes. It is determined automatically using the AccessRight method.
-//                      - Undefined - do not change the RightToEdit property.
+//                      - Undefined - Do not change the RightToEdit property.
 // 
 Procedure SetAttributeEditEnabling(Val Form, Val Attributes,
 			Val EditingAllowed = True, Val RightToEdit = Undefined) Export
@@ -223,7 +222,7 @@ Procedure ShowAllVisibleAttributesUnlockedWarning(ContinuationHandler = Undefine
 	
 EndProcedure
 
-#Region ForCallsFromOtherSubsystems
+#Region InterfaceImplementation
 
 // Intended for being called from the BatchEditAttributes handler.
 //

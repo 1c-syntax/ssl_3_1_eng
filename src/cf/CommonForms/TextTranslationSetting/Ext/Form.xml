@@ -21,7 +21,7 @@
 			<Title formatted="false">
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>To translate text, select an application and  adjust the settings</v8:content>
+					<v8:content>To translate text, select an application and adjust the settings</v8:content>
 				</v8:item>
 			</Title>
 			<ContextMenu name="ContextModeTitleContextMenu" id="18"/>
@@ -69,10 +69,10 @@
 					<CommandSource>Form</CommandSource>
 					<ExtendedTooltip name="StandardCommandsExtendedTooltip" id="12"/>
 				</ButtonGroup>
-				<Button name="FormHelp" id="13">
+				<Button name="FormHelp_SSLyf" id="13">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.StandardCommand.Help</CommandName>
-					<ExtendedTooltip name="FormHelpExtendedTooltip" id="14"/>
+					<ExtendedTooltip name="FormHelp_SSLyfExtendedTooltip" id="14"/>
 				</Button>
 			</ChildItems>
 		</CommandBar>

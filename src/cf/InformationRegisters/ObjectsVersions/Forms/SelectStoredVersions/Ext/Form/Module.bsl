@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -44,9 +43,9 @@ EndProcedure
 &AtClient
 Procedure AttributesStartChoice(Item, ChoiceData, StandardProcessing)
 	StandardProcessing = False;
-	NotifyDescription = New CallbackDescription("OnSelectAttribute", ThisObject);
+	CallbackDescription = New CallbackDescription("OnSelectAttribute", ThisObject);
 	OpenForm("InformationRegister.ObjectsVersions.Form.SelectObjectAttributes", New Structure(
-		"Ref,Filter", Ref, Filter.UnloadValues()), , , , , NotifyDescription);
+		"Ref,Filter", Ref, Filter.UnloadValues()), , , , , CallbackDescription);
 EndProcedure
 
 &AtClient
@@ -219,11 +218,11 @@ Procedure GoToSelectedVersion(CancelPosting = False)
 				|Do you want to unpost the document and restore the version?'"),
 			ErrorMessageText);
 			
-		NotifyDescription = New CallbackDescription("GoToSelectedVersionQuestionAsked", ThisObject);
+		CallbackDescription = New CallbackDescription("GoToSelectedVersionQuestionAsked", ThisObject);
 		Buttons = New ValueList;
 		Buttons.Add("GoTo", NStr("en = 'Yes'"));
 		Buttons.Add(DialogReturnCode.Cancel);
-		ShowQueryBox(NotifyDescription, QueryText, Buttons);
+		ShowQueryBox(CallbackDescription, QueryText, Buttons);
 	Else //Result = "RestoringComplete"
 		NotifyChanged(Ref);
 		If FormOwner <> Undefined Then

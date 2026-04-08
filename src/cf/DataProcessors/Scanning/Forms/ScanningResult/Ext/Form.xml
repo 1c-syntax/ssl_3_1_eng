@@ -225,6 +225,12 @@
 			</ChildItems>
 		</UsualGroup>
 		<UsualGroup name="FooterGroup" id="77">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Footer</v8:content>
+				</v8:item>
+			</Title>
 			<Group>Vertical</Group>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
@@ -257,6 +263,12 @@
 						</PictureDecoration>
 						<LabelDecoration name="ScanErrorText" id="71">
 							<AutoMaxWidth>false</AutoMaxWidth>
+							<Title formatted="false">
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Scanning crashed. Save the &lt;link ТехническаяИнформация&gt;information for technical support&lt;/&gt;.</v8:content>
+								</v8:item>
+							</Title>
 							<ContextMenu name="ScanErrorTextContextMenu" id="72"/>
 							<ExtendedTooltip name="ScanErrorTextExtendedTooltip" id="73"/>
 						</LabelDecoration>
@@ -355,6 +367,12 @@
 					</ChildItems>
 				</UsualGroup>
 				<UsualGroup name="AssistanceRequiredGroup" id="90">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Need help?</v8:content>
+						</v8:item>
+					</Title>
 					<GroupVerticalAlign>Center</GroupVerticalAlign>
 					<Group>Vertical</Group>
 					<Behavior>PopUp</Behavior>
@@ -362,26 +380,39 @@
 					<ChildItems>
 						<LabelDecoration name="Recommendations" id="92">
 							<AutoMaxWidth>false</AutoMaxWidth>
-							<Title formatted="true"/>
+							<Title formatted="true">
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Try the following solutions:
+
+</v8:content>
+								</v8:item>
+							</Title>
 							<ContextMenu name="RecommendationsContextMenu" id="93"/>
 							<ExtendedTooltip name="RecommendationsExtendedTooltip" id="94"/>
 							<Events>
 								<Event name="URLProcessing">RecommendationsURLProcessing</Event>
 							</Events>
 						</LabelDecoration>
-						<UsualGroup name="TechnicalSupportGroup" id="95">
+						<UsualGroup name="GroupSupportRequests" id="95">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Support requests</v8:content>
+								</v8:item>
+							</Title>
 							<Group>Vertical</Group>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="TechnicalSupportGroupExtendedTooltip" id="96"/>
+							<ExtendedTooltip name="GroupSupportRequestsExtendedTooltip" id="96"/>
 							<ChildItems>
-								<LabelDecoration name="DescriptionOfSupportRequest" id="97">
+								<LabelDecoration name="SupportRequestDetails" id="97">
 									<Width>55</Width>
 									<AutoMaxWidth>false</AutoMaxWidth>
-									<ContextMenu name="DescriptionOfSupportRequestContextMenu" id="98"/>
-									<ExtendedTooltip name="DescriptionOfSupportRequestExtendedTooltip" id="99"/>
+									<ContextMenu name="SupportRequestDetailsContextMenu" id="98"/>
+									<ExtendedTooltip name="SupportRequestDetailsExtendedTooltip" id="99"/>
 									<Events>
-										<Event name="URLProcessing">DescriptionOfSupportRequestURLProcessing</Event>
+										<Event name="URLProcessing">SupportRequestDetailsURLProcessing</Event>
 									</Events>
 								</LabelDecoration>
 							</ChildItems>

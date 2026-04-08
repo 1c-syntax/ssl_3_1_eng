@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -20,11 +19,11 @@ Procedure BeforeWrite(Cancel)
 	
 	// Attribute connection with deletion mark.
 	If DeletionMark Then
-		Use = Enums.AddInUsageOptions.isDisabled;
+		Use = Enums.AddInUsageOptions.TurnedOff;
 	EndIf;
 	
 	// Attribute connection with usage option.
-	If Use = Enums.AddInUsageOptions.isDisabled Then
+	If Use = Enums.AddInUsageOptions.TurnedOff Then
 		UpdateFrom1CITSPortal = False;
 	EndIf;
 	
@@ -55,8 +54,8 @@ Procedure OnWrite(Cancel)
 		Return;
 	EndIf;
 	
-	// If a newer version add-in is being attached, and an old version has the flag "UpdateFrom1CITSPortal" set,
-	// clear the add-in flag when overwriting the old versions.
+	// If a newer version of an add-in is imported and an old version has the UpdateFrom1CITSPortal flag set,
+	// overwriting the old versions clears the flag.
 	If ThisIsTheLatestVersionComponent() Then
 		RewriteComponentsOfEarlierVersions();
 	EndIf;

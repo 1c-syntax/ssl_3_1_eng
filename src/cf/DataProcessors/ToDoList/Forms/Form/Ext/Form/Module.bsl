@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Variables
@@ -167,27 +166,27 @@ Procedure GenerateToDoList(ToDoList)
 	
 	CurrentGroup = "";
 	CurrentCommonGroup = "";
-	For Each ToDoItem In ToDoList Do
+	For Each CaseFile In ToDoList Do
 		
-		If ToDoItem.IsSection Then
+		If CaseFile.IsSection Then
 			
 			// Create a common section group.
-			CommonGroupName = "CommonGroup" + ToDoItem.OwnerID;
+			CommonGroupName = "CommonGroup" + CaseFile.OwnerID;
 			If CurrentCommonGroup <> CommonGroupName Then
 				
-				SectionCollapsed = CollapsedSections[ToDoItem.OwnerID];
+				SectionCollapsed = CollapsedSections[CaseFile.OwnerID];
 				If SectionCollapsed = Undefined Then
 					If ViewSettings.SectionsVisibility.Count() = 0 And CurrentCommonGroup <> "" Then
 						// Cannot collapse the first group.
-						CollapsedSections.Insert(ToDoItem.OwnerID, True);
+						CollapsedSections.Insert(CaseFile.OwnerID, True);
 						SectionCollapsed = True;
 					Else
-						CollapsedSections.Insert(ToDoItem.OwnerID, False);
+						CollapsedSections.Insert(CaseFile.OwnerID, False);
 					EndIf;
 					
 				EndIf;
 				
-				SectionVisibleEnabled = ViewSettings.SectionsVisibility[ToDoItem.OwnerID];
+				SectionVisibleEnabled = ViewSettings.SectionsVisibility[CaseFile.OwnerID];
 				If SectionVisibleEnabled = Undefined Then
 					SectionVisibleEnabled = True;
 				EndIf;
@@ -196,16 +195,16 @@ Procedure GenerateToDoList(ToDoList)
 				CommonGroup = Group(CommonGroupName,, "CommonGroup");
 				CommonGroup.Visible = False;
 				// Create a section title group.
-				TitleGroupName = "SectionTitle" + ToDoItem.OwnerID;
+				TitleGroupName = "SectionTitle" + CaseFile.OwnerID;
 				TitleGroup    = Group(TitleGroupName, CommonGroup, "SectionTitle");
 				// Create a section title.
-				CreateCaption(ToDoItem, TitleGroup, SectionCollapsed);
+				CreateCaption(CaseFile, TitleGroup, SectionCollapsed);
 				
 				CurrentCommonGroup = CommonGroupName;
 			EndIf;
 			
 			// Create a to-do items group.
-			GroupName = "Group" + ToDoItem.OwnerID;
+			GroupName = "Group" + CaseFile.OwnerID;
 			If CurrentGroup <> GroupName Then
 				CurrentGroup = GroupName;
 				Var_Group        = Group(GroupName, CommonGroup);
@@ -221,31 +220,31 @@ Procedure GenerateToDoList(ToDoList)
 				EndIf;
 			EndIf;
 			
-			UserTaskVisibleEnabled = ViewSettings.UserTasksVisible[ToDoItem.Id];
+			UserTaskVisibleEnabled = ViewSettings.UserTasksVisible[CaseFile.Id];
 			If UserTaskVisibleEnabled = Undefined Then
 				UserTaskVisibleEnabled = True;
 			EndIf;
 			
-			If SectionVisibleEnabled And UserTaskVisibleEnabled And ToDoItem.HasToDoItems Then
+			If SectionVisibleEnabled And UserTaskVisibleEnabled And CaseFile.HasToDoItems Then
 				DisplayedUserTasksAndSections.Insert(TitleGroupName);
 				CommonGroup.Visible = True;
 			EndIf;
 			
-			NewUserTask(ToDoItem, Var_Group, UserTaskVisibleEnabled);
+			NewUserTask(CaseFile, Var_Group, UserTaskVisibleEnabled);
 			
 			// Turning on the indicator of important to-do items.
-			If ToDoItem.HasToDoItems
-				And ToDoItem.Important
+			If CaseFile.HasToDoItems
+				And CaseFile.Important
 				And UserTaskVisibleEnabled Then
 				
-				SectionsWithImportantUserTasks.Insert(ToDoItem.OwnerID, CollapsedSections[ToDoItem.OwnerID]);
+				SectionsWithImportantUserTasks.Insert(CaseFile.OwnerID, CollapsedSections[CaseFile.OwnerID]);
 			EndIf;
 			
 		Else
-			NewChildUserTask(ToDoItem);
+			NewChildUserTask(CaseFile);
 		EndIf;
 		
-		FillUserTaskParameters(ToDoItem);
+		FillUserTaskParameters(CaseFile);
 		
 	EndDo;
 	
@@ -391,8 +390,8 @@ Procedure GenerateToDoListInBackgroundCompletion(Result, AdditionalParameters) E
 		ErrorTextDetailed = ErrorProcessing.DetailErrorDescription(Result.ErrorInfo);
 		ErrorInfo   = Result.ErrorInfo;
 		ErrorReport        = New ErrorReport(Result.ErrorInfo);
-		StandardSubsystemsClient.ConfigureVisibilityAndTitleForURLSendErrorReport(Items.GenerateErrorReport, Result.ErrorInfo);
-		Items.GroupDetails_3.Visible = Not Items.GenerateErrorReport.Visible;
+		StandardSubsystemsClient.ConfigureVisibilityAndTitleForURLSendErrorReport(Items.GenerateErrorReport_SSLyf, Result.ErrorInfo);
+		Items.GroupDetails_3.Visible = Not Items.GenerateErrorReport_SSLyf.Visible;
 		Return;
 	ElsIf Result.Status = "Completed2" Then
 		ImportToDoList(Result.ResultAddress);
@@ -487,25 +486,25 @@ Function Group(GroupName, Parent = Undefined, GroupType = "")
 EndFunction
 
 &AtServer
-Procedure NewUserTask(ToDoItem, Var_Group, UserTaskVisibleEnabled)
+Procedure NewUserTask(CaseFile, Var_Group, UserTaskVisibleEnabled)
 	
-	UserTaskTitle = ToDoItem.Presentation + ?(ToDoItem.Count <> 0," (" + ToDoItem.Count + ")", "");
+	UserTaskTitle = CaseFile.Presentation + ?(CaseFile.Count <> 0," (" + CaseFile.Count + ")", "");
 	
-	Item = Items.Add(ToDoItem.Id, Type("FormDecoration"), Var_Group); // FormFieldExtensionForALabelField
+	Item = Items.Add(CaseFile.Id, Type("FormDecoration"), Var_Group); // FormFieldExtensionForALabelField
 	Item.Type = FormDecorationType.Label;
 	Item.HorizontalAlign = ItemHorizontalLocation.Left;
 	Item.Title = UserTaskTitle;
-	Item.Visible = (UserTaskVisibleEnabled And ToDoItem.HasToDoItems);
+	Item.Visible = (UserTaskVisibleEnabled And CaseFile.HasToDoItems);
 	Item.AutoMaxWidth = False;
-	Item.Hyperlink = ValueIsFilled(ToDoItem.Form);
+	Item.Hyperlink = ValueIsFilled(CaseFile.Form);
 	Item.SetAction("Click", "Attachable_ProcessHyperlinkClick");
 	
-	If ToDoItem.Important Then
+	If CaseFile.Important Then
 		Item.TextColor = StyleColors.OverdueDataColor;
 	EndIf;
 	
-	If ValueIsFilled(ToDoItem.ToolTip) Then
-		ToolTip                    = New FormattedString(ToDoItem.ToolTip);
+	If ValueIsFilled(CaseFile.ToolTip) Then
+		ToolTip                    = New FormattedString(CaseFile.ToolTip);
 		Item.ToolTip            = ToolTip;
 		Item.ToolTipRepresentation = ToolTipRepresentation.Button;
 	EndIf;
@@ -513,15 +512,15 @@ Procedure NewUserTask(ToDoItem, Var_Group, UserTaskVisibleEnabled)
 EndProcedure
 
 &AtServer
-Procedure CreateCaption(ToDoItem, Var_Group, SectionCollapsed)
+Procedure CreateCaption(CaseFile, Var_Group, SectionCollapsed)
 	
 	// Create an icon for the section show/hide button.
-	Item = Items.Add("Picture" + ToDoItem.OwnerID, Type("FormDecoration"), Var_Group); // FormFieldExtensionForALabelField
+	Item = Items.Add("Picture" + CaseFile.OwnerID, Type("FormDecoration"), Var_Group); // FormFieldExtensionForALabelField
 	Item.Type = FormDecorationType.Picture;
 	Item.Hyperlink = True;
 	
 	If SectionCollapsed = True Then
-		If ToDoItem.HasToDoItems And ToDoItem.Important Then
+		If CaseFile.HasToDoItems And CaseFile.Important Then
 			Item.Picture = PictureLib.RedRightArrow;
 		Else
 			Item.Picture = PictureLib.RightArrow;
@@ -537,22 +536,22 @@ Procedure CreateCaption(ToDoItem, Var_Group, SectionCollapsed)
 	Item.ToolTip = NStr("en = 'Expand or collapse the section.'");
 	
 	// Create a section title.
-	Item = Items.Add("Title" + ToDoItem.OwnerID, Type("FormDecoration"), Var_Group);
+	Item = Items.Add("Title" + CaseFile.OwnerID, Type("FormDecoration"), Var_Group);
 	Item.Type = FormDecorationType.Label;
 	Item.HorizontalAlign = ItemHorizontalLocation.Left;
-	Item.Title  = ToDoItem.SectionPresentation;
+	Item.Title  = CaseFile.SectionPresentation;
 	Item.Font = StyleFonts.ToDoListSectionTitleFont;
 	
 EndProcedure
 
 &AtServer
-Procedure NewChildUserTask(ToDoItem)
+Procedure NewChildUserTask(CaseFile)
 	
-	If Not ToDoItem.HasToDoItems Then
+	If Not CaseFile.HasToDoItems Then
 		Return;
 	EndIf;
 	
-	ItemUserTaskOwner = Items.Find(ToDoItem.OwnerID);
+	ItemUserTaskOwner = Items.Find(CaseFile.OwnerID);
 	If ItemUserTaskOwner = Undefined Then
 		Return;
 	EndIf;
@@ -560,15 +559,15 @@ Procedure NewChildUserTask(ToDoItem)
 	ItemUserTaskOwner.ExtendedTooltip.Font     = StyleFonts.ToDoListChildToDoTitle;
 	ItemUserTaskOwner.ExtendedTooltip.HorizontalStretch = True;
 	
-	SubordinateUserTaskTitle = SubordinateUserTaskTitle(ItemUserTaskOwner.ExtendedTooltip.Title, ToDoItem);
+	SubordinateUserTaskTitle = SubordinateUserTaskTitle(ItemUserTaskOwner.ExtendedTooltip.Title, CaseFile);
 	
 	ItemUserTaskOwner.ExtendedTooltip.Title = SubordinateUserTaskTitle;
 	ItemUserTaskOwner.ExtendedTooltip.SetAction("URLProcessing", "Attachable_URLClickProcessing");
 	ItemUserTaskOwner.ExtendedTooltip.AutoMaxWidth = False;
 	
 	// Turning on the indicator of important to-do items.
-	If ToDoItem.HasToDoItems
-		And ToDoItem.Important
+	If CaseFile.HasToDoItems
+		And CaseFile.Important
 		And ItemUserTaskOwner.Visible Then
 		
 		SectionID = StrReplace(ItemUserTaskOwner.Parent.Name, "Group", "");
@@ -578,12 +577,12 @@ Procedure NewChildUserTask(ToDoItem)
 EndProcedure
 
 &AtServer
-Function SubordinateUserTaskTitle(CurrentTitle, ToDoItem)
+Function SubordinateUserTaskTitle(CurrentTitle, CaseFile)
 	
 	CurrentEmptyTitle = Not ValueIsFilled(CurrentTitle);
-	UserTaskTitle = ToDoItem.Presentation + ?(ToDoItem.Count <> 0," (" + ToDoItem.Count + ")", "");
+	UserTaskTitle = CaseFile.Presentation + ?(CaseFile.Count <> 0," (" + CaseFile.Count + ")", "");
 	RowUserTaskTitle    = UserTaskTitle;
-	If ToDoItem.Important Then
+	If CaseFile.Important Then
 		UserTaskColor        = StyleColors.OverdueDataColor;
 	Else
 		UserTaskColor        = StyleColors.ToDoListTitleColor;
@@ -592,22 +591,22 @@ Function SubordinateUserTaskTitle(CurrentTitle, ToDoItem)
 	FormattedStringWrap = New FormattedString(Chars.LF);
 	FormattedStringIndent  = New FormattedString(Chars.NBSp+Chars.NBSp+Chars.NBSp);
 	
-	If ToDoItem.Important Then
-		If ValueIsFilled(ToDoItem.Form) Then
+	If CaseFile.Important Then
+		If ValueIsFilled(CaseFile.Form) Then
 			UserTaskTitleFormattedString = New FormattedString(
 			                                           RowUserTaskTitle,,
 			                                           UserTaskColor,,
-			                                           ToDoItem.Id);
+			                                           CaseFile.Id);
 		Else
 			UserTaskTitleFormattedString = New FormattedString(
 			                                           RowUserTaskTitle,,
 			                                           UserTaskColor);
 		EndIf;
 	Else
-		If ValueIsFilled(ToDoItem.Form) Then
+		If ValueIsFilled(CaseFile.Form) Then
 			UserTaskTitleFormattedString = New FormattedString(
 			                                           RowUserTaskTitle,,,,
-			                                           ToDoItem.Id);
+			                                           CaseFile.Id);
 		Else
 			UserTaskTitleFormattedString = New FormattedString(RowUserTaskTitle,,UserTaskColor);
 		EndIf;
@@ -622,9 +621,9 @@ Function SubordinateUserTaskTitle(CurrentTitle, ToDoItem)
 EndFunction
 
 &AtServer
-Procedure FillUserTaskParameters(ToDoItem)
+Procedure FillUserTaskParameters(CaseFile)
 	
-	FillPropertyValues(UserTasksParameters.Add(), ToDoItem);
+	FillPropertyValues(UserTasksParameters.Add(), CaseFile);
 	
 EndProcedure
 
@@ -792,13 +791,13 @@ Procedure AddToDoItemsWithNotification(ViewSettings, ToDoList)
 	If ViewSettings.UserTasksTree.Columns.Find("OutputInNotifications") <> Undefined Then
 		FoundRows = ViewSettings.UserTasksTree.Rows.FindRows(FilterParameters, True);
 		For Each String In FoundRows Do
-			ToDoItem = ToDoList.Find(String.Id, "Id");
+			CaseFile = ToDoList.Find(String.Id, "Id");
 			
-			If ToDoItem = Undefined Then
+			If CaseFile = Undefined Then
 				Continue;
 			EndIf;
 			
-			If ToDoItem <> Undefined And Not ToDoItem.HasToDoItems Then
+			If CaseFile <> Undefined And Not CaseFile.HasToDoItems Then
 				Continue;
 			EndIf;
 			
@@ -806,8 +805,40 @@ Procedure AddToDoItemsWithNotification(ViewSettings, ToDoList)
 				Continue;
 			EndIf;
 			
-			If ToDoItem.Count <> 0 Then
-				Addition = " (" + ToDoItem.Count + ")";
+			If Not ValueIsFilled(CaseFile.Form) Then
+				SelectionOfSubsidiaries = New Structure;
+				SelectionOfSubsidiaries.Insert("OwnerID", CaseFile.Id);
+				SubsidiaryAffairs = ToDoList.FindRows(SelectionOfSubsidiaries);
+				For Each SubsidiaryBusiness In SubsidiaryAffairs Do
+					If Not SubsidiaryBusiness.HasToDoItems Then
+						Continue;
+					EndIf;
+					
+					If Not ValueIsFilled(SubsidiaryBusiness.Form) Then
+						Continue;
+					EndIf;
+					
+					TemplateOfPresentation = "%1:
+						|%2";
+					
+					If SubsidiaryBusiness.Count <> 0 Then
+						ChildSupplement = " (" + SubsidiaryBusiness.Count + ")";
+					Else
+						ChildSupplement = "";
+					EndIf;
+					
+					ToDoWithNotification = ToDoItemsWithNotification.Add();
+					ToDoWithNotification.Id = SubsidiaryBusiness.Id;
+					ToDoWithNotification.LongDesc = StringFunctionsClientServer.SubstituteParametersToString(TemplateOfPresentation,
+						String.Presentation,
+						SubsidiaryBusiness.Presentation + ChildSupplement);
+				EndDo;
+				
+				Continue;
+			EndIf;
+			
+			If CaseFile.Count <> 0 Then
+				Addition = " (" + CaseFile.Count + ")";
 			Else
 				Addition = "";
 			EndIf;
@@ -842,7 +873,7 @@ Procedure AddToDoItemsWithNotification(ViewSettings, ToDoList)
 EndProcedure
 
 &AtClient
-Procedure GenerateErrorReportClick(Item)
+Procedure GenerateErrorReport_SSLyfClick(Item)
 	StandardSubsystemsClient.ShowErrorReport(ErrorReport);
 EndProcedure
 

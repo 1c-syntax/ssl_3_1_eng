@@ -36,6 +36,10 @@
 				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.EmailOperationsLocalization</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.EmailOperationsInternalClientServer</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonModule.EmailOperationsInternalClient</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonCommand.RegisterAppInAuthService</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">HTTPService.OpenAuthorizationOfMailService</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.CatOpenAuthorizationOfMailService</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">Catalog.GeneralSettingsForAuthorizationOfInternetServices</xr:Item>
 			</Content>
 		</Properties>
 		<ChildObjects/>

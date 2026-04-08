@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -250,7 +249,7 @@ Function CommandExecuteParameters() Export
 	// Service parameters.
 	Result = New Structure;
 	Result.Insert("Text",    "");
-	Result.Insert("More", "");
+	Result.Insert("ShowMoreDetails", "");
 	ExecutionParameters.Insert("Result", Result);
 	Return ExecutionParameters;
 EndFunction
@@ -558,6 +557,17 @@ EndProcedure
 Function OnFillAllExtensionParameters() Export
 	Return CommonDataNonexclusiveUpdate(Type("CatalogRef.ExtensionObjectIDs"));
 EndFunction
+
+// See CommonOverridable.WhenSettingUpVerificationOfMethodsCalledAsArbitraryCode.
+Procedure WhenSettingUpVerificationOfMethodsCalledAsArbitraryCode(Settings) Export
+	
+	// Exceptions.
+	CheckException = Settings.CheckExceptions.Add();
+	CheckException.FullObjectName   = "CommonModule.AttachableCommands";
+	CheckException.ProcedureName       = "ExecuteCommand";
+	CheckException.FragmentOfContent = "Common.ExecuteConfigurationMethod(Handler, ExportProcedureParameters)";
+	
+EndProcedure
 
 #EndRegion
 
@@ -879,10 +889,13 @@ Procedure OutputCommands(Form, Commands, PlacementParameters)
 			If CommandKindGroup.Visible Then
 				
 				CommandKindGroup.Representation = ButtonRepresentation.Text;
-				GroupWithDefaultCommands = "GroupWithDefaultCommands" + GroupsPrefix + CommandsKind.SubmenuName;
+				GroupNameWithDefaultCommands = "GroupWithDefaultCommands" + GroupsPrefix + CommandsKind.SubmenuName;
 				
-				GroupWithDefaultCommands = Items.Insert(GroupWithDefaultCommands, Type("FormGroup"),
-					CommandKindGroup.Parent, CommandKindGroup);
+				GroupWithDefaultCommands = Items.Find(GroupNameWithDefaultCommands);
+				If GroupWithDefaultCommands = Undefined Then
+					GroupWithDefaultCommands = Items.Insert(GroupNameWithDefaultCommands, Type("FormGroup"),
+						CommandKindGroup.Parent, CommandKindGroup);
+				EndIf;
 				GroupWithDefaultCommands.Type = FormGroupType.ButtonGroup;
 				
 				StringPattern = NStr("en = 'Group with default %1 commands'");
@@ -949,6 +962,7 @@ Procedure OutputCommands(Form, Commands, PlacementParameters)
 			ElsIf CommandSubmenuInfo.CommandsCount = 1 And TypeOf(FormGroup.Parent) <> Type("ClientApplicationForm") 
 				And Not IsCommandOfCommandBarType Then
 				FormButton = Items.Insert(Command.NameOnForm, Type("FormButton"), CommandSubmenuInfo.Popup.Parent, FormGroup.Parent);
+				RootItemName = Command.NameOnForm;
 			Else
 				FormButton = Items.Add(Command.NameOnForm, Type("FormButton"), FormGroup);
 			EndIf;
@@ -1789,5 +1803,12 @@ Procedure OnDefineAttachableCommandsKinds(AttachableCommandsKinds) Export
 EndProcedure
 
 #EndRegion
+
+// See StandardSubsystemsServer.WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode
+Procedure WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode(Methods) Export
+	
+	Methods.Insert("ConfigurationCommonDataNonexclusiveUpdate");
+	
+EndProcedure
 
 #EndRegion

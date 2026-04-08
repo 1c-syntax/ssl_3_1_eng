@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -250,7 +249,7 @@ EndProcedure
 //   * ContactInformationType - EnumRef.ContactInformationTypes - a contact information type if it was specified
 //                                                                            in the parameters.
 //   * Country                  - String - a world country (only if Address is specified as a contact information type).
-//   * State_SSLym                  - String - a value of the state field (only if Address is specified as a contact information type).
+//   * State                  - String - a value of the state field (only if Address is specified as a contact information type).
 //                                       It is relevant for EAEU countries.
 //   * IndexOf                  - String - a postal code (only if Address is specified as a contact information type).
 //   * PremiseType            - String - a premise type in the address input form (only if Address is specified as a contact
@@ -279,7 +278,7 @@ Function ContactInformationFormParameters(ContactInformationKind, Value,
 		FormParameters.Insert("ContactInformationType", ContactInformationType);
 		If ContactInformationType = PredefinedValue("Enum.ContactInformationTypes.Address") Then
 			FormParameters.Insert("Country");
-			FormParameters.Insert("State_SSLym");
+			FormParameters.Insert("State");
 			FormParameters.Insert("IndexOf");
 			FormParameters.Insert("PremiseType", "Appartment");
 		ElsIf ContactInformationType = PredefinedValue("Enum.ContactInformationTypes.Phone") Then
@@ -496,7 +495,7 @@ Procedure CreateSMSMessage(Val FieldValues, Val SMSParameters = Undefined,
 	
 EndProcedure
 
-// A parameter constructor for procedures "CreateEmailMessage" and "CreateSMS".
+// Parameter constructor for the CreateEmailMessage and CreateSMSMessage procedures.
 // 
 // Returns:
 //  Structure:
@@ -926,6 +925,19 @@ Procedure PresentationStartChoiceCompletion(Val ClosingResult, Val AdditionalPar
 	
 	PresentationText = ClosingResult.Presentation;
 	Comment        = ClosingResult.Comment;
+	
+	If Form.FormName = "Catalog.Users.Form.ItemForm" Then
+		Notification = New CallbackDescription("ContactDetailsStartOfSelectionEnd",
+			AdditionalParameters.Form);
+		CurrentResult = New Structure;
+		CurrentResult.Insert("Item", Item);
+		CurrentResult.Insert("NewValue", PresentationText);
+		CurrentResult.Insert("Cancel", False);
+		RunCallback(Notification, CurrentResult);
+		If CurrentResult.Cancel Then
+			Return;
+		EndIf;
+	EndIf;
 	
 	If DataOnForm.Property("StoreChangeHistory") And DataOnForm.StoreChangeHistory Then
 		ContactInformationAdditionalAttributesDetails = FillingData.ContactInformationAdditionalAttributesDetails;
@@ -1500,7 +1512,12 @@ Procedure OnContactInformationChange(Form, Item, IsTabularSection, UpdateForm, A
 		Return;
 	EndIf;
 	
-	Text = Item.EditText;
+	TagName = Item.Name;
+	If ValueIsFilled(RowData.Mask) And CommonClientServer.HasAttributeOrObjectProperty(Form, TagName) Then
+		Text = Form[TagName];
+	Else
+		Text = Item.EditText;
+	EndIf;
 	If IsBlankString(Text) Then
 		
 		FillingData[Item.Name] = "";
@@ -2148,15 +2165,15 @@ Procedure BeforeRunCommandFromAddressExtendedTooltip(Form, Item, AttributeName, 
 		
 		For Each CommandToOutput In CommandsForOutput Do
 				
-				TypeOfAction = ContactsManagerClientServer.ActionKindOfContactInformationTypeCommand(
+				ActionKind = ContactsManagerClientServer.ActionKindOfContactInformationTypeCommand(
 					CommandToOutput.Value.Action);
 				
-				If IsBlankString(TypeOfAction) Then
+				If IsBlankString(ActionKind) Then
 					ContactsManagerClientServerLocalization.OnDefineContactInfoTypeCommandActions(
-						CommandToOutput.Value.Action, TypeOfAction);
+						CommandToOutput.Value.Action, ActionKind);
 				EndIf;
 					
-				If StrCompare(TypeOfAction, "ShowOnMap") = 0 Then
+				If StrCompare(ActionKind, "ShowOnMap") = 0 Then
 					List.Add(CommandToOutput.Value.Action, CommandToOutput.Value.Title,,
 						CommandToOutput.Value.Picture);
 				EndIf;

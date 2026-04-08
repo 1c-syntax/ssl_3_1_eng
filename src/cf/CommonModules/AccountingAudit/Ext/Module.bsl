@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -109,14 +108,12 @@ Procedure ExecuteChecksInContext(AccountingChecksContext) Export
 		MethodParameters.Insert(IndexOfCheck, ParametersArray);
 	EndDo;
 	
-	ProcedureName = "AccountingAudit.ExecuteCheck";
-	
 	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(New UUID);
 	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Data integrity'");
 	ExecutionParameters.WaitCompletion = Undefined;
 	
 	ExecutionResult = TimeConsumingOperations.ExecuteProcedureinMultipleThreads(
-		ProcedureName,
+		"AccountingAudit.ExecuteCheck",
 		ExecutionParameters,
 		MethodParameters);
 	
@@ -385,7 +382,7 @@ Function ObjectsWithIssues(Val CheckRule, Val Parameters = Undefined) Export
 	
 EndFunction
 
-// Returns the selection parameters for objects with issues for the "ProblematicObjects" function.
+// Returns the selection parameters for objects with issues for the ObjectsWithIssues function.
 // 
 // Returns:
 //  Structure:
@@ -488,8 +485,8 @@ EndFunction
 //     Validation                    - CatalogRef.AccountingCheckRules - a check,
 //                                   whose results need to be cleared.
 //     CheckExecutionParameters - See AccountingAudit.CheckExecutionParameters
-//                                 - Array    - several check parameters (array elements of the Structure type,
-//                                               as described above).
+//                                 - Array    - 
+//                                               
 //
 Procedure ClearPreviousCheckResults(Val Validation, Val CheckExecutionParameters) Export
 	
@@ -1315,5 +1312,12 @@ Function EventLogEvent()
 	Return NStr("en = 'Data integrity'", Common.DefaultLanguageCode());
 	
 EndFunction
+
+// See StandardSubsystemsServer.WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode
+Procedure WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode(Methods) Export
+	
+	Methods.Insert("ExecuteCheck", True);
+	
+EndProcedure
 
 #EndRegion

@@ -116,8 +116,8 @@
 								<Title formatted="true">
 									<v8:item>
 										<v8:lang>en</v8:lang>
-										<v8:content>&lt;b&gt;Basic&lt;/&gt;&lt;b&gt; &lt;/&gt;&lt;b&gt;&lt;/&gt;&lt;b&gt; &lt;/&gt;&lt;b&gt;settings:&lt;/&gt;&lt;b&gt;&lt;/&gt;&lt;b&gt;&lt;/&gt; Do not display the scanner dialog box and apply the settings specified in the application. 
-&lt;b&gt;Advanced&lt;/&gt;&lt;b&gt; &lt;/&gt;&lt;b&gt;&lt;/&gt;&lt;b&gt; &lt;/&gt;&lt;b&gt;settings:&lt;/&gt;&lt;b&gt;&lt;/&gt;&lt;b&gt;&lt;/&gt; Display the scanner dialog box to configure additional device-specific settings.
+										<v8:content>&lt;b&gt;Basic&lt;/&gt;&lt;b&gt; &lt;/&gt;&lt;b&gt;&lt;/&gt;&lt;b&gt;&lt;/&gt;&lt;b&gt;settings:&lt;/&gt;&lt;b&gt;&lt;/&gt;&lt;b&gt;&lt;/&gt; Do not display the scanner dialog box and apply the settings specified in the application. 
+&lt;b&gt;Advanced&lt;/&gt;&lt;b&gt; &lt;/&gt;&lt;b&gt;&lt;/&gt;&lt;b&gt;&lt;/&gt;&lt;b&gt;settings:&lt;/&gt;&lt;b&gt;&lt;/&gt;&lt;b&gt;&lt;/&gt; Display the scanner dialog box to configure additional device-specific settings.
 </v8:content>
 									</v8:item>
 								</Title>
@@ -367,11 +367,11 @@
 															<v8:item>
 																<v8:lang>en</v8:lang>
 																<v8:content>&lt;b&gt;JPG&lt;/&gt; is suitable for most documents and images. It uses lossy compression, and the compression ratio can be adjusted.
-&lt;b&gt;PNG&lt;/&gt;is suitable for most documents and images. It offers lossless compression and small file sizes.
-&lt;b&gt;TIF&lt;/&gt;offers lossless image compression and is commonly used to store images for printing purposes. It also supports multipage images.
-&lt;b&gt;GIF&lt;/&gt;is an outdated format for storing low-quality images with small file sizes.
+&lt;b&gt;PNG&lt;/&gt; is suitable for most documents and images. It offers lossless compression and small file sizes.
+&lt;b&gt;TIF&lt;/&gt; offers lossless image compression and is commonly used to store images for printing purposes. It also supports multipage images.
+&lt;b&gt;GIF&lt;/&gt; is an outdated format for storing low-quality images with small file sizes.
 
-&lt;b&gt;Convert to PDF&lt;/&gt;allows you to place scanned images into a PDF file and supports multipage images.</v8:content>
+&lt;b&gt;Convert to PDF&lt;/&gt; allows you to place scanned images into a PDF file and supports multipage images.</v8:content>
 															</v8:item>
 														</Title>
 													</ExtendedTooltip>
@@ -761,6 +761,12 @@ Submit it to 1C technical support.</v8:content>
 				</PictureDecoration>
 				<LabelDecoration name="ScanErrorText" id="150">
 					<AutoMaxWidth>false</AutoMaxWidth>
+					<Title formatted="false">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Scanning crashed. Save the &lt;link ТехническаяИнформация&gt;information for technical support&lt;/&gt;.</v8:content>
+						</v8:item>
+					</Title>
 					<ContextMenu name="ScanErrorTextContextMenu" id="151"/>
 					<ExtendedTooltip name="ScanErrorTextExtendedTooltip" id="152"/>
 				</LabelDecoration>
@@ -778,6 +784,12 @@ Submit it to 1C technical support.</v8:content>
 			<ExtendedTooltip name="FooterGroupExtendedTooltip" id="154"/>
 			<ChildItems>
 				<UsualGroup name="AssistanceRequiredGroup" id="177">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Need help?</v8:content>
+						</v8:item>
+					</Title>
 					<GroupVerticalAlign>Center</GroupVerticalAlign>
 					<Group>Vertical</Group>
 					<Behavior>PopUp</Behavior>
@@ -785,26 +797,39 @@ Submit it to 1C technical support.</v8:content>
 					<ChildItems>
 						<LabelDecoration name="Recommendations" id="179">
 							<AutoMaxWidth>false</AutoMaxWidth>
-							<Title formatted="true"/>
+							<Title formatted="true">
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Try the following solutions:
+
+</v8:content>
+								</v8:item>
+							</Title>
 							<ContextMenu name="RecommendationsContextMenu" id="180"/>
 							<ExtendedTooltip name="RecommendationsExtendedTooltip" id="181"/>
 							<Events>
 								<Event name="URLProcessing">RecommendationsURLProcessing</Event>
 							</Events>
 						</LabelDecoration>
-						<UsualGroup name="TechnicalSupportGroup" id="182">
+						<UsualGroup name="GroupSupportRequests" id="182">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Support requests</v8:content>
+								</v8:item>
+							</Title>
 							<Group>Vertical</Group>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="TechnicalSupportGroupExtendedTooltip" id="183"/>
+							<ExtendedTooltip name="GroupSupportRequestsExtendedTooltip" id="183"/>
 							<ChildItems>
-								<LabelDecoration name="DescriptionOfSupportRequest" id="184">
+								<LabelDecoration name="SupportRequestDetails" id="184">
 									<Width>55</Width>
 									<AutoMaxWidth>false</AutoMaxWidth>
-									<ContextMenu name="DescriptionOfSupportRequestContextMenu" id="185"/>
-									<ExtendedTooltip name="DescriptionOfSupportRequestExtendedTooltip" id="186"/>
+									<ContextMenu name="SupportRequestDetailsContextMenu" id="185"/>
+									<ExtendedTooltip name="SupportRequestDetailsExtendedTooltip" id="186"/>
 									<Events>
-										<Event name="URLProcessing">DescriptionOfSupportRequestURLProcessing</Event>
+										<Event name="URLProcessing">SupportRequestDetailsURLProcessing</Event>
 									</Events>
 								</LabelDecoration>
 							</ChildItems>

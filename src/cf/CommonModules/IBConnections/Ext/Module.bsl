@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -629,21 +628,21 @@ Procedure OnFillToDoList(ToDoList) Export
 	
 	For Each Section In Sections Do
 		
-		ToDoItemID = "SessionsLock" + StrReplace(Section.FullName(), ".", "");
+		CaseFileID = "SessionsLock" + StrReplace(Section.FullName(), ".", "");
 		
-		ToDoItem = ToDoList.Add();
-		ToDoItem.Id  = ToDoItemID;
-		ToDoItem.HasToDoItems       = LockParameters.Use;
-		ToDoItem.Presentation  = NStr("en = 'Deny user access'");
-		ToDoItem.Form          = "DataProcessor.ApplicationLock.Form";
-		ToDoItem.Important         = Importance;
-		ToDoItem.Owner       = Section;
+		CaseFile = ToDoList.Add();
+		CaseFile.Id  = CaseFileID;
+		CaseFile.HasToDoItems       = LockParameters.Use;
+		CaseFile.Presentation  = NStr("en = 'Deny user access'");
+		CaseFile.Form          = "DataProcessor.ApplicationLock.Form";
+		CaseFile.Important         = Importance;
+		CaseFile.Owner       = Section;
 		
-		ToDoItem = ToDoList.Add();
-		ToDoItem.Id  = "SessionLockDetails";
-		ToDoItem.HasToDoItems       = LockParameters.Use;
-		ToDoItem.Presentation  = Message;
-		ToDoItem.Owner       = ToDoItemID; 
+		CaseFile = ToDoList.Add();
+		CaseFile.Id  = "SessionLockDetails";
+		CaseFile.HasToDoItems       = LockParameters.Use;
+		CaseFile.Presentation  = Message;
+		CaseFile.Owner       = CaseFileID; 
 		
 	EndDo;
 	
@@ -755,9 +754,9 @@ Function GenerateLockMessage(Val Message, Val KeyCode) Export
 	Else
 		MessageText = MessageText + NStr("en = '%1
 			|To allow user access, use the server cluster console or run 1C:Enterprise with the following parameters:
-			|ENTERPRISE %2 /C%3 /UC%4'");
+			|ENTERPRISE %2 /C %3 /UC %4'");
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(MessageText, IBConnectionsClientServer.TextForAdministrator(),
-			InfobasePathString, ParameterName, NStr("en = '<access code>'"));
+			InfobasePathString, ParameterName, "KeyCode");
 	EndIf;
 	
 	Return MessageText;

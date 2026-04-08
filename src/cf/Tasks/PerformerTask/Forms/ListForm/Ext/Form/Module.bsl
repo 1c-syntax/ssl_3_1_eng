@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -162,7 +161,7 @@ Procedure ListOnActivateRow(Item)
 	If Item.CurrentData <> Undefined Then
 		Item.CurrentData.Property("AcceptedForExecution", AcceptedForExecution) 
 	EndIf;
-	SetAcceptForExecutionAvailability(AcceptedForExecution);
+	SetAcceptForExecutionAvailability(AcceptedForExecution = False);
 EndProcedure
 
 #EndRegion
@@ -310,12 +309,14 @@ Procedure SetAcceptForExecutionAvailability(FlagValue1)
 		Items.AcceptForExecution.Enabled                               = FlagValue1;
 		Items.ListContextMenuAcceptForExecution.Enabled          = FlagValue1;
 		Items.ListContextMenuCancelAcceptForExecution.Enabled = Not FlagValue1;
+		Items.CancelAcceptForExecution.Enabled                      = Not FlagValue1;
 	Else
 		Items.AcceptForExecution.Enabled                               = False;
 		Items.ListContextMenuAcceptForExecution.Enabled          = False;
 		Items.ListContextMenuCancelAcceptForExecution.Enabled = False;
+		Items.CancelAcceptForExecution.Enabled                      = False;
 	EndIf;
-
+	
 EndProcedure
 
 #EndRegion

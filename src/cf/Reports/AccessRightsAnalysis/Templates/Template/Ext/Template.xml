@@ -2400,7 +2400,7 @@
 						</dcscor:item>
 						<dcscor:item>
 							<dcscor:parameter>Картинка</dcscor:parameter>
-							<dcscor:value xsi:type="v8ui:Picture" ref="v8ui:AccessLevelCreate"/>
+							<dcscor:value xsi:type="v8ui:Picture" ref="v8ui:AccessLevelCreating"/>
 						</dcscor:item>
 						<dcscor:item>
 							<dcscor:parameter>РазмерКартинки</dcscor:parameter>
@@ -5711,7 +5711,7 @@
 						</dcscor:item>
 						<dcscor:item xsi:type="dcsset:SettingsParameterValue">
 							<dcscor:parameter>Картинка</dcscor:parameter>
-							<dcscor:value xsi:type="v8ui:Picture" ref="v8ui:AccessLevelCreate"/>
+							<dcscor:value xsi:type="v8ui:Picture" ref="v8ui:AccessLevelCreating"/>
 						</dcscor:item>
 					</dcsset:appearance>
 				</dcsset:item>
@@ -6275,7 +6275,7 @@
 						</dcscor:item>
 						<dcscor:item xsi:type="dcsset:SettingsParameterValue">
 							<dcscor:parameter>Картинка</dcscor:parameter>
-							<dcscor:value xsi:type="v8ui:Picture" ref="v8ui:AccessLevelCreate"/>
+							<dcscor:value xsi:type="v8ui:Picture" ref="v8ui:AccessLevelCreating"/>
 						</dcscor:item>
 					</dcsset:appearance>
 				</dcsset:item>
@@ -6748,7 +6748,7 @@
 						</dcscor:item>
 						<dcscor:item xsi:type="dcsset:SettingsParameterValue">
 							<dcscor:parameter>Картинка</dcscor:parameter>
-							<dcscor:value xsi:type="v8ui:Picture" ref="v8ui:AccessLevelCreate"/>
+							<dcscor:value xsi:type="v8ui:Picture" ref="v8ui:AccessLevelCreating"/>
 						</dcscor:item>
 					</dcsset:appearance>
 				</dcsset:item>
@@ -7185,7 +7185,7 @@
 						</dcscor:item>
 						<dcscor:item xsi:type="dcsset:SettingsParameterValue">
 							<dcscor:parameter>Картинка</dcscor:parameter>
-							<dcscor:value xsi:type="v8ui:Picture" ref="v8ui:AccessLevelCreate"/>
+							<dcscor:value xsi:type="v8ui:Picture" ref="v8ui:AccessLevelCreating"/>
 						</dcscor:item>
 					</dcsset:appearance>
 				</dcsset:item>
@@ -7558,7 +7558,7 @@
 						</dcscor:item>
 						<dcscor:item xsi:type="dcsset:SettingsParameterValue">
 							<dcscor:parameter>Картинка</dcscor:parameter>
-							<dcscor:value xsi:type="v8ui:Picture" ref="v8ui:AccessLevelCreate"/>
+							<dcscor:value xsi:type="v8ui:Picture" ref="v8ui:AccessLevelCreating"/>
 						</dcscor:item>
 					</dcsset:appearance>
 				</dcsset:item>
@@ -7755,7 +7755,7 @@
 						</dcscor:item>
 						<dcscor:item xsi:type="dcsset:SettingsParameterValue">
 							<dcscor:parameter>Картинка</dcscor:parameter>
-							<dcscor:value xsi:type="v8ui:Picture" ref="v8ui:AccessLevelCreate"/>
+							<dcscor:value xsi:type="v8ui:Picture" ref="v8ui:AccessLevelCreating"/>
 						</dcscor:item>
 					</dcsset:appearance>
 				</dcsset:item>
@@ -8539,7 +8539,7 @@
 						</dcscor:item>
 						<dcscor:item xsi:type="dcsset:SettingsParameterValue">
 							<dcscor:parameter>Картинка</dcscor:parameter>
-							<dcscor:value xsi:type="v8ui:Picture" ref="v8ui:AccessLevelCreate"/>
+							<dcscor:value xsi:type="v8ui:Picture" ref="v8ui:AccessLevelCreating"/>
 						</dcscor:item>
 					</dcsset:appearance>
 				</dcsset:item>
@@ -9064,7 +9064,7 @@
 						</dcscor:item>
 						<dcscor:item xsi:type="dcsset:SettingsParameterValue">
 							<dcscor:parameter>Картинка</dcscor:parameter>
-							<dcscor:value xsi:type="v8ui:Picture" ref="v8ui:AccessLevelCreate"/>
+							<dcscor:value xsi:type="v8ui:Picture" ref="v8ui:AccessLevelCreating"/>
 						</dcscor:item>
 					</dcsset:appearance>
 				</dcsset:item>
@@ -9610,7 +9610,7 @@
 						</dcscor:item>
 						<dcscor:item xsi:type="dcsset:SettingsParameterValue">
 							<dcscor:parameter>Картинка</dcscor:parameter>
-							<dcscor:value xsi:type="v8ui:Picture" ref="v8ui:AccessLevelCreate"/>
+							<dcscor:value xsi:type="v8ui:Picture" ref="v8ui:AccessLevelCreating"/>
 						</dcscor:item>
 					</dcsset:appearance>
 				</dcsset:item>
@@ -10535,7 +10535,7 @@
 						</dcscor:item>
 						<dcscor:item xsi:type="dcsset:SettingsParameterValue">
 							<dcscor:parameter>Картинка</dcscor:parameter>
-							<dcscor:value xsi:type="v8ui:Picture" ref="v8ui:AccessLevelCreate"/>
+							<dcscor:value xsi:type="v8ui:Picture" ref="v8ui:AccessLevelCreating"/>
 						</dcscor:item>
 					</dcsset:appearance>
 				</dcsset:item>

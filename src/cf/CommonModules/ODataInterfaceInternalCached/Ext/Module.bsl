@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Private
@@ -36,6 +35,7 @@ Function ConfigurationDataModelDetails() Export
 	FillModelByMetadataCollection(Model, "BusinessProcesses");
 	FillModelByMetadataCollection(Model, "Tasks");
 	FillModelByMetadataCollection(Model, "ExternalDataSources");
+	FillModelByMetadataCollection(Model, "IntegrationServices");
 	FillModelByFunctionalOptions(Model);
 	FillModelBySeparators(Model);
 	
@@ -68,6 +68,7 @@ Function MetadataClassesInConfigurationModel() Export
 	CurrentMetadataClasses.Insert("Recalculations", 20);
 	CurrentMetadataClasses.Insert("ScheduledJobs", 21);
 	CurrentMetadataClasses.Insert("ExternalDataSources", 22);
+	CurrentMetadataClasses.Insert("IntegrationServices", 23);
 	
 	Return New FixedStructure(CurrentMetadataClasses);
 	
@@ -508,6 +509,23 @@ Function FixModel(Val Model)
 		Return Model;
 		
 	EndIf;
+	
+EndFunction
+
+// Returns type details that contain all reference types of metadata objects
+// in the configuration.
+//
+// Returns:
+//   TypeDescription
+//
+Function RefTypesDetails() Export
+	
+	AnyXDTORefTypeDetails = XDTOFactory.Create(XDTOFactory.Type("http://v8.1c.ru/8.1/data/core", "TypeDescription"));
+	AnyXDTORefTypeDetails.TypeSet.Add(XDTOSerializer.WriteXDTO(New XMLExpandedName(
+		"http://v8.1c.ru/8.1/data/enterprise/current-config", "AnyRef")));
+	AnyRefTypeDetails = XDTOSerializer.ReadXDTO(AnyXDTORefTypeDetails);
+	
+	Return AnyRefTypeDetails;
 	
 EndFunction
 

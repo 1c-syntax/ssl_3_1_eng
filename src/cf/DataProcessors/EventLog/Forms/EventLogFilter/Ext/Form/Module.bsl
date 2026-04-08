@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -132,7 +131,7 @@ Procedure ChoiceCompletion(Item, ChoiceData, StandardProcessing)
 		ParametersToSelect = "ServerName";
 	ElsIf PropertyCompositionEditorItemName = Items.PrimaryIPPorts.Name Then
 		ListToEdit = PrimaryIPPorts;
-		ParametersToSelect = "PrimaryIPPort";
+		ParametersToSelect = Port();
 	ElsIf PropertyCompositionEditorItemName = Items.SecondaryIPPorts.Name Then
 		ListToEdit = SecondaryIPPorts;
 		ParametersToSelect = "SyncPort";
@@ -314,8 +313,8 @@ Procedure ImportSettingsFromFile(Command)
 	FileImportParameters.Dialog.Title = NStr("en = 'Choose a file with event log filter settings'");
 	FileImportParameters.Dialog.Filter = NStr("en = 'XML file'") + "(*.xml)|*.xml";
 	
-	NotifyDescription = New CallbackDescription("ImportSettingsFromFileCompletion", ThisObject);
-	FileSystemClient.ImportFile_(NotifyDescription, FileImportParameters);
+	CallbackDescription = New CallbackDescription("ImportSettingsFromFileCompletion", ThisObject);
+	FileSystemClient.ImportFile_(CallbackDescription, FileImportParameters);
 	
 EndProcedure
 
@@ -416,7 +415,7 @@ Procedure FillFilterParameters()
 				SessionsString = SessionsString + ?(SessionsString = "", "", "; ") + SessionNumber;
 			EndDo;
 			
-		ElsIf Upper(ParameterName) = Upper("PrimaryIPPort") Then
+		ElsIf Upper(ParameterName) = Upper(Port()) Then
 			// Port.
 			PrimaryIPPorts = Value;
 			
@@ -568,7 +567,7 @@ Function GetEventLogFilter()
 	
 	// Port.
 	If PrimaryIPPorts.Count() > 0 Then 
-		Filter.Add(PrimaryIPPorts, "PrimaryIPPort");
+		Filter.Add(PrimaryIPPorts, "Port");
 	EndIf;
 	
 	// SyncPort.
@@ -919,7 +918,7 @@ Procedure ApplySettingsFromFile(FilterParameterList)
 			
 		ElsIf Upper(ParameterName) = Upper("Port") Then
 			// Port
-			PrimaryIPPorts = AvailableFilterValues(Value, AvailableSelections, "PrimaryIPPort");
+			PrimaryIPPorts = AvailableFilterValues(Value, AvailableSelections, "Port");
 			
 		ElsIf Upper(ParameterName) = Upper("SyncPort") Then
 			// SyncPort
@@ -1090,5 +1089,14 @@ Function AvailableSessionDataSeparators(Value)
 	Return Result;
 	
 EndFunction
+
+// Returns:
+//  String
+//
+&AtClientAtServerNoContext
+Function Port()
+	Return "Port";
+EndFunction
+
 
 #EndRegion

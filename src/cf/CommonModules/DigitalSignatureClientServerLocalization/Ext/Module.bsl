@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -88,6 +87,18 @@ Procedure OnGetDefaultEnvelopeVariant(XMLEnvelope) Export
 	
 EndProcedure
 
+// On determining if an application is available.
+// 
+// Parameters:
+//  Parameters - SelectionFromQueryResult, Structure
+//  Structure - Structure
+//
+Procedure WhenDeterminingAvailabilityOfApplication(Parameters, Structure) Export
+	
+	
+EndProcedure
+
+
 // Address of the revocation list located on a different resource.
 // 
 // Parameters:
@@ -154,15 +165,20 @@ EndFunction
 // 
 // Returns:
 //  Undefined
-//  :
-//   
-//   
-//   
-//     
-//     
-//   
-//   
-//   
+//  * AllowedUncredited - Boolean:
+//   * ActionPeriods - Undefined, Array of Structure:
+//  **DateFrom1 - Date
+//  **DateTo - Date, Undefined
+//  * ValidityEndDate - Undefined, Date
+//  * UpdateDate - Undefined, Date
+//  * FurtherSettings - Map
+//   * AllowedUncredited - Boolean
+//   * ActionPeriods - Undefined, Array of Structure:
+//     **DateFrom1 - Date
+//     **DateTo - Date, Undefined
+//   * ValidityEndDate - Undefined, Date
+//   * UpdateDate - Undefined, Date
+//   * FurtherSettings - Map
 //
 Function CertificationAuthorityData(SearchValues, AccreditedCertificationCenters) Export
 	

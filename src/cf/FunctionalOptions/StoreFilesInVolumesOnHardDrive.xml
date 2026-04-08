@@ -13,7 +13,6 @@
 			<Location>Constant.StoreFilesInVolumesOnHardDrive</Location>
 			<PrivilegedGetMode>true</PrivilegedGetMode>
 			<Content>
-				<xr:Object>Catalog.FileStorageVolumes</xr:Object>
 				<xr:Object>Report.VolumeIntegrityCheck</xr:Object>
 			</Content>
 		</Properties>

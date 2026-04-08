@@ -320,7 +320,7 @@
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>\ Show tracked states</v8:content>
+													<v8:content> Show tracked states</v8:content>
 												</v8:item>
 											</Title>
 											<ExtendedTooltip name="ShowTrackedExtendedTooltip" id="88"/>
@@ -333,7 +333,7 @@
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>\ Show all</v8:content>
+													<v8:content> Show all</v8:content>
 												</v8:item>
 											</Title>
 											<RepresentationInContextMenu>None</RepresentationInContextMenu>
@@ -783,7 +783,7 @@
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Show all.</v8:content>
+					<v8:content>Show all</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>ShowAllItems</Action>

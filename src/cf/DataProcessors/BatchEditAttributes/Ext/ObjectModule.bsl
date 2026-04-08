@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -900,10 +899,10 @@ Function RunObjectsChangeInMultipleThreads(Parameters, ObjectsToProcess, ChangeR
 		MethodParameters.Insert(BatchIndex, ParametersArray);
 	EndDo;
 	
-	FunctionName = "DataProcessor.BatchEditAttributes.ObjectModule.ObjectsBatchChangeResult";
-	
-	ExecutionResult = TimeConsumingOperations.ExecuteFunctionInMultipleThreads(FunctionName,
-		ExecutionParameters, MethodParameters);
+	ExecutionResult = TimeConsumingOperations.ExecuteFunctionInMultipleThreads(
+		"DataProcessor.BatchEditAttributes.ObjectModule.ObjectsBatchChangeResult",
+		ExecutionParameters,
+		MethodParameters);
 		
 	Return ExecutionResult;
 	
@@ -962,6 +961,13 @@ Function ModificationSettings(Parameters, RunAlgorithmCodeInSafeMode)
 EndFunction
 
 #EndRegion
+
+// See StandardSubsystemsServer.WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode
+Procedure WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode(Methods) Export
+	
+	Methods.Insert("ObjectsBatchChangeResult", True);
+	
+EndProcedure
 
 #EndRegion
 

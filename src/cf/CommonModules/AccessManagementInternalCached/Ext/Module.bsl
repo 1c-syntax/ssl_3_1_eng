@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Internal
@@ -197,6 +196,80 @@ Function ListOfAllAccessRestrictionFields(FullName) Export
 		FullName,, True);
 	
 	Return StrConcat(Fields, ",");
+	
+EndFunction
+
+// Returns the details of the register lock fields within the set of fields
+// allowed in RLS for the given register type.
+// If the Recorder field is included, it appears first in the list.
+//
+// Parameters:
+//  FullRegisterName - String - Full register name.
+//
+// Returns:
+//  FixedStructure:
+//   * FieldList - String - List of comma-separated field names.
+//   * FieldsDetails - FixedArray of FixedStructure:
+//      ** Name - String - Field name.
+//      ** Type - TypeDescription
+//   * ShouldLockByRecorder - Boolean
+//
+Function RegisterLockFieldsDetails(FullRegisterName) Export
+	
+	Fields = New Array;
+	FieldsDetails = New Array;
+	
+	RegisterMetadata = Common.MetadataObjectByFullName(FullRegisterName);
+	IsCalculationRegister = Common.IsCalculationRegister(RegisterMetadata);
+	
+	ShouldLockByRecorder = IsCalculationRegister
+		Or Common.IsInformationRegister(RegisterMetadata)
+		  And RegisterMetadata.WriteMode
+			= Metadata.ObjectProperties.RegisterWriteMode.RecorderSubordinate;
+	
+	ThisIsPeriodicInformationRegister = Common.IsInformationRegister(RegisterMetadata)
+		And RegisterMetadata.InformationRegisterPeriodicity
+			<> Metadata.ObjectProperties.InformationRegisterPeriodicity.Nonperiodical;
+	
+	If ShouldLockByRecorder
+	 Or ThisIsPeriodicInformationRegister
+	 Or IsCalculationRegister Then
+		
+		For Each StandardAttribute In RegisterMetadata.StandardAttributes Do
+			If ShouldLockByRecorder
+			   And StandardAttribute.Name = "Recorder" Then
+				
+				Fields.Insert(0, StandardAttribute.Name);
+				FieldDetails = New Structure("Name, Type",
+					StandardAttribute.Name, StandardAttribute.Type);
+				FieldsDetails.Insert(0, New FixedStructure(FieldDetails));
+				
+			ElsIf ThisIsPeriodicInformationRegister
+			        And StandardAttribute.Name = "Period"
+			      Or IsCalculationRegister
+			        And (StandardAttribute.Name = "RegistrationPeriod"
+			           Or StandardAttribute.Name = "ActionPeriod") Then
+			
+				Fields.Add(StandardAttribute.Name);
+				FieldDetails = New Structure("Name, Type",
+					StandardAttribute.Name, StandardAttribute.Type);
+				FieldsDetails.Add(New FixedStructure(FieldDetails));
+			EndIf;
+		EndDo;
+	EndIf;
+	
+	For Each Dimension In RegisterMetadata.Dimensions Do
+		Fields.Add(Dimension.Name);
+		FieldDetails = New Structure("Name, Type", Dimension.Name, Dimension.Type);
+		FieldsDetails.Add(New FixedStructure(FieldDetails));
+	EndDo;
+	
+	Result = New Structure;
+	Result.Insert("FieldsDetails", New FixedArray(FieldsDetails));
+	Result.Insert("FieldList",   StrConcat(Fields, ","));
+	Result.Insert("ShouldLockByRecorder", ShouldLockByRecorder);
+	
+	Return New FixedStructure(Result);
 	
 EndFunction
 
@@ -470,7 +543,7 @@ EndFunction
 //
 Function ConstantLimitAccessAtRecordLevel() Export
 	
-	Return Constants.LimitAccessAtRecordLevel.Get();
+	Return AccessManagementInternal.ConstantLimitAccessAtRecordLevel();
 	
 EndFunction
 
@@ -684,7 +757,7 @@ EndFunction
 Function RightsCalculationCache(CachedDataKey) Export
 	
 	Properties = "ListAccessGroupPermissions, AccessGroupsValues, UserGroupsUsers,
-		|AccessGroupsMembers, AccessGroupsUserGroups, UserGroupsAsAccessValues,
+		|AccessGroupsMembers, GroupUsersOfAccessGroups, UserGroupsAsAccessValues,
 		|RolesOfAccessGroupProfiles, ProfilesAccessGroups";
 	
 	DataVersion = AccessManagementInternal.NewVersionOfTheDataForTheRightsCalculationCache(

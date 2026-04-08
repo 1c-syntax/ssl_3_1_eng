@@ -32,10 +32,10 @@
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="FormCancelSearchExtendedTooltip" id="15"/>
 			</Button>
-			<Button name="FormHelp" id="34">
+			<Button name="FormHelp_SSLyf" id="34">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.StandardCommand.Help</CommandName>
-				<ExtendedTooltip name="FormHelpExtendedTooltip" id="35"/>
+				<ExtendedTooltip name="FormHelp_SSLyfExtendedTooltip" id="35"/>
 			</Button>
 			<SearchStringAddition name="SearchList" id="28">
 				<AdditionSource>

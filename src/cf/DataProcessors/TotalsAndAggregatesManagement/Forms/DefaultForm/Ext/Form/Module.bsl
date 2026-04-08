@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Variables
@@ -1007,7 +1006,7 @@ Procedure GetOptimalAggregatesClient()
 		EndIf;
 	Else
 		If AggregatesByRegisters.Count() = 0 Then
-			ShowMessageBox(, NStr("en = 'Отсутствуют регистры, для которых можно выполнить данную операцию.'"));
+			ShowMessageBox(, NStr("en = 'No registers to perform this action.'"));
 			Return;
 		EndIf;
 	EndIf;
@@ -1019,12 +1018,12 @@ Procedure GetOptimalAggregatesClient()
 	EndIf;
 	
 	SavingParameters = FileSystemClient.FileSavingParameters();
-	SavingParameters.Dialog.Title = NStr("en = 'Сохранить оптимальные агрегаты в файл'");
+	SavingParameters.Dialog.Title = NStr("en = 'Save optimal aggregates to file'");
 	Extension = Lower(Mid(Result.FileName, StrFind(Result.FileName, ".") + 1));
 	If Extension = "zip" Then
-		Filter = NStr("en = 'Файлы настроек агрегатов (*.zip)|*.zip'");
+		Filter = NStr("en = 'Aggregate setting files (*.zip)|*.zip'");
 	ElsIf Extension = "xml" Then
-		Filter = NStr("en = 'Файлы настроек агрегатов (*.xml)|*.xml'");
+		Filter = NStr("en = 'Aggregate setting files (*.xml)|*.xml'");
 	Else
 		Filter = "";
 	EndIf;
@@ -1044,7 +1043,7 @@ Procedure GetOptimalAggregatesClientCompletion(ObtainedFiles, ExecutionResult) E
 	If ExecutionResult.HasErrors Then
 		Raise ExecutionResult.MessageText;
 	EndIf;
-	ShowUserNotification(NStr("en = 'Агрегаты успешно получены.'"),,
+	ShowUserNotification(NStr("en = 'Aggregates are received successfully.'"),,
 		 ExecutionResult.MessageText, PictureLib.Success32);
 
 EndProcedure

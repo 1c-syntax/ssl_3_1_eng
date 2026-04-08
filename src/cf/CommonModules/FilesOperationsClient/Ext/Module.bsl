@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -23,13 +22,17 @@
 //  ForEditing - Boolean - True to open the file for editing, False otherwise.
 //
 Procedure OpenFile(Val FileData, Val ForEditing = False) Export
-	
-	If ForEditing Then
-		FilesOperationsInternalClient.EditFile(Undefined, FileData);
+
+	If FileData.Property("AsynchronousReceiptOfFile") Then
+		
+		FilesOperationsInternalClient.ActionWithFile(FileData);
+		
 	Else
-		FilesOperationsInternalClient.OpenFileWithNotification(Undefined, FileData, , ForEditing); 
+
+		FilesOperationsInternalClient.OpenFileInternal(FileData, ForEditing);
+
 	EndIf;
-	
+
 EndProcedure
 
 // Opens the directory on the computer
@@ -80,8 +83,8 @@ Procedure AddFiles(Val FileOwner, Val FormIdentifier, Val Filter = "", FilesGrou
 	Parameters.Insert("FilesGroup",         FilesGroup);
 	Parameters.Insert("ResultHandler", ResultHandler);
 	
-	NotifyDescription = New CallbackDescription("AddFilesAddInSuggested", FilesOperationsInternalClient, Parameters);
-	FilesOperationsInternalClient.ShowQuestionOn1CEnterpriseExtensionInstallation(NotifyDescription);
+	CallbackDescription = New CallbackDescription("AddFilesAddInSuggested", FilesOperationsInternalClient, Parameters);
+	FilesOperationsInternalClient.ShowQuestionOn1CEnterpriseExtensionInstallation(CallbackDescription);
 	
 EndProcedure
 
@@ -310,12 +313,17 @@ EndProcedure
 //      AdditionalParameters - Arbitrary - Value that was specified when creating the NotifyDescription object.
 //
 Procedure SaveFileAs(Val FileData, CompletionHandler = Undefined) Export
-	
-	Notification = New CallbackDescription("SaveFileAsAfterSave",
-		FilesOperationsInternalClient, CompletionHandler);
-	
-	FilesOperationsInternalClient.SaveAs(Notification, FileData, Undefined);
-	
+
+	If FileData.Property("AsynchronousReceiptOfFile") Then
+
+		FilesOperationsInternalClient.ActionWithFile(FileData);
+
+	Else
+
+		FilesOperationsInternalClient.SaveFileAsInternal(FileData, CompletionHandler);
+
+	EndIf;
+
 EndProcedure
 
 // Opens the file selection form.
@@ -482,9 +490,9 @@ EndProcedure
 //                          - Structure:
 //       * FileData            - See FilesOperations.FileData
 //                                - Array of See FilesOperations.FileData
-//       * ResultProcessing - NotifyDescription - a value of the Boolean type is passed upon calling.
-//                                  If True, the file is signed. Otherwise, it is not signed.
-//                                  If the property is absent, the notification is not called.
+//       * ResultProcessing    - CallbackDescription -  when called, a Boolean value is passed,
+//                                  if True, the file is signed successfully, otherwise it is not signed
+//                                  . if the property is not present, the alert will not be called.
 //  SignatureParameters         - See DigitalSignatureClient.NewSignatureType
 //
 Procedure SignFile(AttachedFile, FormIdentifier, AdditionalParameters = Undefined,
@@ -525,6 +533,62 @@ Procedure SignFile(AttachedFile, FormIdentifier, AdditionalParameters = Undefine
 	
 EndProcedure
 
+// Sends a file to the mobile signing service.
+// If the "Digital signature" and "Mobile signing service" subsystems aren't integrated,
+// warns the user that signing is unavailable.
+//
+// Parameters:
+//  AttachedFile      - DefinedType.AttachedFile - a reference to the catalog item with file.
+//                          - Array of DefinedType.AttachedFile
+//  FormIdentifier      - UUID - a form UUID
+//                            that is used to lock the file.
+//  AdditionalParameters - Undefined - Standard behavior (see below).
+//                          - Structure:
+//       * FileData            - See FilesOperations.FileData
+//                                - Array of See FilesOperations.FileData
+//       * ResultProcessing    - CallbackDescription - 
+//                                  
+//                                  
+//  SignatureParameters         - See DigitalSignatureClient.NewSignatureType
+//
+Procedure SendFileForSigning(AttachedFile, FormIdentifier, AdditionalParameters = Undefined,
+	SignatureParameters = Undefined) Export
+	
+	If Not ValueIsFilled(AttachedFile) Then
+		ShowMessageBox(, NStr("en = 'Please select a file to sign.'"));
+		Return;
+	EndIf;
+	
+	If Not CommonClient.SubsystemExists("StandardSubsystems.DigitalSignature") Then
+		ShowMessageBox(, NStr("en = 'This app version doesn''t support adding digital signatures.'"));
+		Return;
+	EndIf;
+	
+	ModuleDigitalSignatureClient = CommonClient.CommonModule("DigitalSignatureClient");
+	
+	If Not ModuleDigitalSignatureClient.UseDigitalSignature() Then
+		ShowMessageBox(,
+			NStr("en = 'Digital signatures cannot be added due to the app settings.'"));
+		Return;
+	EndIf;
+	
+	If AdditionalParameters = Undefined Then
+		AdditionalParameters = New Structure;
+	EndIf;
+	
+	If Not AdditionalParameters.Property("FileData") Then
+		AdditionalParameters.Insert("FileData", FilesOperationsInternalServerCall.FileDataForSigning(
+			AttachedFile, FormIdentifier));
+	EndIf;
+	
+	ResultProcessing = Undefined;
+	AdditionalParameters.Property("ResultProcessing", ResultProcessing);
+	
+	FilesOperationsInternalClient.SendFileForSigning(AttachedFile,
+		AdditionalParameters.FileData, FormIdentifier, ResultProcessing, Undefined, SignatureParameters);
+	
+EndProcedure
+
 // Returns the structured file information. It is used in variety of file operation commands
 // and as FileData parameter value in other procedures and functions.
 //
@@ -543,12 +607,13 @@ Function FileData(Val FileRef,
                     Val FormIdentifier = Undefined,
                     Val GetBinaryDataRef = True,
                     Val ForEditing = False) Export
-	
-	Return FilesOperationsInternalServerCall.GetFileData(
-		FileRef,
-		FormIdentifier,
-		GetBinaryDataRef,
-		ForEditing);
+
+	AdditionalParameters = FilesOperationsClientServer.FileDataParameters();
+	AdditionalParameters.FormIdentifier				= FormIdentifier;
+	AdditionalParameters.GetBinaryDataRef	= GetBinaryDataRef;
+	AdditionalParameters.ForEditing				= ForEditing;
+
+	Return FilesOperationsInternalServerCall.GetFileData(FileRef, AdditionalParameters);
 
 EndFunction
 
@@ -634,9 +699,9 @@ EndProcedure
 //   * ResultType - See ConversionResultTypeFileName
 //                   - See ConversionResultTypeBinaryData
 //                   - See ConversionResultTypeAttachedFile
-//   * ResultFormat - String - the format of the resulting file is PDF or TIF
-//   * ResultFormat - String - the format of the resulting file is PDF or TIF See ConversionResultTypeFileName
-//   
+//   * ResultFormat - String - 
+//   * ResultFileName - See ConversionResultTypeFileName
+//   * UseImageMagick - Boolean - 
 //
 Function GraphicDocumentConversionParameters() Export
 	
@@ -804,7 +869,7 @@ EndFunction
 //    * ResultType - See ConversionResultTypeFileName 
 //                    - See ConversionResultTypeBinaryData
 //                    - See ConversionResultTypeAttachedFile
-//    * OneFileOnly - Boolean - scan one image only.
+//    * OneFileOnly - Boolean - 
 //
 Function AddingFromScannerParameters() Export
 	AddingOptions = New Structure;
@@ -852,8 +917,8 @@ EndFunction
 Procedure ScanCommandAvailable(NotificationOfResult) Export
 	
 	If ScanAvailable() Then
-		NotifyDescription = New CallbackDescription("ScanCommandAvailableCompletion", ThisObject, NotificationOfResult);
-		FilesOperationsInternalClient.InitAddIn(NotifyDescription);
+		CallbackDescription = New CallbackDescription("ScanCommandAvailableCompletion", ThisObject, NotificationOfResult);
+		FilesOperationsInternalClient.InitAddIn(CallbackDescription);
 	Else
 		RunCallback(NotificationOfResult, False);
 	EndIf;
@@ -1079,6 +1144,123 @@ Procedure PreviewFieldCheckDragging(Form, Item, DragParameters, StandardProcessi
 	StandardProcessing = False;
 	
 EndProcedure
+
+// Initializes the structure of parameters to asynchronously retrieve an attachment.
+//
+// Parameters:
+//  ActionKind - String - A valid action for retrieving a file.
+//                         The action depends on the given file data retrieval method.
+//						   Default is Undefined.
+//  MethodName	- String - The name of the common module method used to retrieve attachment data.
+//						   Default is Undefined.
+//						   The following methods can be used for retrieval::
+//						   1. FilesOperationsInternal.FileDataToOpenAsync
+//								Valid actions:
+//								i. OpenFile
+//								ii. OpenFileVersion
+//								iii. OpenFileWithNotification
+//								iv. SelectModeAndEditFile
+//						   2. FilesOperationsInternal.FileDataToSaveAsync
+//								Valid actions:
+//								i. SaveAs
+//						   3. FilesOperationsInternal.FileDataEmailManagementAsync
+//								Valid actions:
+//								i. OpenFile
+//								ii. SaveAs
+//
+// Returns:
+//   Structure:
+//    * AsynchronousReceiptOfFile	 - Boolean - Asynchronous file retrieval flag.
+//									 This property is verified within the parameter structure.
+//                                   Default is False.
+//    * AttachedFile			 - See FilesOperations.FileBinaryData.AttachedFile.
+//    * VersionRef				 - CatalogRef.FilesVersions - The file version used for data retrieval.
+//                                   If not specified, the current version or file is used.
+//						   			 Default is Undefined.
+//    * CheckPresenceOfFileInArchive - Boolean - If False is passed, the attachment data retrieval methods
+//                                              will not check whether the file is stored in an archive.
+//									 Intended for cases where the attachment is accessed from 
+//									 a metadata object form that has confirmed the file presence
+//									 in the archive.
+//                                   Default is True.
+//    * FileInArchive					 - Boolean - Used when ... property is False.
+//									 The property contains the result of the check that verifies the file's presence in the archive.
+//                                   Default is False.
+//    * OwnerForm				 - ClientApplicationForm - Form that is accessing the attachment.
+//    * NameOfMethodForGettingFile		 - String - Name of the common server method that retrieves attachment data.
+//									 Default is FilesOperationsInternal.FileDataToOpenAsync.
+//									 
+//    * MethodParameters				 - Structure - List of parameters for the method specified in property FileRetrievalMethodName.
+//    * ActionParameters			 - Structure - Parameters of the action used to retrieve attachment data. Must include the following property:
+//                   * ActionKind - String - Value of the TypeOfAction parameter.
+//									 Additional action parameters are added in method FilesOperationsClient.SupplementParametersOfFilesOperations().
+//
+Function ParametersForAsynchronousFileReceipt(Val ActionKind = Undefined, Val MethodName = Undefined) Export
+	
+	If MethodName = Undefined Then
+		MethodName = "FilesOperationsInternal.FileDataToOpenAsynchronous";
+	EndIf;
+	
+	If ActionKind = Undefined Then
+		If MethodName = "FilesOperationsInternal.FileDataToSaveAsynchronous" Then
+			ActionKind = "SaveAs";
+		Else
+			ActionKind = "OpenFile";
+		EndIf;
+	EndIf;
+	
+	Result = New Structure;
+	Result.Insert("AsynchronousReceiptOfFile"		, False);
+	Result.Insert("AttachedFile");
+	Result.Insert("VersionRef"					, Undefined);
+	Result.Insert("CheckPresenceOfFileInArchive"	, True);
+	Result.Insert("FileInArchive"					, False);
+	Result.Insert("OwnerForm");
+
+	Result.Insert("NameOfMethodForGettingFile", MethodName);
+	Result.Insert("MethodParameters"		, New Structure);	
+	Result.Insert("ActionParameters"		, New Structure);
+	
+	Result.ActionParameters.Insert("ActionKind", ActionKind);
+
+	If MethodName = "FilesOperationsInternal.FileDataToOpenAsynchronous" Then
+		// Valid options are
+		// OpenFile, OpenFileVersion, OpenFileWithNotification, SelectModeAndEditFile
+		MethodParameters = Result.MethodParameters;
+		MethodParameters.Insert("AttachedFile");
+		MethodParameters.Insert("FileVersion");
+		MethodParameters.Insert("FormIdentifier"		, Undefined);
+		MethodParameters.Insert("OwnerWorkingDirectory"	, Undefined);
+		MethodParameters.Insert("FilePreviousURL"		, Undefined);
+		MethodParameters.Insert("FileGettingParameters"	, Undefined);
+
+	ElsIf MethodName = "FilesOperationsInternal.FileDataToSaveAsynchronous" Then
+		// Valid options is
+		// SaveAs
+		MethodParameters = Result.MethodParameters;
+		MethodParameters.Insert("AttachedFile");
+		MethodParameters.Insert("FileVersion");
+		MethodParameters.Insert("FormIdentifier"		, Undefined);
+		MethodParameters.Insert("OwnerWorkingDirectory"	, Undefined);
+		MethodParameters.Insert("FileGettingParameters"	, Undefined);
+
+	ElsIf MethodName = "FilesOperationsInternal.FileDataEmailManagementAsynchronous" Then
+		// Valid options are
+		// OpenFile, SaveAs
+		MethodParameters = Result.MethodParameters;
+		MethodParameters.Insert("AttachedFile");
+		MethodParameters.Insert("FormIdentifier"				, Undefined);
+		MethodParameters.Insert("GetBinaryDataRef"	, True);
+		MethodParameters.Insert("ForEditing"				, False);
+		MethodParameters.Insert("FileGettingParameters"			, Undefined);
+
+	EndIf;
+
+	AddFileActionParameters(Result);
+
+	Return Result;
+
+EndFunction
 
 #EndRegion
 
@@ -1953,8 +2135,13 @@ Procedure ExecuteActionWithFile(ExecutionParameters, CompletionHandler)
 	If ValueIsFilled(Location) Then
 		
 		If ExecutionParameters.Action = "ViewFile1" Then
-			FileData = FilesOperationsInternalServerCall.FileDataToOpen(Location, Undefined, Form.UUID);
-			OpenFile(FileData);
+
+			FileGettingParameters = ParametersForAsynchronousFileReceipt("OpenFile");
+			FileGettingParameters.AttachedFile	= Location;
+			FileGettingParameters.OwnerForm		= Form;
+
+			OpenFile(FileGettingParameters);
+
 		ElsIf ExecutionParameters.Action = "OpenForm" Then
 			OpenFileForm(Location);
 		ElsIf ExecutionParameters.Action = "EditFile" Then
@@ -2115,6 +2302,39 @@ Function EventLogEvent()
 	Return NStr("en = 'Files'", CommonClient.DefaultLanguageCode());
 	
 EndFunction
+
+Procedure AddFileActionParameters(FileGettingParameters)
+
+	MethodName			= FileGettingParameters.NameOfMethodForGettingFile;
+	ActionParameters	= FileGettingParameters.ActionParameters;
+	ActionKind			= ActionParameters.ActionKind;
+
+	If MethodName = "FilesOperationsInternal.FileDataToOpenAsynchronous" Then
+		
+		If ActionKind = "OpenFile" Then
+			
+			ActionParameters.Insert("NotifyIfEncrypted", False);
+			ActionParameters.Insert("FileBeingEdited"		, False);
+		ElsIf ActionKind = "OpenFileVersion" Then
+			
+			ActionParameters.Insert("UUID");
+		ElsIf ActionKind = "SelectModeAndEditFile" Then
+
+			ActionParameters.Insert("OwnerForm");
+			ActionParameters.Insert("CommandEditAvailability");
+		ElsIf ActionKind = "OpenFileWithNotification" Then
+			
+		EndIf;
+	ElsIf MethodName = "FilesOperationsInternal.FileDataEmailManagementAsynchronous" Then
+		If ActionKind = "OpenFile" Then
+			ActionParameters.Insert("ForEditing"	, False);
+		EndIf;
+	ElsIf MethodName = "FilesOperationsInternal.FileDataToSaveAsynchronous" Then
+		
+		ActionParameters.Insert("UUID");
+	EndIf;
+	
+EndProcedure
 
 #EndRegion
 

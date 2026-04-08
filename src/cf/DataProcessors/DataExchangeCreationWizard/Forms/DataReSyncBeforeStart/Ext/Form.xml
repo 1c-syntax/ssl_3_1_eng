@@ -5,6 +5,7 @@
 		<Autofill>false</Autofill>
 	</AutoCommandBar>
 	<Events>
+		<Event name="OnOpen">OnOpen</Event>
 		<Event name="OnCreateAtServer">OnCreateAtServer</Event>
 	</Events>
 	<ChildItems>
@@ -49,13 +50,57 @@ For details, see the &lt;link EventLog&gt;event&lt;/&gt;&lt;link EventLog&gt; &l
 								<v8:item>
 									<v8:lang>en</v8:lang>
 									<v8:content>Click &lt;b&gt;Sync&lt;/&gt;&lt;b&gt; &lt;/&gt;&lt;b&gt;and&lt;/&gt;&lt;b&gt; &lt;/&gt;&lt;b&gt;continue&lt;/&gt; to get
-the application update again (recommended).
+the application update again (recommended) or import the message from the archive.
 </v8:content>
 								</v8:item>
 							</Title>
 							<ContextMenu name="HelpTextContextMenu" id="33"/>
 							<ExtendedTooltip name="HelpTextExtendedTooltip" id="34"/>
 						</LabelDecoration>
+						<UsualGroup name="GroupMessageFromArchive" id="79">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Archived message</v8:content>
+								</v8:item>
+							</Title>
+							<Representation>None</Representation>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="GroupMessageFromArchiveExtendedTooltip" id="80"/>
+							<ChildItems>
+								<LabelDecoration name="StubMessageFromArchive" id="81">
+									<ContextMenu name="StubMessageFromArchiveContextMenu" id="82"/>
+									<ExtendedTooltip name="StubMessageFromArchiveExtendedTooltip" id="83"/>
+								</LabelDecoration>
+								<CheckBoxField name="ContinueUploadingMessageFromArchive" id="86">
+									<DataPath>ContinueUploadingMessageFromArchive</DataPath>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Continue import with archived message</v8:content>
+										</v8:item>
+									</Title>
+									<TitleLocation>Right</TitleLocation>
+									<CheckBoxType>Auto</CheckBoxType>
+									<ContextMenu name="ContinueUploadingMessageFromArchiveContextMenu" id="87"/>
+									<ExtendedTooltip name="ContinueUploadingMessageFromArchiveExtendedTooltip" id="88"/>
+									<Events>
+										<Event name="OnChange">ContinueUploadingMessageFromArchiveOnChange</Event>
+									</Events>
+								</CheckBoxField>
+								<Button name="OpenMessageFromArchive" id="84">
+									<Type>Hyperlink</Type>
+									<CommandName>Form.Command.OpenMessageFromArchive</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>&lt;No archived message&gt;</v8:content>
+										</v8:item>
+									</Title>
+									<ExtendedTooltip name="OpenMessageFromArchiveExtendedTooltip" id="85"/>
+								</Button>
+							</ChildItems>
+						</UsualGroup>
 						<Pages name="ConnectionParametersPages" id="57">
 							<Title>
 								<v8:item>
@@ -393,6 +438,31 @@ Please wait…</v8:content>
 				</v8:StringQualifiers>
 			</Type>
 		</Attribute>
+		<Attribute name="PeriodOfRecordingArchiveMessage" id="15">
+			<Type>
+				<v8:Type>xs:dateTime</v8:Type>
+				<v8:DateQualifiers>
+					<v8:DateFractions>DateTime</v8:DateFractions>
+				</v8:DateQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="ContinueUploadingMessageFromArchive" id="16">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Continue import with archived message</v8:content>
+				</v8:item>
+			</Title>
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Attribute>
+		<Attribute name="ParametersOfExchangeWaitingHandler" id="19">
+			<Type/>
+		</Attribute>
+		<Attribute name="ParametersOfExchangeHandler" id="20">
+			<Type/>
+		</Attribute>
 	</Attributes>
 	<Commands>
 		<Command name="SyncAndContinue" id="1">
@@ -474,6 +544,15 @@ Please wait…</v8:content>
 			</ToolTip>
 			<Action>ForgotPassword</Action>
 			<CurrentRowUse>DontUse</CurrentRowUse>
+		</Command>
+		<Command name="OpenMessageFromArchive" id="6">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Open archived message</v8:content>
+				</v8:item>
+			</Title>
+			<Action>OpenMessageFromArchive</Action>
 		</Command>
 	</Commands>
 	<Parameters>

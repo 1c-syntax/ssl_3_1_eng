@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -23,8 +22,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	SpreadsheetDocumentLeft = PrepareSpreadsheetDocument(SpreadsheetDocumentsToCompare.Left_1);
 	SpreadsheetDocumentRight = PrepareSpreadsheetDocument(SpreadsheetDocumentsToCompare.Right);
 	
-	Items.LeftSpreadsheetDocumentGroup.Title = Parameters.TitleLeft;
-	Items.RightSpreadsheetDocumentGroup.Title = Parameters.TitleRight;
+	Items.LeftSpreadsheetDocumentGroup.Title = Parameters.TitleLeft_SSLyf;
+	Items.RightSpreadsheetDocumentGroup.Title = Parameters.TitleRight_SSLyf;
 	
 	If Not IsBlankString(Parameters.Title) Then
 		Title = Parameters.Title;
@@ -37,7 +36,7 @@ EndProcedure
 &AtClient
 Procedure OnOpen(Cancel)
 	
-	AttachIdleHandler("StartComparisonOnClient", 0.1, True);
+	AttachIdleHandler("StartCompareAtClient", 0.1, True);
 	
 EndProcedure
 
@@ -120,7 +119,7 @@ EndProcedure
 #Region Private
 
 &AtClient
-Procedure StartComparisonOnClient()
+Procedure StartCompareAtClient()
 	
 	DisableOnActivateHandler = True;
 			
@@ -133,8 +132,8 @@ Procedure StartComparisonOnClient()
 	CellDifferencesLeft.Clear();
 	CellDifferencesRight.Clear();
 	
-	TimeConsumingOperation = StartComparisonAtServer();
-	CallbackOnCompletion = New CallbackDescription("DisplayResultOnClient", ThisObject);
+	TimeConsumingOperation = StartCompareAtServer();
+	CallbackOnCompletion = New CallbackDescription("OutputResultAtClient", ThisObject);
 	
 	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	IdleParameters.MessageText = NStr("en = 'Comparing documents.'");
@@ -144,7 +143,7 @@ Procedure StartComparisonOnClient()
 EndProcedure
 
 &AtServer
-Function StartComparisonAtServer()
+Function StartCompareAtServer()
 	
 	LeftDocumentTable = ReadSpreadsheetDocument(SpreadsheetDocumentLeft);
 	RightDocumentTable = ReadSpreadsheetDocument(SpreadsheetDocumentRight);
@@ -156,7 +155,7 @@ Function StartComparisonAtServer()
 EndFunction
 
 &AtClient
-Procedure DisplayResultOnClient(Result, AdditionalParameters) Export
+Procedure OutputResultAtClient(Result, AdditionalParameters) Export
 	
 	DisableOnActivateHandler = False;
 	
@@ -169,25 +168,25 @@ Procedure DisplayResultOnClient(Result, AdditionalParameters) Export
 		Return;
 	EndIf;
 	
-	DisplayResultATServer(Result.ResultAddress);
+	OutputResultAtServer(Result.ResultAddress);
 	NextChange(Items.SpreadsheetDocumentLeft, SpreadsheetDocumentLeft, CellDifferencesLeft);
 	
 EndProcedure 
 
 &AtServer
-Procedure DisplayResultATServer(ResultAddress)
+Procedure OutputResultAtServer(ResultAddress)
 	
 #Region Comparison
 	
 	ComparisonResult = GetFromTempStorage(ResultAddress);
 	
 	// Comparing the spreadsheet documents by lines and selecting the matching lines.
-	Maps1 = ComparisonResult.StringMatches;
+	Maps1 = ComparisonResult.RowMappings;
 	RowsMapLeft = Maps1[0];
 	RowsMapRight = Maps1[1];
 	
 	// Comparing the spreadsheet documents by columns and selecting the matching columns.
-	Maps1 = ComparisonResult.ColumnMatches;
+	Maps1 = ComparisonResult.ColumnMappings;
 	ColumnsMapLeft = Maps1[0];
 	ColumnsMapRight = Maps1[1];
 	

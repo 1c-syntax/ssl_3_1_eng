@@ -12,7 +12,7 @@
 				<Title>
 					<v8:item>
 						<v8:lang>en</v8:lang>
-						<v8:content>Проверить подключение</v8:content>
+						<v8:content>Test connection</v8:content>
 					</v8:item>
 				</Title>
 				<ExtendedTooltip name="FormTestConnectionExtendedTooltip" id="2"/>
@@ -24,7 +24,7 @@
 				<Title>
 					<v8:item>
 						<v8:lang>en</v8:lang>
-						<v8:content>Готово</v8:content>
+						<v8:content>Finish</v8:content>
 					</v8:item>
 				</Title>
 				<ExtendedTooltip name="FormDoneExtendedTooltip" id="4"/>
@@ -43,7 +43,7 @@
 				<Title formatted="false">
 					<v8:item>
 						<v8:lang>en</v8:lang>
-						<v8:content>Например 'exchange/dsl’. Каталог должен быть уже создан в сервисе. Доспутимо использовать только латинские символы </v8:content>
+						<v8:content>For example, "exchange/dsl". The directory must exist in the service. Only Latin letters are allowed.</v8:content>
 					</v8:item>
 				</Title>
 			</ExtendedTooltip>
@@ -52,7 +52,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Настройки доступа</v8:content>
+					<v8:content>Access settings</v8:content>
 				</v8:item>
 			</Title>
 			<Group>Vertical</Group>
@@ -67,7 +67,7 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Получить токен</v8:content>
+							<v8:content>Get token</v8:content>
 						</v8:item>
 					</Title>
 					<ExtendedTooltip name="GetTokenExtendedTooltip" id="73"/>
@@ -126,7 +126,7 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Expires in (Истекает)</v8:content>
+							<v8:content>Expires in</v8:content>
 						</v8:item>
 					</Title>
 					<ContextMenu name="ExpiresInContextMenu" id="70"/>
@@ -160,7 +160,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Транслитерация имени файла сообщения обмена</v8:content>
+					<v8:content>Convert exchange message filename</v8:content>
 				</v8:item>
 			</Title>
 			<TitleLocation>Right</TitleLocation>
@@ -182,13 +182,13 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Готово</v8:content>
+					<v8:content>Finish</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Готово</v8:content>
+					<v8:content>Finish</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>Done</Action>
@@ -197,13 +197,13 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Проверить подключение</v8:content>
+					<v8:content>Test connection</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Проверить подключение</v8:content>
+					<v8:content>Test connection</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>TestConnection</Action>
@@ -212,13 +212,13 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Получить токен</v8:content>
+					<v8:content>Get token</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Получить токен</v8:content>
+					<v8:content>Get token</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>GetToken</Action>

@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -81,8 +80,8 @@ Procedure SetupFormBeforeClose(Cancel, Form, Exit) Export
 	EndIf;
 	
 	QueryText = NStr("en = 'Close the form without saving the changes?'");
-	NotifyDescription = New CallbackDescription("SetupFormBeforeCloseCompletion", ThisObject, Form);
-	ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.YesNo,, DialogReturnCode.No);
+	CallbackDescription = New CallbackDescription("SetupFormBeforeCloseCompletion", ThisObject, Form);
+	ShowQueryBox(CallbackDescription, QueryText, QuestionDialogMode.YesNo,, DialogReturnCode.No);
 	
 EndProcedure
 
@@ -401,15 +400,37 @@ EndProcedure
 //     * SelectingTypesOfWarnings - Array of EnumRef.DataExchangeIssuesTypes
 //                                           EnumRef.ObjectVersionTypes - Types of the warnings being deleted.
 //     * OnlyHiddenRecords - Boolean - Filter for deletion only hidden warning records.
-//  NotifyDescription - CallbackDescription
+//  CallbackDescription - CallbackDescription
 //
-Procedure OpenFormForDeletingSyncAlerts(OpeningParameters, NotifyDescription = Undefined) Export
+Procedure OpenFormForDeletingSyncAlerts(OpeningParameters, CallbackDescription = Undefined) Export
 	
 	NameOfAlertDeletionForm = "InformationRegister.DataExchangeResults.Form.ObsoleteWarningsDeletion";
-	OpenForm(NameOfAlertDeletionForm, OpeningParameters, ThisObject, , , , NotifyDescription);
+	OpenForm(NameOfAlertDeletionForm, OpeningParameters, ThisObject, , , , CallbackDescription);
 	
 EndProcedure
 
+// Opens the form of monitor for data registered for sending.
+//
+// Parameters:
+//  InfobaseNode - ExchangePlanRef
+//
+Procedure OpenCompositionOfDataToSend(Val InfobaseNode) Export
+	
+	FormParameters = New Structure;
+	FormParameters.Insert("ExchangeNode", InfobaseNode);
+	FormParameters.Insert("SelectExchangeNodeProhibited", True);
+	
+	// Internal data that cannot be modified if the data processor is called from a command.
+	FormParameters.Insert("NamesOfMetadataToHide", New ValueList);
+	FormParameters.NamesOfMetadataToHide.Add("InformationRegister.InfobaseObjectsMaps");
+	
+	NotExportByRules = DataExchangeServerCall.NotExportedNodeObjectsMetadataNames(InfobaseNode);
+	For Each NameOfMetadataObjects In NotExportByRules Do
+		FormParameters.NamesOfMetadataToHide.Add(NameOfMetadataObjects);
+	EndDo;
+	
+	OpenForm("DataProcessor.RegisterChangesForDataExchange.Form", FormParameters,, InfobaseNode);
+EndProcedure
 
 #Region ObsoleteProceduresAndFunctions
 
@@ -475,29 +496,6 @@ Procedure InstallConfigurationUpdate(ShouldExitApp = False) Export
 		NStr("en = 'Install update'"), "ManualUpdateInstruction"));
 	EndIf;
 	
-EndProcedure
-
-// Opens the form of monitor for data registered for sending.
-//
-// Parameters:
-//  InfobaseNode - ExchangePlanRef
-//
-Procedure OpenCompositionOfDataToSend(Val InfobaseNode) Export
-	
-	FormParameters = New Structure;
-	FormParameters.Insert("ExchangeNode", InfobaseNode);
-	FormParameters.Insert("SelectExchangeNodeProhibited", True);
-	
-	// Internal data that cannot be modified if the data processor is called from a command.
-	FormParameters.Insert("NamesOfMetadataToHide", New ValueList);
-	FormParameters.NamesOfMetadataToHide.Add("InformationRegister.InfobaseObjectsMaps");
-	
-	NotExportByRules = DataExchangeServerCall.NotExportedNodeObjectsMetadataNames(InfobaseNode);
-	For Each NameOfMetadataObjects In NotExportByRules Do
-		FormParameters.NamesOfMetadataToHide.Add(NameOfMetadataObjects);
-	EndDo;
-	
-	OpenForm("DataProcessor.RegisterChangesForDataExchange.Form", FormParameters,, InfobaseNode);
 EndProcedure
 
 
@@ -1009,7 +1007,7 @@ Procedure FileSelectionHandler(Object, Val PropertyName, StandardProcessing = Fa
 	
 	DefaultDialogOptions = New Structure;
 	DefaultDialogOptions.Insert("Mode",                       FileDialogMode.Open);
-	DefaultDialogOptions.Insert("CheckFileExistence", True);
+	DefaultDialogOptions.Insert("CheckFileExist", True);
 	DefaultDialogOptions.Insert("Title",                   NStr("en = 'Select file'"));
 	DefaultDialogOptions.Insert("MultipleChoice",          False);
 	DefaultDialogOptions.Insert("Preview",     False);
@@ -1074,7 +1072,7 @@ EndProcedure
 Procedure SelectAndSendFileToServer(CompletionNotification, Val DialogParameters = Undefined, Val FormIdentifier = Undefined) Export
 	
 	DefaultDialogOptions = New Structure;
-	DefaultDialogOptions.Insert("CheckFileExistence", True);
+	DefaultDialogOptions.Insert("CheckFileExist", True);
 	DefaultDialogOptions.Insert("Title",                   NStr("en = 'Select file'"));
 	DefaultDialogOptions.Insert("MultipleChoice",          False);
 	DefaultDialogOptions.Insert("Preview",     False);

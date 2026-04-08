@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -237,16 +236,19 @@ EndFunction
 // if the "IBUserDetails" parameter's type is either "InfobaseUser" or "Structure".
 //
 // Parameters:
-//  IBUserDetails - UUID - infobase user ID.
+//  IBUserDetails - UUID - If no infobase user is found by the UUID,
+//                             the function returns False.
 //                         - Structure - Contains the following authentication properties:
 //                             * StandardAuthentication    - Boolean - 1C:Enterprise authentication.
 //                             * OSAuthentication             - Boolean - operating system authentication.
 //                             * OpenIDAuthentication         - Boolean - openID authentication.
 //                             * OpenIDConnectAuthentication  - Boolean - OpenID-Connect authentication.
 //                             * AccessTokenAuthentication - Boolean - JWT authentication.
-//                         - InfoBaseUser       - Infobase user.
-//                         - CatalogRef.Users        - User.
-//                         - CatalogRef.ExternalUsers - external user.
+//                         - InfoBaseUser
+//                         - CatalogRef.Users
+//                         - CatalogRef.ExternalUsers - If the user or external user is not found in the catalog,
+//                             or if the matching infobase user cannot be found by the value of the
+//                             IBUserID  attribute, the function returns False.
 //
 // Returns:
 //  Boolean - True if at least one authentication property is True.
@@ -277,8 +279,17 @@ Function CanSignIn(IBUserDetails) Export
 		If IBUser = Undefined Then
 			Return False;
 		EndIf;
-	Else
+		
+	ElsIf TypeOf(IBUserDetails) = Type("InfoBaseUser")
+	      Or TypeOf(IBUserDetails) = Type("Structure") Then
+		
 		IBUser = IBUserDetails;
+	Else
+		CommonClientServer.CheckParameter("Users.CanSignIn",
+			"IBUserDetails",
+			IBUserDetails,
+			New TypeDescription("InfoBaseUser,UUID,
+				|CatalogRef.Users,CatalogRef.ExternalUsers,Structure"));
 	EndIf;
 	
 	Return IBUser.StandardAuthentication
@@ -303,6 +314,11 @@ EndFunction
 //  Boolean
 //
 Function HasRightsToLogIn(IBUser, Interactively = True, AreStartupRightsOnly = True) Export
+	
+	If TypeOf(IBUser) <> Type("InfoBaseUser") Then
+		CommonClientServer.CheckParameter("Users.HasRightsToLogIn",
+			"IBUser", IBUser, Type("InfoBaseUser"));
+	EndIf;
 	
 	Result =
 		    AccessRight("ThinClient",    Metadata, IBUser)
@@ -1211,10 +1227,8 @@ Procedure SetIBUserProperies(Val NameOrID, Val PropertiesToUpdate,
 			Raise ErrorText;
 		EndIf;
 		If UsersInternal.IsSettings8_3_26Available() Then
-			// ACC:488-off - Support of new 1C:Enterprise methods (the executable code is safe)
 			IBUser.StoredPasswordValue =
-				Eval("EvaluateStoredUserPasswordValue(PropertiesToUpdate.Password)");
-			// ACC:488-on
+				UsersInternal.EvaluateStoredUserPasswordValue_8_3_26(PropertiesToUpdate.Password);
 		Else
 			IBUser.StoredPasswordValue =
 				UsersInternal.PasswordHashString(PropertiesToUpdate.Password, True);
@@ -1753,10 +1767,8 @@ Function InfobaseDummyUser(Properties, RefToNew = Undefined) Export
 		If IBUser = Undefined Or Not IBUser.PasswordIsSet Then
 			NewPassword = String(New UUID) + " " + String(New UUID);
 			If UsersInternal.IsSettings8_3_26Available() Then
-				// ACC:488-off - Support of new 1C:Enterprise methods (the executable code is safe)
 				Properties.StoredPasswordValue =
-					Eval("EvaluateStoredUserPasswordValue(NewPassword)");
-				// ACC:488-on
+					UsersInternal.EvaluateStoredUserPasswordValue_8_3_26(NewPassword);
 			Else
 				Properties.StoredPasswordValue =
 					PasswordHashString(NewPassword);
@@ -1807,6 +1819,9 @@ Function InfobaseDummyUser(Properties, RefToNew = Undefined) Export
 			LockItem.SetValue("Ref", Selection.Ref);
 			BeginTransaction();
 			Try
+				If Common.FileInfobase() Then
+					UsersInternal.LockRegistersBeforeWritingToFileInformationSystem(False);
+				EndIf;
 				Block.Lock();
 				User = Selection.Ref.GetObject();
 				If User <> Undefined Then
@@ -1853,6 +1868,9 @@ Function InfobaseDummyUser(Properties, RefToNew = Undefined) Export
 	
 	BeginTransaction();
 	Try
+		If Common.FileInfobase() Then
+			UsersInternal.LockRegistersBeforeWritingToFileInformationSystem(False);
+		EndIf;
 		Block.Lock();
 		User = ?(ValueIsFilled(RefToNew), RefToNew.GetObject(), Undefined);
 		
@@ -2157,13 +2175,15 @@ EndProcedure
 //	Properties = New Structure("PasswordHashAlgorithmType", Null);
 //	FillPropertyValues(Properties, InfoBaseUsers.CurrentUser());
 //	If Properties.PasswordHashAlgorithmType <> Null Then
+//		SetSafeMode(True); // Support of security profiles in CORP solutions.
 //		ACC:488-off - Support of new 1C:Enterprise methods (the executable code is safe).
 //		PasswordMatches = Evaluate("CheckUserPasswordComplianceWithStoredValue(Password, IBUser)");
 //		ACC:488-off
-//	Else
-//		PasswordMatches = IBUser.StoredPasswordValue
-//			= Users.PasswordHashString(Password);
-//	EndIf;
+//		Else
+//	PasswordMatches = IBUser.StoredPasswordValue
+//		= Users.PasswordHashString(Password);
+//			EndIf;
+//	
 //
 Function PasswordHashString(Val Password) Export
 	
@@ -2171,13 +2191,14 @@ Function PasswordHashString(Val Password) Export
 	
 EndFunction
 
-// Generates a new password matching the set rules of complexity checking.
-// For easier memorization, a password is formed from syllables (consonant-vowel).
+// Generates a new password that meets the defined complexity rules.
+// Starting with version 8.3.22, the RandomPasswordGenerator is used
+// (with the MemorablePassword parameter that generates passwords that resemble regular words).
 //
 // Parameters:
 //  PasswordProperties - See PasswordProperties
-//                 - Number - Obsolete.
-//  DeleteIsComplex         - Boolean - Obsolete. Use "PasswordProperties" instead.
+//                 - Number - 
+//  DeleteIsComplex         - Boolean - Deprecated. Instead, use PasswordProperties. Always set to True since version 8.3.22.
 //  DeleteConsiderSettings - String - Obsolete. Use "PasswordProperties" instead.
 //
 // Returns:
@@ -2189,7 +2210,6 @@ Function CreatePassword(Val PasswordProperties = 7, DeleteIsComplex = False, Del
 		MinLength = PasswordProperties; 
 		PasswordProperties = PasswordProperties();
 		PasswordProperties.MinLength = MinLength;
-		PasswordProperties.Complicated = DeleteIsComplex;
 		PasswordProperties.ConsiderSettings = DeleteConsiderSettings;
 	EndIf;
 	
@@ -2203,27 +2223,20 @@ Function CreatePassword(Val PasswordProperties = 7, DeleteIsComplex = False, Del
 		PasswordPolicy = UserPasswordPolicies.FindByName(PasswordPolicyName);
 		If PasswordPolicy = Undefined Then
 			MinPasswordLength = GetUserPasswordMinLength();
-			ComplexPassword          = GetUserPasswordStrengthCheck();
 		Else
 			MinPasswordLength = PasswordPolicy.PasswordMinLength;
-			ComplexPassword          = PasswordPolicy.PasswordStrengthCheck;
-
 		EndIf;
 		SetPrivilegedMode(False);
 		If MinPasswordLength < PasswordProperties.MinLength Then
 			MinPasswordLength = PasswordProperties.MinLength;
 		EndIf;
-		If Not ComplexPassword And PasswordProperties.Complicated Then
-			ComplexPassword = True;
-		EndIf;
 	Else
 		MinPasswordLength = PasswordProperties.MinLength;
-		ComplexPassword = PasswordProperties.Complicated;
 	EndIf;
 	
-	PasswordParameters = UsersInternal.PasswordParameters(MinPasswordLength, ComplexPassword);
+	RandomPasswordGenerator = New RandomPasswordGenerator;
 	
-	Return UsersInternal.CreatePassword(PasswordParameters, PasswordProperties.RNG);
+	Return RandomPasswordGenerator.RandomPassword(MinPasswordLength);
 	
 EndFunction
 
@@ -2233,28 +2246,22 @@ EndFunction
 // Returns:
 //   Structure:
 //     * MinLength - Number - the minimum password length.
-//     * Complicated - Boolean - Indicates whether the password complexity check is on (always "True" starting from v.8.3.22).
+//     * Complicated - Boolean - Deprecated. Always set to True since version 8.3.22.
 //     * ConsiderSettings - String -
 //             "DontConsiderSettings" - do not consider administrator settings,
 //             "ForUsers" - consider settings for users (by default),
 //             "ForExternalUsers" - consider settings for external users.
 //             If administrator settings are considered, the specified password
 //             length and complexity parameters will be increased to the values ​​specified in the settings.
-//     * RNG - RandomNumberGenerator - If applicable (obsolete starting from v.8.3.22).
-//           - Undefined - If a new password should be created.
+//     * RNG - Undefined -  Deprecated since version 8.3.22.
 //
 Function PasswordProperties() Export
 	
 	Result = New Structure;
 	Result.Insert("MinLength", 7);
-	Result.Insert("Complicated", False);
+	Result.Insert("Complicated", True);
 	Result.Insert("ConsiderSettings", "ForUsers");
-	
-	Milliseconds = CurrentUniversalDateInMilliseconds();
-	BeginningNumber = Milliseconds - Int(Milliseconds / 40) * 40;
-	RNG = New RandomNumberGenerator(BeginningNumber);
-	
-	Result.Insert("RNG", RNG);
+	Result.Insert("RNG", Undefined);
 	
 	Return Result;
 	

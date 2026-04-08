@@ -46,10 +46,10 @@
 				<CommandSource>Form</CommandSource>
 				<ExtendedTooltip name="AdditionalCommandsExtendedTooltip" id="28"/>
 			</ButtonGroup>
-			<Button name="FormHelp" id="13">
+			<Button name="FormHelp_SSLyf" id="13">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.StandardCommand.Help</CommandName>
-				<ExtendedTooltip name="FormHelpExtendedTooltip" id="29"/>
+				<ExtendedTooltip name="FormHelp_SSLyfExtendedTooltip" id="29"/>
 			</Button>
 			<SearchStringAddition name="SearchList" id="55">
 				<AdditionSource>

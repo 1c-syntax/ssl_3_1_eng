@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Private
@@ -33,12 +32,12 @@ Procedure ShowPutFileOnAttach1CEnterpriseExtension(ExtensionAttached, Context) E
 		ProcessingResultsParameters.Insert("MultipleChoice",   Dialog.Multiselect);
 		ProcessingResultsParameters.Insert("CompletionHandler", CompletionHandler);
 		
-		NotifyDescription = New CallbackDescription(
+		CallbackDescription = New CallbackDescription(
 			"AfterWarnedAboutFileUnavailability", ThisObject, ProcessingResultsParameters);
 		ErrorInfo = ErrorInfo();
 		ErrorDescription = ErrorInfo.Cause.Description;
 		If StrFind(ErrorDescription, "32(0x00000020)") Then 
-			ShowMessageBox(NotifyDescription, NStr("en = 'Complete the operation with the file in another application.'"),, 
+			ShowMessageBox(CallbackDescription, NStr("en = 'Complete the operation with the file in another application.'"),, 
 				NStr("en = 'The file is opened in another application'"));
 				Return;
 		EndIf;
@@ -81,28 +80,28 @@ Procedure StartProcessingPuttingFiles(Context)
 	If Dialog.Multiselect Then
 		
 		Files = ?(Interactively, Dialog, FilesToUpload);
-		NotifyDescription = New CallbackDescription(
+		CallbackDescription = New CallbackDescription(
 			"ProcessPutFilesResult", ThisObject, ProcessingResultsParameters);
 		
 		If ValueIsFilled(FormIdentifier) Then
-			BeginPuttingFiles(NotifyDescription, Files, Interactively,
+			BeginPuttingFiles(CallbackDescription, Files, Interactively,
 				FormIdentifier, Context.AcrtionBeforeStartPutFiles);
 		Else
-			BeginPuttingFiles(NotifyDescription, Files, Interactively, ,
+			BeginPuttingFiles(CallbackDescription, Files, Interactively, ,
 				Context.AcrtionBeforeStartPutFiles);
 		EndIf;
 		
 	Else
 		
 		File = ?(Interactively, Dialog, FilesToUpload.Name);
-		NotifyDescription = New CallbackDescription(
+		CallbackDescription = New CallbackDescription(
 			"ProcessPutFileResult", ThisObject, ProcessingResultsParameters);
 		
 		If ValueIsFilled(FormIdentifier) Then
-			BeginPutFile(NotifyDescription, FilesToUpload.Location, File,
+			BeginPutFile(CallbackDescription, FilesToUpload.Location, File,
 				Interactively, FormIdentifier, Context.AcrtionBeforeStartPutFiles);
 		Else
-			BeginPutFile(NotifyDescription, FilesToUpload.Location, File,
+			BeginPutFile(CallbackDescription, FilesToUpload.Location, File,
 				Interactively, , Context.AcrtionBeforeStartPutFiles);
 		EndIf;
 		
@@ -203,9 +202,36 @@ EndProcedure
 // Continuation of procedure FileSystemClient.ShowDownloadFiles procedure.
 Procedure ShowDownloadFilesToDirectory(Context)
 	
+#If MobileClient Then
+	
+	Dialog = New FileDialog(FileDialogMode.ChooseDirectory);
+	Dialog.Title = NStr("en = 'Choose a directory'");
+	CallbackDescription = New CallbackDescription("AfterSelectingDirectory", ThisObject, Context);
+	Dialog.Show(CallbackDescription);
+	
+#Else
+	
 	CallbackOnCompletion = New CallbackDescription("NotifyGetFilesCompletion", ThisObject, Context);
-	BeginGettingFiles(CallbackOnCompletion, Context.FilesToObtain,
-		Context.Dialog, Context.Interactively);
+	BeginGettingFiles(CallbackOnCompletion, Context.FilesToObtain, Context.Dialog, Context.Interactively);
+	
+#EndIf
+
+EndProcedure
+
+Procedure AfterSelectingDirectory(ReceivedDirectory, Context) Export
+	
+	If ReceivedDirectory = Undefined Then
+		Return;
+	EndIf;
+	
+	DirectoryName = ReceivedDirectory.Get(0);
+	
+	CallbackOnCompletion = New CallbackDescription("NotifyGetFilesCompletion", ThisObject, Context);
+	
+	GetFilesArchiveParameters       = New GetFilesArchiveParameters();
+	GetFilesArchiveParameters.Mode = GetFilesArchiveMode.GetArchiveWhenRequired;
+	
+	BeginGetFilesFromServer(CallbackOnCompletion, Context.FilesToObtain, DirectoryName, GetFilesArchiveParameters);
 	
 EndProcedure
 
@@ -420,10 +446,10 @@ Procedure OpenFileAfterDataUpdateInStorage(IsDataUpdated, DataAddress, FileName,
 		AdditionalParameters.Insert("IsDataUpdated", IsDataUpdated);
 		AdditionalParameters.Insert("OpeningParameters", OpeningParameters);
 		
-		NotifyDescription = New CallbackDescription(
+		CallbackDescription = New CallbackDescription(
 			"OpenFileAfterTempFileDeletion", ThisObject, AdditionalParameters);
 			
-		BeginDeletingFiles(NotifyDescription, FileName);
+		BeginDeletingFiles(CallbackDescription, FileName);
 		
 	Else
 		RunCallback(OpeningParameters.CompletionHandler, IsDataUpdated);
@@ -722,7 +748,7 @@ EndFunction
 
 #Region StartApplication
 
-// Continuation of procedure FileSystemClient.StartApplication.
+// Continues the FileSystemClient.StartApplication procedure.
 Procedure StartApplicationAfterCheck1CEnterpriseExtension(ExtensionAttached, Context) Export
 	
 	If ExtensionAttached Then
@@ -746,7 +772,7 @@ Procedure StartApplicationAfterCheck1CEnterpriseExtension(ExtensionAttached, Con
 	
 EndProcedure
 
-// Continuation of procedure FileSystemClient.StartApplication.
+// Continues the FileSystemClient.StartApplication procedure.
 Procedure StartApplicationAfterCheckIfExists(Exists, Context) Export
 	
 	CurrentDirectory = Context.CurrentDirectory;
@@ -790,7 +816,7 @@ Procedure StartApplicationAfterCheckIsDirectory(IsDirectory, Context) Export
 	
 EndProcedure
 
-// Continuation of procedure FileSystemClient.StartApplication.
+// Continues the FileSystemClient.StartApplication procedure.
 Procedure StartApplicationBeginRunning(Context)
 	
 	// ACC:534-off - This function provides safe startup methods.
@@ -871,7 +897,7 @@ Function StandardStreamEncoding()
 	
 EndFunction
 
-// Continuation of procedure FileSystemClient.StartApplication.
+// Continues the FileSystemClient.StartApplication procedure.
 Procedure StartApplicationAfterStartApplication(ReturnCode, Context) Export 
 	
 	Notification = Context.Notification;
@@ -893,7 +919,7 @@ Procedure StartApplicationAfterStartApplication(ReturnCode, Context) Export
 				|Wait for completion: %4'"),
 			Context.CommandString,
 			Context.CurrentDirectory,
-			Context.ReturnCode,
+			ReturnCode,
 			Context.WaitForCompletion);
 		EventLogClient.AddMessageForEventLog(
 			NStr("en = 'Standard subsystems'", CommonClient.DefaultLanguageCode()),
@@ -910,7 +936,7 @@ Procedure StartApplicationAfterStartApplication(ReturnCode, Context) Export
 	
 EndProcedure
 
-// Continuation of procedure FileSystemClient.StartApplication.
+// Continues the FileSystemClient.StartApplication procedure.
 Procedure StartApplicationOnProcessError(ErrorInfo, StandardProcessing, Context) Export 
 	
 	StandardProcessing = False;
@@ -919,7 +945,7 @@ Procedure StartApplicationOnProcessError(ErrorInfo, StandardProcessing, Context)
 	
 EndProcedure
 
-// Continuation of procedure FileSystemClient.StartApplication.
+// Continues the FileSystemClient.StartApplication procedure.
 Procedure StartApplicationNotifyOnError(ErrorDescription, Context)
 	
 	Notification = Context.Notification;
@@ -953,7 +979,7 @@ Function ApplicationStartResult()
 	
 EndFunction
 
-// Continuation of procedure FileSystemClient.StartApplication.
+// Continues the FileSystemClient.StartApplication procedure.
 Procedure StartApplicationWithFullRights(Context)
 	
 #If WebClient Then
@@ -989,7 +1015,7 @@ Procedure StartApplicationWithFullRights(Context)
 	
 EndProcedure
 
-// Continuation of procedure FileSystemClient.StartApplication.
+// Continues the FileSystemClient.StartApplication procedure.
 //
 Procedure FillThreadResult(Result, Context)
 	
@@ -1009,7 +1035,7 @@ Procedure FillThreadResult(Result, Context)
 
 EndProcedure
 
-// Continuation of procedure FileSystemClient.StartApplication.
+// Continues the FileSystemClient.StartApplication procedure.
 //
 Function ReadThreadFile(PathToFile, ThreadsEncoding)
 	
@@ -1038,7 +1064,7 @@ EndFunction
 
 #If Not WebClient And Not MobileClient Then
 
-// Continuation of procedure FileSystemClient.StartApplication.
+// Continues the FileSystemClient.StartApplication procedure.
 //
 Procedure StartApplicationWithFullWindowsRights(Context)
 	
@@ -1076,7 +1102,7 @@ Procedure StartApplicationWithFullWindowsRights(Context)
 	
 EndProcedure
 
-// Continuation of procedure FileSystemClient.StartApplication.
+// Continues the FileSystemClient.StartApplication procedure.
 //
 Procedure StartApplicationWithFullLinuxRights(Context)
 	
@@ -1103,7 +1129,7 @@ EndProcedure
 
 #Region ChooseDirectory
 
-// Continues the procedure "FileSystemClient.SelectDirectory".
+// Continues the FileSystemClient.SelectDirectory procedure.
 Procedure SelectDirectoryOnAttach1CEnterpriseExtension(ExtensionAttached, Context) Export
 	
 	If Not ExtensionAttached Then
@@ -1111,7 +1137,7 @@ Procedure SelectDirectoryOnAttach1CEnterpriseExtension(ExtensionAttached, Contex
 		Return;
 	EndIf;
 	
-	NotifyDescription = New CallbackDescription(
+	CallbackDescription = New CallbackDescription(
 		"SelectDirectoryAtSelectionEnd", ThisObject, Context.CompletionHandler);
 	
 	Dialog = New FileDialog(FileDialogMode.ChooseDirectory);
@@ -1123,11 +1149,11 @@ Procedure SelectDirectoryOnAttach1CEnterpriseExtension(ExtensionAttached, Contex
 		Dialog.Directory = Context.Directory;
 	EndIf;
 	
-	Dialog.Show(NotifyDescription);
+	Dialog.Show(CallbackDescription);
 	
 EndProcedure
 
-// Continuation of procedure FileSystemClient.SelectDirectory.
+// Continues the FileSystemClient.SelectDirectory procedure.
 Procedure SelectDirectoryAtSelectionEnd(DirectoriesArray, CompletionHandler) Export
 	
 	PathToDirectory = 
@@ -1163,14 +1189,14 @@ EndProcedure
 Procedure StartAttach1CEnterpriseExtension(Attached, Context) Export
 	
 	If Attached Then
-		RunCallback(Context.NotifyDescriptionCompletion, "AttachmentNotRequired");
+		RunCallback(Context.CallbackDescriptionCompletion, "AttachmentNotRequired");
 		Return;
 	EndIf;
 	
 	// In the web client on macOS, the extension is available only in the Chrome browser.
 	If CommonClient.IsMacOSClient() 
 			And Not Is1CEnterpriseExtensionAvailable() Then
-		RunCallback(Context.NotifyDescriptionCompletion);
+		RunCallback(Context.CallbackDescriptionCompletion);
 		Return;
 	EndIf;
 	
@@ -1182,7 +1208,7 @@ Procedure StartAttach1CEnterpriseExtension(Attached, Context) Export
 	
 	ShouldPromptToInstallExtension = ApplicationParameters[ParameterName] Or FirstCallDuringSession;
 	If Context.CanContinueWithoutInstalling And Not ShouldPromptToInstallExtension Then
-		RunCallback(Context.NotifyDescriptionCompletion);
+		RunCallback(Context.CallbackDescriptionCompletion);
 		Return;
 	EndIf;
 		
@@ -1190,7 +1216,7 @@ Procedure StartAttach1CEnterpriseExtension(Attached, Context) Export
 	FormParameters.Insert("SuggestionText", Context.SuggestionText);
 	FormParameters.Insert("CanContinueWithoutInstalling", Context.CanContinueWithoutInstalling);
 	OpenForm("CommonForm.QuestionOn1CEnterpriseExtensionInstallation", FormParameters,,,,,  
-		Context.NotifyDescriptionCompletion);
+		Context.CallbackDescriptionCompletion);
 		
 EndProcedure
 

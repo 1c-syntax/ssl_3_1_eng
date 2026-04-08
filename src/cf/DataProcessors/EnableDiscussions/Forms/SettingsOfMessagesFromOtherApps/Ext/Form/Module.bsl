@@ -1,5 +1,5 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
@@ -16,6 +16,16 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	AvailableIntegrations = ConversationsInternal.AvailableIntegrations();
 	AvailableCreationCommands = New Map;
 		
+	ExternalSystemType = ExternalSystemsTypes.Max;
+	IsIntegrationAvailable = AvailableIntegrations.Find(ExternalSystemType) <> Undefined;
+	AvailableCreationCommands["CreateMaxBot"] = IsIntegrationAvailable;
+	If IsIntegrationAvailable Then
+		Connection = ConnectionsList.GetItems().Add();
+		Connection.Description = NStr("en = 'Chats in Max'");
+		Connection.Active = -1;
+		Connection.Type = ExternalSystemType;
+	EndIf;
+	
 	ExternalSystemType = ExternalSystemsTypes.Telegram;
 	IsIntegrationAvailable = AvailableIntegrations.Find(ExternalSystemType) <> Undefined;
 	AvailableCreationCommands["CreateTelegramBot"] = IsIntegrationAvailable;
@@ -74,6 +84,14 @@ EndProcedure
 #EndRegion
 
 #Region FormCommandsEventHandlers
+
+&AtClient
+Procedure CreateMaxBot(Command)
+	Notification = New CallbackDescription("AfterChangeIntegration", ThisObject);
+	ConversationsInternalClient.ShowIntegrationInformation(ThisObject, 
+		New Structure("Type", ConversationsInternalClientServer.ExternalSystemsTypes().Max),
+		Notification);
+EndProcedure
 
 &AtClient
 Procedure CreateTelegramBot(Command)

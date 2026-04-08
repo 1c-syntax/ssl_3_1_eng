@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -2183,8 +2182,7 @@ Procedure SetQueueNumber(UpdateIterations)
 		
 		Filter = New Structure("ExecutionMode", "Deferred");
 		Filter.Insert("DeferredProcessingQueue", 0);
-		DeferredHandlers = Library.Handlers.FindRows(Filter); // See InfobaseUpdate.NewUpdateHandlerTable
-// ()
+		DeferredHandlers = Library.Handlers.FindRows(Filter); // See InfobaseUpdate.NewUpdateHandlerTable()
 		For Each Handler In DeferredHandlers Do
 			Filter = New Structure;
 			Filter.Insert("Version", Handler.Version);

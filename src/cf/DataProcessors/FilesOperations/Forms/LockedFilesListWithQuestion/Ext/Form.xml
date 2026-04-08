@@ -62,7 +62,7 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Commit</v8:content>
+							<v8:content>Finish editing</v8:content>
 						</v8:item>
 					</Title>
 					<ExtendedTooltip name="FormEndEditExtendedTooltip" id="76"/>
@@ -195,7 +195,7 @@
 								<Title>
 									<v8:item>
 										<v8:lang>en</v8:lang>
-										<v8:content>Commit</v8:content>
+										<v8:content>Finish editing</v8:content>
 									</v8:item>
 								</Title>
 								<ExtendedTooltip name="ListContextMenuEndEditExtendedTooltip" id="80"/>
@@ -590,13 +590,13 @@ WHERE
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Commit</v8:content>
+					<v8:content>Finish editing</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Save the file and release it in the infobase.</v8:content>
+					<v8:content>Finalize changes and make the file available for editing.</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Picture>

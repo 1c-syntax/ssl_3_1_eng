@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -201,13 +200,13 @@ Function ConnectionDiagnostics(URL, WriteError1 = True, IsPackageDeliveryCheckEn
 	RefStructure = CommonClientServer.URIStructure(URL);
 	
 	If Not IsBlankString(ErrorText)
-		And StrFind(Upper(ErrorText), Upper("Deleted node not passed checking")) > 0 Then // ACC:1297 - A non-localizable piece of information about an exception error.
+		And StrFind(Upper(ErrorText), Upper("Deleted node not passed_ checking2")) > 0 Then // ACC:1297 - A non-localizable piece of information about an exception error.
 		
 		
 		LongDesc.Add(StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Install the root and intermediate certificates for %1 on the computer <%2>.'"),
-			RefStructure.ServerName,
-			ComputerName()));
+			NStr(
+			"en = 'Check the certification path for the %1 certificate on computer <%2>. If necessary, grant access to the certification authority information or install the root and intermediate certificates. If the certificate is self-signed, add it to the trusted certificates.'"),
+			RefStructure.ServerName, ComputerName()));
 		
 		GetFilesFromInternetLocalization.OnGenerateMessageAboutKnownIssue(LongDesc, ErrorText);
 		
@@ -327,13 +326,8 @@ Function ConnectionDiagnostics(URL, WriteError1 = True, IsPackageDeliveryCheckEn
 						           |- Access blocked by firewall, antivirus, or other software.
 						           |- Server is disabled or undergoing maintenance.'"),
 						ResourceServerAddress));
-					
-					TraceLog = GetFilesFromInternetInternal.ServerRouteTraceLog(ResourceServerAddress);
-					Log.Add("2) " + TraceLog);
-					
 				EndIf;
 		EndIf;
-		
 	EndIf;
 	
 	GetFilesFromInternetLocalization.OnGenerateMessageAboutKnownIssue(LongDesc, ErrorText);

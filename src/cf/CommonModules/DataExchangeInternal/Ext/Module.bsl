@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Internal
@@ -1158,32 +1157,51 @@ EndProcedure
 Procedure UpdateInformationRegisterRecord(RecordStructure, Val RegisterName) Export
 
 	RegisterMetadata = Metadata.InformationRegisters[RegisterName]; // MetadataObjectInformationRegister
-	
-	// Creating a register record manager.
-	RecordManager = InformationRegisters[RegisterName].CreateRecordManager();
-	
-	// Setting a filter by register dimensions.
-	For Each Dimension In RegisterMetadata.Dimensions Do
 
-		DimensionName = Dimension.Name;
+	BeginTransaction();
+
+	Try
+		// Creating a register record manager.
+		RecordManager = InformationRegisters[RegisterName].CreateRecordManager();
+
+		DataLock = New DataLock;
+		DataLockItem = DataLock.Add("InformationRegister." + RegisterName);
+		DataLockItem.Mode = DataLockMode.Exclusive;
+	
+		// Setting a filter by register dimensions.
+		For Each Dimension In RegisterMetadata.Dimensions Do
+
+			DimensionName = Dimension.Name;
 		
-		// If a value is specified in the structure, the filter is set.
-		If RecordStructure.Property(DimensionName) Then
+			// If a value is specified in the structure, the filter is set.
+			If RecordStructure.Property(DimensionName) Then
+				RecordManager[DimensionName] = RecordStructure[DimensionName];
+				DataLockItem.SetValue(DimensionName, RecordStructure[DimensionName]);
+			EndIf;
 
-			RecordManager[DimensionName] = RecordStructure[DimensionName];
+		EndDo;
+	
+		DataLock.Lock();
+		
+		// Reading a record from the infobase.
+		RecordManager.Read();
+	
+		// Filling record property values from the passed structure.
+		FillPropertyValues(RecordManager, RecordStructure);
+	
+		// Write the record manager.
+		RecordManager.Write();
 
-		EndIf;
+		CommitTransaction();
+	Except
+		RollbackTransaction();
 
-	EndDo;
-	
-	// Reading a record from the infobase.
-	RecordManager.Read();
-	
-	// Filling record property values from the passed structure.
-	FillPropertyValues(RecordManager, RecordStructure);
-	
-	// Write the record manager.
-	RecordManager.Write();
+		ErrorMessage = ErrorProcessing.DetailErrorDescription(ErrorInfo());
+
+		Event = NStr("en = 'Data exchange.Update record'", Common.DefaultLanguageCode());
+
+		WriteLogEvent(Event, EventLogLevel.Error, RegisterMetadata, , ErrorMessage);
+	EndTry;
 
 EndProcedure
 
@@ -1401,8 +1419,8 @@ Procedure CheckMarkPredefinedDataRef(Value, PredefinedDataTable)
 		Return;
 	EndIf;
 
-	If Not PredefinedDataRow.Export Then
-		PredefinedDataRow.Export = True;
+	If Not PredefinedDataRow.ToExport Then
+		PredefinedDataRow.ToExport = True;
 	EndIf;
 
 EndProcedure

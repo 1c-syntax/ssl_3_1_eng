@@ -1,5 +1,5 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
@@ -19,12 +19,52 @@ Procedure OnDefineTechnicalSupportRequestRecipient(Recipient) Export
 	
 EndProcedure
 
+// Sender parameters in the mobile signature service.
+// 
+// Parameters:
+//  Sender - Structure
+//
+Procedure WhenDeterminingParametersOfSenderOfDocumentsForSignature(Sender) Export
+	
+	
+EndProcedure
+
 // Filter for signature selection.
 // 
 // Parameters:
 //  Filter - String
 //
 Procedure OnGetFilterForSelectingSignatures(Filter) Export
+	
+	
+EndProcedure
+
+// In case of errors on the client.
+// 
+// Parameters:
+//  ErrorsDescription - Structure
+//
+Procedure WhenErrorsAreReceivedOnClient(ErrorsDescription) Export
+	
+	
+EndProcedure
+
+// Form for sending data for signing to the mobile signing service.
+// 
+// Parameters:
+//  FormName - String
+//
+Procedure OnDefineSignatureSubmissionForm(FormName) Export
+	
+	
+EndProcedure
+
+// On getting a mobile add-in ID.
+// 
+// Parameters:
+//  Component - String
+//
+Procedure OnReceivingMobileComponentID(Component) Export
 	
 	
 EndProcedure
@@ -108,104 +148,88 @@ Async Function InstalledTokens(ComponentObject = Undefined, SuggestInstall = Fal
 	
 EndFunction
 
-// Get the properties of token certificates.
+// Adds token certificates to the passed array.
 // 
 // Parameters:
-//  Context - Structure:
-//    * CertificatesArray - Array
-//  SuggestInstall - Boolean - Prompt to install the add-in (if not yet installed).
+//  Tokens - Array, Undefined
+//  CertificatesArray - Array
 // 
 // Returns:
-//    Promise - Context
+//  Array of CryptoCertificate
 //
-Async Function GetCertificatesPropertiesOnTokens(Context, SuggestInstall) Export
+Async Function AddCertificatesFromTokenToArray(Tokens, CertificatesArray) Export
 	
 	
-	Return Context;
+	Return CertificatesArray;
 	
 EndFunction
 
-// Returns the thumbprints of token certificates.
+// Retrieves the token by a certificate.
 // 
 // Parameters:
-//  SuggestInstall - Boolean - Prompt to install the add-in (if not yet installed).
-//  IncludingOverduePayments - Boolean - If "False", return the thumbprints only for valid certificates.
-// 
-// Returns:
-//    Promise - Array
-//
-Async Function GetCertificatesThumbprintsOnTokens(SuggestInstall, IncludingOverduePayments = False) Export
-	
-	ThumbprintsArray = New Array;
-	
-	
-	Return ThumbprintsArray;
-	
-EndFunction
-
-// Token certificates.
-// 
-// Parameters:
-//  SuggestInstall - Boolean - Prompt to install.
+//  Notification - CallbackDescription
+//  Certificate - CryptoCertificate
+//  StandardProcessing - Boolean
+//  SuggestInstall - Boolean - Prompt to install the add-in.
 //  Refresh - Boolean - Update the list of token certificates in the cache.
 // 
 // Returns:
-//  Promise - Array of Structure - Tokens.
+//  Promise - Array of Structure - Tokens
 //  
-Async Function CertificatesOnTokens(SuggestInstall, Refresh = False) Export
-	
-	InstalledCryptoProviders = Await DigitalSignatureInternalClient.InstalledCryptoProvidersFromCache(SuggestInstall);
-	Tokens = InstalledCryptoProviders.Tokens;
-	WriteTokensToCache = False;
+Procedure OnGettingTokenByCertificate(Notification, Certificate, StandardProcessing, SuggestInstall = True, Refresh = False) Export
 	
 	
-	If WriteTokensToCache Then
-		InstalledCryptoProviders.Tokens = Tokens;
-		DigitalSignatureInternalClient.WriteInstalledCryptoProvidersToCache(InstalledCryptoProviders)
-	EndIf;
-	
-	Return Tokens;
-	
-EndFunction
+EndProcedure
 
-// Token certificates.
+// Retrieves a certificate from the token by its fingerprint.
 // 
 // Parameters:
-//  Token - Structure
-//  ComponentObject - Undefined, AddInObject
-//  SuggestInstall - Boolean - Prompt to install.
+//  Notification - CallbackDescription
+//  Thumbprint - String
+//  StandardProcessing - Boolean
+//  SuggestInstall - Boolean - Prompt to install the add-in.
+//  Refresh - Boolean - Update the list of token certificates in the cache.
 // 
 // Returns:
-//  Promise - Structure
-//
-Async Function TokenCertificates(Token, ComponentObject = Undefined, SuggestInstall = False) Export
-	
-	Result = New Structure;
-	Result.Insert("CheckCompleted", False);
-	Result.Insert("Certificates", New Array);
-	Result.Insert("Error", "");
+//  CryptoCertificate
+//  
+Procedure OnGettingCertificateByThumbprintOnToken(Notification, Thumbprint, StandardProcessing, SuggestInstall = True, Refresh = False) Export
 	
 	
-	Return Result;
-	
-EndFunction
+EndProcedure
 
-// Encryption-only token.
+// Retrieves certificates from the token.
 // 
 // Parameters:
+//  Notification - CallbackDescription - Notification result: Array of CryptoCertificate.
+//  Token - Structure
+//  StandardProcessing - Boolean
+//  SuggestInstall - Boolean - Prompt to install the add-in.
+//  Refresh - Boolean - Update the list of token certificates in the cache.
+// 
+// Returns:
+//  
+//  
+Procedure OnGettingCertificatesOnToken(Notification, Token, StandardProcessing, SuggestInstall = True, Refresh = False) Export
+	
+	
+EndProcedure
+
+// Finds an encryption token that supports the given encryption algorithm.
+// 
+// Parameters:
+//  Notification - CallbackDescription - Notification result: a structure containing the token properties.
 //  Certificate - CryptoCertificate
 //  EncryptAlgorithm - String - OID or 
-//  CertificateProperties - Structure
-//  	* AlgorithmOfPublicKey - String - OID
-// 
-// Returns:
-//  Promise - Structure
+//  CertificateProperties - Structure:
+//    * PublicKeyAlgorithm - String - OID
+//  StandardProcessing - Boolean
 //
-Async Function TokenForEncryption(Certificate, EncryptAlgorithm = Undefined, CertificateProperties = Undefined) Export
-	Result = Undefined;
+Procedure OnSearchTokenForEncryption(Notification, Certificate, EncryptAlgorithm, CertificateProperties = Undefined,
+	StandardProcessing = True) Export
 	
-	Return Result;
-EndFunction
+	
+EndProcedure
 
 // The error message indicates that an incorrect token PIN was entered.
 // 
@@ -219,88 +243,84 @@ Function IsIncorrectPinCodeError(ErrorText) Export
 	Return False;
 EndFunction
 
-// Token signature.
+// Retreives tokens.
 // 
 // Parameters:
-//  SignatureParameters - Structure:
-//    * Token - Structure
-//    * Certificate - CryptoCertificate
-//    * Password - String
-//    * SignatureType - EnumRef.CryptographySignatureTypes
-//    * DetachedAddIn - Boolean
-//    * SignatureType - EnumRef.CryptographySignatureTypes
-//    * ComponentObject - AddInObject
-//    * ShouldIncludeCertificateInSignature - Boolean
+//  Notification - CallbackDescription
+//  SuggestInstall - Boolean - Prompt to install the add-in (if not yet installed).
+//  StandardProcessing - Boolean - Standard data processor
+//
+Procedure OnGettingTokens(Notification, SuggestInstall = True, StandardProcessing = True) Export
+	
+	
+EndProcedure
+
+// Retrieves the thumbprints of token certificates.
+// 
+// Parameters:
+//  Notification - CallbackDescription
+//  IncludingOverduePayments - Boolean
+//  SuggestInstall - Boolean - Prompt to install the add-in (if not yet installed).
+//  StandardProcessing - Boolean - Standard data processor.
+//
+Procedure OnGettingCertificatesThumbprintsOnTokens(Notification, IncludingOverduePayments = False,
+	SuggestInstall = True, StandardProcessing = True) Export
+	
+	
+EndProcedure
+
+// Adds signature on the token.
+// 
+// Parameters:
+//  CallbackOnCompletion - CallbackDescription
+//  SignatureParameters - Structure
 //  Data - BinaryData
-// 
-// Returns:
-//  Promise - BinaryData, String
+//  StandardProcessing - Boolean 
 //
-Async Function SignatureOnToken(SignatureParameters, Data) Export
+Procedure OnSigningOnToken(CallbackOnCompletion, SignatureParameters, Data, StandardProcessing = True) Export
+		
 	
-	CannotCreateSignatureText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Cannot create %1 signatures on the token.'"), SignatureParameters.SignatureType);
-	
-	
-	Return CannotCreateSignatureText;
+EndProcedure
 
-EndFunction
-
-// Verifies a signature using a token.
+// Performs decryption on the token.
 // 
 // Parameters:
-//  Data - BinaryData, Undefined - If "Undefined", the signature is checked as an attachment.
-//  Signature - BinaryData
-//  CheckParameters - Structure:
-//   * SignAlgorithm - String
-//   * ComponentObject - AddInObject
-//   * ShouldReturnCertificatesForVerification - Boolean
-// 
-// Returns:
-//  Promise - Verify signature
-//
-Async Function VerifySignature(Data, Signature, CheckParameters) Export
-	
-	Result = Undefined;
-	
-	
-	Return Result;
-
-EndFunction
-
-// Encryption on the token.
-// 
-// Parameters:
-//  EncryptionParameters - Structure
-//  Data - BinaryData
-// 
-// Returns:
-//  Promise - BinaryData, String
-//
-Async Function EncryptionOnToken(EncryptionParameters, Data) Export
-	
-	Result = NStr("en = 'Encryption on the token is unavailable.'");
-	
-	
-	Return Result;
-EndFunction
-
-// Encryption on the token.
-// 
-// Parameters:
+//  CallbackOnCompletion - CallbackDescription
 //  DetailsParameters - Structure
 //  Data - BinaryData
-// 
-// Returns:
-//  Promise - BinaryData, String
+//  StandardProcessing - Boolean 
 //
-Async Function DecryptionOnToken(DetailsParameters, Data) Export
+Procedure OnDecryptionOnToken(CallbackOnCompletion, DetailsParameters, Data, StandardProcessing = True) Export
+		
 	
-	Result = NStr("en = 'Decryption on the token is unavailable.'");
+EndProcedure
+
+// Performs encryption on the token.
+// 
+// Parameters:
+//  CallbackOnCompletion - CallbackDescription
+//  EncryptionParameters - Structure
+//  Data - BinaryData
+//  StandardProcessing - Boolean 
+//
+Procedure OnEncryptionOnToken(CallbackOnCompletion, EncryptionParameters, Data, StandardProcessing = True) Export
+		
+	
+EndProcedure
+
+// Verifies a signature on the token.
+// 
+// Parameters:
+//  CallbackOnCompletion - CallbackDescription
+//  Data - BinaryData
+//  Signature - BinaryData
+//  CheckParameters - Structure
+//  StandardProcessing - Boolean
+//
+Procedure OnCheckSignatureOnToken(CallbackOnCompletion, Data, Signature, CheckParameters, StandardProcessing = True) Export
 	
 	
-	Return Result;
-EndFunction
+EndProcedure
 
 // Opens the form for installing cryptographic tools.
 // 
@@ -350,9 +370,9 @@ EndProcedure
 // On continuing the verification of installed cryptographic tools.
 // 
 // Parameters:
-//  Context - Structure - 
-//  CheckResult - Structure - 
-//  HasAppsToCheck - Boolean - 
+//  Context - Structure
+//  CheckResult - Structure
+//  HasAppsToCheck - Boolean 
 // 
 // Returns:
 //  Promise - Boolean
@@ -380,6 +400,73 @@ Async Function OnHandleClassifierURL(Item, FormattedStringURL, Parameters) Expor
 	Return True;
 	
 EndFunction
+
+// Overrides signer parameters.
+// 
+// Parameters:
+//  SignatoryParameters - Structure
+//
+Procedure OnRetrieveSignatoryParameters(SignatoryParameters) Export
+	
+	
+EndProcedure
+
+// Overrides the procedure for adding a digital signature application.
+// 
+// Parameters: 
+//  StandardProcessing - Boolean
+//
+Procedure WhenAddingElectronicSignatureApplication(StandardProcessing) Export
+	
+	
+EndProcedure
+
+// Adds to the list of events for updating the list of settings for digital signature applications.
+// 
+// Parameters:
+//  Events - Array
+//
+Procedure WhenReceivingEventsForChangingProgramSettings(Events) Export
+	
+	
+EndProcedure
+
+
+// On signer opening.
+// 
+// Parameters:
+//  Form - ClientApplicationForm
+//  Item - FormField
+//  StandardProcessing - Boolean
+//
+Procedure SignatoryOnOpen(Form, Item, StandardProcessing) Export
+	
+	
+EndProcedure
+
+// On signer creation.
+// 
+// Parameters:
+//  Form - ClientApplicationForm
+//  Item - FormField
+//  StandardProcessing - Boolean
+//
+Procedure SignatoryOnCreate(Form, Item, StandardProcessing) Export
+
+	
+EndProcedure
+
+// On signer clearing.
+// 
+// Parameters:
+//  Form - ClientApplicationForm
+//  Item - FormField
+//  StandardProcessing - Boolean
+//
+Procedure SignerWhenClearing(Form, Item, StandardProcessing) Export
+
+	
+EndProcedure
 
 
 #EndRegion

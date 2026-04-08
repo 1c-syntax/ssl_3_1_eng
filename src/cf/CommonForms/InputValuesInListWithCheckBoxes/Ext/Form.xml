@@ -137,10 +137,10 @@
 				<CommandName>Form.StandardCommand.CustomizeForm</CommandName>
 				<ExtendedTooltip name="FormCustomizeFormExtendedTooltip" id="71"/>
 			</Button>
-			<Button name="FormHelp" id="72">
+			<Button name="FormHelp_SSLyf" id="72">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.StandardCommand.Help</CommandName>
-				<ExtendedTooltip name="FormHelpExtendedTooltip" id="73"/>
+				<ExtendedTooltip name="FormHelp_SSLyfExtendedTooltip" id="73"/>
 			</Button>
 		</ChildItems>
 	</AutoCommandBar>
@@ -488,7 +488,7 @@
 				<v8:Type>v8:ValueListType</v8:Type>
 			</Type>
 		</Parameter>
-		<Parameter name="Marked">
+		<Parameter name="Marked_SSLyf">
 			<Type>
 				<v8:Type>v8:ValueListType</v8:Type>
 			</Type>

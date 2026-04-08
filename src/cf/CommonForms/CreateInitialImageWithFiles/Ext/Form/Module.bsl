@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -183,8 +182,6 @@ Procedure CreateInitialImage(Command)
 			JobParameters.Insert("Language", Language);
 			JobParameters.Insert("FullWindowsFileInfobaseName", FullWindowsFileInfobaseName);
 			JobParameters.Insert("FileInfobaseFullNameLinux", FileInfobaseFullNameLinux);
-			JobParameters.Insert("JobDescription", NStr("en = 'Create initial file image'"));
-			JobParameters.Insert("ProcedureDescription", "FilesOperationsInternal.CreateFileInitialImageAtServer");
 		Else
 			// Server initial image.
 			ConnectionString =
@@ -202,18 +199,16 @@ Procedure CreateInitialImage(Command)
 				+ "SchJobDn=""" + ?(SetScheduledJobLock, "Y", "N") + """;";
 			
 			JobParameters.Insert("ConnectionString", ConnectionString);
-			JobParameters.Insert("JobDescription", NStr("en = 'Create initial server image'"));
-			JobParameters.Insert("ProcedureDescription", "FilesOperationsInternal.CreateServerInitialImageAtServer");
 		EndIf;
 		Result = PrepareDataToCreateInitialImage(JobParameters, InfobaseKind);
 		If TypeOf(Result) = Type("Structure") Then
 			If Result.DataReady Then
 				JobParametersAddress = PutToTempStorage(JobParameters, UUID);
-				NotifyDescription = New CallbackDescription("RunCreateInitialImage", ThisObject);
+				CallbackDescription = New CallbackDescription("RunCreateInitialImage", ThisObject);
 				If Result.ConfirmationRequired Then
-					ShowQueryBox(NotifyDescription, Result.QueryText, QuestionDialogMode.YesNo);
+					ShowQueryBox(CallbackDescription, Result.QueryText, QuestionDialogMode.YesNo);
 				Else
-					RunCallback(NotifyDescription, DialogReturnCode.Yes);
+					RunCallback(CallbackDescription, DialogReturnCode.Yes);
 				EndIf;
 			EndIf;
 		EndIf;
@@ -396,16 +391,27 @@ Procedure GoToWaitPage()
 EndProcedure
 
 &AtServer
-Function CreateInitialImageAtServer(Val Action)
+Function CreateInitialImageAtServer(Val InfobaseKind)
 	
 	If IsTempStorageURL(JobParametersAddress) Then
 		JobParameters = GetFromTempStorage(JobParametersAddress);
 		If TypeOf(JobParameters) = Type("Structure") Then
 			// Start background job.
 			ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
-			ExecutionParameters.BackgroundJobDescription = JobParameters.JobDescription;
 			
-			Return TimeConsumingOperations.ExecuteInBackground(JobParameters.ProcedureDescription, JobParameters, ExecutionParameters);
+			If InfobaseKind = 0 Then
+				ExecutionParameters.BackgroundJobDescription = NStr("en = 'Create initial file image'");
+				Return TimeConsumingOperations.ExecuteInBackground(
+					"FilesOperationsInternal.CreateFileInitialImageAtServer",
+					JobParameters,
+					ExecutionParameters);
+			Else
+				ExecutionParameters.BackgroundJobDescription = NStr("en = 'Create initial server image'");
+				Return TimeConsumingOperations.ExecuteInBackground(
+					"FilesOperationsInternal.CreateServerInitialImageAtServer",
+					JobParameters,
+					ExecutionParameters);
+			EndIf;
 		EndIf;
 	EndIf;
 	

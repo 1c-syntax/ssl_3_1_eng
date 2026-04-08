@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -79,10 +78,10 @@ EndProcedure
 //       * Version                  - String - for example, "2.1.3.39". Library (configuration) version number.
 //       * IsMainConfiguration - Boolean - True if it is a main configuration, not a library.
 //       * Handlers             - ValueTable - All library update handlers. For column details, see
-//                                   "InfobaseUpdate.NewUpdateHandlersTable".
-//       * CompletedHandlers  - ValueTree - Executed update handlers grouped by libraries and version numbers.
-//                                   For column details, see "InfobaseUpdate.NewUpdateHandlersTable".
-//                                   
+//                                   "InfobaseUpdate.NewUpdateHandlerTable".
+//       * CompletedHandlers  - ValueTree - Completed update handlers grouped by
+//                                   library and version number.
+//                                   For column details, see "InfobaseUpdate.NewUpdateHandlerTable".
 //       * MainServerModuleName - String - name of a library (configuration) module that contains
 //                                        basic information about it: name, version, etc.
 //       * MainServerModule      - CommonModule - library (configuration) common module which contains
@@ -138,10 +137,10 @@ EndProcedure
 //       * Version                  - String - for example, "2.1.3.39". Library (configuration) version number.
 //       * IsMainConfiguration - Boolean - True if it is a main configuration, not a library.
 //       * Handlers             - ValueTable - All library update handlers. For column details, see
-//                                   "InfobaseUpdate.NewUpdateHandlersTable".
-//       * CompletedHandlers  - ValueTree - Executed update handlers grouped by libraries and version numbers.
-//                                   For column details, see "InfobaseUpdate.NewUpdateHandlersTable".
-//                                   
+//                                   "InfobaseUpdate.NewUpdateHandlerTable".
+//       * CompletedHandlers  - ValueTree - Completed update handlers grouped by
+//                                   library and version number.
+//                                   For column details, see "InfobaseUpdate.NewUpdateHandlerTable".
 //       * MainServerModuleName - String - name of a library (configuration) module that contains
 //                                        basic information about it: name, version, etc.
 //       * MainServerModule      - CommonModule - library (configuration) common module which contains

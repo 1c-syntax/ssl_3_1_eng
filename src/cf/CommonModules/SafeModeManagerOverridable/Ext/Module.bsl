@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -60,7 +59,7 @@ EndProcedure
 //    
 //  Owner - AnyRef - Reference to the infobase object that owns the requested permissions to use external resources.
 //    
-//  ReplacementMode - Boolean - indicates that permissions granted earlier by owner are replaced,
+//  Var_ReplacementMode - Boolean - indicates that permissions granted earlier by owner are replaced,
 //  PermissionsToAdd - Array - XDTODataObject array of permissions being added,
 //  PermissionsToDelete - Array - XDTODataObject array of permissions being deleted,
 //  StandardProcessing - Boolean - indicates that a standard data processor to create a request to use
@@ -68,7 +67,7 @@ EndProcedure
 //  Result - UUID - a request ID (if StandardProcessing parameter
 //    value is set to False in the handler).
 //
-Procedure OnRequestPermissionsToUseExternalResources(Val ProgramModule, Val Owner, Val ReplacementMode, 
+Procedure OnRequestPermissionsToUseExternalResources(Val ProgramModule, Val Owner, Val Var_ReplacementMode, 
 	Val PermissionsToAdd, Val PermissionsToDelete, StandardProcessing, Result) Export
 	
 	

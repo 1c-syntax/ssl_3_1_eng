@@ -57,10 +57,10 @@
 				</Title>
 				<ExtendedTooltip name="FormGroupHelpExtendedTooltip" id="12"/>
 				<ChildItems>
-					<Button name="FormHelp" id="7">
+					<Button name="FormHelp_SSLyf" id="7">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.StandardCommand.Help</CommandName>
-						<ExtendedTooltip name="FormHelpExtendedTooltip" id="8"/>
+						<ExtendedTooltip name="FormHelp_SSLyfExtendedTooltip" id="8"/>
 					</Button>
 				</ChildItems>
 			</ButtonGroup>

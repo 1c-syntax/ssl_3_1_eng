@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -52,9 +51,9 @@ Procedure OnComposeResult(ResultDocument, DetailsData, StandardProcessing)
 	If ProgressProcessing.Use Then
 		Period = ProgressProcessing.Value;
 	EndIf;
-	Cache = DCSettings.DataParameters.Items.Find("Cache");
+	Cache_SSLyf = DCSettings.DataParameters.Items.Find("Cache_SSLyf");
 	
-	CurrentCacheValue = DCSettings.DataParameters.Items.Find("Cache").Value;
+	CurrentCacheValue = DCSettings.DataParameters.Items.Find("Cache_SSLyf").Value;
 	ResultTable2 = Undefined;
 	If ValueIsFilled(CurrentCacheValue) Then
 		ResultTable2 = GetFromTempStorage(CurrentCacheValue);
@@ -66,7 +65,7 @@ Procedure OnComposeResult(ResultDocument, DetailsData, StandardProcessing)
 		ResultTable2 = RegisteredObjects(Period);
 	EndIf;
 	
-	PutToTempStorage(ResultTable2, Cache.Value);
+	PutToTempStorage(ResultTable2, Cache_SSLyf.Value);
 	
 	ExternalDataSets = New Structure("ResultTable2", ResultTable2);
 	
@@ -108,7 +107,7 @@ Procedure DefineFormSettings(Form, VariantKey, Settings) Export
 EndProcedure
 
 Procedure OnLoadVariantAtServer(Form, NewDCSettings) Export
-	DCParameter = Form.Report.SettingsComposer.Settings.DataParameters.Items.Find("Cache");
+	DCParameter = Form.Report.SettingsComposer.Settings.DataParameters.Items.Find("Cache_SSLyf");
 	DCParameter.Value = PutToTempStorage(Undefined, Form.UUID);
 	
 	DCParameter = Form.Report.SettingsComposer.Settings.DataParameters.Items.Find("CachePriorities");
@@ -247,7 +246,7 @@ Function RegisteredObjects(SelectedIntervals)
 		PresentationMap.Insert(FullNameParts[1], Presentation);
 		If Restriction = 200 Then
 			Query.Text = QueryText;
-			Selection = Query.Execute().Select(); // @skip-check query-in-loop
+			Selection = Query.Execute().Select(); // @skip-check query-in-loop - порционная выборка 
 			While Selection.Next() Do
 				String = ResultTable2.Add();
 				FillPropertyValues(String, Selection);
@@ -410,7 +409,21 @@ Function ErrorsWhenExecutingHandlers()
 		|	InformationRegister.UpdateHandlers AS UpdateHandlers
 		|WHERE
 		|	UpdateHandlers.DeferredHandlerExecutionMode = &DeferredHandlerExecutionMode";
-	Result = Query.Execute().Unload();
+	
+	Block = New DataLock;
+	LockItem = Block.Add("InformationRegister.UpdateHandlers");
+	LockItem.Mode = DataLockMode.Shared;
+	BeginTransaction();
+	Try
+		Block.Lock();
+		Result = Query.Execute().Unload();
+		
+		CommitTransaction();
+	Except
+		RollbackTransaction();
+		Raise;
+	EndTry;
+	
 	For Each RowHandler In Result Do
 		ExecutionStatistics = RowHandler.ExecutionStatistics.Get();
 		If ExecutionStatistics = Undefined Then

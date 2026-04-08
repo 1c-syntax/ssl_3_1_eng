@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Private
@@ -17,13 +16,14 @@
 //
 Procedure OpenAttachment(Ref, Form, ForEditing = False) Export
 
-	FileData = FilesOperationsClient.FileData(Ref, Form.UUID);
+	FileData = FilesOperationsInternalServerCall.FileNameAndExtension(Ref);
 	
 	If Form.RestrictedExtensions.FindByValue(FileData.Extension) <> Undefined Then
-		
-		AdditionalParameters = New Structure("FileData", FileData);
-		AdditionalParameters.Insert("ForEditing", ForEditing);
-		
+
+		AdditionalParameters = New Structure("ForEditing", ForEditing);
+		AdditionalParameters.Insert("AttachedFile", Ref);
+		AdditionalParameters.Insert("Form", Form);
+
 		Notification = New CallbackDescription("OpenFileAfterConfirm", ThisObject, AdditionalParameters);
 		UsersInternalClient.ShowSecurityWarning(Notification,
 			UsersInternalClientServer.SecurityWarningKinds().BeforeOpenFile,
@@ -31,17 +31,32 @@ Procedure OpenAttachment(Ref, Form, ForEditing = False) Export
 		Return;
 		
 	EndIf;
-	
-	FilesOperationsClient.OpenFile(FileData, ForEditing);
-	
+
+	OpenAttachmentFile(Ref, Form, ForEditing);
+
 EndProcedure
 
 Procedure OpenFileAfterConfirm(Result, AdditionalParameters) Export
-	
+
 	If Result <> Undefined And Result = "Continue" Then
-		FilesOperationsClient.OpenFile(AdditionalParameters.FileData, AdditionalParameters.ForEditing);
+
+		OpenAttachmentFile(AdditionalParameters.AttachedFile, 
+								AdditionalParameters.Form, 
+								AdditionalParameters.ForEditing);
 	EndIf;
 
+EndProcedure
+
+Procedure OpenAttachmentFile(Ref, Form, ForEditing)
+	
+	FileGettingParameters = FilesOperationsClient.ParametersForAsynchronousFileReceipt("OpenFile", "FilesOperationsInternal.FileDataEmailManagementAsynchronous");
+	FileGettingParameters.AttachedFile	= Ref;
+	FileGettingParameters.OwnerForm 		= Form;
+
+	FileGettingParameters.ActionParameters.ForEditing = ForEditing;
+
+	FilesOperationsClient.OpenFile(FileGettingParameters);	
+	
 EndProcedure
 
 // Parameters:

@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -96,18 +95,18 @@ Procedure UpdateReportsSnapshots(Command)
 		Return;
 	EndIf;
 	
-	NotifyDescription = New CallbackDescription("AfterReportsSnapshotsUpdated", ThisObject);
+	CallbackDescription = New CallbackDescription("AfterReportsSnapshotsUpdated", ThisObject);
 	TimeConsumingOperation = Undefined;
 	IdleParameters = Undefined;
 	
 #If MobileClient Then
 	Execute("TimeConsumingOperation = UpdateReportsSnapshotsAtServer(RowsIDs)");
 	Execute("IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject)");
-	Execute("TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, NotifyDescription, IdleParameters)");
+	Execute("TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CallbackDescription, IdleParameters)");
 #Else
 	TimeConsumingOperation = UpdateReportsSnapshotsAtServer(RowsIDs);
 	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
-	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, NotifyDescription, IdleParameters);
+	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CallbackDescription, IdleParameters);
 #EndIf
 	
 EndProcedure
@@ -236,6 +235,15 @@ Procedure OpenReportSnapshot(Command)
 	RecordStructure = New Structure("User,Report,Variant,UserSettingsHash,UpdateDate");
 	
 	RowReport = Items.ReportsSnapshots.CurrentData;
+	
+	If RowReport = Undefined Then
+		ClearMessages();
+		Message = New UserMessage;
+		Message.Text = NStr("en = 'A report snapshot is required.'");
+		Message.Message();
+		Return;
+	EndIf;
+	
 	FillPropertyValues(RecordStructure, RowReport);
 	
 	OpenForm("InformationRegister.ReportsSnapshots.RecordForm",
@@ -246,21 +254,29 @@ EndProcedure
 &AtClient
 Procedure UpdateReportSnapshot(Command)
 	
+	If Items.ReportsSnapshots.CurrentRow = Undefined Then
+		ClearMessages(); 
+		Message = New UserMessage;
+		Message.Text = NStr("en = 'A report snapshot is required.'");
+		Message.Message();
+		Return;
+	EndIf;
+	
 	RowsIDs = New Array;
 	RowsIDs.Add(Items.ReportsSnapshots.CurrentRow);
 	
-	NotifyDescription = New CallbackDescription("AfterReportsSnapshotsUpdated", ThisObject);
+	CallbackDescription = New CallbackDescription("AfterReportsSnapshotsUpdated", ThisObject);
 	TimeConsumingOperation = Undefined;
 	IdleParameters = Undefined;
 	
 #If MobileClient Then
 	Execute("TimeConsumingOperation = UpdateReportsSnapshotsAtServer(RowsIDs)");
 	Execute("IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject)");
-	Execute("TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, NotifyDescription, IdleParameters)");
+	Execute("TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CallbackDescription, IdleParameters)");
 #Else
 	TimeConsumingOperation = UpdateReportsSnapshotsAtServer(RowsIDs);
 	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
-	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, NotifyDescription, IdleParameters);
+	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CallbackDescription, IdleParameters);
 #EndIf
 	
 EndProcedure

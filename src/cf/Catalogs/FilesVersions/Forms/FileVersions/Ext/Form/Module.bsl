@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -41,7 +40,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.ListComment.Visible = False;
 		
 	EndIf;
-	
+
+	WorkingWithServerFileArchive.VisibilityOfListFieldImageNumberIsArchive(Items.ListImageNumberIsArchive);
+
 EndProcedure
 
 #EndRegion
@@ -80,7 +81,8 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 	
 	If EventName = "Write_File"
 		And (Parameter.Event = "EditFinished"
-		Or Parameter.Event = "VersionSaved") Then
+		Or Parameter.Event = "VersionSaved"
+		Or Parameter.Event = "FilesChangedWhenWorkingWithArchive") Then
 		
 		Items.List.Refresh();
 	EndIf;
@@ -91,13 +93,8 @@ EndProcedure
 Procedure ListSelection(Item, RowSelected, Field, StandardProcessing)
 	
 	StandardProcessing = False;
-	CurrentData = Items.List.CurrentData;
-	If CurrentData = Undefined Then 
-		Return;
-	EndIf;
 	
-	FileData = FilesOperationsInternalServerCall.FileDataToOpen(CurrentData.Owner, CurrentData.Ref, UUID);
-	FilesOperationsInternalClient.OpenFileVersion(Undefined, FileData, UUID);
+	OpenFileVersion();
 	
 EndProcedure
 
@@ -184,13 +181,7 @@ EndProcedure
 &AtClient
 Procedure OpenVersion(Command)
 	
-	CurrentData = Items.List.CurrentData;
-	If CurrentData = Undefined Then 
-		Return;
-	EndIf;
-	
-	FileData = FilesOperationsInternalServerCall.FileDataToOpen(CurrentData.Owner, CurrentData.Ref ,UUID);
-	FilesOperationsInternalClient.OpenFileVersion(Undefined, FileData, UUID);
+	OpenFileVersion();
 	
 EndProcedure
 
@@ -202,8 +193,16 @@ Procedure SaveAs(Command)
 		Return;
 	EndIf;
 	
-	FileData = FilesOperationsInternalServerCall.FileDataToSave(CurrentData.Owner, CurrentData.Ref , UUID);
-	FilesOperationsInternalClient.SaveAs(Undefined, FileData, UUID);
+	FileGettingParameters = FilesOperationsClient.ParametersForAsynchronousFileReceipt("SaveAs", "FilesOperationsInternal.FileDataToSaveAsynchronous");
+	FileGettingParameters.AttachedFile				= CurrentData.Owner;
+	FileGettingParameters.VersionRef					= CurrentData.Ref;
+	FileGettingParameters.OwnerForm					= ThisObject;
+	FileGettingParameters.CheckPresenceOfFileInArchive	= False;
+	FileGettingParameters.FileInArchive						= CurrentData.ImageNumberIsArchive = 0;
+	
+	FileGettingParameters.ActionParameters.UUID = UUID;
+	
+	FilesOperationsClient.SaveFileAs(FileGettingParameters);
 	
 EndProcedure
 
@@ -327,7 +326,12 @@ Procedure SetUpDynamicList(FileVersionsStorageCatalogName)
 		|		ELSE FALSE
 		|	END AS IsCurrent,
 		|	FilesVersions.Extension AS Extension,
-		|	FilesVersions.VersionNumber AS VersionNumber
+		|	FilesVersions.VersionNumber AS VersionNumber,
+		|	CASE
+		|		WHEN FilesVersions.DateOfTransferToArchive = DATETIME(1, 1, 1)
+		|	THEN -1
+		|		ELSE 0
+		|	END AS ImageNumberIsArchive		
 		|FROM
 		|	&CatalogName AS FilesVersions
 		|WHERE
@@ -341,6 +345,27 @@ Procedure SetUpDynamicList(FileVersionsStorageCatalogName)
 	ListProperties.QueryText = QueryText;
 	Common.SetDynamicListProperties(Items.List, ListProperties);
 	
+EndProcedure
+
+&AtClient
+Procedure OpenFileVersion()
+
+	CurrentData = Items.List.CurrentData;
+	If CurrentData = Undefined Then
+		Return;
+	EndIf;
+
+	FileGettingParameters = FilesOperationsClient.ParametersForAsynchronousFileReceipt("OpenFileVersion");
+	FileGettingParameters.AttachedFile				= CurrentData.Owner;
+	FileGettingParameters.VersionRef					= CurrentData.Ref;
+	FileGettingParameters.OwnerForm					= ThisObject;
+	FileGettingParameters.CheckPresenceOfFileInArchive	= False;
+	FileGettingParameters.FileInArchive						= CurrentData.ImageNumberIsArchive = 0;
+
+	FileGettingParameters.ActionParameters.UUID = UUID;
+	
+	FilesOperationsClient.OpenFile(FileGettingParameters);
+
 EndProcedure
 
 #EndRegion

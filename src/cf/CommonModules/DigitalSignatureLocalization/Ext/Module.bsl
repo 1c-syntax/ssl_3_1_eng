@@ -1,5 +1,5 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
@@ -30,6 +30,80 @@ Procedure OnPopulateSignatureTypePresentation(SignatureType, SignaturePresentati
 	
 EndProcedure
 
+// Overrides the usage of the mobile signing service.
+// 
+// Parameters:
+//  Used - Boolean
+//
+Procedure OnRetrieveMobileServiceUsageSettings(Used) Export
+	
+	
+EndProcedure
+
+// Overrides the title of the command that sends data to the mobile signing service.
+// 
+// Parameters:
+//  Title - String
+//
+Procedure OnRetrieveSendForSigningCommandTitle(Title) Export
+	
+	
+EndProcedure
+
+// Overrides the title of the command that sends data to the mobile signing service.
+// 
+// Parameters:
+//  ChoiceList - ValueList
+//
+Procedure OnRetrieveSigningTypes(ChoiceList) Export
+	
+	
+EndProcedure
+
+// Overrides the result of sending data to the mobile signing service.
+// 
+// Parameters:
+//  DocumentIDs - Array of UUID
+//  Result - Map:
+//                * Key - UUID
+//                * Result - Structure:
+//                   ** Signature - BinaryData
+//                   ** SignatureType  - EnumRef.CryptographySignatureTypes
+//                   ** DateActionLastTimestamp - Date, Undefined - Filled only using
+//                        the cryptographic manager.
+//                   ** DateSignedFromLabels - Date, Undefined - Date of the earliest timestamp.
+//                   ** UnverifiedSignatureDate - Date - Unconfirmed signature data.
+//                   ** Certificate  - BinaryData - Certificate used for signature validation.
+//                   ** Thumbprint           - String - Certificate thumbprint in the Base64 string format.
+//                   ** CertificateOwner - String - a subject presentation received from the certificate binary data.
+//                   ** SignatureDate - Date - Unconfirmed signature date
+//
+Procedure OnRetrieveSentForSigningResults(DocumentIDs, Result) Export
+	
+	
+EndProcedure
+
+// Marks the signing setting in the service for deletion.
+// 
+// Parameters:
+//  Application - CatalogRef
+//  UUID - UUID
+//  StandardProcessing - Boolean
+//
+Procedure OnChangingAppDeletionTag(Application, UUID, StandardProcessing) Export
+	
+	
+EndProcedure
+
+// On filling in digital signature applications.
+// 
+// Parameters:
+//  ApplicationsTable - ValueTable
+//
+Procedure WhenFillingOutElectronicSignatureApplications(ApplicationsTable) Export
+	
+	
+EndProcedure
 
 // On exporting MR LOAs.
 // 
@@ -262,6 +336,19 @@ EndProcedure
 Procedure OnFillCloudServiceCertificates(CertificatesThumbprintsAtClient) Export
 
 		
+EndProcedure
+
+// On setting up the common settings form.
+// 
+// Parameters:
+//  Form - ClientApplicationForm
+//  DataPathAttribute - String
+//  AccessToInternetServicesAllowed - Boolean
+//  CommonSettings - See DigitalSignature.CommonSettings
+//  StandardProcessing - Boolean
+//
+Procedure WhenSettingUpGeneralSettingsForm(Form, DataPathAttribute, AccessToInternetServicesAllowed, CommonSettings, StandardProcessing) Export
+	
 EndProcedure
 
 #EndRegion

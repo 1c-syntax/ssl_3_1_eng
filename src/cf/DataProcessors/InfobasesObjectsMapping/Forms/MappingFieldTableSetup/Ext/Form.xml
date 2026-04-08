@@ -121,7 +121,7 @@
 				</InputField>
 			</ChildItems>
 		</Table>
-		<CommandBar name="ButtonsPanel" id="15">
+		<CommandBar name="ButtonPanel" id="15">
 			<EnableContentChange>true</EnableContentChange>
 			<Title>
 				<v8:item>
@@ -130,7 +130,7 @@
 				</v8:item>
 			</Title>
 			<HorizontalLocation>Right</HorizontalLocation>
-			<ExtendedTooltip name="ButtonsPanelExtendedTooltip" id="25"/>
+			<ExtendedTooltip name="ButtonPanelExtendedTooltip" id="25"/>
 			<ChildItems>
 				<Button name="Apply" id="8">
 					<Type>CommandBarButton</Type>

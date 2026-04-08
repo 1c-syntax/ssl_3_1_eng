@@ -1,5 +1,5 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
@@ -84,7 +84,7 @@ EndProcedure
 
 #Region AuxiliaryProceduresAndFunctions
 
-// Intended for the PrepareForm procedure.
+// For the PrepareForm procedure.
 Procedure PopulateDetailsForLockedAttributes(LongDesc, ObjectMetadata, AttributesToLock,
 			AllAttributesEditProhibited, Form = Undefined) Export
 	

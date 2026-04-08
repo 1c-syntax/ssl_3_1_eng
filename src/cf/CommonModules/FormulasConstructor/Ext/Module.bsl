@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -103,11 +102,11 @@ EndFunction
 // 
 // Parameters:
 //   FieldSource   - See FieldTable
-//                   - ValueTree - See FieldTree
-//                   - DataCompositionSchema - A field list is taken from the "FilterAvailableFields" collection of the Settings Composer.
-//                                             The collection name can be overridden in the "DCSCollectionName" parameter.
-//                                             - String - The address of the value in the temporary storage.
-//                   
+//                   - ValueTree  - See FieldTree
+//                   - DataCompositionSchema - 
+//                                             
+//                                             
+//                   - String - 
 //   NameOfTheSKDCollection - String - a field collection name in the Settings Composer. Use the parameter if
 //                              a data composition schema is passed in the FieldSource parameter.
 //                              The default value is FilterAvailableFields. 

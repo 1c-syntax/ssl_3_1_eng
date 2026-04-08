@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Internal
@@ -174,10 +173,10 @@ Procedure OnFillToDoList(ToDoList) Export
 		|Required monthly procedure, this might take a while. '");
 	
 	For Each Section In Sections Do
-		ToDoItem = ToDoList.Add();
-		ToDoItem.Id  = StrReplace(Prototype.Form, ".", "") + StrReplace(Section.FullName(), ".", "");
-		ToDoItem.Owner       = Section;
-		FillPropertyValues(ToDoItem, Prototype);
+		CaseFile = ToDoList.Add();
+		CaseFile.Id  = StrReplace(Prototype.Form, ".", "") + StrReplace(Section.FullName(), ".", "");
+		CaseFile.Owner       = Section;
+		FillPropertyValues(CaseFile, Prototype);
 	EndDo;
 	
 EndProcedure
@@ -465,5 +464,15 @@ Function HasRegistersWithAggregates()
 EndFunction
 
 #EndRegion
+
+// See StandardSubsystemsServer.WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode
+Procedure WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode(Methods) Export
+	
+	Methods.Insert("UpdateScheduledJobUsage");
+	Methods.Insert("UpdateAggregatesJobHandler", True);
+	Methods.Insert("RebuildAggregatesJobHandler", True);
+	Methods.Insert("TotalsPeriodSetupJobHandler", True);
+	
+EndProcedure
 
 #EndRegion

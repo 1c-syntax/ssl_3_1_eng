@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -600,13 +599,37 @@ Procedure WritePredefinedDataRef(Data)
 		Object.PredefinedDataName = Data.PredefinedDataName;
 		Object.AdditionalProperties.Insert("SkipObjectVersionRecord");
 		Object.AdditionalProperties.Insert("PriorityDataImport");
-		InfobaseUpdate.WriteData(Object, False);
+		
+		InfobaseUpdate.WriteData(Object, False); 
 		
 	ElsIf Object.PredefinedDataName <> Data.PredefinedDataName Then
-		Object.PredefinedDataName = Data.PredefinedDataName;
-		Object.AdditionalProperties.Insert("SkipObjectVersionRecord");
-		Object.AdditionalProperties.Insert("PriorityDataImport");
-		InfobaseUpdate.WriteData(Object, False);
+
+		BeginTransaction();
+		
+		Try
+			Block = New DataLock;
+			LockItem = Block.Add(Common.TableNameByRef(Object.Ref));
+			LockItem.SetValue("Ref", Object.Ref);
+			Block.Lock();
+			
+			Object.PredefinedDataName = Data.PredefinedDataName;
+			Object.AdditionalProperties.Insert("SkipObjectVersionRecord");
+			Object.AdditionalProperties.Insert("PriorityDataImport");
+		
+			LockDataForEdit(Object.Ref);
+			
+			InfobaseUpdate.WriteData(Object, False);
+			
+			CommitTransaction();
+		Except
+			RollbackTransaction();
+			
+			ErrorMessage = ErrorProcessing.DetailErrorDescription(ErrorInfo());
+			
+			Event = NStr("en = 'Predefined items.Write'", Common.DefaultLanguageCode());
+			
+			WriteLogEvent(Event, EventLogLevel.Error, , , ErrorMessage);
+		EndTry;
 		
 	Else
 		// If the predefined item exists, preliminary import is not required

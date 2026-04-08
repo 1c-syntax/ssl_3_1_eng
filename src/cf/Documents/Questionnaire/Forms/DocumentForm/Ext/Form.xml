@@ -94,7 +94,7 @@
 				</Button>
 				<Button name="HideShowSectionsTree" id="156">
 					<Type>CommandBarButton</Type>
-					<CommandName>Form.Command.ShowSections</CommandName>
+					<CommandName>Form.Command.ShowSections_SSLyf</CommandName>
 					<Picture>
 						<xr:Ref>StdPicture.ShowInList</xr:Ref>
 						<xr:LoadTransparent>true</xr:LoadTransparent>
@@ -629,7 +629,7 @@ Opening the section…</v8:content>
 					<ChildItems>
 						<Button name="ToggleSectionsTreeVisibilityFooter" id="227">
 							<Type>CommandBarButton</Type>
-							<CommandName>Form.Command.ShowSections</CommandName>
+							<CommandName>Form.Command.ShowSections_SSLyf</CommandName>
 							<Picture>
 								<xr:Ref>StdPicture.ShowInList</xr:Ref>
 								<xr:LoadTransparent>true</xr:LoadTransparent>
@@ -1486,7 +1486,7 @@ Opening the section…</v8:content>
 			<Action>FillingFormEndAndClose</Action>
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
-		<Command name="ShowSections" id="3">
+		<Command name="ShowSections_SSLyf" id="3">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
@@ -1499,7 +1499,7 @@ Opening the section…</v8:content>
 					<v8:content>Show or hide the questionnaire sections</v8:content>
 				</v8:item>
 			</ToolTip>
-			<Action>ShowSections</Action>
+			<Action>ShowSections_SSLyf</Action>
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
 		<Command name="NextSection" id="4">

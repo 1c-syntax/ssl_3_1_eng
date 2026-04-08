@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -711,7 +710,7 @@ EndProcedure
 // Parameters:
 //  EventData - Structure, FixedStructure
 //  KeysPresentation - See StructuresKeysPresentation
-//                      - Undefined - Receive automatically.
+//                      - Undefined - 
 //  OnlyFilledValues - Boolean
 //  PropertiesToExclude - Map
 //                      - Undefined
@@ -925,7 +924,7 @@ Function StructuresKeysPresentation()
 		NStr("en = 'Debug server user'"));
 	
 	Result.Insert(Lower("DebugItemType"),
-		NStr("en = 'Debug item type'"));
+		NStr("en = 'Debug target type'"));
 	
 	Result.Insert(Lower("Expression"),
 		NStr("en = 'Expression'"));
@@ -944,13 +943,13 @@ Function StructuresKeysPresentation()
 		NStr("en = 'Show Help URL'"));
 	
 	Result.Insert(Lower("VerificationCodeLength"),
-		NStr("en = 'Confirmation code length'"));
+		NStr("en = 'Verification code length'"));
 	
 	Result.Insert(Lower("MaxUnsuccessfulVerificationCodeValidationAttemptsCount"),
-		NStr("en = 'Limit for unsuccessful code entries'"));
+		NStr("en = 'Maximum code entry attempts'"));
 	
 	Result.Insert(Lower("VerificationCodeRefreshRequestLockDuration"),
-		NStr("en = 'Confirmation code cooldown time'"));
+		NStr("en = 'Verification code resend interval'"));
 	
 	Result.Insert(Lower("SMTPServerAddress"),
 		NStr("en = 'SMTP server address'"));
@@ -998,7 +997,7 @@ Function StructuresKeysPresentation()
 	Result.Insert(Lower("LockEndTime"),
 		NStr("en = 'Lock end time'"));
 	
-	Result.Insert(Lower("DelayConfigurationExportByWorkProcessWithoutActiveUsers"),
+	Result.Insert(Lower("ConfigurationUnloadDelayByWorkingProcessWithoutActiveUsers"),
 		NStr("en = 'Delay for importing configuration by an idle process'"));
 	
 	Result.Insert(Lower("DisableLocalSpeechToText"),
@@ -1013,10 +1012,10 @@ Function StructuresKeysPresentation()
 	Result.Insert(Lower("SessionStartPermissionCode"),
 		NStr("en = 'Access code for session startup'"));
 	
-	Result.Insert(Lower("MaxStartupShiftForScheduledJobsWithoutActiveUsers"),
+	Result.Insert(Lower("MaxScheduledJobsStartShiftWithoutActiveUsers"),
 		NStr("en = 'Maximum startup offset for idle scheduled jobs'"));
 	
-	Result.Insert(Lower("MaxRuntimeForScheduledJobsWithoutActiveUsers"),
+	Result.Insert(Lower("MinScheduledJobsStartPeriodWithoutActiveUsers"),
 		NStr("en = 'Minimal startup period for idle scheduled jobs'"));
 	
 	Result.Insert(Lower("ExternalSessionManagementRequired"),
@@ -1184,7 +1183,7 @@ Function StructuresKeysPresentation()
 	Result.Insert(Lower("UseCurrentSessionSettings"),
 		NStr("en = 'Use current session settings'"));
 	
-	Result.Insert(Lower("LocalizationCode"),
+	Result.Insert(Lower("LocaleCode"),
 		NStr("en = 'Localization code'"));
 	
 	Result.Insert(Lower("FirstDayOfWeek"),
@@ -1473,7 +1472,7 @@ Function StructuresKeysPresentation()
 	Result.Insert(Lower("PasswordChanged"),
 		NStr("en = 'Password is changed'"));
 	
-	Result.Insert(Lower("PasswordNonCompliant"),
+	Result.Insert(Lower("PasswordDoesNotSatisfyRequirements"),
 		NStr("en = 'Password does not meet requirements'"));
 	
 	Result.Insert(Lower("PasswordIsSet"),
@@ -1761,5 +1760,12 @@ Function EventLevelByPresentation(LevelPresentation)
 EndFunction
 
 #EndRegion
+
+// See StandardSubsystemsServer.WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode
+Procedure WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode(Methods) Export
+	
+	Methods.Insert("ReadEventLogEvents", True);
+	
+EndProcedure
 
 #EndRegion

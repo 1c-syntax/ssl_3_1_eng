@@ -137,10 +137,10 @@
 					</ButtonGroup>
 				</ChildItems>
 			</Popup>
-			<Button name="FormHelp" id="160">
+			<Button name="FormHelp_SSLyf" id="160">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.StandardCommand.Help</CommandName>
-				<ExtendedTooltip name="FormHelpExtendedTooltip" id="161"/>
+				<ExtendedTooltip name="FormHelp_SSLyfExtendedTooltip" id="161"/>
 			</Button>
 		</ChildItems>
 	</AutoCommandBar>
@@ -201,15 +201,12 @@
 							</Title>
 							<ExtendedTooltip name="DetailsPageExtendedTooltip" id="110"/>
 							<ChildItems>
-								<InputField name="LongDesc" id="54">
+								<TextDocumentField name="LongDesc" id="54">
 									<DataPath>Object.LongDesc</DataPath>
 									<TitleLocation>None</TitleLocation>
-									<AutoMaxWidth>false</AutoMaxWidth>
-									<VerticalStretch>true</VerticalStretch>
-									<Wrap>false</Wrap>
 									<ContextMenu name="LongDescContextMenu" id="55"/>
 									<ExtendedTooltip name="LongDescExtendedTooltip" id="111"/>
-								</InputField>
+								</TextDocumentField>
 							</ChildItems>
 						</Page>
 						<Page name="AdditionalAttributesPage" id="67">

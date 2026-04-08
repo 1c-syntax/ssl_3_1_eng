@@ -1,17 +1,37 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//
+
+#Region Variables
+
+&AtClient
+Var FixingMethodID;
+
+#EndRegion
 
 #Region FormEventHandlers
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
+	
+	Items.FormContinue.Visible = False;
+	
+	If Parameters.CreatingAccountThroughAssistant Then
+		FillPropertyValues(Object, Parameters);
+		CanReceiveEmails = Parameters.UseForReceiving;
+		Password = Parameters.Password;
+		SetPropertiesWhenCreatingViaAssistant();
+	Else
+		If Not ValueIsFilled(SettingsAuthorizationOnMailServer().Ref) Then
+			Items.AuthenticationMethodMailService.Enabled = False;
+			AuthenticationOption = "Password";
+		EndIf;
+	EndIf;
 	
 	If Parameters.LockOwner Then
 		WindowOpeningMode = FormWindowOpeningMode.LockOwnerWindow;
@@ -89,8 +109,8 @@ EndProcedure
 
 &AtClient
 Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
-	NotifyDescription = New CallbackDescription("BeforeCloseConfirmationReceived", ThisObject);
-	CommonClient.ShowFormClosingConfirmation(NotifyDescription, Cancel, Exit);
+	CallbackDescription = New CallbackDescription("BeforeCloseConfirmationReceived", ThisObject);
+	CommonClient.ShowFormClosingConfirmation(CallbackDescription, Cancel, Exit);
 EndProcedure
 
 &AtClient
@@ -136,7 +156,7 @@ Procedure OnOpen(Cancel)
 		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
 		ModuleAttachableCommandsClient.StartCommandUpdate(ThisObject);
 	EndIf;
-
+	
 	If ValueIsFilled(PatchID) Then
 		ShowCorrectionMethod(PatchID);
 	EndIf;
@@ -175,7 +195,7 @@ Procedure AfterWriteAtServer(CurrentObject, WriteParameters)
 EndProcedure
 
 &AtClient
-Procedure ShowCorrectionMethod(WayFix, AdditionalParameters = Undefined) Export
+Procedure ShowCorrectionMethod(WayFix)
 
 	If WayFix = "b186a13d-a8b1-4a30-acf3-f1a09f104deb" Then
 		CommonClient.MessageToUser(NStr("en = 'Enable authorization on the outgoing mail server.'"),
@@ -222,7 +242,7 @@ Procedure ProtocolOnChange(Item)
 	
 	Items.IncomingMailServer.Title = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = '%1 server'"), Object.ProtocolForIncomingMail);
-		
+	
 	POPIsUsed = Object.ProtocolForIncomingMail = "POP";
 	Items.KeepMessagesOnServer.Visible = POPIsUsed And CanReceiveEmails;
 	
@@ -336,7 +356,7 @@ Procedure AuthenticationModeOnChange(Item)
 #Else
 	Items.Password.Enabled = Not Object.EmailServiceAuthorization;
 #EndIf
-
+	
 	If Object.EmailServiceAuthorization Then
 		OpenHelpFormSettings(True);
 	EndIf;
@@ -395,9 +415,73 @@ Procedure OpenSetupWizard(Command)
 	
 EndProcedure
 
+&AtClient
+Procedure ContinueSetup(Command)
+	
+	If AuthenticationOption = "Password" And IsBlankString(Password) Then
+		CommonClient.MessageToUser(NStr("en = 'Enter the account password'"), , "Password");
+		Return;
+	EndIf;
+	
+	Modified = False;
+	
+	AccountParameters1 = AccountParameters1();
+	FillPropertyValues(AccountParameters1, Object);
+	AccountParameters1.Password = Password;
+	AccountParameters1.AuthenticationOption = AuthenticationOption;
+	
+	Close(AccountParameters1);
+	
+EndProcedure
+
+&AtServerNoContext
+Function AccountParameters1()
+	
+	Return Catalogs.EmailAccounts.AccountParameters1();
+	
+EndFunction
+
 #EndRegion
 
 #Region Private
+
+&AtServer
+Procedure SetPropertiesWhenCreatingViaAssistant()
+	
+	Items.IncomingMailServer.Title = StringFunctionsClientServer.SubstituteParametersToString(
+		NStr("en = '%1 server'"), Object.ProtocolForIncomingMail);
+	
+	If ValueIsFilled(Object.AccountOwner) Then
+		UserAccountKind = "Personal1";
+	Else
+		UserAccountKind = "Shared3";
+	EndIf;
+	
+	Items.AuthenticationMethodMailService.Visible = False;
+	Items.AuthenticationPassword.Visible = False;
+	
+	AuthenticationOption = "Password";
+	Object.EmailServiceAuthorization = False;
+	
+	Items.Password.Enabled = Not Object.EmailServiceAuthorization;
+	Items.Password.TitleLocation = FormItemTitleLocation.Auto;
+	
+	Items.FormWriteAndClose.Visible = False;
+	Items.FormWrite.Visible = False;
+	Items.FormCheckSettings.Visible = False;
+	Items.FormOpenSetupWizard.Visible = False;
+	
+	Items.FormContinue.Visible = True;
+	Items.FormContinue.DefaultButton = True;
+	
+	POPIsUsed = Object.ProtocolForIncomingMail = "POP";
+	SetGroupTypeAuthorizationRequired(ThisObject, POPIsUsed);
+	
+	Items.KeepMessagesOnServer.Visible = POPIsUsed And CanReceiveEmails;
+	Items.MailRetentionPeriodSetup.Enabled = Object.KeepMessageCopiesAtServer;
+	Items.KeepMailAtServerPeriod.Enabled = DeleteMailFromServer;
+	
+EndProcedure
 
 &AtClient
 Procedure SetKeepEmailsAtServerSettingKind()
@@ -476,14 +560,14 @@ EndProcedure
 Procedure ValidatePermissionsBeforeWrite(Cancel, WriteParameters) Export
 	
 	Cancel = True;
-	NotifyDescription = New CallbackDescription("AfterCheckPermissions", ThisObject, WriteParameters);
+	CallbackDescription = New CallbackDescription("AfterCheckPermissions", ThisObject, WriteParameters);
 	
 	If CommonClient.SubsystemExists("StandardSubsystems.SecurityProfiles") Then
 		ModuleSafeModeManagerClient = CommonClient.CommonModule("SafeModeManagerClient");
 		ModuleSafeModeManagerClient.ApplyExternalResourceRequests(
-			RequestsForPermissionToUseExternalResources(), ThisObject, NotifyDescription);
+			RequestsForPermissionToUseExternalResources(), ThisObject, CallbackDescription);
 	Else
-		RunCallback(NotifyDescription, DialogReturnCode.OK);
+		RunCallback(CallbackDescription, DialogReturnCode.OK);
 	EndIf;
 	
 EndProcedure
@@ -494,12 +578,12 @@ Procedure CheckPasswordBeforeWrite(Cancel, WriteParameters) Export
 	If Not PasswordCheckExecuted(WriteParameters) Then
 		Cancel = True;
 		PasswordCheck = "";
-		NotifyDescription = New CallbackDescription("AfterPasswordEnter", ThisObject, WriteParameters);
+		CallbackDescription = New CallbackDescription("AfterPasswordEnter", ThisObject, WriteParameters);
 		
 		If Object.EmailServiceAuthorization Then
-			OpenHelpFormSettings(True, NotifyDescription);
+			OpenHelpFormSettings(True, CallbackDescription);
 		Else
-			OpenForm("Catalog.EmailAccounts.Form.CheckAccountAccess", , ThisObject, , , , NotifyDescription);
+			OpenForm("Catalog.EmailAccounts.Form.CheckAccountAccess", , ThisObject, , , , CallbackDescription);
 		EndIf;
 	EndIf;
 	
@@ -592,10 +676,10 @@ Procedure ExecuteSettingsCheck()
 	If Modified Then
 		Write(New Structure("CheckSettings"));
 	Else
-		NotifyDescription = New CallbackDescription("ShowCorrectionMethod", ThisObject);
+		CallbackDescription = New CallbackDescription("OnCompleteSettingsCheck", ThisObject);
 		OpeningParameters = New Structure("Account", Object.Ref);
 		OpenForm("Catalog.EmailAccounts.Form.ValidatingAccountSettings",
-			OpeningParameters, ThisObject, , , , NotifyDescription);
+			OpeningParameters, ThisObject, , , , CallbackDescription);
 	EndIf;
 EndProcedure
 
@@ -704,14 +788,14 @@ Procedure AttachHandlersBeforeWrite(Handlers, Form, Cancel, WriteParameters)
 	For Each Validation In WriteParameters.HandlersBeforeWrite Do
 		If Validation.Value = False Then
 			Cancel = True;
-			NotifyDescription = New CallbackDescription(Validation.Key, Form, WriteParameters);
+			CallbackDescription = New CallbackDescription(Validation.Key, Form, WriteParameters);
 			
 			ParameterName = "StandardSubsystems.IdleHandlerBeforeWriteInForm";
 			If ApplicationParameters[ParameterName] = Undefined Then
 				ApplicationParameters.Insert(ParameterName, New Array);
 			EndIf;
 			IdleHandlerBeforeWriteInForm = ApplicationParameters[ParameterName]; // Array
-			IdleHandlerBeforeWriteInForm.Add(NotifyDescription);
+			IdleHandlerBeforeWriteInForm.Add(CallbackDescription);
 			
 			AttachIdleHandler("ExecuteCheckBeforeWriteInForm", 0.1, True);
 			Return;
@@ -730,14 +814,14 @@ Procedure ExecuteCheckBeforeWriteInForm()
 	IdleHandlers = ApplicationParameters[ParameterName];
 	
 	If IdleHandlers.Count() > 0 Then
-		NotifyDescription = IdleHandlers[0];
+		CallbackDescription = IdleHandlers[0];
 		ProcedureName = IdleHandlers[0].ProcedureName;
 		Form = IdleHandlers[0].Module; // ManagedFormExtensionForCatalogs
 		WriteParameters = IdleHandlers[0].AdditionalParameters;
 		IdleHandlers.Delete(0);
 		WriteParameters.HandlersBeforeWrite[ProcedureName] = True;
 		Cancel = False;
-		RunCallback(NotifyDescription, Cancel);
+		RunCallback(CallbackDescription, Cancel);
 		If Not Cancel Then
 			Form.Write(WriteParameters);
 		EndIf;
@@ -746,10 +830,10 @@ Procedure ExecuteCheckBeforeWriteInForm()
 EndProcedure
 
 &AtClient
-Procedure OpenHelpFormSettings(Val OnlyAuthorization = False, Val NotifyDescription = Undefined)
+Procedure OpenHelpFormSettings(Val OnlyAuthorization = False, Val CallbackDescription = Undefined)
 	
-	If NotifyDescription = Undefined Then
-		NotifyDescription = New CallbackDescription("OnCompleteSetup", ThisObject, OnlyAuthorization);
+	If CallbackDescription = Undefined Then
+		CallbackDescription = New CallbackDescription("OnCompleteSetup", ThisObject, OnlyAuthorization);
 	EndIf;
 	
 	OpeningParameters = New Structure;
@@ -761,7 +845,50 @@ Procedure OpenHelpFormSettings(Val OnlyAuthorization = False, Val NotifyDescript
 	EndIf;
 	
 	OpenForm("Catalog.EmailAccounts.Form.AccountSetupWizard", 
-		OpeningParameters, , , , , NotifyDescription);
+		OpeningParameters, , , , , CallbackDescription);
 		
+	EndProcedure
+	
+&AtClient
+Procedure OnCompleteSettingsCheck(WayFix, AdditionalParameters = Undefined) Export
+	
+	If ValueIsFilled(WayFix) Then
+		FixingMethodID = WayFix;
+		AttachIdleHandler("GoToFix", 0.1, True);
+	EndIf;
+	
 EndProcedure
+
+&AtClient
+Procedure GoToFix()
+	
+	ShowCorrectionMethod(FixingMethodID);
+	FixingMethodID = Undefined;
+	
+EndProcedure
+
+// Returns:
+//   See Catalogs.InternetServicesAuthorizationSettings.SettingsAuthorizationInternetService
+//
+&AtServer
+Function SettingsAuthorizationOnMailServer()
+	
+	Return ConnectionSettingsByEmailAddress().AuthorizationSettings;
+	
+EndFunction
+
+// Returns:
+//   See Catalogs.EmailAccounts.ConnectionSettingsByEmailAddress
+//
+&AtServer
+Function ConnectionSettingsByEmailAddress()
+	
+	SetPrivilegedMode(True);
+	
+	Return Catalogs.EmailAccounts.ConnectionSettingsByEmailAddress(
+		Object.Email,
+		Password);
+	
+EndFunction
+
 #EndRegion

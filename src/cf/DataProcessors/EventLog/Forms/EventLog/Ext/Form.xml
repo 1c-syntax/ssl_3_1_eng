@@ -611,7 +611,7 @@
 							</SearchControlAddition>
 							<Events>
 								<Event name="Selection">LogSelection</Event>
-								<Event name="OnActivateField">LogOnActivateField</Event>
+								<Event name="OnActivateField">LogOnFieldActivation</Event>
 							</Events>
 							<ChildItems>
 								<LabelField name="Date" id="51">
@@ -912,7 +912,7 @@
 										</v8:item>
 									</Title>
 									<ShowInHeader>true</ShowInHeader>
-									<ExtendedTooltip name="GroupServerExtendedTooltip" id="154"/>
+									<ExtendedTooltip name="ServerGroupExtendedTooltip" id="154"/>
 									<ChildItems>
 										<LabelField name="ServerName" id="85">
 											<DataPath>Log.ServerName</DataPath>
@@ -1030,7 +1030,7 @@
 								<ExcludedCommand>MoveUp</ExcludedCommand>
 							</CommandSet>
 							<RowFilter xsi:nil="true"/>
-							<ContextMenu name="Log2ContextMenu" id="351">
+							<ContextMenu name="Journal2ContextMenu" id="351">
 								<ChildItems>
 									<ButtonGroup name="FilterGroupContext2" id="430">
 										<Title>
@@ -1082,7 +1082,7 @@
 												<v8:content>Open</v8:content>
 											</v8:item>
 										</Title>
-										<ExtendedTooltip name="ViewCurrentEventInNewWindowContext2ExtendedTooltip" id="437"/>
+										<ExtendedTooltip name="ViewCurrentEventInSeparateWindowContext2ExtendedTooltip" id="437"/>
 									</Button>
 									<Button name="OpenDataForViewingContext2" id="438">
 										<Type>CommandBarButton</Type>
@@ -1130,7 +1130,7 @@
 												<v8:content>Open</v8:content>
 											</v8:item>
 										</Title>
-										<ExtendedTooltip name="ViewCurrentEventInNewWindow2ExtendedTooltip" id="443"/>
+										<ExtendedTooltip name="ViewCurrentEventInSeparateWindow2ExtendedTooltip" id="443"/>
 									</Button>
 									<Button name="OpenDataForViewing2" id="444">
 										<Type>CommandBarButton</Type>
@@ -1166,7 +1166,7 @@
 														<v8:content>Date range</v8:content>
 													</v8:item>
 												</Title>
-												<ExtendedTooltip name="SetPeriodForViewing2ExtendedTooltip" id="449"/>
+												<ExtendedTooltip name="SetViewDateInterval2ExtendedTooltip" id="449"/>
 											</Button>
 											<Button name="SetFilter2" id="450">
 												<Type>CommandBarButton</Type>
@@ -1212,7 +1212,7 @@
 														<v8:content>Clear filter</v8:content>
 													</v8:item>
 												</Title>
-												<ExtendedTooltip name="ClearFilter2ExtendedTooltip" id="455"/>
+												<ExtendedTooltip name="DisableFilter2ExtendedTooltip" id="455"/>
 											</Button>
 										</ChildItems>
 									</ButtonGroup>
@@ -1295,39 +1295,39 @@
 												<v8:content>Search</v8:content>
 											</v8:item>
 										</Title>
-										<ContextMenu name="SearchString_2ContextMenu" id="473"/>
-										<ExtendedTooltip name="SearchString_2ExtendedTooltip" id="474"/>
+										<ContextMenu name="SearchString2ContextMenu" id="473"/>
+										<ExtendedTooltip name="SearchString2ExtendedTooltip" id="474"/>
 									</SearchStringAddition>
 								</ChildItems>
 							</AutoCommandBar>
-							<ExtendedTooltip name="Log2ExtendedTooltip" id="353"/>
-							<SearchStringAddition name="Log2SearchString" id="354">
+							<ExtendedTooltip name="Journal2ExtendedTooltip" id="353"/>
+							<SearchStringAddition name="Journal2SearchString" id="354">
 								<AdditionSource>
 									<Item>Log2</Item>
 									<Type>SearchStringRepresentation</Type>
 								</AdditionSource>
-								<ContextMenu name="Log2SearchStringContextMenu" id="355"/>
-								<ExtendedTooltip name="Log2SearchStringExtendedTooltip" id="356"/>
+								<ContextMenu name="Journal2SearchStringContextMenu" id="355"/>
+								<ExtendedTooltip name="Journal2SearchStringExtendedTooltip" id="356"/>
 							</SearchStringAddition>
-							<ViewStatusAddition name="Log2ViewStatus" id="357">
+							<ViewStatusAddition name="Journal2ViewStatus" id="357">
 								<AdditionSource>
 									<Item>Log2</Item>
 									<Type>ViewStatusRepresentation</Type>
 								</AdditionSource>
-								<ContextMenu name="Log2ViewStatusContextMenu" id="358"/>
-								<ExtendedTooltip name="Log2ViewStatusExtendedTooltip" id="359"/>
+								<ContextMenu name="Journal2ViewStatusContextMenu" id="358"/>
+								<ExtendedTooltip name="Journal2ViewStatusExtendedTooltip" id="359"/>
 							</ViewStatusAddition>
-							<SearchControlAddition name="Log2SearchControl" id="360">
+							<SearchControlAddition name="Journal2SearchControl" id="360">
 								<AdditionSource>
 									<Item>Log2</Item>
 									<Type>SearchControl</Type>
 								</AdditionSource>
-								<ContextMenu name="Log2SearchControlContextMenu" id="361"/>
-								<ExtendedTooltip name="Log2SearchControlExtendedTooltip" id="362"/>
+								<ContextMenu name="Journal2SearchControlContextMenu" id="361"/>
+								<ExtendedTooltip name="Journal2SearchControlExtendedTooltip" id="362"/>
 							</SearchControlAddition>
 							<Events>
 								<Event name="Selection">LogSelection</Event>
-								<Event name="OnActivateField">LogOnActivateField</Event>
+								<Event name="OnActivateField">LogOnFieldActivation</Event>
 							</Events>
 							<ChildItems>
 								<LabelField name="Date2" id="365">
@@ -1379,8 +1379,8 @@
 												</v8:item>
 											</Title>
 											<EditMode>EnterOnInput</EditMode>
-											<ContextMenu name="SessionDataSeparationPresentation2ContextMenu" id="369"/>
-											<ExtendedTooltip name="SessionDataSeparationPresentation2ExtendedTooltip" id="370"/>
+											<ContextMenu name="Session2DataSeparationPresentationContextMenu" id="369"/>
+											<ExtendedTooltip name="Session2DataSeparationPresentationExtendedTooltip" id="370"/>
 										</LabelField>
 										<LabelField name="DataArea3" id="526">
 											<DataPath>Log.DataArea</DataPath>
@@ -1410,7 +1410,7 @@
 									</Title>
 									<Width>5</Width>
 									<ShowInHeader>true</ShowInHeader>
-									<ExtendedTooltip name="ApplicationSessionGroup2ExtendedTooltip" id="372"/>
+									<ExtendedTooltip name="ApplicationGroupSession2ExtendedTooltip" id="372"/>
 									<ChildItems>
 										<LabelField name="ApplicationPresentation2" id="373">
 											<DataPath>Log.ApplicationPresentation</DataPath>
@@ -1433,7 +1433,7 @@
 												</v8:item>
 											</Title>
 											<Group>Horizontal</Group>
-											<ExtendedTooltip name="SessionGroup2ExtendedTooltip" id="520"/>
+											<ExtendedTooltip name="GroupSession2ExtendedTooltip" id="520"/>
 											<ChildItems>
 												<LabelField name="Session2" id="376">
 													<DataPath>Log.Session</DataPath>
@@ -1515,8 +1515,8 @@
 													</Title>
 													<ShowInHeader>false</ShowInHeader>
 													<Width>15</Width>
-													<ContextMenu name="UserName2ContextMenu" id="387"/>
-													<ExtendedTooltip name="UserName2ExtendedTooltip" id="388"/>
+													<ContextMenu name="Username2ContextMenu" id="387"/>
+													<ExtendedTooltip name="Username2ExtendedTooltip" id="388"/>
 												</LabelField>
 												<LabelField name="Computer2" id="389">
 													<DataPath>Log.Computer</DataPath>
@@ -1544,8 +1544,8 @@
 										</v8:item>
 									</Title>
 									<Width>15</Width>
-									<ContextMenu name="UserName3ContextMenu" id="512"/>
-									<ExtendedTooltip name="UserName3ExtendedTooltip" id="513"/>
+									<ContextMenu name="UserName3ValueContextMenu" id="512"/>
+									<ExtendedTooltip name="UserName3ValueExtendedTooltip" id="513"/>
 								</LabelField>
 								<ColumnGroup name="GroupEventInfo2" id="392">
 									<Title>
@@ -1671,7 +1671,7 @@
 										</v8:item>
 									</Title>
 									<ShowInHeader>true</ShowInHeader>
-									<ExtendedTooltip name="GroupServer2ExtendedTooltip" id="415"/>
+									<ExtendedTooltip name="ServerGroup2ExtendedTooltip" id="415"/>
 									<ChildItems>
 										<LabelField name="ServerName2" id="416">
 											<DataPath>Log.ServerName</DataPath>
@@ -1683,8 +1683,8 @@
 											</Title>
 											<ShowInHeader>false</ShowInHeader>
 											<Width>10</Width>
-											<ContextMenu name="ServerName2ContextMenu" id="417"/>
-											<ExtendedTooltip name="ServerName2ExtendedTooltip" id="418"/>
+											<ContextMenu name="WorkingServer2ContextMenu" id="417"/>
+											<ExtendedTooltip name="WorkingServer2ExtendedTooltip" id="418"/>
 										</LabelField>
 										<ColumnGroup name="GroupPorts2" id="419">
 											<Title>

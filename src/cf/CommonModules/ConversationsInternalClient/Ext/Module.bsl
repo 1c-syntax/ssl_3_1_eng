@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Internal
@@ -111,6 +110,8 @@ Procedure ShowIntegrationInformation(Form, IntegrationDetails, IntegrationChange
 	FormName = "DataProcessor.EnableDiscussions.Form";
 	If IntegrationDetails.Type = IntegrationTypes.Telegram Then
 		FormName = FormName + ".TelegramBotCreation";
+	ElsIf IntegrationDetails.Type = IntegrationTypes.Max Then
+		FormName = FormName + ".CreatingMaxBot";
 	ElsIf IntegrationDetails.Type = IntegrationTypes.VKontakte Then	
 		FormName = FormName + ".BotCreationVKontakte";
 	ElsIf IntegrationDetails.Type = IntegrationTypes.WhatsApp Then	
@@ -226,8 +227,8 @@ Procedure CheckRunningAction(CommandsParameters, Commands, DefaultCommand)
 		Return;
 	EndIf;
 	
-	NotifyDescription = New CallbackDescription("ShowSecurityWarning", ThisObject, CommandsParameters);
-	DefaultCommand = New CollaborationSystemCommandDescription(NotifyDescription);
+	CallbackDescription = New CallbackDescription("ShowSecurityWarning", ThisObject, CommandsParameters);
+	DefaultCommand = New CollaborationSystemCommandDescription(CallbackDescription);
 	
 EndProcedure
 
@@ -247,8 +248,8 @@ EndFunction
 
 Procedure ShowSecurityWarning(CommandsParameters) Export
 	
-	NotifyDescription = New CallbackDescription("ContinueOpenAttachment", ThisObject, CommandsParameters);
-	UsersInternalClient.ShowSecurityWarning(NotifyDescription,
+	CallbackDescription = New CallbackDescription("ContinueOpenAttachment", ThisObject, CommandsParameters);
+	UsersInternalClient.ShowSecurityWarning(CallbackDescription,
 		UsersInternalClientServer.SecurityWarningKinds().BeforeAddExternalReportOrDataProcessor);
 	
 EndProcedure
@@ -261,10 +262,10 @@ Procedure ContinueOpenAttachment(Result, CommandsParameters) Export
 	
 	AllowedAttachment()[AttachmentID(CommandsParameters)] = True;
 	
-	NotifyDescription = New CallbackDescription("OnOpenStreamToReadAttachment",
+	CallbackDescription = New CallbackDescription("OnOpenStreamToReadAttachment",
 		ThisObject, CommandsParameters.Attachment);
 	
-	CommandsParameters.Attachment.BeginOpenStreamForRead(NotifyDescription);
+	CommandsParameters.Attachment.BeginOpenStreamForRead(CallbackDescription);
 	
 EndProcedure
 
@@ -280,9 +281,9 @@ Procedure OnOpenStreamToReadAttachment(Stream, Attachment) Export
 	AdditionalParameters.Insert("BinaryDataBuffer", BinaryDataBuffer);
 	AdditionalParameters.Insert("Attachment", Attachment);
 
-	NotifyDescription = New CallbackDescription("OnCompleteReadingStream", ThisObject, AdditionalParameters);
+	CallbackDescription = New CallbackDescription("OnCompleteReadingStream", ThisObject, AdditionalParameters);
 	
-	Stream.BeginReading(NotifyDescription, BinaryDataBuffer, 0, Attachment.Size);
+	Stream.BeginReading(CallbackDescription, BinaryDataBuffer, 0, Attachment.Size);
 
 EndProcedure
 

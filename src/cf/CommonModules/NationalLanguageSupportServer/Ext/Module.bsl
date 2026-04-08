@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -98,6 +97,11 @@ Procedure OnCreateAtServer(Form, Object = Undefined, ObjectName = Undefined) Exp
 		ObjectName = ?(Common.IsRegister(ObjectMetadata1), "Record", "Object");
 	EndIf;
 	
+	If Form.Parameters.Property("FillingValues") 
+	   And ValueIsFilled(Form.Parameters.FillingValues) Then
+		OnReadAtServer(Form, Object, ObjectName);
+	EndIf;
+	
 	AttributesDescriptions = DescriptionsOfObjectAttributesToLocalize(ObjectMetadata1, ObjectName + ".");
 	
 	For Each Item In Form.Items Do
@@ -136,9 +140,9 @@ Procedure OnReadAtServer(Form, CurrentObject, ObjectName = Undefined) Export
 		Return;
 	EndIf;
 	
-		If TypeOf(ObjectName) <> Type("String") Then
+	If TypeOf(ObjectName) <> Type("String") Then
 		ObjectName = ?(Common.IsRegister(MetadataObject), "Record", "Object");
-		EndIf;
+	EndIf;
 
 	PropertyCheck = New Structure(ObjectName, Undefined);
 	FillPropertyValues(PropertyCheck, Form, ObjectName);
@@ -374,50 +378,37 @@ EndProcedure
 //
 Procedure ChoiceDataGetProcessing(ChoiceData, Val Parameters, StandardProcessing, MetadataObject) Export
 	
-	If NationalLanguageSupportCached.ConfigurationUsesOnlyOneLanguage(MetadataObject.TabularSections.Find("Presentations") = Undefined) Then
+	ThereIsTabularPartOfView = (MetadataObject.TabularSections.Find("Presentations") = Undefined);
+	If NationalLanguageSupportCached.ConfigurationUsesOnlyOneLanguage(ThereIsTabularPartOfView) Then
 		Return;
 	EndIf;
 	
 	StandardProcessing = False;
 	
-	InputByStringFields = MetadataObject.InputByString;
-	Fields              = New Array;
+	ChoiceFoldersAndItems = Undefined;
+	Parameters.Property("ChoiceFoldersAndItems", ChoiceFoldersAndItems);
 	
-	DescriptionsOfAttributesToLocalize = DescriptionsOfObjectAttributesToLocalize(MetadataObject);
-	LanguagesInformationRecords = NationalLanguageSupportCached.InfoAboutLanguagesUsed();
-	Template = "Table.%1%2 LIKE &SearchString ESCAPE ""~""";
-
-	For Each Field In InputByStringFields Do
-		Fields.Add(StrTemplate(Template, Field.Name, ""));
-
-		If DescriptionsOfAttributesToLocalize.Get(Field.Name) <> Undefined Then
-			
-			For Each IsAdditionalLangUsed In LanguagesInformationRecords Do
-				If IsAdditionalLangUsed.Value Then
-					Fields.Add(StrTemplate(Template, Field.Name, IsAdditionalLangUsed.Key));
-				EndIf;
-			EndDo;
-			
-		EndIf;
-	EndDo;
+	If ChoiceFoldersAndItems = FoldersAndItemsUse.Items Then
+		TypeOfSelectionOfGroupsAndElements = "Items";
+	ElsIf ChoiceFoldersAndItems = FoldersAndItemsUse.Folders Then
+		TypeOfSelectionOfGroupsAndElements = "Groups";
+	Else
+		TypeOfSelectionOfGroupsAndElements = "";
+	EndIf;
 	
-	QueryTemplate = "SELECT ALLOWED TOP 20
-	|	Table.Ref AS Ref
-	|FROM
-	|	&ObjectName AS Table
-	|WHERE
-	|	&FilterConditions";
+	QueryText = NationalLanguageSupportCached.QueryTextForReceivingSelectionData(MetadataObject.FullName(), TypeOfSelectionOfGroupsAndElements);
 	
-	QueryText = StrReplace(QueryTemplate, "&ObjectName", MetadataObject.FullName());
-	QueryText = StrReplace(QueryText, "&FilterConditions", StrConcat(Fields, " OR "));
+	Query = New Query(QueryText);
+	SearchString = TrimAll(Parameters.SearchString);
+	Query.SetParameter("SearchString", 
+		"%" + Common.GenerateSearchQueryString(SearchString) + "%");
 	
-	Query = New Query(QueryText);	
-	Query.SetParameter("SearchString", "%" + Common.GenerateSearchQueryString(Parameters.SearchString) +"%");
 	QueryResult = Query.Execute().Select();
-	
 	ChoiceData = New ValueList;
+	
 	While QueryResult.Next() Do
-		ChoiceData.Add(QueryResult.Ref, QueryResult.Ref);
+		HighlightedPresentation = StrFindAndHighlightByAppearance(String(QueryResult.Ref), SearchString);
+		ChoiceData.Add(QueryResult.Ref, HighlightedPresentation);
 	EndDo;
 	
 EndProcedure
@@ -995,7 +986,7 @@ Procedure ProcessDataForMigrationToNewVersion(Parameters) Export
 			ObjectWithPredefinedElements.Value);
 		If Selection.Count() > 0 Then
 		
-			// @skip-check query-in-loop  в обработчике обновления
+			// @skip-check query-in-loop - Batch-wise data processing in an update handler
 			FillInEmptyMultilingualDetailsWithTheValueOfTheMainLanguage(Selection, ObjectWithPredefinedElements.Key,
 				TotalProcessed);
 			
@@ -1055,7 +1046,8 @@ Procedure UpdateMultilanguageStringsOfPredefinedItem(ObjectReference, SettingsOf
 			LanguagesInformationRecords = LanguagesInfo();
 			For Each IsLanguageUsed In LanguagesInformationRecords.Used Do
 				If IsLanguageUsed.Value Then
-					Object[Name + IsLanguageUsed.Key] = Item[NameOfAttributeToLocalize(Name, IsLanguageUsed.Key)];
+					LanguageCode = LanguagesInformationRecords[IsLanguageUsed.Key];
+					Object[Name + IsLanguageUsed.Key] = Item[NameOfAttributeToLocalize(Name, LanguageCode)];
 				EndIf;
 			EndDo;
 			
@@ -1631,19 +1623,19 @@ Function DescriptionOfOldAndNewLanguageSettings(AdditionalLanguagesCount) Export
 	
 	DescriptionOfConstants = New Structure;
 
-	NewAndOldMeaning = New Structure;
-	NewAndOldMeaning.Insert("NewValue", "");
-	NewAndOldMeaning.Insert("PreviousValue2", "");
+	NewAndOldValue = New Structure;
+	NewAndOldValue.Insert("NewValue", "");
+	NewAndOldValue.Insert("PreviousValue2", "");
 	
-	DescriptionOfConstants.Insert("DefaultLanguage", NewAndOldMeaning);
+	DescriptionOfConstants.Insert("DefaultLanguage", NewAndOldValue);
 	
 	For LanguageSeqNumber = 1 To AdditionalLanguagesCount() Do
 		
-		NewAndOldMeaning = New Structure;
-		NewAndOldMeaning.Insert("NewValue", "");
-		NewAndOldMeaning.Insert("PreviousValue2", "");
+		NewAndOldValue = New Structure;
+		NewAndOldValue.Insert("NewValue", "");
+		NewAndOldValue.Insert("PreviousValue2", "");
 		
-		DescriptionOfConstants.Insert(LanguageConstantName(LanguageSeqNumber), NewAndOldMeaning);
+		DescriptionOfConstants.Insert(LanguageConstantName(LanguageSeqNumber), NewAndOldValue);
 	EndDo;
 	
 	Return DescriptionOfConstants;
@@ -1785,6 +1777,31 @@ Function TheNamesOfTheLocalizedDetailsOfTheObjectInTheHeader(MetadataObject, Pre
 	EndIf;
 	
 	Return ObjectAttributesList;
+	
+EndFunction
+
+Function SearchCriteriaForLocalizedFieldsForRequestingSelectionData(MetadataObject) Export
+	
+	InputByStringFields = MetadataObject.InputByString;
+	DescriptionsOfAttributesToLocalize = DescriptionsOfObjectAttributesToLocalize(MetadataObject);
+	LanguagesInformationRecords = NationalLanguageSupportCached.InfoAboutLanguagesUsed();
+	
+	Conditions = New Array;
+	Template = "Table.%1%2 LIKE &SearchString ESCAPE ""~""";
+	
+	For Each Field In InputByStringFields Do
+		Conditions.Add(StrTemplate(Template, Field.Name, ""));
+		
+		If DescriptionsOfAttributesToLocalize.Get(Field.Name) <> Undefined Then
+			For Each IsAdditionalLangUsed In LanguagesInformationRecords Do
+				If IsAdditionalLangUsed.Value Then
+					Conditions.Add(StrTemplate(Template, Field.Name, IsAdditionalLangUsed.Key));
+				EndIf;
+			EndDo;
+		EndIf;
+	EndDo;
+	
+	Return StrConcat(Conditions, " OR ");
 	
 EndFunction
 
@@ -1935,7 +1952,7 @@ Procedure FillInEmptyMultilingualDetailsWithTheValueOfTheMainLanguage(Selection,
 				
 				LockDataForEdit(Selection.Ref);
 				
-				// @skip-check query-in-loop
+				// @skip-check query-in-loop - 
 				NamesOfAttributesToLocalize = TheNamesOfTheLocalizedDetailsOfTheObjectInTheHeader(MetadataObject);
 				
 				For Each Attribute In NamesOfAttributesToLocalize Do
@@ -2279,7 +2296,7 @@ Function ListOfObjectsToBeProcessedToUpgradeToNewVersion(DataVariant)
 			MetadataObjectWithItems = ObjectWithPredefinedElements.Key;
 			FullMetadataObjectName  = ObjectWithPredefinedElements.Value;
 			
-			// @skip-check query-in-loop
+			// @skip-check query-in-loop - 
 			ObjectAttributesToLocalize = TheNamesOfTheLocalizedDetailsOfTheObjectInTheHeader(MetadataObjectWithItems);
 			Filters = New Array;
 			
@@ -2499,7 +2516,7 @@ Procedure ChangeLanguageinMultilingualDetailsConfig(Parameters, Address) Export
 		 Or StrStartsWith(FullName, "ChartOfAccounts")
 		 Or StrStartsWith(FullName, "ChartOfCalculationTypes") Then
 			
-			// @skip-check query-in-loop
+			// @skip-check query-in-loop - 
 			HandleReferenceObjects(FullName, ObjectData.Value, DataToChangeMultilanguageAttributes,
 				Context);
 				
@@ -2507,13 +2524,13 @@ Procedure ChangeLanguageinMultilingualDetailsConfig(Parameters, Address) Export
 			MetadataObject = Common.MetadataObjectByFullName(FullName);
 			
 			If MetadataObject.WriteMode = Metadata.ObjectProperties.RegisterWriteMode.RecorderSubordinate Then
-				// @skip-check query-in-loop
+				// @skip-check query-in-loop - 
 				ChangeLanguageInSubRegistersDetails(MetadataObject, ObjectData.Value,
 					DataToChangeMultilanguageAttributes, Context);
 			Else
 				Periodic3 = MetadataObject.InformationRegisterPeriodicity
 					<> Metadata.ObjectProperties.InformationRegisterPeriodicity.Nonperiodical;
-				// @skip-check query-in-loop
+				// @skip-check query-in-loop - 
 				ChangeLanguageIncaseIndependentDetails(MetadataObject, ObjectData.Value,
 					DataToChangeMultilanguageAttributes, Context, Periodic3);
 			EndIf;
@@ -2601,7 +2618,7 @@ Procedure HandleReferenceObjects(FullName, ObjectData, DataToChangeMultilanguage
 		Query.Text = QueryText;
 		Query.SetParameter("Ref", LastRef);
 		
-		// @skip-check query-in-loop 
+		// @skip-check query-in-loop - Batch-wise data processing
 		QueryResult = Query.Execute();
 		
 		If Not QueryResult.IsEmpty() Then
@@ -3007,7 +3024,7 @@ Procedure ChangeLanguageInSubRegistersDetails(MetadataObject, ObjectData, DataTo
 		
 		Query.SetParameter("Recorder", ResultString1.RecorderAttributeRef);
 		
-		// @skip-check query-in-loop 
+		// @skip-check query-in-loop - Batch-wise data processing
 		Result = Query.Execute().Unload();
 		
 	EndDo;
@@ -3222,7 +3239,7 @@ Procedure ChangeLanguageIncaseIndependentDetails(MetadataObject, ObjectData, Dat
 			Query.SetParameter(Dimension.Name, ResultString1[Dimension.Name + "DimensionRef"]);
 		EndDo;
 		
-		// @skip-check query-in-loop 
+		// @skip-check query-in-loop - Batch-wise data processing
 		Result = Query.Execute().Unload();
 		
 	EndDo;
@@ -3273,5 +3290,12 @@ Function EventLogEvent()
 EndFunction
 
 #EndRegion
+
+// See StandardSubsystemsServer.WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode
+Procedure WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode(Methods) Export
+	
+	Methods.Insert("ChangeLanguageinMultilingualDetailsConfig", True);
+	
+EndProcedure
 
 #EndRegion

@@ -830,17 +830,17 @@
 			<Form>ListForm</Form>
 			<TabularSection uuid="2394775b-8910-4667-9c74-e1606e0b13bc">
 				<InternalInfo>
-					<xr:GeneratedType name="DocumentTabularSection.SMSMessage.SMSMessageRecipients" category="TabularSection">
+					<xr:GeneratedType name="DocumentTabularSection.SMSMessage.Recipients" category="TabularSection">
 						<xr:TypeId>fe1c373a-936a-4528-abdf-c588becf559a</xr:TypeId>
 						<xr:ValueId>8943dc75-7f04-428f-99d5-2e15ff6567b9</xr:ValueId>
 					</xr:GeneratedType>
-					<xr:GeneratedType name="DocumentTabularSectionRow.SMSMessage.SMSMessageRecipients" category="TabularSectionRow">
+					<xr:GeneratedType name="DocumentTabularSectionRow.SMSMessage.Recipients" category="TabularSectionRow">
 						<xr:TypeId>c925dc4f-2311-45d7-9f83-d8c23c131eb2</xr:TypeId>
 						<xr:ValueId>9447b9ca-0752-449e-98a3-26778f7375c8</xr:ValueId>
 					</xr:GeneratedType>
 				</InternalInfo>
 				<Properties>
-					<Name>SMSMessageRecipients</Name>
+					<Name>Recipients</Name>
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>

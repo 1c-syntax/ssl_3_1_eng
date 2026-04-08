@@ -34,6 +34,7 @@
 				<v8:Type>cfg:CatalogObject.ExternalUsersGroups</v8:Type>
 				<v8:Type>cfg:ChartOfCharacteristicTypesObject.AdditionalAttributesAndInfo</v8:Type>
 				<v8:Type>cfg:CatalogObject.AdditionalReportsAndDataProcessors</v8:Type>
+				<v8:Type>cfg:CatalogObject.DigitalSignatureAndEncryptionKeysCertificates</v8:Type>
 				<v8:Type>cfg:CatalogObject.ExternalUsers</v8:Type>
 				<v8:Type>cfg:CatalogObject.ObjectsPropertiesValues</v8:Type>
 				<v8:Type>cfg:CatalogObject.ObjectPropertyValueHierarchy</v8:Type>

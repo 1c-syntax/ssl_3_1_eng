@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -49,10 +48,12 @@
 //     * IsErrorOccurredDuringAutomaticRenewal - Boolean - Do no use. This is an internal parameter, which is filled by the scheduled job.
 //     Intended for linking with the machine-readable letter of authority.:
 //     * SignatureID - UUID
-//     * ResultOfSignatureVerificationByMRLOA - Array of Structure, Structure - MachineReadableLettersOfAuthorityFTS.ResultOfSignatureVerificationByMRLOA
+//     * ResultOfSignatureVerificationByMRLOA - Array of Structure
+//                                     - Structure - MachineReadableLettersOfAuthorityFTS.ResultOfSignatureVerificationByMRLOA
 //
 //     Derived signature properties:
 //     * SignatureType          - EnumRef.CryptographySignatureTypes
+//     * DateSignedFromLabels  - Date, Undefined - Date of the earliest timestamp.
 //     * DateActionLastTimestamp - Date - Validity period of the certificate that the last timestamp was signed with.
 //                                           Empty date if there's no timestamp.
 //                                           Applicable if the period was determined using CryptoManager.
@@ -98,6 +99,7 @@ Function NewSignatureProperties() Export
 	Structure.Insert("Thumbprint");
 	Structure.Insert("CertificateOwner");
 	Structure.Insert("SignatureType");
+	Structure.Insert("DateSignedFromLabels");
 	Structure.Insert("DateActionLastTimestamp");
 	
 	Structure.Insert("CertificateDetails");
@@ -123,8 +125,8 @@ EndFunction
 //   * IsVerificationRequired   - Boolean - Signature verification failure flag.
 //   * IsSignatureMathematicallyValid - Boolean - Indicates if the signature is valid. 
 //                                           The verification scope excludes certificates and enhanced signature attributes.
-//   * SignatureMathValidationError - String - Error if "VerifySignature" has
-//                                                    "CheckAdditionalAttributes" set to "False".
+//   * SignatureMathValidationError - String - Error if VerifySignature has
+//                                                    VerifyAdditionalAttributes set to False.
 //   * AdditionalAttributesCheckError - String - Error verifying the certificate and its enhanced
 //                                                      signature attributes (such as the timestamp).
 //   * CertificateVerificationParameters - 
@@ -210,6 +212,7 @@ Function ResultOfSignatureValidationOnForm() Export
 	SignatureProperties.Insert("SignatureSetBy");
 	SignatureProperties.Insert("SignatureType");
 	SignatureProperties.Insert("DateActionLastTimestamp");
+	SignatureProperties.Insert("SignatureID");
 	
 	// Compatibility block start.
 	SignatureProperties.Insert("ErrorDescription"); 
@@ -242,6 +245,19 @@ EndFunction
 //  SessionDate - Date
 //
 Procedure FillSignatureStatus(SignatureProperties, SessionDate) Export
+	
+	If Not ValueIsFilled(SignatureProperties.SignatureAddress) Then
+		Status = "";
+		If ValueIsFilled(SignatureProperties.CheckResult)
+			And ValueIsFilled(SignatureProperties.CheckResult.AdditionalAttributesCheckError) Then
+			SignatureProperties.BriefCheckResult = 
+				SignatureProperties.CheckResult.AdditionalAttributesCheckError;
+		Else
+			SignatureProperties.BriefCheckResult = StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'Pending document to be signed with %1'"), SignatureProperties.SignatureDate);
+		EndIf;
+		Return;
+	EndIf;
 	
 	If Not ValueIsFilled(SignatureProperties.SignatureValidationDate) Then
 		Status = "";

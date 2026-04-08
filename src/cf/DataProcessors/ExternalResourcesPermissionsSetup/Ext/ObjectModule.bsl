@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -95,14 +94,14 @@ EndProcedure
 //  ModuleID - UUID,
 //  OwnerType - CatalogRef.MetadataObjectIDs,
 //  OwnerID - UUID,
-//  ReplacementMode - Boolean,
+//  Var_ReplacementMode - Boolean,
 //  PermissionsToAdd - Array of XDTODataObject, Undefined,
 //  PermissionsToDelete - Array of XDTODataObject, Undefined
 //
 Procedure AddRequestForPermissionsToUseExternalResources(
 		Val ProgramModuleType, Val ModuleID,
 		Val OwnerType, Val OwnerID,
-		Val ReplacementMode,
+		Val Var_ReplacementMode,
 		Val PermissionsToAdd = Undefined,
 		Val PermissionsToDelete = Undefined) Export
 	
@@ -117,7 +116,7 @@ Procedure AddRequestForPermissionsToUseExternalResources(
 		
 		If ProgramModuleType = Catalogs.MetadataObjectIDs.EmptyRef() Then
 			
-			Name = Constants.InfobaseSecurityProfile.Get();
+			Name = SafeModeManager.InfobaseSecurityProfile();
 			
 		Else
 			
@@ -139,7 +138,7 @@ Procedure AddRequestForPermissionsToUseExternalResources(
 		
 	EndIf;
 	
-	If ReplacementMode Then
+	If Var_ReplacementMode Then
 		
 		Filter = New Structure();
 		Filter.Insert("ProgramModuleType", ProgramModuleType);
@@ -459,9 +458,9 @@ Procedure CompleteApplyRequestsToUseExternalResources() Export
 				
 				For Each KeyAndValue In ItemsToAdd.Permissions Do
 					
-					AddOn = ItemsToAdd.PermissionsAdditions.Get(KeyAndValue.Key);
-					If AddOn <> Undefined Then
-						AddOn = Common.ValueFromXMLString(AddOn);
+					Supplement = ItemsToAdd.PermissionsAdditions.Get(KeyAndValue.Key);
+					If Supplement <> Undefined Then
+						Supplement = Common.ValueFromXMLString(Supplement);
 					EndIf;
 					
 					InformationRegisters.PermissionsToUseExternalResources.AddPermission(
@@ -471,7 +470,7 @@ Procedure CompleteApplyRequestsToUseExternalResources() Export
 						ItemsToAdd.OwnerID,
 						KeyAndValue.Key,
 						Common.XDTODataObjectFromXMLString(KeyAndValue.Value),
-						AddOn);
+						Supplement);
 					
 				EndDo;
 				
@@ -699,9 +698,9 @@ Procedure CalculateRequestsApplicationResultIgnoringOwners()
 				SourcePermission.Description = PermissionDetails; 
 				String.Permissions.Insert(PermissionKey, Common.XDTODataObjectToXMLString(SourcePermission));
 				
-				AddOn = ResultString1.PermissionsAdditions.Get(KeyAndValue.Key);
-				If AddOn <> Undefined Then
-					String.PermissionsAdditions.Insert(PermissionKey, AddOn);
+				Supplement = ResultString1.PermissionsAdditions.Get(KeyAndValue.Key);
+				If Supplement <> Undefined Then
+					String.PermissionsAdditions.Insert(PermissionKey, Supplement);
 				EndIf;
 				
 			EndIf;
@@ -1068,8 +1067,8 @@ Function ProfileInClusterAdministrationInterfaceNotation(Val ProfileName, Val Pr
 				
 			ElsIf String.Type = "AttachAddin" Then
 				
-				AddOn = Common.ValueFromXMLString(String.PermissionsAdditions.Get(KeyAndValue.Key));
-				For Each AdditionKeyAndValue In AddOn Do
+				Supplement = Common.ValueFromXMLString(String.PermissionsAdditions.Get(KeyAndValue.Key));
+				For Each AdditionKeyAndValue In Supplement Do
 					
 					AddIn = ClusterAdministration.AddInProperties();
 					AddIn.Name = Resolution.TemplateName + "\" + AdditionKeyAndValue.Key;

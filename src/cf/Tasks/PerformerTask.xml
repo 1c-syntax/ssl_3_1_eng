@@ -38,7 +38,7 @@
 			<NumberAllowedLength>Fixed</NumberAllowedLength>
 			<CheckUnique>true</CheckUnique>
 			<Autonumbering>true</Autonumbering>
-			<TaskNumberAutoPrefix>BusinessProcessNumber</TaskNumberAutoPrefix>
+			<TaskNumberAutoPrefix>DontUse</TaskNumberAutoPrefix>
 			<DescriptionLength>150</DescriptionLength>
 			<Addressing>InformationRegister.TaskPerformers</Addressing>
 			<MainAddressingAttribute>Task.PerformerTask.AddressingAttribute.Performer</MainAddressingAttribute>
@@ -470,7 +470,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Date</v8:content>
+							<v8:content>Completion date</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment>Date and time when the task was actually completed</Comment>

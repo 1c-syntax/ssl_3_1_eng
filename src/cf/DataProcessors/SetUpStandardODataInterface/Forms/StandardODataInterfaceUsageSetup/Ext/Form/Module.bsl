@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -77,8 +76,8 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 		
 		Cancel = True;
 		
-		NotifyDescription = New CallbackDescription("ContinueClosingAfterQuestion", ThisObject);
-		ShowQueryBox(NotifyDescription, NStr("en = 'The data has been changed. Do you want to save the changes?'"), QuestionDialogMode.YesNoCancel);
+		CallbackDescription = New CallbackDescription("ContinueClosingAfterQuestion", ThisObject);
+		ShowQueryBox(CallbackDescription, NStr("en = 'The data has been changed. Do you want to save the changes?'"), QuestionDialogMode.YesNoCancel);
 		
 	EndIf;
 	
@@ -91,18 +90,20 @@ EndProcedure
 &AtClient
 Procedure MetadataObjectsUseOnChange(Item)
 	
-	If Items.MetadataObjects.CurrentData.Use Then
+	CurrentData = Items.MetadataObjects.CurrentData;
+	
+	If CurrentData.Use Then
 		Create = True;
-		Dependencies = DependenciesToAddObject(Items.MetadataObjects.CurrentData.GetID());
+		Dependencies = DependenciesToAddObject(CurrentData.GetID());
 	Else
 		Create = False;
-		Dependencies = DependenciesToDeleteObject(Items.MetadataObjects.CurrentData.GetID());
+		Dependencies = DependenciesToDeleteObject(CurrentData.GetID());
 	EndIf;
 	
 	If Dependencies.Count() > 0 Then
 		
 		FormParameters = New Structure();
-		FormParameters.Insert("FullObjectName", Items.MetadataObjects.CurrentData.FullName);
+		FormParameters.Insert("FullObjectName", CurrentData.FullName);
 		FormParameters.Insert("ObjectDependencies", Dependencies);
 		FormParameters.Insert("Create", Create);
 		
@@ -110,10 +111,10 @@ Procedure MetadataObjectsUseOnChange(Item)
 		Context.Insert("Dependencies", Dependencies);
 		Context.Insert("Create", Create);
 		
-		NotifyDescription = New CallbackDescription("MetadataObjectsUsageOnChangeFollowUp", ThisObject, Context);
+		CallbackDescription = New CallbackDescription("MetadataObjectsUsageOnChangeFollowUp", ThisObject, Context);
 		
 		OpenForm("DataProcessor.SetUpStandardODataInterface.Form.MetadataObjectDependencies",
-			FormParameters,,,,,	NotifyDescription, FormWindowOpeningMode.LockOwnerWindow);
+			FormParameters,,,,, CallbackDescription, FormWindowOpeningMode.LockOwnerWindow);
 		
 	EndIf;
 	
@@ -185,12 +186,17 @@ Procedure ImportMetadataFollowUp(QuestionResult, AdditionalParameters) Export
 	
 	Result = StartPreparingSetupParameters();
 	JobID = Result.JobID;
-	If TypeOf(Result) = Type("Structure") 
-		And Result.Status <> "Completed2" Then
-		
-		Notification = New CallbackDescription("SetupParametersReceivingCompletion", ThisObject);
-		TimeConsumingOperationsClient.WaitCompletion(Result, Notification, TimeConsumingOperationsClient.IdleParameters(ThisObject));
-		
+	
+	If TypeOf(Result) <> Type("Structure") Then
+		Return;
+	EndIf;
+	
+	Notification = New CallbackDescription("SetupParametersReceivingCompletion", ThisObject);
+	If Result.Status = "Completed2" Then
+		RunCallback(Notification, Result);
+	Else
+		TimeConsumingOperationsClient.WaitCompletion(Result, Notification,
+			TimeConsumingOperationsClient.IdleParameters(ThisObject));
 	EndIf;
 	
 EndProcedure
@@ -274,7 +280,7 @@ EndProcedure
 Function DependenciesToAddObject(Val RowID)
 	
 	DependenciesTable = FormAttributeToValue("DependenciesForAdding");
-	Return DependenciesForObject(RowID, DependenciesTable, True);
+	Return ObjectDependencies(RowID, DependenciesTable, True);
 	
 EndFunction
 
@@ -282,48 +288,68 @@ EndFunction
 Function DependenciesToDeleteObject(Val RowID)
 	
 	DependenciesTable = FormAttributeToValue("DependenciesForDeletion");
-	Return DependenciesForObject(RowID, DependenciesTable, False);
+	Return ObjectDependencies(RowID, DependenciesTable, False);
 	
 EndFunction
 
 &AtServer
-Function DependenciesForObject(Val RowID, DependenciesTable, UsageReferenceData)
-	
-	Result = New Array();
+Function ObjectDependencies(Val RowID, DependenciesTable, MeaningOfUse)
 	
 	CurrentObjectName = MetadataObjects.FindByID(RowID).FullName;
 	
 	ObjectsTree = FormAttributeToValue("MetadataObjects");
 	
-	FillRequiredObjectDependenciesByRow(Result, ObjectsTree, DependenciesTable, CurrentObjectName, UsageReferenceData);
+	Result = ObjectDependenciesByLine(
+		ObjectsTree, DependenciesTable, CurrentObjectName, MeaningOfUse);
 	
 	Return Result;
 	
 EndFunction
 
 &AtServer
-Procedure FillRequiredObjectDependenciesByRow(Result, ObjectsTree, DependenciesTable, CurrentObjectName, UsageReferenceData)
+Function ObjectDependenciesByLine(ObjectsTree, DependenciesTable, NameOfInitialObject, MeaningOfUse)
 	
-	FilterParameters = New Structure();
-	FilterParameters.Insert("ObjectName", CurrentObjectName);
+	Result = New Array;
 	
-	DependenciesStrings = DependenciesTable.FindRows(FilterParameters);
+	ProcessingQueue = New Array;
+	ProcessingQueue.Add(NameOfInitialObject);
 	
-	For Each DependencyString In DependenciesStrings Do
+	IndexOf = 0;
+	While IndexOf < ProcessingQueue.Count() Do
 		
-		DependentObjectInTree = ObjectsTree.Rows.Find(DependencyString.DependentObjectName, "FullName", True);
+		CurrentName = ProcessingQueue[IndexOf];
+		IndexOf = IndexOf + 1;
 		
-		If DependentObjectInTree.Use <> UsageReferenceData And Result.Find(DependencyString.DependentObjectName) = Undefined Then
+		// Searching for lines where the current object is the parent.
+		FilterParameters = New Structure("ObjectName", CurrentName);
+		DependenciesStrings = DependenciesTable.FindRows(FilterParameters);
+		
+		For Each String In DependenciesStrings Do
 			
-			Result.Add(DependencyString.DependentObjectName);
-			FillRequiredObjectDependenciesByRow(Result, ObjectsTree, DependenciesTable, 
-				DependencyString.DependentObjectName, UsageReferenceData);
+			NameOfDependent = String.DependentObjectName;
 			
-		EndIf;
+			If Result.Find(NameOfDependent) <> Undefined Then
+				Continue;
+			EndIf;
+			
+			DependentInTree = ObjectsTree.Rows.Find(NameOfDependent, "FullName", True);
+			
+			If DependentInTree <> Undefined
+				And DependentInTree.Use <> MeaningOfUse Then
+				
+				Result.Add(NameOfDependent);
+				
+				ProcessingQueue.Add(NameOfDependent);
+				
+			EndIf;
+			
+		EndDo;
 		
 	EndDo;
 	
-EndProcedure
+	Return Result;
+	
+EndFunction
 
 &AtServer
 Procedure SetDependenciesUsage(Val Dependencies, Val Use)

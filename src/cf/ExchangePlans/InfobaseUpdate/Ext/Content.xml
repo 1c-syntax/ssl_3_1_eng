@@ -13,6 +13,10 @@
 		<AutoRecord>Deny</AutoRecord>
 	</Item>
 	<Item>
+		<Metadata>InformationRegister.BinaryDataStorageLocations</Metadata>
+		<AutoRecord>Deny</AutoRecord>
+	</Item>
+	<Item>
 		<Metadata>Catalog.QuestionnaireTemplates</Metadata>
 		<AutoRecord>Deny</AutoRecord>
 	</Item>
@@ -298,6 +302,14 @@
 	</Item>
 	<Item>
 		<Metadata>InformationRegister.FileSynchronizationSettings</Metadata>
+		<AutoRecord>Deny</AutoRecord>
+	</Item>
+	<Item>
+		<Metadata>InformationRegister.BackupHistoryOfBuiltInBinaryDataStorage</Metadata>
+		<AutoRecord>Deny</AutoRecord>
+	</Item>
+	<Item>
+		<Metadata>InformationRegister.FileArchiveWorkSettings</Metadata>
 		<AutoRecord>Deny</AutoRecord>
 	</Item>
 	<Item>
@@ -1041,6 +1053,10 @@
 		<AutoRecord>Deny</AutoRecord>
 	</Item>
 	<Item>
+		<Metadata>Catalog.GeneralSettingsForAuthorizationOfInternetServices</Metadata>
+		<AutoRecord>Deny</AutoRecord>
+	</Item>
+	<Item>
 		<Metadata>InformationRegister.LastEmailImportDate</Metadata>
 		<AutoRecord>Deny</AutoRecord>
 	</Item>
@@ -1366,6 +1382,10 @@
 	</Item>
 	<Item>
 		<Metadata>InformationRegister.InteractionsContacts</Metadata>
+		<AutoRecord>Deny</AutoRecord>
+	</Item>
+	<Item>
+		<Metadata>InformationRegister.InformationAboutStoringDeduplicatedFiles</Metadata>
 		<AutoRecord>Deny</AutoRecord>
 	</Item>
 	<Item>

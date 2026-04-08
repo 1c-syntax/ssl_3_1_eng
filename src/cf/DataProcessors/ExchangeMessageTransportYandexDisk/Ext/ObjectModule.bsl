@@ -1,18 +1,19 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, ООО 1С-Софт
-// Все права защищены. Эта программа и сопроводительные материалы предоставляются 
-// в соответствии с условиями лицензии Attribution 4.0 International (CC BY 4.0)
-// Текст лицензии доступен по ссылке:
+// Copyright (c) 2025, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Variables
 
-Var ExchangeMessage Export; // При получении - имя полученного файла во ВременныйКаталог. При отправке - имя файла, который необходимо отправить
-Var TempDirectory Export; // Временный каталог для сообщений обмена.
+Var ExchangeMessage Export; // For import, it is the name of the file stored in "TempDirectory". For export, the name of the file to be sent out
+Var TempDirectory Export; // A temporary exchange directory.
 Var DirectoryID Export;
 Var Peer Export;
 Var ExchangePlanName Export;
@@ -189,9 +190,9 @@ Function GetMessage(MessageNameTemplate)
 	
 	If FileSearchResult.Count() = 0 Then
 		
-		ErrorMessage = NStr("en = 'В каталоге обмена информацией не был обнаружен файл сообщения с данными.
-                                  |Каталог обмена информацией на сервере: ""%1""
-                                  |Имя файла сообщения обмена: ""%2""'");
+		ErrorMessage = NStr("en = 'An information exchange directory is missing a message file.
+                                  |Server directory: %1
+                                  |File: %2'");
 		
 		ErrorMessage = StrTemplate(ErrorMessage, CloudDirectory, MessageNameTemplate);
 		ExchangeMessagesTransport.WriteMessageToRegistrationLog(ThisObject, "DataImport");
@@ -202,7 +203,7 @@ Function GetMessage(MessageNameTemplate)
 	
 	PathToFile = FileSearchResult[0].Path;
 	
-	// Получение ссылки на скачивание файла
+	// Get a download link
 	Headers = New Map();
 	Headers.Insert("Authorization","OAuth " + AccessToken);
 	
@@ -262,7 +263,7 @@ Function GetMessage(MessageNameTemplate)
 	
 	If FilePacked Then
 			
-		// Получаем имя для временного файла архива.
+		// Getting the temporary archive file name.
 		ArchiveTempFileName = CommonClientServer.GetFullFileName(
 			TempDirectory, String(New UUID) + ".zip");
 		
@@ -334,7 +335,7 @@ Function SendMessage()
 	
 	QueryResult = ExchangeMessagesTransport.JSONValue(Body);
 	
-	Ref = QueryResult.Get("href"); //Ссылка
+	Ref = QueryResult.Get("href"); //Link
 	LinkInParts = CommonClientServer.URIStructure(Ref);
 	
 	HTTPConnection = HTTPConnection(LinkInParts.ServerName, TimeoutSendingReceiving);
@@ -419,5 +420,5 @@ TimeoutSendingReceiving = 43200;
 #EndRegion
 
 #Else
-Raise NStr("en = 'Недопустимый вызов объекта на клиенте.'");
+Raise NStr("en = 'Invalid object call on the client.'");
 #EndIf

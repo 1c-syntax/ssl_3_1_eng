@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -372,7 +371,7 @@ Function DetermineOutputGroup(SubsystemPresentation)
 	
 	NumberOfGroup = SubsystemsGroups.Count() + 1;
 	DecorationName = "IndentSubsystems" + NumberOfGroup;
-	GroupName = "SubsystemsGroup1_" + NumberOfGroup;
+	GroupName_SSLyf = "SubsystemsGroup1_" + NumberOfGroup;
 	
 	If OtherReportsAvailable Then
 		Decoration = Items.Add(DecorationName, Type("FormDecoration"), Items.OtherReportsPage);
@@ -380,7 +379,7 @@ Function DetermineOutputGroup(SubsystemPresentation)
 		Decoration.Title = " ";
 	EndIf;
 	
-	Var_Group = Items.Add(GroupName, Type("FormGroup"), Items.OtherReportsPage);
+	Var_Group = Items.Add(GroupName_SSLyf, Type("FormGroup"), Items.OtherReportsPage);
 	Var_Group.Type = FormGroupType.UsualGroup;
 	Var_Group.Group = ChildFormItemsGroup.Vertical;
 	Var_Group.Title = SubsystemPresentation;
@@ -388,7 +387,7 @@ Function DetermineOutputGroup(SubsystemPresentation)
 	Var_Group.Representation = UsualGroupRepresentation.NormalSeparation;
 	Var_Group.HorizontalStretch = True;
 	
-	SubsystemsGroups.Add(SubsystemPresentation, GroupName);
+	SubsystemsGroups.Add(SubsystemPresentation, GroupName_SSLyf);
 	
 	Return Var_Group;
 EndFunction

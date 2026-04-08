@@ -82,7 +82,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Change the application name, configure object versioning, additional attributes, and other general settings</v8:content>
+							<v8:content>Change the application title, configure object versioning, additional attributes, and other general settings</v8:content>
 						</v8:item>
 					</ToolTip>
 					<Picture/>

@@ -119,7 +119,7 @@
 				<xr:Item xsi:type="xr:MDObjectRef">Constant.FirstAccessUpdateCompleted</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">EventSubscription.UpdateAccessValuesGroupsOnWrite</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">Report.AccessRightsAnalysis</xr:Item>
-				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.AccessLevelCreate</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.AccessLevelCreating</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.AccessLevelEdit</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.AccessLevelView</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">StyleItem.ViewRightBackground</xr:Item>

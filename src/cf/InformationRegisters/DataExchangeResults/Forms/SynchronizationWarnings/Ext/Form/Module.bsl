@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -45,12 +44,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	FieldArray.Add("ObjectWithIssue");
 	FieldArray.Add("LongDesc");
 	
-	For Each FieldToModify In FieldArray Do
-		Field = List.Fields.Add(Type("DataCompositionSchemaDataSetField"));
-		Field.Field = FieldToModify;
-		Field.UseRestriction.Order = True;
-		Field.AttributeUseRestriction.Order = True;	
-	EndDo;	
+	List.SetRestrictionsForUseInOrder(FieldArray);
 	
 	List.Parameters.SetParameterValue("UnpostedDocument", NStr("en = 'Unposted document'", Common.DefaultLanguageCode()));
 	List.Parameters.SetParameterValue("EmptyAttributes", NStr("en = 'Empty attributes'", Common.DefaultLanguageCode()));
@@ -138,9 +132,9 @@ Procedure SynchronizationsFilterPresentationStartChoice(Item, ChoiceData, Standa
 	OpeningParameters.Insert("ArrayOfExchangePlanNodes", ValuesCache.ArrayOfExchangePlanNodes);
 	OpeningParameters.Insert("SelectionOfExchangePlanNodes", ValuesCache.SelectionOfExchangePlanNodes);
 	
-	NotifyDescription = New CallbackDescription("AfterSelectingTheExchangeNodes", ThisObject);
+	CallbackDescription = New CallbackDescription("AfterSelectingTheExchangeNodes", ThisObject);
 	
-	OpenForm("InformationRegister.DataExchangeResults.Form.SynchronizationsFilter", OpeningParameters, ThisObject, , , , NotifyDescription);
+	OpenForm("InformationRegister.DataExchangeResults.Form.SynchronizationsFilter", OpeningParameters, ThisObject, , , , CallbackDescription);
 	
 EndProcedure
 
@@ -174,9 +168,9 @@ Procedure WarningsTypesFilterPresentationStartChoice(Item, ChoiceData, StandardP
 	OpeningParameters = New Structure;
 	OpeningParameters.Insert("SelectingTypesOfWarnings", ValuesCache.SelectingTypesOfWarnings);
 	
-	NotifyDescription = New CallbackDescription("AfterSelectionByTypeOfWarnings", ThisObject);
+	CallbackDescription = New CallbackDescription("AfterSelectionByTypeOfWarnings", ThisObject);
 	
-	OpenForm("InformationRegister.DataExchangeResults.Form.WarningsFilterByTypes", OpeningParameters, ThisObject, , , , NotifyDescription);
+	OpenForm("InformationRegister.DataExchangeResults.Form.WarningsFilterByTypes", OpeningParameters, ThisObject, , , , CallbackDescription);
 	
 EndProcedure
 
@@ -379,9 +373,9 @@ Procedure ObsoleteRecordsDeletion(Command)
 	OpeningParameters.Insert("SelectingTypesOfWarnings", ValuesCache.SelectingTypesOfWarnings); 
 	OpeningParameters.Insert("OnlyHiddenRecords", True);
 	
-	NotifyDescription = New CallbackDescription("AfterDeletingOutdatedRecords", ThisObject);
+	CallbackDescription = New CallbackDescription("AfterDeletingOutdatedRecords", ThisObject);
 	
-	DataExchangeClient.OpenFormForDeletingSyncAlerts(OpeningParameters, NotifyDescription);
+	DataExchangeClient.OpenFormForDeletingSyncAlerts(OpeningParameters, CallbackDescription);
 	
 EndProcedure
 
@@ -464,8 +458,8 @@ Procedure OpenTheObjectOfTheCurrentLine(CurrentRowData)
 		
 	EndIf;
 	
-	NotifyDescription = New CallbackDescription("AfterOpeningTheObject", ThisObject);
-	ShowValue(NotifyDescription, CurrentRowData.ObjectWithIssue);
+	CallbackDescription = New CallbackDescription("AfterOpeningTheObject", ThisObject);
+	ShowValue(CallbackDescription, CurrentRowData.ObjectWithIssue);
 	
 EndProcedure
 
@@ -550,38 +544,38 @@ Procedure OpenTheProblemCard(OpeningParameters)
 	OpeningParameters.Property("ObjectWithIssue", ObjectWithIssue);
 	OpeningParameters.Property("WarningType", WarningType);
 	
-	NotifyDescription = New CallbackDescription("AfterClosingTheWarningCard", ThisObject);
+	CallbackDescription = New CallbackDescription("AfterClosingTheWarningCard", ThisObject);
 	
 	If WarningType = PredefinedValue("Enum.DataExchangeIssuesTypes.ApplicationAdministrativeError") Then
 		
-		OpenForm("InformationRegister.DataExchangeResults.Form.ApplicationAdministrationWarning", OpeningParameters, ThisObject, , , , NotifyDescription);
+		OpenForm("InformationRegister.DataExchangeResults.Form.ApplicationAdministrationWarning", OpeningParameters, ThisObject, , , , CallbackDescription);
 		
 	ElsIf WarningType = PredefinedValue("Enum.DataExchangeIssuesTypes.BlankAttributes") Then
 		
-		OpenForm("InformationRegister.DataExchangeResults.Form.BlankAttributeWarning", OpeningParameters, ThisObject, , , , NotifyDescription);
+		OpenForm("InformationRegister.DataExchangeResults.Form.BlankAttributeWarning", OpeningParameters, ThisObject, , , , CallbackDescription);
 		
 	ElsIf WarningType = PredefinedValue("Enum.DataExchangeIssuesTypes.UnpostedDocument") Then
 		
-		OpenForm("InformationRegister.DataExchangeResults.Form.UnpostedDocumentWarning", OpeningParameters, ThisObject, , , , NotifyDescription);
+		OpenForm("InformationRegister.DataExchangeResults.Form.UnpostedDocumentWarning", OpeningParameters, ThisObject, , , , CallbackDescription);
 		
 	ElsIf WarningType = PredefinedValue("Enum.DataExchangeIssuesTypes.HandlersCodeExecutionErrorOnSendData")
 		Or WarningType = PredefinedValue("Enum.DataExchangeIssuesTypes.HandlersCodeExecutionErrorOnGetData") Then
 		
-		OpenForm("InformationRegister.DataExchangeResults.Form.ReceiptSendingHandlersWarnings", OpeningParameters, ThisObject, , , , NotifyDescription);
+		OpenForm("InformationRegister.DataExchangeResults.Form.ReceiptSendingHandlersWarnings", OpeningParameters, ThisObject, , , , CallbackDescription);
 		
 	ElsIf WarningType = PredefinedValue("Enum.DataExchangeIssuesTypes.ConvertedObjectValidationError") Then
 		
-		OpenForm("InformationRegister.DataExchangeResults.Form.ObjectConversionWarningOnSend", OpeningParameters, ThisObject, , , , NotifyDescription);
+		OpenForm("InformationRegister.DataExchangeResults.Form.ObjectConversionWarningOnSend", OpeningParameters, ThisObject, , , , CallbackDescription);
 		
 	ElsIf WarningType = ValuesCache.RejectedDueToPeriodEndClosingDateObjectExistsInInfobase
 		Or WarningType = ValuesCache.RejectedDueToPeriodEndClosingDateObjectDoesNotExistInInfobase Then
 		
-		OpenForm("InformationRegister.DataExchangeResults.Form.WarningByImportRestrictionDate", OpeningParameters, ThisObject, , , , NotifyDescription);
+		OpenForm("InformationRegister.DataExchangeResults.Form.WarningByImportRestrictionDate", OpeningParameters, ThisObject, , , , CallbackDescription);
 		
 	ElsIf WarningType = ValuesCache.RejectedConflictData
 		Or WarningType = ValuesCache.ConflictDataAccepted Then
 		
-		OpenForm("InformationRegister.DataExchangeResults.Form.ConflictWarning", OpeningParameters, ThisObject, , , , NotifyDescription);
+		OpenForm("InformationRegister.DataExchangeResults.Form.ConflictWarning", OpeningParameters, ThisObject, , , , CallbackDescription);
 		
 	EndIf;
 	
@@ -976,9 +970,9 @@ Procedure NavigateDocumentsThroughTheSelectedLines(SelectedRows)
 	OpeningParameters = New Structure;
 	OpeningParameters.Insert("DataForSelectedRows", DataForSelectedRows);
 	
-	NotifyDescription = New CallbackDescription("AfterGroupProcessingOfWarnings", ThisObject);
+	CallbackDescription = New CallbackDescription("AfterGroupProcessingOfWarnings", ThisObject);
 	
-	OpenForm("InformationRegister.DataExchangeResults.Form.PostingWarningsProcessing", OpeningParameters, ThisObject, , , , NotifyDescription);
+	OpenForm("InformationRegister.DataExchangeResults.Form.PostingWarningsProcessing", OpeningParameters, ThisObject, , , , CallbackDescription);
 	
 EndProcedure
 
@@ -1022,9 +1016,9 @@ Procedure CollisionsOnSelectedLines(SelectedRows)
 	OpeningParameters = New Structure;
 	OpeningParameters.Insert("DataForSelectedRows", DataForSelectedRows);
 	
-	NotifyDescription = New CallbackDescription("AfterGroupProcessingOfWarnings", ThisObject);
+	CallbackDescription = New CallbackDescription("AfterGroupProcessingOfWarnings", ThisObject);
 	
-	OpenForm("InformationRegister.DataExchangeResults.Form.ConflictWarningsProcessing", OpeningParameters, ThisObject, , , , NotifyDescription);
+	OpenForm("InformationRegister.DataExchangeResults.Form.ConflictWarningsProcessing", OpeningParameters, ThisObject, , , , CallbackDescription);
 	
 EndProcedure
 
@@ -1069,9 +1063,9 @@ Procedure ForbiddingLoadingBySelectedLines(SelectedRows)
 	OpeningParameters = New Structure;
 	OpeningParameters.Insert("DataForSelectedRows", DataForSelectedRows);
 	
-	NotifyDescription = New CallbackDescription("AfterGroupProcessingOfWarnings", ThisObject);
+	CallbackDescription = New CallbackDescription("AfterGroupProcessingOfWarnings", ThisObject);
 	
-	OpenForm("InformationRegister.DataExchangeResults.Form.WarningsProcessingByImportRestrictionDate", OpeningParameters, ThisObject, , , , NotifyDescription);
+	OpenForm("InformationRegister.DataExchangeResults.Form.WarningsProcessingByImportRestrictionDate", OpeningParameters, ThisObject, , , , CallbackDescription);
 	
 EndProcedure
 
@@ -1119,10 +1113,10 @@ Procedure ChangeTheDetailsOfTheGroupProcessing(DataForSelectedRows)
 	BulkEditParameters = New Structure;
 	BulkEditParameters.Insert("ObjectsArray", DataForSelectedRows);
 	
-	NotifyDescription = New CallbackDescription("AfterGroupProcessingOfWarnings", ThisObject);
+	CallbackDescription = New CallbackDescription("AfterGroupProcessingOfWarnings", ThisObject);
 	
 	ModuleBatchObjectsModificationClient = CommonClient.CommonModule("BatchEditObjectsClient");
-	ModuleBatchObjectsModificationClient.StartChangingTheSelectedOnesWithAnAlert(BulkEditParameters, NotifyDescription)
+	ModuleBatchObjectsModificationClient.StartChangingTheSelectedOnesWithAnAlert(BulkEditParameters, CallbackDescription)
 	
 EndProcedure
 

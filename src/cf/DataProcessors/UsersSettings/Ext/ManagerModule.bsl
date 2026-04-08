@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -381,7 +380,7 @@ Procedure DeleteUserSettings(SettingsToClear, Sources,
 				// Get user settings.
 				UserInfo = New Structure;
 				UserInfo.Insert("UserRef", Source);
-				UserInfo.Insert("InfobaseUserName", IBUserName(Source));
+				UserInfo.Insert("InfoBaseUserName", IBUserName(Source));
 				OtherUserSettings = New Structure;
 				UsersInternal.OnGetOtherUserSettings(UserInfo, OtherUserSettings);
 				Keys = New ValueList;
@@ -488,7 +487,7 @@ Procedure DeleteOutdatedUserSettings(Sources = Undefined) Export
 			NamesOfIBUsers.Insert(Upper(IBUser.Name), True);
 		EndDo;
 		Selection = Storage.Select();
-		While NextSettingsItem(Selection, "IfAnErrorOccursDelete", Storage) Do
+		While Selection.Next() Do
 			If NamesOfIBUsers.Get(Upper(Selection.User)) = Undefined Then
 				Storage.Delete(Selection.ObjectKey, Selection.SettingsKey, Selection.User);
 				Continue;
@@ -500,7 +499,7 @@ Procedure DeleteOutdatedUserSettings(Sources = Undefined) Export
 			IBUserName = IBUserName(Source);
 			Filter = New Structure("User", IBUserName);
 			Selection = Storage.Select(Filter);
-			While NextSettingsItem(Selection, "IfAnErrorOccursDelete", Storage) Do
+			While Selection.Next() Do
 				DeleteAnOutdatedSetting(Selection, Storage, Context);
 			EndDo;
 		EndDo;
@@ -620,7 +619,7 @@ Function CopyUsersSettings(UserSourceRef, UsersDestination, SettingsToCopy,
 	// Get user settings.
 	UserInfo = New Structure;
 	UserInfo.Insert("UserRef", UserSourceRef);
-	UserInfo.Insert("InfobaseUserName", SourceUser);
+	UserInfo.Insert("InfoBaseUserName", SourceUser);
 	OtherUserSettings = New Structure;
 	UsersInternal.OnGetOtherUserSettings(UserInfo, OtherUserSettings);
 	Keys = New ValueList;
@@ -653,7 +652,7 @@ Function CopyUsersSettings(UserSourceRef, UsersDestination, SettingsToCopy,
 			For Each DestinationUser In UsersDestination Do
 				UserInfo = New Structure;
 				UserInfo.Insert("UserRef", DestinationUser);
-				UserInfo.Insert("InfobaseUserName", IBUserName(DestinationUser));
+				UserInfo.Insert("InfoBaseUserName", IBUserName(DestinationUser));
 				For Each ArrayElement In OtherSettingsArray Do
 					UsersInternal.OnSaveOtherUserSettings(UserInfo, ArrayElement);
 				EndDo;
@@ -736,7 +735,7 @@ Function SettingsList(UserName, SettingsManager,
 	
 	SettingsSelection = SettingsManager.Select(Filter);
 	
-	While NextSettingsItem(SettingsSelection) Do
+	While SettingsSelection.Next() Do
 		
 		If Not GetFavorites
 			And StrFind(SettingsSelection.ObjectKey, "UserWorkFavorites") <> 0 Then
@@ -787,34 +786,6 @@ Function SettingsList(UserName, SettingsManager,
 	EndDo;
 	
 	Return SettingsTable;
-	
-EndFunction
-
-Function NextSettingsItem(Selection, Var_ErrorProcessing = "IfAnErrorOccursSkip", Storage = Undefined)
-	
-	HasError = False;
-	Try
-		HasNextObject = Selection.Next();
-	Except
-		HasError = True;
-	EndTry;
-	
-	If HasError Then
-		Return HasNextObject;
-	EndIf;
-	
-	If Not HasNextObject Or Not HasError Then
-		Return HasNextObject;
-	EndIf;
-	
-	If Var_ErrorProcessing = "IfAnErrorOccursSkip" Then
-		Return NextSettingsItem(Selection, Var_ErrorProcessing, Storage);
-	ElsIf Var_ErrorProcessing = "IfAnErrorOccursDelete" Then
-		Storage.Delete(Selection.ObjectKey, Selection.SettingsKey, Selection.User);
-		Return NextSettingsItem(Selection, Var_ErrorProcessing, Storage);
-	EndIf;
-	
-	Return HasNextObject;
 	
 EndFunction
 
@@ -1091,7 +1062,7 @@ Procedure DeleteSettingsForSelectedUsers(Users, SettingsForDeletionArray, Storag
 		InfoBaseUser = IBUserName(User);
 		
 		UserInfo = New Structure;
-		UserInfo.Insert("InfobaseUserName", InfoBaseUser);
+		UserInfo.Insert("InfoBaseUserName", InfoBaseUser);
 		UserInfo.Insert("UserRef", User);
 		DeleteSelectedSettings(UserInfo, SettingsForDeletionArray, StorageDescription);
 	EndDo;
@@ -1100,7 +1071,7 @@ EndProcedure
 
 Procedure DeleteSelectedSettings(UserInfo, SettingsForDeletionArray, StorageName) Export
 	
-	IBUser     = UserInfo.InfobaseUserName;
+	IBUser     = UserInfo.InfoBaseUserName;
 	UserRef = UserInfo.UserRef;
 	
 	SettingsManager = SettingsStorageByName(StorageName);
@@ -1871,7 +1842,7 @@ Function ReadSettingsFromStorage(SettingsManager, User)
 	Filter.Insert("User", User);
 	
 	SettingsSelection = SettingsManager.Select(Filter);
-	While NextSettingsItem(SettingsSelection) Do
+	While SettingsSelection.Next() Do
 		
 		NewRow = Settings.Add();
 		NewRow.ObjectKey = SettingsSelection.ObjectKey;
@@ -2354,7 +2325,7 @@ Procedure FillOtherSettingsList(Parameters)
 	OtherSettings = New Structure;
 	UserInfo = New Structure;
 	UserInfo.Insert("UserRef", Parameters.UserRef);
-	UserInfo.Insert("InfobaseUserName", Parameters.InfoBaseUser);
+	UserInfo.Insert("InfoBaseUserName", Parameters.InfoBaseUser);
 	
 	UsersInternal.OnGetOtherUserSettings(UserInfo, OtherSettings);
 	Keys = New ValueList;

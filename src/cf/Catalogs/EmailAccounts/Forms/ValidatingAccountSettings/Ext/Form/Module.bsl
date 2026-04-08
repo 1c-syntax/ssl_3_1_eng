@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -14,41 +13,45 @@
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	ErrorsMessages = Parameters.ErrorText;
+	Account = Parameters.Account;
 	
 	If ValueIsFilled(ErrorsMessages) Then
 		Title = Parameters.Title;
 		AutoTitle = False;
+		Items.Pages.CurrentPage = Items.ErrorsFoundOnCheck;
 		FillinExplanations();
+		FillInInformationForSupport();
 		SetKeyToSaveWindowPosition();
 	Else
+		Items.Pages.CurrentPage = Items.SettingsCheckInProgress;
 		Items.FormClose.Title = NStr("en = 'Cancel'");
 		Items.FormGoToSettings.Visible = False;
+		Items.AssistanceRequiredGroup.Visible = False;
 	EndIf;
 	
-	Items.Pages.CurrentPage = Items.SettingsCheckInProgress;
-	
 	Items.FormBack.Visible = False;
-	Items.AssistanceRequiredGroup.Visible = False;
 	
-	// 
-	If Common.SubsystemExists("StandardSubsystems.ContactingTechnicalSupport") Then
+	// StandardSubsystems.SupportRequests
+	If Common.SubsystemExists("StandardSubsystems.SupportRequests") Then
 		
-		ModuleForContactingTechnicalSupportService = Common.CommonModule(
-			"ContactingTechnicalSupportInternal");
+		ModuleSupportRequestsInternal = Common.CommonModule(
+			"SupportRequestsInternal");
 		
-		ModuleForContactingTechnicalSupportService.OnCreateAtServer(ThisObject);
+		ModuleSupportRequestsInternal.OnCreateAtServer(ThisObject);
 		
 	Else
 		Items.AssistanceRequiredGroup.Visible = False;
 	EndIf;
-	// End StandardSubsystems.ContactingTechnicalSupport
+	// End StandardSubsystems.SupportRequests
 	
 EndProcedure
 
 &AtClient
 Procedure OnOpen(Cancel)
 	
-	AttachIdleHandler("ExecuteSettingsCheck", 0.1, True);
+	If Not ValueIsFilled(ErrorsMessages) Then
+		AttachIdleHandler("ExecuteSettingsCheck", 0.1, True);
+	EndIf;
 	
 EndProcedure
 
@@ -57,7 +60,7 @@ EndProcedure
 #Region FormHeaderItemsEventHandlers
 
 &AtClient
-Procedure RecommendationsPossibleReasonsForProcessingNavigationLink(Item, Var_URL, StandardProcessing)
+Procedure RecommendationsPossibleReasonsURLProcessing(Item, Var_URL, StandardProcessing)
 	
 	If CommonClientServer.URIStructure(Var_URL).Schema = "" Then
 		StandardProcessing = False;
@@ -95,53 +98,53 @@ Procedure Back(Command)
 EndProcedure
 
 &AtClient
-Procedure QuestionInSupport(Command)
+Procedure SupportTicket(Command)
 	
-	// 
-	If CommonClient.SubsystemExists("StandardSubsystems.ContactingTechnicalSupport") Then
+	// StandardSubsystems.SupportRequests
+	If CommonClient.SubsystemExists("StandardSubsystems.SupportRequests") Then
 		
-		ModuleForContactingTechnicalSupportServiceClient = CommonClient.CommonModule(
-			"ContactingTechnicalSupportInternalClient");
+		ModuleSupportRequestsInternalClient = CommonClient.CommonModule(
+			"SupportRequestsInternalClient");
 		
-		RequestParameters_ = ModuleForContactingTechnicalSupportServiceClient.RequestParameters_();
+		RequestParameters_ = ModuleSupportRequestsInternalClient.RequestParameters_();
 		RequestParameters_.TechnologicalInfo = SupportInformation;
 		RequestParameters_.EventLogFilter.Insert("StartDate", ErrorRegistrationTime);
 		
-		RequestParameters_.Subject = EmailOperationsInternalClient.SubjectOfSupportRequest(
+		RequestParameters_.Subject = EmailOperationsInternalClient.SupportRequestTopic(
 			ErrorsMessages);
 		
-		RequestParameters_.Message = EmailOperationsInternalClient.TextOfSupportRequest(
+		RequestParameters_.Message = EmailOperationsInternalClient.SupportRequestText(
 			Parameters.Account,
 			ErrorsMessages);
 		
-		ModuleForContactingTechnicalSupportServiceClient.SendQuestionToSupport(
+		ModuleSupportRequestsInternalClient.SubmitSupportTicket(
 			ThisObject,
 			RequestParameters_);
 		
 	EndIf;
-	// End StandardSubsystems.ContactingTechnicalSupport
+	// End StandardSubsystems.SupportRequests
 	
 EndProcedure
 
 &AtClient
-Procedure InformationToSendToSupport(Command)
+Procedure InfoForSupport(Command)
 	
-	// 
-	If CommonClient.SubsystemExists("StandardSubsystems.ContactingTechnicalSupport") Then
+	// StandardSubsystems.SupportRequests
+	If CommonClient.SubsystemExists("StandardSubsystems.SupportRequests") Then
 		
-		ModuleForContactingTechnicalSupportServiceClient = CommonClient.CommonModule(
-			"ContactingTechnicalSupportInternalClient");
+		ModuleSupportRequestsInternalClient = CommonClient.CommonModule(
+			"SupportRequestsInternalClient");
 		
-		RequestParameters_ = ModuleForContactingTechnicalSupportServiceClient.RequestParameters_();
+		RequestParameters_ = ModuleSupportRequestsInternalClient.RequestParameters_();
 		RequestParameters_.TechnologicalInfo = SupportInformation;
 		RequestParameters_.EventLogFilter.Insert("StartDate", ErrorRegistrationTime);
 		
-		ModuleForContactingTechnicalSupportServiceClient.DownloadInformationToSendToSupport(
+		ModuleSupportRequestsInternalClient.DownloadInfoForSupport(
 			ThisObject,
 			RequestParameters_);
 		
 	EndIf;
-	// End StandardSubsystems.ContactingTechnicalSupport
+	// End StandardSubsystems.SupportRequests
 	
 EndProcedure
 
@@ -190,15 +193,13 @@ Procedure ProcessResult(Result, AdditionalParameters) Export
 	
 	If ValueIsFilled(SupportInformation) Then
 		
-		If Not ValueIsFilled(ErrorsMessages) Then
-			ErrorsMessages = StrConcat(CheckResult.ErrorsTexts, Chars.LF);
-			FillinExplanations();
-		EndIf;
+		ErrorsMessages = StrConcat(CheckResult.ErrorsTexts, Chars.LF);
+		FillinExplanations();
 		
 		Items.Pages.CurrentPage = Items.ErrorsFoundOnCheck;
 		
 		ErrorRegistrationTime = CommonClient.SessionDate();
-		ShowHelpNeededSection();
+		ShowNeedHelpSection();
 		
 	Else
 		Items.Pages.CurrentPage = Items.CheckCompletedSuccessfully;
@@ -207,25 +208,25 @@ Procedure ProcessResult(Result, AdditionalParameters) Export
 EndProcedure
 
 &AtServer
-Procedure ShowHelpNeededSection()
+Procedure ShowNeedHelpSection()
 	
-	// 
-	If Common.SubsystemExists("StandardSubsystems.ContactingTechnicalSupport") Then
+	// StandardSubsystems.SupportRequests
+	If Common.SubsystemExists("StandardSubsystems.SupportRequests") Then
 		
-		ModuleForContactingTechnicalSupportService = Common.CommonModule(
-			"ContactingTechnicalSupportInternal");
+		ModuleSupportRequestsInternal = Common.CommonModule(
+			"SupportRequestsInternal");
 		
-		ModuleForContactingTechnicalSupportService.ShowHelpNeededSection(Items);
+		ModuleSupportRequestsInternal.ShowNeedHelpSection(Items);
 		
 	EndIf;
-	// End StandardSubsystems.ContactingTechnicalSupport
+	// End StandardSubsystems.SupportRequests
 	
 EndProcedure
 
 &AtServer
 Procedure FillinExplanations()
 	
-	ExplanationOnError = EmailOperationsInternal.ExplanationOnError(ErrorsMessages);
+	ExplanationOnError = ExplanationOnError();
 	
 	PossibleReasons = EmailOperationsInternal.FormattedList(ExplanationOnError.PossibleReasons);
 	MethodsToFixError = EmailOperationsInternal.FormattedList(ExplanationOnError.MethodsToFixError);
@@ -234,6 +235,80 @@ Procedure FillinExplanations()
 	Items.DecorationPossibleReasons.Title = PossibleReasons;
 	
 EndProcedure
+
+&AtServer
+Function ExplanationOnError()
+	
+	UserAccountAttributes = Common.ObjectAttributesValues(Account, "IncomingMailServer, OutgoingMailServer");
+	IncomingMailServer = UserAccountAttributes.IncomingMailServer;
+	OutgoingMailServer = UserAccountAttributes.OutgoingMailServer;
+	
+	ExplanationParameters = EmailOperationsInternal.ExplanationParameters();
+	ExplanationParameters.ErrorText = ErrorsMessages;
+	ExplanationParameters.Context = EmailOperationsInternal.ContextForClarification().ManualSetting;
+	ExplanationParameters.ServerNames = EmailOperationsInternal.ServerNamesForClarification(IncomingMailServer, OutgoingMailServer);
+	
+	Return EmailOperationsInternal.ExplanationOnError(ExplanationParameters);
+	
+EndFunction
+
+&AtServer
+Procedure FillInInformationForSupport(DetailedErrorDetails = "")
+	
+	If ValueIsFilled(DetailedErrorDetails) Then
+		SupportInformation = DetailedErrorDetails;
+		Return;
+	EndIf;
+	
+	ErrorDescriptionTemplate = NStr("en = '%1
+		|
+		|Troubleshooting:
+		|%2
+		|
+		|Possible reasons:
+		|%3
+		|
+		|============================
+		|
+		|Information for technical support:
+		|
+		|%4'");
+	
+	DetailedErrorDetails = StringFunctionsClientServer.SubstituteParametersToString(
+		ErrorDescriptionTemplate,
+		ErrorsMessages,
+		MethodsToFixError,
+		PossibleReasons,
+		TechnicalDetailsForSupport(Parameters.Account));
+	
+	SupportInformation = DetailedErrorDetails;
+	
+EndProcedure
+
+&AtServerNoContext
+Function TechnicalDetailsForSupport(Account)
+	
+	Result = New Array;
+	
+	MailProfile = EmailOperationsInternal.InternetMailProfile(Account);
+	
+	If Common.SubsystemExists("StandardSubsystems.GetFilesFromInternet") Then
+		ModuleNetworkDownload = Common.CommonModule("GetFilesFromInternet");
+		ConnectionDiagnostics = ModuleNetworkDownload.ConnectionDiagnostics(MailProfile.SMTPServerAddress);
+		Result.Add(ConnectionDiagnostics.DiagnosticsLog);
+	EndIf;
+	
+	SettingsDescription = Catalogs.EmailAccounts.SettingsDescription(MailProfile, Undefined);
+	Result.Add(SettingsDescription);
+	
+	Result.Add("");
+	
+	ApplicationInfo = Catalogs.EmailAccounts.ApplicationInfo();
+	Result.Add(ApplicationInfo);
+	
+	Return StrConcat(Result, Chars.LF);
+	
+EndFunction
 
 &AtServer
 Procedure SetKeyToSaveWindowPosition()

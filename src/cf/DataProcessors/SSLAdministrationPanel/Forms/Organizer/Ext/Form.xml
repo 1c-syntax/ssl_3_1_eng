@@ -330,72 +330,175 @@
 							<v8:content>Group</v8:content>
 						</v8:item>
 					</Title>
+					<Group>Vertical</Group>
 					<Behavior>Usual</Behavior>
 					<Representation>NormalSeparation</Representation>
 					<ChildItemsWidth>Equal</ChildItemsWidth>
 					<ShowTitle>false</ShowTitle>
 					<ExtendedTooltip name="Group6ExtendedTooltip" id="1657"/>
 					<ChildItems>
-						<UsualGroup name="OpenSystemEmailAccountSettingsGroup" id="1303">
+						<UsualGroup name="GroupAccountSettings" id="1812">
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Open system email account settings</v8:content>
+									<v8:content>Account settings</v8:content>
 								</v8:item>
 							</Title>
-							<Width>43</Width>
-							<HorizontalStretch>false</HorizontalStretch>
-							<Group>Vertical</Group>
-							<Behavior>Usual</Behavior>
+							<Group>AlwaysHorizontal</Group>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="OpenSystemEmailAccountSettingsGroupExtendedTooltip" id="1658"/>
+							<ExtendedTooltip name="GroupAccountSettingsExtendedTooltip" id="1813"/>
 							<ChildItems>
-								<Button name="OpenSystemEmailAccountSettings" id="1302">
-									<Type>Hyperlink</Type>
-									<CommandName>CommonCommand.SystemEmailAccountSetup</CommandName>
-									<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
-									<ExtendedTooltip name="OpenSystemEmailAccountSettingsExtendedTooltip" id="1659">
-										<AutoMaxWidth>false</AutoMaxWidth>
-										<Title formatted="false">
-											<v8:item>
-												<v8:lang>en</v8:lang>
-												<v8:content>Set up an account to send out service notifications.</v8:content>
-											</v8:item>
-										</Title>
-									</ExtendedTooltip>
-								</Button>
+								<UsualGroup name="OpenSystemEmailAccountSettingsGroup" id="1303">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Open system email account settings</v8:content>
+										</v8:item>
+									</Title>
+									<Width>43</Width>
+									<HorizontalStretch>false</HorizontalStretch>
+									<Group>Vertical</Group>
+									<Behavior>Usual</Behavior>
+									<Representation>None</Representation>
+									<ShowTitle>false</ShowTitle>
+									<ExtendedTooltip name="OpenSystemEmailAccountSettingsGroupExtendedTooltip" id="1658"/>
+									<ChildItems>
+										<Button name="OpenSystemEmailAccountSettings" id="1302">
+											<Type>Hyperlink</Type>
+											<CommandName>CommonCommand.SystemEmailAccountSetup</CommandName>
+											<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
+											<ExtendedTooltip name="OpenSystemEmailAccountSettingsExtendedTooltip" id="1659">
+												<AutoMaxWidth>false</AutoMaxWidth>
+												<Title formatted="false">
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Set up an account to send out service notifications.</v8:content>
+													</v8:item>
+												</Title>
+											</ExtendedTooltip>
+										</Button>
+									</ChildItems>
+								</UsualGroup>
+								<UsualGroup name="OpenEmailAccountsGroup" id="1307">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Email account list</v8:content>
+										</v8:item>
+									</Title>
+									<Width>43</Width>
+									<HorizontalStretch>false</HorizontalStretch>
+									<Group>Vertical</Group>
+									<Behavior>Usual</Behavior>
+									<Representation>None</Representation>
+									<ShowTitle>false</ShowTitle>
+									<ExtendedTooltip name="OpenEmailAccountsGroupExtendedTooltip" id="1661"/>
+									<ChildItems>
+										<Button name="OpenEmailAccounts" id="1306">
+											<Type>Hyperlink</Type>
+											<CommandName>Catalog.EmailAccounts.StandardCommand.OpenList</CommandName>
+											<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
+											<ExtendedTooltip name="OpenEmailAccountsExtendedTooltip" id="1662">
+												<AutoMaxWidth>false</AutoMaxWidth>
+												<Title formatted="false">
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Create and manage email accounts.</v8:content>
+													</v8:item>
+												</Title>
+											</ExtendedTooltip>
+										</Button>
+									</ChildItems>
+								</UsualGroup>
 							</ChildItems>
 						</UsualGroup>
-						<UsualGroup name="OpenEmailAccountsGroup" id="1307">
+						<UsualGroup name="ApplicationSettingsGroup_SSLyf" id="1814">
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Email account list</v8:content>
+									<v8:content>Application settings</v8:content>
 								</v8:item>
 							</Title>
-							<Width>43</Width>
-							<HorizontalStretch>false</HorizontalStretch>
-							<Group>Vertical</Group>
-							<Behavior>Usual</Behavior>
+							<Group>AlwaysHorizontal</Group>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="OpenEmailAccountsGroupExtendedTooltip" id="1661"/>
+							<ExtendedTooltip name="ApplicationSettingsGroup_SSLyfExtendedTooltip" id="1815"/>
 							<ChildItems>
-								<Button name="OpenEmailAccounts" id="1306">
-									<Type>Hyperlink</Type>
-									<CommandName>Catalog.EmailAccounts.StandardCommand.OpenList</CommandName>
-									<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
-									<ExtendedTooltip name="OpenEmailAccountsExtendedTooltip" id="1662">
-										<AutoMaxWidth>false</AutoMaxWidth>
-										<Title formatted="false">
-											<v8:item>
-												<v8:lang>en</v8:lang>
-												<v8:content>Create and manage email accounts.</v8:content>
-											</v8:item>
-										</Title>
-									</ExtendedTooltip>
-								</Button>
+								<UsualGroup name="GroupRegisterAppInAuthService" id="1816">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Register your application in the OAuth service</v8:content>
+										</v8:item>
+									</Title>
+									<Width>43</Width>
+									<HorizontalStretch>false</HorizontalStretch>
+									<Group>Vertical</Group>
+									<Behavior>Usual</Behavior>
+									<Representation>None</Representation>
+									<ShowTitle>false</ShowTitle>
+									<ExtendedTooltip name="GroupRegisterAppInAuthServiceExtendedTooltip" id="1817"/>
+									<ChildItems>
+										<Button name="RegisterAppInAuthService" id="1818">
+											<Type>Hyperlink</Type>
+											<CommandName>CommonCommand.RegisterAppInAuthService</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Register your application in the OAuth service</v8:content>
+												</v8:item>
+											</Title>
+											<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
+											<ExtendedTooltip name="RegisterAppInAuthServiceExtendedTooltip" id="1819">
+												<AutoMaxWidth>false</AutoMaxWidth>
+												<Title formatted="false">
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Application for authorization under the OAuth 2.0 protocol.</v8:content>
+													</v8:item>
+												</Title>
+											</ExtendedTooltip>
+										</Button>
+									</ChildItems>
+								</UsualGroup>
+								<UsualGroup name="InternetServicesAuthorizationSettingsGroup" id="1820">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Online service authorization settings</v8:content>
+										</v8:item>
+									</Title>
+									<Width>43</Width>
+									<HorizontalStretch>false</HorizontalStretch>
+									<Group>Vertical</Group>
+									<Behavior>Usual</Behavior>
+									<Representation>None</Representation>
+									<ShowTitle>false</ShowTitle>
+									<ExtendedTooltip name="InternetServicesAuthorizationSettingsGroupExtendedTooltip" id="1821"/>
+									<ChildItems>
+										<Button name="InternetServicesAuthorizationSettings" id="1822">
+											<Type>Hyperlink</Type>
+											<CommandName>Catalog.InternetServicesAuthorizationSettings.StandardCommand.OpenList</CommandName>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Online service authorization settings</v8:content>
+												</v8:item>
+											</Title>
+											<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
+											<ExtendedTooltip name="InternetServicesAuthorizationSettingsExtendedTooltip" id="1823">
+												<AutoMaxWidth>false</AutoMaxWidth>
+												<Title formatted="false">
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Configuring applications for using the OAuth 2.0 protocol.</v8:content>
+													</v8:item>
+												</Title>
+											</ExtendedTooltip>
+										</Button>
+									</ChildItems>
+								</UsualGroup>
 							</ChildItems>
 						</UsualGroup>
 					</ChildItems>

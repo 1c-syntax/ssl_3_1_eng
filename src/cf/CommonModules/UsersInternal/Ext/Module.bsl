@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Internal
@@ -795,6 +794,7 @@ EndProcedure
 //               - CatalogRef.ExternalUsers
 //
 //  ShouldNotifyServiceManager - Boolean
+//                           - Null - Batch update of user roles in the infobase.
 //
 Procedure WriteInfobaseUser(IBUser, IsExternalUser = False,
 			User = Undefined, Val ShouldNotifyServiceManager = True) Export
@@ -804,18 +804,19 @@ Procedure WriteInfobaseUser(IBUser, IsExternalUser = False,
 	
 	SSLSubsystemsIntegration.BeforeWriteIBUser(IBUser);
 	
-	ShouldNotifyServiceManager = ShouldNotifyServiceManager
-		And Common.DataSeparationEnabled()
-		And Common.SubsystemExists("StandardSubsystems.SaaSOperations.UsersSaaS");
-	
-	IsUsersCatalogsUpdate = IBUser.UUID
-		= SessionParameters.UsersCatalogsUpdate.Get("IBUserID");
+	IsUsersAndRolesCatalogsUpdate = IBUser.UUID
+		= SessionParameters.UsersCatalogsUpdate.Get("IBUserID")
+		Or ShouldNotifyServiceManager = Null;
 	
 	IsInternalUserRecord = IBUser.UUID
 		= SessionParameters.UsersCatalogsUpdate.Get("InternalIBUserID");
 	
+	ShouldNotifyServiceManager = ShouldNotifyServiceManager = True
+		And Common.DataSeparationEnabled()
+		And Common.SubsystemExists("StandardSubsystems.SaaSOperations.UsersSaaS");
+	
 	If ShouldNotifyServiceManager
-	   And Not IsUsersCatalogsUpdate
+	   And Not IsUsersAndRolesCatalogsUpdate
 	   And Not IsInternalUserRecord Then
 		
 		InfobaseOldUser = InfoBaseUsers.FindByUUID(
@@ -826,7 +827,7 @@ Procedure WriteInfobaseUser(IBUser, IsExternalUser = False,
 	InfobaseUpdateInternal.SetShowDetailsToNewUserFlag(IBUser.Name);
 	IBUser.Write();
 	
-	If Not IsUsersCatalogsUpdate Then
+	If Not IsUsersAndRolesCatalogsUpdate Then
 		
 		UpdatedInfobaseUser = InfoBaseUsers.FindByUUID(
 			IBUser.UUID);
@@ -1215,12 +1216,12 @@ Procedure CollapseSettingsForIdenticalTables(Settings) Export
 		If LongDesc.ForSearch = Undefined Then
 			DetailsForSearch = New Structure;
 			DetailsForSearch.Insert("AccessFields", New Map);
-			DetailsForSearch.Insert("RegistrationFields", New Map);
+			DetailsForSearch.Insert("LoggedFields", New Map);
 			For Each AccessField In LongDesc.Setting.AccessFields Do
 				DetailsForSearch.AccessFields.Insert(Upper(AccessField), True);
 			EndDo;
-			For Each RegistrationField In LongDesc.Setting.RegistrationFields Do
-				DetailsForSearch.RegistrationFields.Insert(Upper(RegistrationField), True);
+			For Each RegistrationField In LongDesc.Setting.LoggedFields Do
+				DetailsForSearch.LoggedFields.Insert(Upper(RegistrationField), True);
 			EndDo;
 			LongDesc.ForSearch = DetailsForSearch;
 		Else
@@ -1233,12 +1234,12 @@ Procedure CollapseSettingsForIdenticalTables(Settings) Export
 			DetailsForSearch.AccessFields.Insert(Upper(AccessField), True);
 			LongDesc.Setting.AccessFields.Add(AccessField);
 		EndDo;
-		For Each RegistrationField In Setting.RegistrationFields Do
-			If DetailsForSearch.RegistrationFields.Get(Upper(RegistrationField)) <> Undefined Then
+		For Each RegistrationField In Setting.LoggedFields Do
+			If DetailsForSearch.LoggedFields.Get(Upper(RegistrationField)) <> Undefined Then
 				Continue;
 			EndIf;
-			DetailsForSearch.RegistrationFields.Insert(Upper(RegistrationField), True);
-			LongDesc.Setting.RegistrationFields.Add(RegistrationField);
+			DetailsForSearch.LoggedFields.Insert(Upper(RegistrationField), True);
+			LongDesc.Setting.LoggedFields.Add(RegistrationField);
 		EndDo;
 	EndDo;
 	
@@ -1277,19 +1278,19 @@ Procedure DeleteNonExistentFieldsFromAccessAccessEventSetting(Settings, UnfoundF
 			EndIf;
 		EndDo;
 		
-		RegistrationFields = New Array;
-		For Each Field In Setting.RegistrationFields Do
-			AddFieldWithCheck(RegistrationFields,
+		LoggedFields = New Array;
+		For Each Field In Setting.LoggedFields Do
+			AddFieldWithCheck(LoggedFields,
 				Field, AvailableFields, UnfoundFields, AddedFields, Setting.Object);
 		EndDo;
 		
 		If ValueIsFilled(AccessFields)
-		 Or ValueIsFilled(RegistrationFields) Then
+		 Or ValueIsFilled(LoggedFields) Then
 			
 			NewSetting = New EventLogAccessEventUseDescription;
 			NewSetting.Object = Setting.Object;
 			NewSetting.AccessFields = AccessFields;
-			NewSetting.RegistrationFields = RegistrationFields;
+			NewSetting.LoggedFields = LoggedFields;
 			Result.Add(NewSetting);
 		EndIf;
 	EndDo;
@@ -1395,6 +1396,28 @@ Function TableFieldsConsideringAccessEventSettings(EventSetting) Export
 	EndIf;
 	
 	Return TableFields;
+	
+EndFunction
+
+
+// Returns:
+//  Boolean
+//
+Function ShouldRegisterChangesInAccessRights() Export
+	
+	Return UsersInternalCached.ShouldRegisterChangesInAccessRights()
+		And IsInfoRecordToLogEnabled();
+	
+EndFunction
+
+// Checks whether event logging at the Information level is enabled.
+//
+// Returns:
+//  Boolean
+//
+Function IsInfoRecordToLogEnabled() Export
+	
+	Return GetEventLogUsing().Find(EventLogLevel.Information) <> Undefined;
 	
 EndFunction
 
@@ -1836,10 +1859,10 @@ Procedure OnAddClientParametersOnStart(Parameters, Cancel, IsCallBeforeStart) Ex
 				If ValueIsFilled(RemainingValidityPeriod)
 				   And IsNotificationRequired(IBUser.Name, RemainingValidityPeriod, BegOfDay) Then
 				
-					SMSMessageRecipients = New Map;
-					SMSMessageRecipients.Insert(IBUserID, CommonClientServer.ValueInArray("*"));
+					Recipients = New Map;
+					Recipients.Insert(IBUserID, CommonClientServer.ValueInArray("*"));
 					ServerNotifications.SendServerNotification(ServerNotificationName(),
-						RemainingValidityPeriod, SMSMessageRecipients);
+						RemainingValidityPeriod, Recipients);
 				EndIf;
 				SetPrivilegedMode(False);
 			EndIf;
@@ -1967,7 +1990,7 @@ Procedure OnSendServerNotification(NameOfAlert, ProcedureParameters) Export
 	RolesReductionRecipients = New Map;
 	
 	For Each ParametersVariant In ParametersVariants Do
-		For Each Addressee In ParametersVariant.SMSMessageRecipients Do
+		For Each Addressee In ParametersVariant.Recipients Do
 			IBUser = InfoBaseUsers.FindByUUID(Addressee.Key);
 			If IBUser = Undefined
 			 Or IBUser.StandardAuthentication    = False
@@ -2303,7 +2326,7 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 		NStr("en = '- Move obsolete ""(not used) Infobase user properties"" attribute values from the ""Users"" and ""External users"" catalogs to the ""User details"" information register.
 		           |- Update the ""State picture number"" attribute value in the ""User details"" information register.
 		           |- Delete records with non-existing users and external users from the ""User information"" information register.
-		           |- Reset unnecessary %1authentication and inactive user authentication. '"),
+		           |- Reset unnecessary %1 authentication and inactive user authentication. '"),
 		"OpenID-Connect");
 	
 	Handler = Handlers.Add();
@@ -2437,13 +2460,13 @@ Procedure OnFillToDoList(ToDoList) Export
 		
 		If AddCaseInvalidUsersInfo Then
 			IDUsers = "InvalidUsersInfo" + StrReplace(Section.FullName(), ".", "");
-			ToDoItem = ToDoList.Add();
-			ToDoItem.Id  = IDUsers;
-			ToDoItem.HasToDoItems       = OfInvalidUsers > 0;
-			ToDoItem.Count     = OfInvalidUsers;
-			ToDoItem.Presentation  = NStr("en = 'Invalid user data'");
-			ToDoItem.Form          = "Catalog.Users.Form.InfoBaseUsers";
-			ToDoItem.Owner       = Section;
+			CaseFile = ToDoList.Add();
+			CaseFile.Id  = IDUsers;
+			CaseFile.HasToDoItems       = OfInvalidUsers > 0;
+			CaseFile.Count     = OfInvalidUsers;
+			CaseFile.Presentation  = NStr("en = 'Invalid user data'");
+			CaseFile.Form          = "Catalog.Users.Form.InfoBaseUsers";
+			CaseFile.Owner       = Section;
 		EndIf;
 		
 	EndDo;
@@ -2923,23 +2946,21 @@ Procedure FillCommonSettingsFromCommonPasswordPolicy(Settings)
 		Return;
 	EndIf;
 	
-	// ACC:488-off - Support of new 1C:Enterprise methods (the executable code is safe)
 	Settings.InactivityTimeoutBeforeTerminateSession =
-		Round(Eval("GetInactivityTimeForTerminateSession()") / 60);
+		Round(GetInactivityTimeForTerminateSession_8_3_26() / 60);
 	
 	Settings.NotificationLeadTimeBeforeTerminateInactiveSession =
-		Round(Eval("GetInactivityTimeForTerminateSessionNotification()") / 60);
+		Round(GetInactivityTimeForTerminateSessionNotification_8_3_26() / 60);
 	
 	SettingsForSaving =
-		Eval("AdditionalAuthenticationSettings.GetAuthenticationAutoSaveSettings()");
+		AdditionalAuthenticationSettings_GetAuthenticationAutoSaveSettings_8_3_26();
 	
 	Settings.PasswordSaveOptionUponLogin = CurrentPasswordSaveOptionUponLogin(SettingsForSaving);
 	Settings.PasswordRemembranceDuration =
 		Round(SettingsForSaving.SavedAuthenticationLifeTime / 60);
 	
 	ValidationSettings =
-		Eval("AdditionalAuthenticationSettings.GetPasswordCompromiseCheckSettings()");
-	// ACC:488-on
+		AdditionalAuthenticationSettings_GetPasswordCompromiseCheckSettings_8_3_26();
 	
 	Settings.ShouldUseStandardBannedPasswordList =
 		ValidationSettings.UseStandardPasswordCompromiseCheckList;
@@ -2996,33 +3017,31 @@ Procedure UpdateCommonPasswordPolicy(Settings) Export
 		Return;
 	EndIf;
 	
-	// ACC:488-off - Support of new 1C:Enterprise methods (the executable code is safe).
-	// ACC:478-off - Support of new 1C:Enterprise methods (the executable code is safe).
-	If Eval("GetInactivityTimeForTerminateSession()")
+	If GetInactivityTimeForTerminateSession_8_3_26()
 	  <> Settings.InactivityTimeoutBeforeTerminateSession * 60
-	   And Eval("GetInactivityTimeForTerminateSessionNotification()")
+	   And GetInactivityTimeForTerminateSessionNotification_8_3_26()
 	  <> Settings.NotificationLeadTimeBeforeTerminateInactiveSession * 60 Then
 		
-		Execute("SetInactivityTimeForTerminateSessionNotification(0)");
+		SetInactivityTimeForTerminateSessionNotification_8_3_26(0);
 	EndIf;
 	
-	If Eval("GetInactivityTimeForTerminateSession()")
+	If GetInactivityTimeForTerminateSession_8_3_26()
 	  <> Settings.InactivityTimeoutBeforeTerminateSession * 60 Then
 		
-		Execute("SetInactivityTimeForTerminateSession(
-			|Settings.InactivityTimeoutBeforeTerminateSession * 60)");
+		SetInactivityTimeForTerminateSession_8_3_26(
+			Settings.InactivityTimeoutBeforeTerminateSession * 60);
 	EndIf;
 	
-	If Eval("GetInactivityTimeForTerminateSessionNotification()")
+	If GetInactivityTimeForTerminateSessionNotification_8_3_26()
 	  <> Settings.NotificationLeadTimeBeforeTerminateInactiveSession * 60 Then
 		
-		Execute("SetInactivityTimeForTerminateSessionNotification(
-			|Settings.NotificationLeadTimeBeforeTerminateInactiveSession * 60)");
+		SetInactivityTimeForTerminateSessionNotification_8_3_26(
+			Settings.NotificationLeadTimeBeforeTerminateInactiveSession * 60);
 	EndIf;
 	
 	Write = False;
 	SettingsForSaving =
-		Eval("AdditionalAuthenticationSettings.GetAuthenticationAutoSaveSettings()");
+		AdditionalAuthenticationSettings_GetAuthenticationAutoSaveSettings_8_3_26();
 
 	If CurrentPasswordSaveOptionUponLogin(SettingsForSaving)
 	  <> Settings.PasswordSaveOptionUponLogin Then
@@ -3044,13 +3063,13 @@ Procedure UpdateCommonPasswordPolicy(Settings) Export
 	EndIf;
 	
 	If Write Then
-		Execute("AdditionalAuthenticationSettings.SetAuthenticationAutoSaveSettings(
-			|SettingsForSaving)");
+		AdditionalAuthenticationSettings__SetAuthenticationAutoSaveSettings_8_3_26(
+			SettingsForSaving);
 	EndIf;
 	
 	Write = False;
 	ValidationSettings =
-		Eval("AdditionalAuthenticationSettings.GetPasswordCompromiseCheckSettings()");
+		AdditionalAuthenticationSettings_GetPasswordCompromiseCheckSettings_8_3_26();
 	
 	If ValidationSettings.UseStandardPasswordCompromiseCheckList
 	  <> Settings.ShouldUseStandardBannedPasswordList Then
@@ -3101,11 +3120,9 @@ Procedure UpdateCommonPasswordPolicy(Settings) Export
 	EndIf;
 	
 	If Write Then
-		Execute("AdditionalAuthenticationSettings.SetPasswordCompromiseCheckSettings(
-			|ValidationSettings)");
+		AdditionalAuthenticationSettings_SetPasswordCompromiseCheckSettings_8_3_26(
+			ValidationSettings);
 	EndIf;
-	// ACC:487-on
-	// ACC:488-on
 	
 EndProcedure
 
@@ -3126,15 +3143,13 @@ Procedure FillSettingsFromUsersPasswordPolicy(Settings)
 	Settings.MinPasswordLength =
 		GetUserPasswordMinLength();
 	
-	// ACC:488-off - Support of new 1C:Enterprise methods (the executable code is safe)
 	If IsSettings8_3_26Available() Then
 		Settings.ShouldBeExcludedFromBannedPasswordList
-			= Eval("GetUserPasswordCompromiseCheck()");
+			= GetUserPasswordCompromiseCheck_8_3_26();
 			
 		Settings.ActionUponLoginIfRequirementNotMet =
 			CurrentActionUponLoginIfRequirementNotMet();
 	EndIf;
-	// ACC:488-on
 	
 	If Not DataSeparationEnabled Then
 		Settings.MaxPasswordLifetime =
@@ -3179,27 +3194,23 @@ Procedure UpdateUsersPasswordPolicy(Settings) Export
 			Settings.MinPasswordLength);
 	EndIf;
 	
-	// ACC:488-off - Support of new 1C:Enterprise methods (the executable code is safe).
-	// ACC:478-off - Support of new 1C:Enterprise methods (the executable code is safe).
 	If IsSettings8_3_26Available() Then
-		If Eval("GetUserPasswordCompromiseCheck()")
+		If GetUserPasswordCompromiseCheck_8_3_26()
 		  <> Settings.ShouldBeExcludedFromBannedPasswordList Then
 			
-			Execute("SetUserPasswordCompromiseCheck(
-				|Settings.ShouldBeExcludedFromBannedPasswordList)");
+			SetUserPasswordCompromiseCheck_8_3_26(
+				Settings.ShouldBeExcludedFromBannedPasswordList);
 		EndIf;
 		
 		NewAction = ValueOfActionUponLoginIfRequirementNotMet(
 			Settings.ActionUponLoginIfRequirementNotMet);
 		
-		If Eval("GetActionOnUserPasswordRequirementsViolationOnAuthentication()")
+		If GetActionOnUserPasswordRequirementsViolationOnAuthentication_8_3_26()
 		  <> NewAction Then
 			
-			Execute("SetActionOnUserPasswordRequirementsViolationOnAuthentication(NewAction)");
+			SetActionOnUserPasswordRequirementsViolationOnAuthentication_8_3_26(NewAction);
 		EndIf;
 	EndIf;
-	// ACC:487-on
-	// ACC:488-on
 	
 	MaxPasswordLifetime = ?(DataSeparationEnabled,
 		0, Settings.MaxPasswordLifetime);
@@ -3412,19 +3423,17 @@ EndFunction
 
 Function CurrentActionUponLoginIfRequirementNotMet(PasswordPolicy = Undefined)
 	
-	// ACC:488-off - Support of new 1C:Enterprise methods (the executable code is safe)
 	CurrentAction1 = ?(PasswordPolicy = Undefined,
-		Eval("GetActionOnUserPasswordRequirementsViolationOnAuthentication()"),
+		GetActionOnUserPasswordRequirementsViolationOnAuthentication_8_3_26(),
 		PasswordPolicy.ActionOnPasswordRequirementsViolationOnAuthentication);
 	
-	If CurrentAction1 = Eval("ActionOnThePasswordRequirementsViolationOnAuthentication.RequirePasswordChange") Then
+	If CurrentAction1 = ActionOnThePasswordRequirementsViolationOnAuthentication_RequirePasswordChange_8_3_26() Then
 		Return "RequirePasswordChange";
 		
-	ElsIf CurrentAction1 = Eval("ActionOnThePasswordRequirementsViolationOnAuthentication.SuggestPasswordChange") Then
+	ElsIf CurrentAction1 = ActionOnThePasswordRequirementsViolationOnAuthentication_SuggestPasswordChange_8_3_26() Then
 		Return "SuggestPasswordChange";
 		
 	EndIf;
-	// ACC:488-on
 	
 	Return "";
 	
@@ -3432,18 +3441,229 @@ EndFunction
 
 Function ValueOfActionUponLoginIfRequirementNotMet(ActionName)
 	
-	// ACC:488-off - Support of new 1C:Enterprise methods (the executable code is safe)
 	If ActionName = "RequirePasswordChange" Then
-		Return Eval("ActionOnThePasswordRequirementsViolationOnAuthentication.RequirePasswordChange");
+		Return ActionOnThePasswordRequirementsViolationOnAuthentication_RequirePasswordChange_8_3_26();
 		
 	ElsIf ActionName = "SuggestPasswordChange" Then
-		Return Eval("ActionOnThePasswordRequirementsViolationOnAuthentication.SuggestPasswordChange");
+		Return ActionOnThePasswordRequirementsViolationOnAuthentication_SuggestPasswordChange_8_3_26();
 	EndIf;
 	
+	Return ActionOnThePasswordRequirementsViolationOnAuthentication_None_8_3_26();
+	
+EndFunction
+
+#Region PlatformProceduresAndFunctions_8_3_26
+
+Function GetInactivityTimeForTerminateSession_8_3_26()
+	
+	SecurityProfileIB = StandardSubsystemsServer.SecurityProfileForRunCalculate();
+	If ValueIsFilled(SecurityProfileIB) Then
+		SetSafeMode(SecurityProfileIB);
+	EndIf;
+	
+	// ACC:488-off - Support of new 1C:Enterprise methods (the executable code is safe)
+	Return Eval("GetInactivityTimeForTerminateSession()");
+	// ACC:488-on
+	
+EndFunction
+
+Function GetInactivityTimeForTerminateSessionNotification_8_3_26()
+	
+	SecurityProfileIB = StandardSubsystemsServer.SecurityProfileForRunCalculate();
+	If ValueIsFilled(SecurityProfileIB) Then
+		SetSafeMode(SecurityProfileIB);
+	EndIf;
+	
+	// ACC:488-off - Support of new 1C:Enterprise methods (the executable code is safe)
+	Return Eval("GetInactivityTimeForTerminateSessionNotification()");
+	// ACC:488-on
+	
+EndFunction
+
+Function AdditionalAuthenticationSettings_GetAuthenticationAutoSaveSettings_8_3_26()
+	
+	SecurityProfileIB = StandardSubsystemsServer.SecurityProfileForRunCalculate();
+	If ValueIsFilled(SecurityProfileIB) Then
+		SetSafeMode(SecurityProfileIB);
+	EndIf;
+	
+	// ACC:488-off - Support of new 1C:Enterprise methods (the executable code is safe)
+	Return Eval("AdditionalAuthenticationSettings.GetAuthenticationAutoSaveSettings()");
+	// ACC:488-on
+	
+EndFunction
+
+Function AdditionalAuthenticationSettings_GetPasswordCompromiseCheckSettings_8_3_26()
+	
+	SecurityProfileIB = StandardSubsystemsServer.SecurityProfileForRunCalculate();
+	If ValueIsFilled(SecurityProfileIB) Then
+		SetSafeMode(SecurityProfileIB);
+	EndIf;
+	
+	// ACC:488-off - Support of new 1C:Enterprise methods (the executable code is safe)
+	Return Eval("AdditionalAuthenticationSettings.GetPasswordCompromiseCheckSettings()");
+	// ACC:488-on
+	
+EndFunction
+
+Function GetUserPasswordCompromiseCheck_8_3_26()
+	
+	SecurityProfileIB = StandardSubsystemsServer.SecurityProfileForRunCalculate();
+	If ValueIsFilled(SecurityProfileIB) Then
+		SetSafeMode(SecurityProfileIB);
+	EndIf;
+	
+	// ACC:488-off - Support of new 1C:Enterprise methods (the executable code is safe)
+	Return Eval("GetUserPasswordCompromiseCheck()");
+	// ACC:488-on
+	
+EndFunction
+
+Function GetActionOnUserPasswordRequirementsViolationOnAuthentication_8_3_26()
+	
+	SecurityProfileIB = StandardSubsystemsServer.SecurityProfileForRunCalculate();
+	If ValueIsFilled(SecurityProfileIB) Then
+		SetSafeMode(SecurityProfileIB);
+	EndIf;
+	
+	// ACC:488-off - Support of new 1C:Enterprise methods (the executable code is safe)
+	Return Eval("GetActionOnUserPasswordRequirementsViolationOnAuthentication()");
+	// ACC:488-on
+	
+EndFunction
+
+Function ActionOnThePasswordRequirementsViolationOnAuthentication_RequirePasswordChange_8_3_26()
+	
+	SetSafeMode(True);
+	
+	// ACC:488-off - Support of new 1C:Enterprise methods (the executable code is safe)
+	Return Eval("ActionOnThePasswordRequirementsViolationOnAuthentication.RequirePasswordChange");
+	// ACC:488-on
+	
+EndFunction
+
+Function ActionOnThePasswordRequirementsViolationOnAuthentication_SuggestPasswordChange_8_3_26()
+	
+	SetSafeMode(True);
+	
+	// ACC:488-off - Support of new 1C:Enterprise methods (the executable code is safe)
+	Return Eval("ActionOnThePasswordRequirementsViolationOnAuthentication.SuggestPasswordChange");
+	// ACC:488-on
+	
+EndFunction
+
+Function ActionOnThePasswordRequirementsViolationOnAuthentication_None_8_3_26()
+	
+	SetSafeMode(True);
+	
+	// ACC:488-off - Support of new 1C:Enterprise methods (the executable code is safe)
 	Return Eval("ActionOnThePasswordRequirementsViolationOnAuthentication.None");
 	// ACC:488-on
 	
 EndFunction
+
+Function CheckUserPasswordComplianceWithStoredValue_8_3_26(Password, IBUser) Export
+	
+	SetSafeMode(True);
+	
+	// ACC:488-off - Support of new 1C:Enterprise methods (the executable code is safe)
+	Return Eval("CheckUserPasswordComplianceWithStoredValue(Password, IBUser)");
+	// ACC:488-on
+	
+EndFunction
+
+Function EvaluateStoredUserPasswordValue_8_3_26(Password) Export
+	
+	SecurityProfileIB = StandardSubsystemsServer.SecurityProfileForRunCalculate();
+	If ValueIsFilled(SecurityProfileIB) Then
+		SetSafeMode(SecurityProfileIB);
+	EndIf;
+	
+	// ACC:488-off - Support of new 1C:Enterprise methods (the executable code is safe)
+	Return Eval("EvaluateStoredUserPasswordValue(Password)");
+	// ACC:488-on
+	
+EndFunction
+
+Procedure SetInactivityTimeForTerminateSessionNotification_8_3_26(Timeout)
+	
+	SecurityProfileIB = StandardSubsystemsServer.SecurityProfileForRunCalculate();
+	If ValueIsFilled(SecurityProfileIB) Then
+		SetSafeMode(SecurityProfileIB);
+	EndIf;
+	
+	// ACC:487-off - Support of new 1C:Enterprise methods (the executable code is safe)
+	Execute("SetInactivityTimeForTerminateSessionNotification(Timeout)");
+	// ACC:487-on
+	
+EndProcedure
+
+Procedure SetInactivityTimeForTerminateSession_8_3_26(Timeout)
+	
+	SecurityProfileIB = StandardSubsystemsServer.SecurityProfileForRunCalculate();
+	If ValueIsFilled(SecurityProfileIB) Then
+		SetSafeMode(SecurityProfileIB);
+	EndIf;
+	
+	// ACC:487-off - Support of new 1C:Enterprise methods (the executable code is safe)
+	Execute("SetInactivityTimeForTerminateSession(Timeout)");
+	// ACC:487-on
+	
+EndProcedure
+
+Procedure AdditionalAuthenticationSettings__SetAuthenticationAutoSaveSettings_8_3_26(Settings)
+	
+	SecurityProfileIB = StandardSubsystemsServer.SecurityProfileForRunCalculate();
+	If ValueIsFilled(SecurityProfileIB) Then
+		SetSafeMode(SecurityProfileIB);
+	EndIf;
+	
+	// ACC:487-off - Support of new 1C:Enterprise methods (the executable code is safe)
+	Execute("AdditionalAuthenticationSettings.SetAuthenticationAutoSaveSettings(Settings)");
+	// ACC:487-on
+	
+EndProcedure
+
+Procedure AdditionalAuthenticationSettings_SetPasswordCompromiseCheckSettings_8_3_26(Settings)
+	
+	SecurityProfileIB = StandardSubsystemsServer.SecurityProfileForRunCalculate();
+	If ValueIsFilled(SecurityProfileIB) Then
+		SetSafeMode(SecurityProfileIB);
+	EndIf;
+	
+	// ACC:487-off - Support of new 1C:Enterprise methods (the executable code is safe)
+	Execute("AdditionalAuthenticationSettings.SetPasswordCompromiseCheckSettings(Settings)");
+	// ACC:487-on
+	
+EndProcedure
+
+Procedure SetActionOnUserPasswordRequirementsViolationOnAuthentication_8_3_26(Action)
+	
+	SecurityProfileIB = StandardSubsystemsServer.SecurityProfileForRunCalculate();
+	If ValueIsFilled(SecurityProfileIB) Then
+		SetSafeMode(SecurityProfileIB);
+	EndIf;
+	
+	// ACC:487-off - Support of new 1C:Enterprise methods (the executable code is safe)
+	Execute("SetActionOnUserPasswordRequirementsViolationOnAuthentication(Action)");
+	// ACC:487-on
+	
+EndProcedure
+
+Procedure SetUserPasswordCompromiseCheck_8_3_26(VerificationOfDisclosure)
+	
+	SecurityProfileIB = StandardSubsystemsServer.SecurityProfileForRunCalculate();
+	If ValueIsFilled(SecurityProfileIB) Then
+		SetSafeMode(SecurityProfileIB);
+	EndIf;
+	
+	// ACC:487-off - Support of new 1C:Enterprise methods (the executable code is safe)
+	Execute("SetUserPasswordCompromiseCheck(VerificationOfDisclosure)");
+	// ACC:487-on
+	
+EndProcedure
+
+#EndRegion
 
 // Sets "ShowInChoiceList" flag for all infobase users.
 // Parameters:
@@ -3454,29 +3674,30 @@ Procedure SetShowInListAttributeForAllInfobaseUsers(Show) Export
 	CheckIfSafeModeOff(
 		"UsersInternal.SetShowInListAttributeForAllInfobaseUsers");
 	
-	Hidden1 = New Map;
-	
-	If Show Then
-		Query = New Query;
-		Query.SetParameter("BlankUUID",
-			CommonClientServer.BlankUUID());
-		Query.Text =
-		"SELECT
-		|	Users.IBUserID AS IBUserID
-		|FROM
-		|	Catalog.Users AS Users
-		|WHERE
-		|	Users.IBUserID <> &BlankUUID
-		|	AND (Users.IsInternal
-		|			OR Users.Invalid)";
-		Selection = Query.Execute().Select();
-		Hidden1.Insert(Selection.IBUserID, True);
-	EndIf;
+	Query = New Query;
+	Query.SetParameter("BlankUUID",
+		CommonClientServer.BlankUUID());
+	Query.Text =
+	"SELECT
+	|	Users.Ref AS Ref,
+	|	Users.IBUserID AS Id,
+	|	Users.IsInternal
+	|		OR Users.Invalid AS Hidden
+	|FROM
+	|	Catalog.Users AS Users
+	|WHERE
+	|	Users.IBUserID <> &BlankUUID";
+	IDs = Query.Execute().Unload();
+	IDs.Indexes.Add("Id");
 	
 	IBUsers = InfoBaseUsers.GetUsers();
+	ChangedUsers = New Array;
+	
 	For Each IBUser In IBUsers Do
+		FoundRow = IDs.Find(IBUser.UUID, "Id");
 		If Not Show
-		 Or Hidden1.Get(IBUser.UUID) <> Undefined Then
+		 Or FoundRow = Undefined
+		 Or FoundRow.Hidden Then
 			ShowInList = False;
 		Else
 			ShowInList = IBUser.StandardAuthentication;
@@ -3484,203 +3705,19 @@ Procedure SetShowInListAttributeForAllInfobaseUsers(Show) Export
 		If IBUser.ShowInList <> ShowInList Then
 			IBUser.ShowInList = ShowInList;
 			IBUser.Write();
+			If FoundRow <> Undefined Then
+				ChangedUsers.Add(FoundRow.Ref);
+			EndIf;
 		EndIf;
 	EndDo;
 	
-	InformationRegisters.UsersInfo.UpdateRegisterData();
+	InformationRegisters.UsersInfo.UpdateRegisterData(ChangedUsers);
 	
 EndProcedure
 
 #EndRegion
 
 #Region PasswordManagementProceduresAndFunctions
-
-// Generates a new password matching the set rules of complexity checking.
-// For easier memorization, a password is formed from syllables (consonant-vowel).
-//
-// Parameters:
-//  PasswordParameters - Structure - returns from the PasswordParameters function.
-//  RNG             - RandomNumberGenerator - If it is already used.
-//                  - Undefined - create a new one.
-//
-// Returns:
-//  String - new password.
-//
-Function CreatePassword(PasswordParameters, RNG = Undefined) Export
-	
-	SystemInfo = New SystemInfo;
-	If CommonClientServer.CompareVersions(SystemInfo.AppVersion, "8.3.22.2501") >= 0 Then
-		RandomPasswordGenerator = New("RandomPasswordGenerator");
-		Return RandomPasswordGenerator.RandomPassword(PasswordParameters.MinimumLength);
-	EndIf;
-	
-	NewPassword = "";
-	
-	LowercaseConsonants1               = PasswordParameters.LowercaseConsonants;
-	UppercaseConsonants1              = PasswordParameters.UppercaseConsonants;
-	LowercaseConsonantsCount     = StrLen(LowercaseConsonants1);
-	UppercaseConsonantsCount    = StrLen(UppercaseConsonants1);
-	UseConsonants           = (LowercaseConsonantsCount > 0)
-	                                  Or (UppercaseConsonantsCount > 0);
-	
-	LowercaseVowels1                 = PasswordParameters.LowercaseVowels;
-	UppercaseVowels1                = PasswordParameters.UppercaseVowels;
-	LowercaseVowelsCount       = StrLen(LowercaseVowels1);
-	UppercaseVowelsCount      = StrLen(UppercaseVowels1);
-	UseVowels             = (LowercaseVowelsCount > 0) 
-	                                  Or (UppercaseVowelsCount > 0);
-	
-	Digits                   = PasswordParameters.Digits;
-	DigitCount          = StrLen(Digits);
-	UseNumbers       = (DigitCount > 0);
-	
-	SpecialChars             = PasswordParameters.SpecialChars;
-	SpecialCharCount  = StrLen(SpecialChars);
-	UseSpecialChars = (SpecialCharCount > 0);
-	
-	// Creating a random number generation.
-	If RNG = Undefined Then
-		RNG = Users.PasswordProperties().RNG;
-	EndIf;
-	
-	Counter = 0;
-	
-	MaxLength           = PasswordParameters.MaxLength;
-	MinimumLength            = PasswordParameters.MinimumLength;
-	
-	// Determining the position of special characters and digits.
-	If PasswordParameters.CheckComplexityConditions Then
-		SetLowercase      = PasswordParameters.CheckLowercaseLettersExist;
-		SetUppercase     = PasswordParameters.CheckUppercaseLettersExist;
-		SetDigit         = PasswordParameters.CheckDigitsExist;
-		SetSpecialChar    = PasswordParameters.CheckSpecialCharsExist;
-	Else
-		SetLowercase      = (LowercaseVowelsCount > 0) 
-		                          Or (LowercaseConsonantsCount > 0);
-		SetUppercase     = (UppercaseVowelsCount > 0) 
-		                          Or (UppercaseConsonantsCount > 0);
-		SetDigit         = UseNumbers;
-		SetSpecialChar    = UseSpecialChars;
-	EndIf;
-	
-	While Counter < MaxLength Do
-		
-		// Start from the consonant.
-		If UseConsonants Then
-			If SetUppercase And SetLowercase Then
-				SearchString = LowercaseConsonants1 + UppercaseConsonants1;
-				UpperBound = LowercaseConsonantsCount + UppercaseConsonantsCount;
-			ElsIf SetUppercase Then
-				SearchString = UppercaseConsonants1;
-				UpperBound = UppercaseConsonantsCount;
-			Else
-				SearchString = LowercaseConsonants1;
-				UpperBound = LowercaseConsonantsCount;
-			EndIf;
-			If IsBlankString(SearchString) Then
-				SearchString = LowercaseConsonants1 + UppercaseConsonants1;
-				UpperBound = LowercaseConsonantsCount + UppercaseConsonantsCount;
-			EndIf;
-			Char = Mid(SearchString, RNG.RandomNumber(1, UpperBound), 1);
-			If Char = Upper(Char) Then
-				If SetUppercase Then
-					SetUppercase = (RNG.RandomNumber(0, 1) = 1);
-				EndIf;
-			Else
-				SetLowercase = False;
-			EndIf;
-			NewPassword = NewPassword + Char;
-			Counter     = Counter + 1;
-			If Counter >= MinimumLength Then
-				Break;
-			EndIf;
-		EndIf;
-		
-		// Add vowels.
-		If UseVowels Then
-			If SetUppercase And SetLowercase Then
-				SearchString = LowercaseVowels1 + UppercaseVowels1;
-				UpperBound = LowercaseVowelsCount + UppercaseVowelsCount;
-			ElsIf SetUppercase Then
-				SearchString = UppercaseVowels1;
-				UpperBound = UppercaseVowelsCount;
-			Else
-				SearchString = LowercaseVowels1;
-				UpperBound = LowercaseVowelsCount;
-			EndIf;
-			If IsBlankString(SearchString) Then
-				SearchString = LowercaseVowels1 + UppercaseVowels1;
-				UpperBound = LowercaseVowelsCount + UppercaseVowelsCount;
-			EndIf;
-			Char = Mid(SearchString, RNG.RandomNumber(1, UpperBound), 1);
-			If Char = Upper(Char) Then
-				SetUppercase = False;
-			Else
-				SetLowercase = False;
-			EndIf;
-			NewPassword = NewPassword + Char;
-			Counter     = Counter + 1;
-			If Counter >= MinimumLength Then
-				Break;
-			EndIf;
-		EndIf;
-	
-		// Add digits
-		If UseNumbers And SetDigit Then
-			SetDigit = (RNG.RandomNumber(0, 1) = 1);
-			Char          = Mid(Digits, RNG.RandomNumber(1, DigitCount), 1);
-			NewPassword     = NewPassword + Char;
-			Counter         = Counter + 1;
-			If Counter >= MinimumLength Then
-				Break;
-			EndIf;
-		EndIf;
-		
-		// Add special characters.
-		If UseSpecialChars And SetSpecialChar Then
-			SetSpecialChar = (RNG.RandomNumber(0, 1) = 1);
-			Char      = Mid(SpecialChars, RNG.RandomNumber(1, SpecialCharCount), 1);
-			NewPassword = NewPassword + Char;
-			Counter     = Counter + 1;
-			If Counter >= MinimumLength Then
-				Break;
-			EndIf;
-		EndIf;
-	EndDo;
-	
-	Return NewPassword;
-	
-EndFunction
-
-// Returns standard parameters considering length and complexity.
-//
-// Parameters:
-//  MinLength - Number - the password minimum length (7 by default).
-//  Complicated         - Boolean - consider password complexity checking requirements.
-//
-// Returns:
-//  Structure - parameters of password creation.
-//
-Function PasswordParameters(MinLength = 7, Complicated = False) Export
-	
-	PasswordParameters = New Structure();
-	PasswordParameters.Insert("MinimumLength",                MinLength);
-	PasswordParameters.Insert("MaxLength",               99);
-	PasswordParameters.Insert("LowercaseVowels",            "aeiouy"); 
-	PasswordParameters.Insert("UppercaseVowels",           "AEIOUY");
-	PasswordParameters.Insert("LowercaseConsonants",          "bcdfghjklmnpqrstvwxz");
-	PasswordParameters.Insert("UppercaseConsonants",         "BCDFGHJKLMNPQRSTVWXZ");
-	PasswordParameters.Insert("Digits",                           "0123456789");
-	PasswordParameters.Insert("SpecialChars",                     " _.,!?");
-	PasswordParameters.Insert("CheckComplexityConditions",       Complicated);
-	PasswordParameters.Insert("CheckUppercaseLettersExist",  True);
-	PasswordParameters.Insert("CheckLowercaseLettersExist",   True);
-	PasswordParameters.Insert("CheckDigitsExist",           True);
-	PasswordParameters.Insert("CheckSpecialCharsExist",     False);
-	
-	Return PasswordParameters;
-	
-EndFunction
 
 // Checks for an account and rights required for changing a password.
 //
@@ -3970,7 +4007,7 @@ Function ProcessNewPassword(Parameters) Export
 				Raise;
 			EndTry;
 		Else
-			UpdateInformationWhenChangingYourPassword(User, Parameters.User);
+			UpdateInfoWhenPasswordChanges(User, Parameters.User);
 		EndIf;
 		
 		CommitTransaction();
@@ -3997,8 +4034,8 @@ Function ProcessNewPassword(Parameters) Export
 	
 EndFunction
 
-// 
-Procedure UpdateInformationWhenChangingYourPassword(User, UserObject)
+// Intended for ProcessNewPassword and UpdateInfoWhenPasswordHashChanges.
+Procedure UpdateInfoWhenPasswordChanges(User, UserObject)
 	
 	RecordSet = InformationRegisters.UsersInfo.CreateRecordSet();
 	RecordSet.Filter.User.Set(User);
@@ -4031,7 +4068,7 @@ Procedure UpdateInformationWhenChangingYourPassword(User, UserObject)
 EndProcedure
 
 // For the WriteIBUser procedure.
-Procedure UpdateInformationWhenChangingPasswordHash(UserObject)
+Procedure UpdateInfoWhenPasswordHashChanges(UserObject)
 	
 	User = ObjectRef2(UserObject);
 	
@@ -4042,7 +4079,7 @@ Procedure UpdateInformationWhenChangingPasswordHash(UserObject)
 	BeginTransaction();
 	Try
 		Block.Lock();
-		UpdateInformationWhenChangingYourPassword(User, UserObject);
+		UpdateInfoWhenPasswordChanges(User, UserObject);
 		CommitTransaction();
 	Except
 		RollbackTransaction();
@@ -4251,7 +4288,7 @@ Function PreviousPasswordMatchSaved(Password, IBUserID) Export
 	
 	If IsSettings8_3_26Available() Then
 		// ACC:488-off - Support of new 1C:Enterprise methods (the executable code is safe)
-		Result = Eval("CheckUserPasswordComplianceWithStoredValue(Password, IBUser)");
+		Result = CheckUserPasswordComplianceWithStoredValue_8_3_26(Password, IBUser);
 		// ACC:488-on
 	Else
 		Result = PasswordHashSumMatches(PasswordHashString(Password),
@@ -4444,8 +4481,8 @@ EndFunction
 Procedure LockRegistersBeforeWritingToFileInformationSystem(ThisIsBandRecord) Export
 	
 	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
-		ModuleAccessManagementInternal = Common.CommonModule("AccessManagementInternal");
-		ModuleAccessManagementInternal.LockRegistersBeforeWritingAccessConfigurationObjectToFileInformationSystem();
+		ModuleAccessManagement = Common.CommonModule("AccessManagement");
+		ModuleAccessManagement.SetLockBeforeWriteToFileIB(, True);
 	EndIf;
 	
 	Block = New DataLock;
@@ -4494,7 +4531,8 @@ Procedure UserObjectBeforeWrite(Object, ProcessingParameters) Export
 	 Or Object.AdditionalProperties.Property("WriteDuringDataExchange")
 	 Or Object.AdditionalProperties.Property("IBUserDetails")
 	 Or Object.AdditionalProperties.Property("InfobaseUserExtendedProperties")
-	 Or ShouldLogChanges Then
+	 Or ShouldLogChanges
+	   And IsInfoRecordToLogEnabled() Then
 		
 		SetPrivilegedMode(True);
 		InformationRegisters.UsersInfo.UpdateUserInfoRecords(
@@ -5251,7 +5289,7 @@ Function GroupsCompositionNewChanges() Export
 	Result.Insert("ModifiedGroups", New Map);
 	Result.Insert("ForRegistration", Undefined);
 	
-	If UsersInternalCached.ShouldRegisterChangesInAccessRights() Then
+	If ShouldRegisterChangesInAccessRights() Then
 		Result.ForRegistration = NewChangeInRegistrableGroupMembership();
 	EndIf;
 	
@@ -8941,7 +8979,7 @@ Procedure CreateCurrentUserInCatalog(UserInfo)
 		User = Undefined;
 		If UserInfo.RefToNew = Undefined Then
 			UserByIDExists(
-				UserInfo.UUID,, User);
+				UserInfo.IBUserID,, User);
 			UserInfo.RefToNew = ?(ValueIsFilled(User),
 				User, Catalogs.Users.GetRef());
 		ElsIf Not Query.Execute().IsEmpty() Then
@@ -9382,31 +9420,14 @@ Function SettingsList(IBUserName, SettingsManager)
 	Filter.Insert("User", IBUserName);
 	
 	SettingsSelection = SettingsManager.Select(Filter);
-	Ignore = False;
-	While NextSettingsItem(SettingsSelection, Ignore) Do
-		
-		If Ignore Then
-			Continue;
-		EndIf;
-		
+	
+	While SettingsSelection.Next() Do
 		NewRow = SettingsTable.Add();
 		NewRow.ObjectKey = SettingsSelection.ObjectKey;
 		NewRow.SettingsKey = SettingsSelection.SettingsKey;
 	EndDo;
 	
 	Return SettingsTable;
-	
-EndFunction
-
-Function NextSettingsItem(SettingsSelection, Ignore) 
-	
-	Try 
-		Ignore = False;
-		Return SettingsSelection.Next();
-	Except
-		Ignore = True;
-		Return True;
-	EndTry;
 	
 EndFunction
 
@@ -9471,11 +9492,11 @@ Procedure CopyOtherUserSettings(UserNameSource, UserNameDestination)
 	UserDestinationRef = Users.FindByName(UserNameDestination);
 	SourceUserInfo = New Structure;
 	SourceUserInfo.Insert("UserRef", UserSourceRef);
-	SourceUserInfo.Insert("InfobaseUserName", UserNameSource);
+	SourceUserInfo.Insert("InfoBaseUserName", UserNameSource);
 	
 	DestinationUserInfo = New Structure;
 	DestinationUserInfo.Insert("UserRef", UserDestinationRef);
-	DestinationUserInfo.Insert("InfobaseUserName", UserNameDestination);
+	DestinationUserInfo.Insert("InfoBaseUserName", UserNameDestination);
 	
 	// Get other settings.
 	OtherUserSettings = New Structure; // See OnGetOtherUserSettings.Settings
@@ -9515,7 +9536,8 @@ EndProcedure
 Procedure CopyIBUserSettings(UserObject, ProcessingParameters)
 	
 	If Not ProcessingParameters.Property("CopyingValue")
-	 Or Not ProcessingParameters.NewIBUserExists Then
+	 Or Not ProcessingParameters.NewIBUserExists
+	 Or Not AccessRight("DataAdministration", Metadata) Then
 		
 		Return;
 	EndIf;
@@ -10103,7 +10125,7 @@ Procedure ProcessRegisteredChangeInHierarchy(RefsKindName, RefAllGroups,
 		UpdateGroupsHierarchy(RefAllGroups, ChangesInComposition);
 	Else
 		For Each Group In HierarchyGroups Do
-			// @skip-check query-in-loop - Обход иерархии элементов с обновлением порциями
+			// @skip-check query-in-loop 
 			UpdateGroupsHierarchy(Group, ChangesInComposition);
 		EndDo;
 	EndIf;
@@ -10436,7 +10458,7 @@ Procedure UpdateLastUserActivityDate(Parameters, IBUsersIDs)
 	
 	IBUsersIDs = New Array;
 	For Each CheckParameter1 In Parameters Do
-		For Each Addressee In CheckParameter1.SMSMessageRecipients Do
+		For Each Addressee In CheckParameter1.Recipients Do
 			IBUsersIDs.Add(Addressee.Key);
 		EndDo;
 	EndDo;
@@ -10903,7 +10925,7 @@ Procedure WriteIBUser(UserObject, ProcessingParameters)
 	           Or ProcessingParameters.PreviousIBUserDetails.StoredPasswordValue
 	               <> IBUserDetails.StoredPasswordValue) Then
 		
-		UpdateInformationWhenChangingPasswordHash(UserObject);
+		UpdateInfoWhenPasswordHashChanges(UserObject);
 	EndIf;
 	
 	// Trying to write an infobase user
@@ -12034,5 +12056,18 @@ EndFunction
 #EndRegion
 
 #EndRegion
+
+// See StandardSubsystemsServer.WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode
+Procedure WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode(Methods) Export
+	
+	Methods.Insert("SessionParametersSetting");
+	Methods.Insert("FillUserGroupsHierarchy");
+	Methods.Insert("UpdatePredefinedUserContactInformationKinds");
+	Methods.Insert("RenameExternalReportAndDataProcessorOpeningDecisionStorageKey");
+	Methods.Insert("MoveDesignerPasswordLengthAndComplexitySettings");
+	Methods.Insert("FillSettingsLists", True);
+	Methods.Insert("FillInTheEmailForPasswordRecoveryFromUsersInTheBackground", True);
+	
+EndProcedure
 
 #EndRegion

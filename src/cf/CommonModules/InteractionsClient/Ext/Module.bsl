@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -23,7 +22,7 @@ Procedure OpenSMSMessageSendingForm(Val FormParameters = Undefined,
 	
 	If TypeOf(FormParameters) <> Type("Structure") Then
 		Parameters = SMSMessageSendingFormParameters();
-		Parameters.SMSMessageRecipients = FormParameters;
+		Parameters.Recipients = FormParameters;
 		Parameters.Text = DeleteText;
 		Parameters.SubjectOf = DeleteSubject;
 		Parameters.SendInTransliteration = DeleteSendInTransliteration;
@@ -37,7 +36,7 @@ EndProcedure
 //
 // Returns:
 //  Structure:
-//   * SMSMessageRecipients             - String
+//   * Recipients             - String
 //                          - ValueList
 //                          - Array - List of email recipients.
 //   * Text                - String - email text.
@@ -48,7 +47,7 @@ EndProcedure
 Function SMSMessageSendingFormParameters() Export
 	
 	Result = New Structure;
-	Result.Insert("SMSMessageRecipients", Undefined);
+	Result.Insert("Recipients", Undefined);
 	Result.Insert("Text", "");
 	Result.Insert("SubjectOf", Undefined);
 	Result.Insert("SendInTransliteration", False);
@@ -235,10 +234,10 @@ Procedure CreateInteractionOrSubject(ObjectFormName, Basis, Source) Export
 		FormOpenParameters.Insert("ParticipantData", ParticipantData(ParticipantDataSource));
 	
 	ElsIf (TypeOf(Basis) = Type("DocumentRef.SMSMessage") 
-		And Source.Items.Find("SMSMessageRecipients") <> Undefined
-		And Source.Items.SMSMessageRecipients.CurrentData <> Undefined) Then
+		And Source.Items.Find("Recipients") <> Undefined
+		And Source.Items.Recipients.CurrentData <> Undefined) Then
 		
-		ParticipantDataSource = Source.Items.SMSMessageRecipients.CurrentData;
+		ParticipantDataSource = Source.Items.Recipients.CurrentData;
 		FormOpenParameters.Insert("ParticipantData", ParticipantData(ParticipantDataSource));
 	
 	EndIf;
@@ -299,11 +298,11 @@ Procedure SelectContactTypeOnCompletion(SelectionResult, AdditionalParameters) E
 	EndDo;
 	
 	If IsBlankString(NewContactFormName) Then
-		// ACC:223-off For backward compatibility.
+		// ACC:222-off For backward compatibility.
 		If InteractionsClientOverridable.CreateContactNonstandardForm(SelectionResult.Value, FormParameter) Then
 			Return;
 		EndIf;
-		// ACC:223-on
+		// ACC:222-on
 		NewContactFormName = "Catalog." + SelectionResult.Value + ".ObjectForm";
 	EndIf;
 	
@@ -357,9 +356,9 @@ Procedure DoProcessNotification(Form,EventName, Parameter, Source) Export
 					Form.Items.Attendees.CurrentData.ContactPresentation = Parameter.Description;
 				EndIf;
 			ElsIf TypeOf(Form.Object.Ref)=Type("DocumentRef.SMSMessage") Then
-				Form.Items.SMSMessageRecipients.CurrentData.Contact = Parameter.Ref;
-				If IsBlankString(Form.Items.SMSMessageRecipients.CurrentData.ContactPresentation) Then
-					Form.Items.SMSMessageRecipients.CurrentData.ContactPresentation = Parameter.Description;
+				Form.Items.Recipients.CurrentData.Contact = Parameter.Ref;
+				If IsBlankString(Form.Items.Recipients.CurrentData.ContactPresentation) Then
+					Form.Items.Recipients.CurrentData.ContactPresentation = Parameter.Description;
 				EndIf;
 			EndIf;
 			
@@ -430,7 +429,7 @@ Procedure DoProcessNotification(Form,EventName, Parameter, Source) Export
 			Form.Modified = True;
 			
 		ElsIf TypeOf(Form.Object.Ref)=Type("DocumentRef.SMSMessage") Then
-			CurrentData = Form.Items.SMSMessageRecipients.CurrentData;
+			CurrentData = Form.Items.Recipients.CurrentData;
 			If CurrentData = Undefined Then
 				Return;
 			EndIf;

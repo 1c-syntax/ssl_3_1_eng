@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -286,7 +285,7 @@ EndProcedure
 //  DataToCheck - See PeriodClosingDates.DataToCheckTemplate
 //
 //  PeriodEndMessageParameters - See PeriodClosingDates.PeriodEndMessageParameters
-//                             - Undefined - generating a period-end closing message text is not required.
+//                             - Undefined - 
 //
 //  ErrorDescription    - Null      - the default value. Period-end closing data is not required.
 //                    - String    - a return value. Return a text description of available period-end closing dates.
@@ -519,7 +518,7 @@ EndProcedure
 //  Source   - InformationRegisterRecordSet
 //             - AccumulationRegisterRecordSet - a record set passed to the BeforeWrite event subscription.
 //  Cancel      - Boolean - a parameter passed to the BeforeWrite event subscription.
-//  Replacing  - РежимЗамещения, Boolean - a parameter passed to the BeforeWrite event subscription.
+//  Replacing  - ReplacementMode, Boolean - a parameter passed to the BeforeWrite event subscription.
 //
 Procedure CheckPeriodEndClosingDateBeforeWriteRecordSet(Source, Cancel, Replacing) Export
 	
@@ -539,7 +538,7 @@ EndProcedure
 //  Source    - AccountingRegisterRecordSet - a record set passed to
 //                the BeforeWrite event subscription.
 //  Cancel       - Boolean - a parameter passed to the BeforeWrite event subscription.
-//  Replacing   - РежимЗамещения, Boolean - a parameter passed to the BeforeWrite event subscription.
+//  Replacing   - ReplacementMode, Boolean - a parameter passed to the BeforeWrite event subscription.
 //
 Procedure CheckPeriodEndClosingDateBeforeWriteAccountingRegisterRecordSet(
 		Source, Cancel, Replacing) Export
@@ -560,7 +559,7 @@ EndProcedure
 //  Source     - CalculationRegisterRecordSet - a record set passed to
 //                 the BeforeWrite event subscription.
 //  Cancel        - Boolean - a parameter passed to the BeforeWrite event subscription.
-//  Replacing    - РежимЗамещения, Boolean - a parameter passed to the BeforeWrite event subscription.
+//  Replacing    - ReplacementMode, Boolean - a parameter passed to the BeforeWrite event subscription.
 //  WriteOnly - Boolean - a parameter passed to the BeforeWrite event subscription.
 //  WriteActualActionPeriod - Boolean - a parameter passed to the BeforeWrite event subscription.
 //  WriteRecalculations - Boolean - a parameter passed to the BeforeWrite event subscription.

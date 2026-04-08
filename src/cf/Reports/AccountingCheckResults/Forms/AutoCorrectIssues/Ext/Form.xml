@@ -42,11 +42,11 @@
 				<CommandName>Form.StandardCommand.Close</CommandName>
 				<ExtendedTooltip name="CloseExtendedTooltip" id="2"/>
 			</Button>
-			<Button name="FormHelp" id="28">
+			<Button name="FormHelp_SSLyf" id="28">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.StandardCommand.Help</CommandName>
 				<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
-				<ExtendedTooltip name="FormHelpExtendedTooltip" id="29"/>
+				<ExtendedTooltip name="FormHelp_SSLyfExtendedTooltip" id="29"/>
 			</Button>
 		</ChildItems>
 	</AutoCommandBar>

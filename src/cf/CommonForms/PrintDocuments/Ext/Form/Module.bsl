@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Variables
@@ -66,9 +65,10 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		EndIf;
 	Else
 		PrintFormsCollection = Parameters.PrintFormsCollection;
-		ExcludeOfficeDocsFromSets(PrintFormsCollection);
 		PrintObjects = Parameters.PrintObjects;
 	EndIf;
+	
+	ExcludeOfficeDocsFromSets(PrintFormsCollection);
 	
 	If Parameters.Messages <> Undefined Then
 		For Each Message In Parameters.Messages Do
@@ -192,8 +192,8 @@ Procedure ChoiceProcessing(ValueSelected, ChoiceSource)
 					
 					WrittenObjects = AttachPrintFormsToObject(FilesInTempStorage);
 					Context = New Structure("WrittenObjects, ValueSelected", WrittenObjects, ValueSelected);
-					NotifyDescription = New CallbackDescription("CompleteSigningFiles", ThisObject, Context);
-					SignWrittenObjects(WrittenObjects, NotifyDescription);
+					CallbackDescription = New CallbackDescription("CompleteSigningFiles", ThisObject, Context);
+					SignWrittenObjects(WrittenObjects, CallbackDescription);
 				Else
 					WrittenObjects = AttachPrintFormsToObject(FilesInTempStorage);
 					If WrittenObjects.Count() > 0 Then
@@ -302,12 +302,12 @@ Procedure SIgnFiles(FilesInTempStorage, Context)
 	Context.Insert("MapBetweenFilesAndPrintableObjects", Map);
 	
 	If Context.Action = "SaveToFolder" Then
-		NotifyDescription = New CallbackDescription("CompleteSigningSaveToFolder", ThisObject, Context);
+		CallbackDescription = New CallbackDescription("CompleteSigningSaveToFolder", ThisObject, Context);
 	ElsIf Context.Action = "SendingEmail" Then
-		NotifyDescription = New CallbackDescription("CompleteSigningSendViaEmail", ThisObject, Context);
+		CallbackDescription = New CallbackDescription("CompleteSigningSendViaEmail", ThisObject, Context);
 	EndIf;
 
-	ModuleDigitalSignatureClient.Sign(DataDetails,, NotifyDescription, SignatureParameters);
+	ModuleDigitalSignatureClient.Sign(DataDetails,, CallbackDescription, SignatureParameters);
 	
 EndProcedure
 
@@ -532,8 +532,8 @@ Procedure GoToDocument(Command)
 		ChoiceList.Add(PrintObject.Presentation, String(PrintObject.Value));
 	EndDo;
 	
-	NotifyDescription = New CallbackDescription("GoToDocumentCompletion", ThisObject);
-	ChoiceList.ShowChooseItem(NotifyDescription, NStr("en = 'Go to print form'"));
+	CallbackDescription = New CallbackDescription("GoToDocumentCompletion", ThisObject);
+	ChoiceList.ShowChooseItem(CallbackDescription, NStr("en = 'Go to print form'"));
 	
 EndProcedure
 
@@ -673,30 +673,20 @@ EndProcedure
 
 &AtServer
 Procedure ExcludeOfficeDocsFromSets(PrintFormsCollection)
-	HasSpreadsheetDocs = False;
-	HasOfficeDocs = False;
-	For Each PrintForm In PrintFormsCollection Do
-		HasSpreadsheetDocs = HasSpreadsheetDocs Or PrintForm.SpreadsheetDocument.TableHeight <> 0;
-		HasOfficeDocs = HasOfficeDocs Or (PrintForm.OfficeDocuments <> Undefined
-								And PrintForm.OfficeDocuments.Count() <> 0); 
-		If HasSpreadsheetDocs And HasOfficeDocs Then
-			Break;
+	
+	OfficeDocuments = New Array;
+	
+	For Counter = 1 To PrintFormsCollection.Count() Do
+		IndexOf = PrintFormsCollection.Count() - Counter;
+		PrintForm = PrintFormsCollection[IndexOf];
+		If PrintForm.OfficeDocuments <> Undefined Then
+			OfficeDocuments.Add(IndexOf);
 		EndIf;
 	EndDo;
 	
-	If HasSpreadsheetDocs And HasOfficeDocs Then       
-		IndexOf = 0;
-		While True Do 
-			If IndexOf > PrintFormsCollection.UBound() Then
-				Break;
-			EndIf;
-			
-			PrintForm = PrintFormsCollection[IndexOf];
-			If PrintForm.OfficeDocuments <> Undefined And PrintForm.OfficeDocuments.Count() <> 0 Then
-				PrintFormsCollection.Delete(IndexOf);
-				IndexOf = IndexOf - 1;
-			EndIf;
-			IndexOf = IndexOf + 1;
+	If PrintFormsCollection.Count() > OfficeDocuments.Count() Then
+		For Each IndexOf In OfficeDocuments Do
+			PrintFormsCollection.Delete(IndexOf);
 		EndDo;
 	EndIf;
 	
@@ -755,7 +745,7 @@ Procedure NotifyWhenPrintFormsPrepared(CombinedDocStructure = Undefined)
 	OpeningParameters.PrintFormSettingsAddress = GetPrintFormsSettingsAddress();
 	OpeningParameters.CombinedDocStructureAddress = PutToTempStorage(CombinedDocStructure, StorageUUID);
 		
-	NotifyDescription = New CallbackDescription("OpenOfficeOpenPrintingForm", ThisObject, OpeningParameters);
+	CallbackDescription = New CallbackDescription("OpenOfficeOpenPrintingForm", ThisObject, OpeningParameters);
 	If FilesInTempStorage.Count() = 1 Then
 		NotificationTitle = NStr("en = 'Document is generated'");
 		NotificationText1 = FilesInTempStorage[0].Presentation;
@@ -766,7 +756,7 @@ Procedure NotifyWhenPrintFormsPrepared(CombinedDocStructure = Undefined)
 		Return;
 	EndIf;
 		
-	ShowUserNotification(NotificationTitle, NotifyDescription, NotificationText1, , , ); 
+	ShowUserNotification(NotificationTitle, CallbackDescription, NotificationText1, , , ); 
 EndProcedure
 
 &AtClient
@@ -1176,8 +1166,8 @@ Procedure SetCurrentPage()
 		Buttons.Add(DialogReturnCode.Yes, NStr("en = 'Use standard template'"));
 		Buttons.Add(DialogReturnCode.Cancel);
 	
-		NotifyDescription = New CallbackDescription("OnReceiveAnswer", ThisObject, PrintFormSetting);
-		ShowQueryBox(NotifyDescription, QueryText, Buttons, , DialogReturnCode.Yes);
+		CallbackDescription = New CallbackDescription("OnReceiveAnswer", ThisObject, PrintFormSetting);
+		ShowQueryBox(CallbackDescription, QueryText, Buttons, , DialogReturnCode.Yes);
 	EndIf;
 	
 EndProcedure
@@ -1232,12 +1222,17 @@ Procedure RestorePrintFormsSettings(SavedPrintFormsSettings = Undefined)
 		Return;
 	EndIf;
 	
+	IsSetPrinting = IsSetPrinting();
+	
 	For Each SavedSetting In SavedPrintFormsSettings Do
 		FoundSettings = PrintFormsSettings.FindRows(New Structure("DefaultPosition", SavedSetting.DefaultPosition));
 		For Each PrintFormSetting In FoundSettings Do
 			RowIndex = PrintFormsSettings.IndexOf(PrintFormSetting);
 			PrintFormsSettings.Move(RowIndex, PrintFormsSettings.Count()-1 - RowIndex); // Move to the end.
 			PrintFormSetting.Count = SavedSetting.Count;
+			If Not IsSetPrinting And PrintFormSetting.Count < 1 Then
+				PrintFormSetting.Count = 1;
+			EndIf;
 			PrintFormSetting.Print = PrintFormSetting.Count > 0;
 		EndDo;
 	EndDo;
@@ -1269,7 +1264,8 @@ Function PutFilesToArchive(DocsPrintForms, PassedSettings)
 	For Each FileStructure In DocsPrintForms Do
 			
 		FileData = GetFromTempStorage(FileStructure.AddressInTempStorage);
-		FullFileName = TempDirectoryName + FileStructure.Presentation;
+		FileName = CommonClientServer.ReplaceProhibitedCharsInFileName(FileStructure.Presentation);
+		FullFileName = TempDirectoryName + FileName;
 		FullFileName = FileSystem.UniqueFileName(FullFileName);
 		FileData.Write(FullFileName);
 		
@@ -1336,6 +1332,10 @@ Function PutSpreadsheetDocumentsInTempStorage(PassedSettings)
 			OfficeDocumentsFiles = Common.ValueFromXMLString(PrintFormSetting.OfficeDocuments);
 			
 			For Each OfficeDocumentFile In OfficeDocumentsFiles Do
+				If Not ValueIsFilled(OfficeDocumentFile.Key) Or Not IsTempStorageURL(OfficeDocumentFile.Key) Then
+					Continue;
+				EndIf;
+				
 				FileName = PrintManagement.OfficeDocumentFileName(OfficeDocumentFile.Value);
 				FileDetails = New Structure;
 				FileDetails.Insert("Presentation", FileName);
@@ -1397,6 +1397,12 @@ Function PutSpreadsheetDocumentsInTempStorage(PassedSettings)
 				EndIf;
 				
 				FileExtention = FormatSettings.Extension;
+				SizeOfExtensionInBytes = StringSizeInBytes(FileExtention);
+				
+				If Common.IsLinuxServer() Then
+					FileName = ReduceSizeOfStringInBytes(FileName, 255 - SizeOfExtensionInBytes - 1);
+				EndIf;
+				
 				FileNameWithExtension = FileName + "." + FileExtention;
 				FullFileName = TempDirectoryName + FileNameWithExtension;
 				
@@ -1615,7 +1621,7 @@ EndProcedure
 &AtClient
 Procedure OpenOfficeDocsAfterTempDirReceived(ObtainedTempDir, Context) Export
 	TempDirectoryNameClient = ObtainedTempDir;
-	NotifyDescription = New CallbackDescription("OpenOfficeDocsAfterPermissionGranted", ThisObject, Context);
+	CallbackDescription = New CallbackDescription("OpenOfficeDocsAfterPermissionGranted", ThisObject, Context);
 	
 	Calls = New Array();
 		
@@ -1640,7 +1646,7 @@ Procedure OpenOfficeDocsAfterTempDirReceived(ObtainedTempDir, Context) Export
 	Calls.Add(Call);
 	Context.Insert("ArrayOfFilesToTransfer", ArrayOfFilesToTransfer);
 	
-	BeginRequestingUserPermission(NotifyDescription, Calls);
+	BeginRequestingUserPermission(CallbackDescription, Calls);
 EndProcedure	
 
 &AtClient
@@ -1755,8 +1761,8 @@ Procedure SavePrintFormsToDirectory(FilesListInTempStorage, Val DirectoryName = 
 		Return;
 	EndIf;
 	
-	NotifyDescription = New CallbackDescription("WhenPreparingFileNames", ThisObject, DirectoryName);
-	PreparationParameters = PrintManagementClient.FileNamePreparationOptions(FilesListInTempStorage, DirectoryName, NotifyDescription);
+	CallbackDescription = New CallbackDescription("WhenPreparingFileNames", ThisObject, DirectoryName);
+	PreparationParameters = PrintManagementClient.FileNamePreparationOptions(FilesListInTempStorage, DirectoryName, CallbackDescription);
 	PrepareFileNamesToSaveToADirectory(PreparationParameters);
 	
 EndProcedure
@@ -1778,8 +1784,8 @@ Procedure WhenPreparingFileNames(FilesListInTempStorage, DirectoryName) Export
 
 #If Not WebClient Then
 	If ValueIsFilled(DirectoryName) Then
-		NotifyDescription = New CallbackDescription("OpenFolderSaveTo", ThisObject, DirectoryName); 
-		ShowUserNotification(NStr("en = 'Print form saved'"), NotifyDescription,
+		CallbackDescription = New CallbackDescription("OpenFolderSaveTo", ThisObject, DirectoryName); 
+		ShowUserNotification(NStr("en = 'Print form saved'"), CallbackDescription,
 			StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'to directory %1'"), DirectoryName), 
 			PictureLib.DialogInformation);
 	EndIf;
@@ -2071,10 +2077,10 @@ EndProcedure
 
 &AtClient
 Procedure SendPrintFormsByEmail()
-	NotifyDescription = New CallbackDescription("SendPrintFormsByEmailAccountSetupOffered", ThisObject);
+	CallbackDescription = New CallbackDescription("SendPrintFormsByEmailAccountSetupOffered", ThisObject);
 	If CommonClient.SubsystemExists("StandardSubsystems.EmailOperations") Then
 		ModuleEmailOperationsClient = CommonClient.CommonModule("EmailOperationsClient");
-		ModuleEmailOperationsClient.CheckAccountForSendingEmailExists(NotifyDescription);
+		ModuleEmailOperationsClient.CheckAccountForSendingEmailExists(CallbackDescription);
 	EndIf;
 EndProcedure
 
@@ -2484,6 +2490,42 @@ EndProcedure
 Function UserTemplateUsed(TemplatePath)
 	
 	Return PrintManagement.UserTemplateUsed(TemplatePath);
+	
+EndFunction
+
+&AtServerNoContext
+Function StringSizeInBytes(String)
+	
+	Stream = New MemoryStream();
+	TextWriter = New TextWriter(Stream, TextEncoding.System);
+	TextWriter.Write(String);
+	TextWriter.Close();
+	
+	BinaryData = Stream.CloseAndGetBinaryData();
+	
+	Return BinaryData.Size();
+	
+EndFunction
+
+&AtServerNoContext
+Function ReduceSizeOfStringInBytes(String, RequiredSizeInBytes)
+	
+	Result = "";
+	CurrentResultRowSize = 0;
+	
+	For CharacterNumber = 1 To StrLen(String) Do
+		Char = Mid(String, CharacterNumber, 1);
+		SymbolSize = StringSizeInBytes(Char);
+		
+		If CurrentResultRowSize + SymbolSize > RequiredSizeInBytes Then
+			Return Result;
+		EndIf;
+		
+		Result = Result + Char;
+		CurrentResultRowSize = CurrentResultRowSize + SymbolSize;
+	EndDo;
+	
+	Return Result;
 	
 EndFunction
 

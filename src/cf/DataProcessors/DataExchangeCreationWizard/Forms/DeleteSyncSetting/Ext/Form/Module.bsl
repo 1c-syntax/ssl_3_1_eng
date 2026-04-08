@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -320,6 +319,7 @@ Procedure FillNavigationTable()
 	
 	NewNavigation = AddNavigationTableRow("StartPage", "PageNavigationStart");
 	NewNavigation.OnOpenHandlerName = "Attachable_BeginningPageOnOpen1";
+	NewNavigation.OnNavigationToNextPageHandlerName = "Attachable_HomePage_WhenGoingFurther";
 	
 	NewNavigation = AddNavigationTableRow("PageWait", "PageNavigationWait");
 	NewNavigation.OnOpenHandlerName = "Attachable_WaitingPageOnOpen";
@@ -356,7 +356,34 @@ Function Attachable_BeginningPageOnOpen1(Cancel, SkipPage, IsMoveNext)
 EndFunction
 
 &AtClient
+Function Attachable_HomePage_WhenGoingFurther(Cancel)
+	
+	If DeleteSettingItemInCorrespondent And Not PasswordFilled Then
+		AuthenticationParameters = ExchangeMessagesTransportClient.AuthenticationParameters();
+		AuthenticationParameters.Peer = ExchangeNode;
+		AuthenticationParameters.TransportID = TransportID;
+		
+		AuthenticationRequired = False;
+		
+		AdditionalParameters = New Structure;
+		AdditionalParameters.Insert("Peer", ExchangeNode);
+		
+		ClosingNotification1 = New CallbackDescription("EndOfAuthentication", ThisObject, AdditionalParameters);
+		ExchangeMessagesTransportClient.StartOfAuthentication(AuthenticationParameters, AuthenticationRequired, ClosingNotification1);
+		
+		PasswordFilled = Not AuthenticationRequired;
+		
+		Cancel = AuthenticationRequired;
+	EndIf;
+		
+	Return Undefined;
+	
+EndFunction
+
+&AtClient
 Function Attachable_WaitingPageOnOpen(Cancel, SkipPage, IsMoveNext)
+	
+	PasswordFilled = False;
 	
 	ClosingNotification1 = New CallbackDescription("AfterPermissionDeletion", ThisObject, ExchangeNode);
 	If CommonClient.SubsystemExists("StandardSubsystems.SecurityProfiles") Then
@@ -782,6 +809,24 @@ Procedure AfterPermissionDeletion(Result, InfobaseNode) Export
 		ChangeNavigationNumber(-1);
 	EndIf;
 	
+EndProcedure
+
+&AtClient
+Procedure EndOfAuthentication(Result, AdditionalParameters) Export 
+	
+	AuthenticationData = Result;
+	
+	If Not ValueIsFilled(AuthenticationData) Then
+		Return;
+	EndIf;
+	
+	ExchangeMessageTransportServerCall.SetDataSynchronizationPassword(
+		AdditionalParameters.Peer, AuthenticationData);
+		
+	PasswordFilled = True;
+		
+	ChangeNavigationNumber(+1);
+		
 EndProcedure
 
 &AtClient

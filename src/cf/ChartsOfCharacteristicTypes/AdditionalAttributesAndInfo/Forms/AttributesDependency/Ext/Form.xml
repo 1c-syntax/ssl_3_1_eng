@@ -7,7 +7,7 @@
 		<HorizontalAlign>Right</HorizontalAlign>
 		<Autofill>false</Autofill>
 		<ChildItems>
-			<Button name="FormOkCommand" id="3">
+			<Button name="FormOKCommand" id="3">
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
 				<CommandName>Form.Command.OkCommand</CommandName>

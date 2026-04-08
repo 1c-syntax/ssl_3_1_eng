@@ -169,7 +169,7 @@
 											</Title>
 											<ExtendedTooltip name="FormCheckPatchesExtendedTooltip" id="24"/>
 										</Button>
-										<LabelDecoration name="GenerateErrorReport" id="29">
+										<LabelDecoration name="GenerateErrorReport_SSLyf" id="29">
 											<Title formatted="false">
 												<v8:item>
 													<v8:lang>en</v8:lang>
@@ -177,10 +177,10 @@
 												</v8:item>
 											</Title>
 											<Hyperlink>true</Hyperlink>
-											<ContextMenu name="GenerateErrorReportContextMenu" id="30"/>
-											<ExtendedTooltip name="GenerateErrorReportExtendedTooltip" id="31"/>
+											<ContextMenu name="GenerateErrorReport_SSLyfContextMenu" id="30"/>
+											<ExtendedTooltip name="GenerateErrorReport_SSLyfExtendedTooltip" id="31"/>
 											<Events>
-												<Event name="Click">GenerateErrorReportClick</Event>
+												<Event name="Click">GenerateErrorReport_SSLyfClick</Event>
 											</Events>
 										</LabelDecoration>
 									</ChildItems>

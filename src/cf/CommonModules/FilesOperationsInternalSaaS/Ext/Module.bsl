@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Internal
@@ -24,7 +23,6 @@ Procedure UpdateTextExtractionQueueState(TextSource, TextExtractionState) Export
 	If Not Common.SubsystemExists("CloudTechnology.Core") Then
 		Return;
 	EndIf;
-	
 	ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 	
 	SetPrivilegedMode(True);
@@ -156,7 +154,7 @@ Procedure OnRegisterDataImportHandlers(HandlersTable) Export
 	
 EndProcedure
 
-// Attached in the ExportImportDataOverridable.OnRegisterDataExportHandlers.
+// Attached in ExportImportDataOverridable.OnRegisterDataExportHandlers.
 //
 // Parameters:
 //   Container - DataProcessorObject.ExportImportDataContainerManager
@@ -254,7 +252,7 @@ Procedure BeforeExportObject(Container, ObjectExportManager, Serializer, Object,
 	
 EndProcedure
 
-// Attached in the ExportImportDataOverridable.OnRegisterDataImportHandlers.
+// Attached in ExportImportDataOverridable.OnRegisterDataImportHandlers.
 //
 // Parameters:
 //   Container - DataProcessorObject.ExportImportDataContainerManager
@@ -502,5 +500,12 @@ Procedure ClearRefToFilesStorageVolume(Object)
 EndProcedure
 
 #EndRegion
+
+// See StandardSubsystemsServer.WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode
+Procedure WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode(Methods) Export
+	
+	Methods.Insert("HandleTextExtractionQueue", True);
+	
+EndProcedure
 
 #EndRegion

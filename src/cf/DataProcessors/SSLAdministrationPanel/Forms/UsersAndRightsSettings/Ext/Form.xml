@@ -841,11 +841,11 @@ The standard mode is considered outdated and has been retained for backward comp
 							<ShowTitle>false</ShowTitle>
 							<ExtendedTooltip name="GroupPersonalDataAccessEventRegistrationSettingsExtendedTooltip" id="2212"/>
 							<ChildItems>
-								<Button name="PersonalDataAccessEventsRegistrationSettings" id="2213">
+								<Button name="SettingsForRegistrationOfPersonalDataAccessEvents" id="2213">
 									<Type>Hyperlink</Type>
 									<CommandName>0</CommandName>
 									<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
-									<ExtendedTooltip name="PersonalDataAccessEventsRegistrationSettingsExtendedTooltip" id="2214">
+									<ExtendedTooltip name="SettingsForRegistrationOfPersonalDataAccessEventsExtendedTooltip" id="2214">
 										<AutoMaxWidth>false</AutoMaxWidth>
 										<Title formatted="false">
 											<v8:item>

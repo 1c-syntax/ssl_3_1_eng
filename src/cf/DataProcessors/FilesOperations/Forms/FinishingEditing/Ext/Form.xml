@@ -3,7 +3,7 @@
 	<Title>
 		<v8:item>
 			<v8:lang>en</v8:lang>
-			<v8:content>Commit</v8:content>
+			<v8:content>Finish editing</v8:content>
 		</v8:item>
 	</Title>
 	<WindowOpeningMode>LockOwnerWindow</WindowOpeningMode>
@@ -199,7 +199,7 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Commit</v8:content>
+							<v8:content>Finish editing</v8:content>
 						</v8:item>
 					</Title>
 					<ExtendedTooltip name="EndEditExtendedTooltip" id="54"/>
@@ -334,13 +334,13 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Commit</v8:content>
+					<v8:content>Finish editing</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Commit</v8:content>
+					<v8:content>Finish editing</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>EndEdit</Action>

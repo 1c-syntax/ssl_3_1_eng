@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Internal
@@ -448,7 +447,7 @@ EndFunction
 // Parameters:
 //  Owner - AnyRef - an owner of permissions to use external resources.
 //    (Undefined when requesting permissions for the configuration, not for configuration objects).
-//  ReplacementMode - Boolean - replacement mode of permissions provided earlier for the permission owner.
+//  Var_ReplacementMode - Boolean - replacement mode of permissions provided earlier for the permission owner.
 //  PermissionsToAdd - Array of XDTODataObject - an array of XDTODataObjects that match internal details
 //    of external resource access permissions to be requested. It is assumed that all XDTODataObjects passed
 //    as parameters are generated using the SafeModeManager.Permission*() functions.
@@ -461,26 +460,26 @@ EndFunction
 // Returns:
 //   UUID - an ID of the created request.
 //
-Function PermissionChangeRequest(Val Owner, Val ReplacementMode, Val PermissionsToAdd = Undefined, 
+Function PermissionChangeRequest(Val Owner, Val Var_ReplacementMode, Val PermissionsToAdd = Undefined, 
 	Val PermissionsToDelete = Undefined, Val ProgramModule = Undefined) Export
 	
 	StandardProcessing = True;
 	Result = Undefined;
 	
 	SSLSubsystemsIntegration.OnRequestPermissionsToUseExternalResources(
-			ProgramModule, Owner, ReplacementMode, PermissionsToAdd, PermissionsToDelete, StandardProcessing, Result);
+			ProgramModule, Owner, Var_ReplacementMode, PermissionsToAdd, PermissionsToDelete, StandardProcessing, Result);
 	
 	If StandardProcessing Then
 		
 		SafeModeManagerOverridable.OnRequestPermissionsToUseExternalResources(
-			ProgramModule, Owner, ReplacementMode, PermissionsToAdd, PermissionsToDelete, StandardProcessing, Result);
+			ProgramModule, Owner, Var_ReplacementMode, PermissionsToAdd, PermissionsToDelete, StandardProcessing, Result);
 		
 	EndIf;
 	
 	If StandardProcessing Then
 		
 		Result = InformationRegisters.RequestsForPermissionsToUseExternalResources.RequestToUsePermissions(
-			ProgramModule, Owner, ReplacementMode, PermissionsToAdd, PermissionsToDelete);
+			ProgramModule, Owner, Var_ReplacementMode, PermissionsToAdd, PermissionsToDelete);
 		
 	EndIf;
 	
@@ -649,6 +648,55 @@ Function ExternalModulesManagers()
 	Return Managers;
 	
 EndFunction
+
+#EndRegion
+
+#Region ExternalResourcesPermissionsSetup
+
+Procedure ExecuteRequestProcessing(Val RequestsIDs, Val TempStorageAddress,
+			Val StateTemporaryStorageAddress, Val AddClearingRequestsBeforeApplying = False) Export
+	
+	DataProcessors.ExternalResourcesPermissionsSetup.ExecuteRequestProcessing(
+		RequestsIDs,
+		TempStorageAddress,
+		StateTemporaryStorageAddress,
+		AddClearingRequestsBeforeApplying);
+	
+EndProcedure
+
+Procedure ExecuteUpdateRequestProcessing(Val TempStorageAddress,
+			Val StateTemporaryStorageAddress) Export
+	
+	DataProcessors.ExternalResourcesPermissionsSetup.ExecuteUpdateRequestProcessing(
+		TempStorageAddress, StateTemporaryStorageAddress);
+	
+EndProcedure
+
+Procedure ExecuteDisableRequestProcessing(Val TempStorageAddress,
+			Val StateTemporaryStorageAddress) Export
+	
+	DataProcessors.ExternalResourcesPermissionsSetup.ExecuteDisableRequestProcessing(
+		TempStorageAddress, StateTemporaryStorageAddress);
+	
+EndProcedure
+
+Procedure ExecuteRecoveryRequestProcessing(Val TempStorageAddress,
+			Val StateTemporaryStorageAddress) Export
+	
+	DataProcessors.ExternalResourcesPermissionsSetup.ExecuteRecoveryRequestProcessing(
+		TempStorageAddress, StateTemporaryStorageAddress);
+	
+EndProcedure
+
+// See StandardSubsystemsServer.WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode
+Procedure WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode(Methods) Export
+	
+	Methods.Insert("ExecuteRequestProcessing", True);
+	Methods.Insert("ExecuteUpdateRequestProcessing", True);
+	Methods.Insert("ExecuteDisableRequestProcessing", True);
+	Methods.Insert("ExecuteRecoveryRequestProcessing", True);
+	
+EndProcedure
 
 #EndRegion
 

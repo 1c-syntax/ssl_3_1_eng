@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -98,12 +97,12 @@ EndProcedure
 //
 Procedure ReflectNotDeletedItems(DeletionParameters, NotTrash)
 
-	DataVersions = StandardSubsystemsServer.ObjectAttributeValuesIfExist(
-		NotTrash.UnloadColumn("ItemToDeleteRef"), "DataVersion");
 	For Each Item In NotTrash Do
 
-		// An object can be deleted if its parent object is marked for deletion.
-		If ObjectDeleted(Item.ItemToDeleteRef, DataVersions) Then
+		// An object can be deleted as a subordinate of another object marked for deletion.
+// @skip-check query-in-loop - Simple query for individual object deletion check.
+		// @skip-check query-in-loop - Легкий запрос для штучной проверки удаления объекта.
+		If ObjectDeleted(Item.ItemToDeleteRef) Then
 			Continue;
 		EndIf;
 		
@@ -129,11 +128,10 @@ EndProcedure
 
 Procedure ReflectUsageInstances(DeletionParameters, UsageInstances)
 
-	DataVersions = StandardSubsystemsServer.ObjectAttributeValuesIfExist(
-		UsageInstances.UnloadColumn("UsageInstance1"), "DataVersion");
 	ObjectsPreventingDeletion = DeletionParameters.ObjectsPreventingDeletion;
 	For Each UsageInstanceInfo1 In UsageInstances Do
-		If ObjectDeleted(UsageInstanceInfo1.UsageInstance1, DataVersions) Then
+		// @skip-check query-in-loop - Легкий запрос для штучной проверки удаления объекта.
+		If ObjectDeleted(UsageInstanceInfo1.UsageInstance1) Then
 			Continue;
 		EndIf;
 		
@@ -172,7 +170,7 @@ Function ProcessObjectsToDelete(DeletionParameters, ObjectsToDelete, MetadataInf
 	
 	For Each QueueItem In ObjectsToDelete Do
 		If Not Package.Find(QueueItem.ItemToDeleteRef, "ItemToDeleteRef") <> Undefined Then
-			// @skip-check query-in-loop
+			// @skip-check query-in-loop - 
 			QueueItemInPackage = QueueItemToPackage(QueueItem, MetadataInfo, Package); 
 			
 			If ItemProcessingProhibited(QueueItemInPackage) Then
@@ -186,14 +184,13 @@ Function ProcessObjectsToDelete(DeletionParameters, ObjectsToDelete, MetadataInf
 				Or ObjectsToDelete.IndexOf(QueueItem) = ObjectsToDelete.Count()-1 Then
 				
 			PackageProcessingResult = ProcessPackage(DeletionParameters, Package);
-			DeletionResults = MergeDeletionResult(DeletionResults, PackageProcessingResult);
+			MergeDeletionResult(DeletionResults, PackageProcessingResult);
 			Package.Clear();
 		EndIf;
 	EndDo;
 	
-	DeletionResults = MergeDeletionResult(
-		DeletionResults, 
-		ResultOfDeletionFromUnprocessedPackage(DeletionParameters, ObjectsWithDeleteProhibition));	
+	ResultOfDeletionFromUnprocessedPackage = ResultOfDeletionFromUnprocessedPackage(DeletionParameters, ObjectsWithDeleteProhibition);
+	MergeDeletionResult(DeletionResults, ResultOfDeletionFromUnprocessedPackage);
 	
 	// Attempt to delete objects that form circular references within a transaction.
 	NumberOfUndeletedItems = 0;
@@ -203,7 +200,7 @@ Function ProcessObjectsToDelete(DeletionParameters, ObjectsToDelete, MetadataInf
 		Package = CircularRefs(DeletionResults.NotDeletedObjects, DeletionResults.UsageInstances);
 		CircularReferencesProcessingResult = ProcessPackageInOneTransaction(DeletionParameters, Package);
 		If CircularReferencesProcessingResult.DeletedObjects.Count() > 0 Then
-			DeletionResults = AfterDeleteCircularReferencesResult(DeletionResults, CircularReferencesProcessingResult);	
+			DeletionResults = AfterDeleteCircularReferencesResult(DeletionResults, CircularReferencesProcessingResult);
 		EndIf;
 	EndDo;
 	
@@ -235,7 +232,7 @@ Function QueueItemToPackage(QueueItem, MetadataInfo, Exceptions)
 	Package = ObjectsToDeletePackage();
 	DeletionResult = Undefined;
 	
-	// Skip if an object is deleted of added to the package as a subordinate object.	
+	// Skip if an object is deleted or added to the package as a subordinate object.
 	If Not ObjectDeleted(QueueItem.ItemToDeleteRef) 
 		And Exceptions.Find(QueueItem.ItemToDeleteRef, "ItemToDeleteRef") = Undefined Then
 			
@@ -305,6 +302,7 @@ Function ProcessPackage(DeletionParameters, Package)
 			For Each ItemToRemove In MainAndSubordinateObjects Do
 				
 				Filter = New Structure("ItemToDeleteRef", ItemToRemove.ItemToDeleteRef);
+				// @skip-check query-in-loop - Легкий запрос для штучной проверки удаления объекта.
 				DeletionResult = DeletePackageItem(DeletionParameters, ItemToRemove,
 					UsageInstances.Copy(Filter), UndeletedItems);
 							
@@ -681,16 +679,13 @@ EndFunction
 //   DeletionResults - See ProcessingResult
 //   ProcessingResult - See ProcessingResult
 //
-Function MergeDeletionResult(DeletionResults, ProcessingResult)
+Procedure MergeDeletionResult(DeletionResults, ProcessingResult)
 	
-	Result = ProcessingResult();
-	Result.NotDeletedObjects = TablesMerge(DeletionResults.NotDeletedObjects, ProcessingResult.NotDeletedObjects);
-	Result.UsageInstances = TablesMerge(DeletionResults.UsageInstances, ProcessingResult.UsageInstances);
-	Result.DeletedObjects = Common.CopyRecursive(DeletionResults.DeletedObjects);
-	CommonClientServer.SupplementArray(Result.DeletedObjects, ProcessingResult.DeletedObjects);
-	Return Result;	
+	DeletionResults.NotDeletedObjects = TablesMerge(DeletionResults.NotDeletedObjects, ProcessingResult.NotDeletedObjects);
+	DeletionResults.UsageInstances = TablesMerge(DeletionResults.UsageInstances, ProcessingResult.UsageInstances);
+	CommonClientServer.SupplementArray(DeletionResults.DeletedObjects, ProcessingResult.DeletedObjects);
 	
-EndFunction
+EndProcedure
 
 // Parameters:
 //   Receiver - ValueTable
@@ -704,10 +699,9 @@ EndFunction
 Function SourceDestinationSubset(Receiver, Source, DestinationColumn, SourceColumn1)
 	Result = True;
 	
-	DataVersions = StandardSubsystemsServer.ObjectAttributeValuesIfExist(
-		Source.UnloadColumn("UsageInstance1"), "DataVersion");
 	For Each UsageInstanceInfo1 In Source Do
-		If Not ObjectDeleted(UsageInstanceInfo1.UsageInstance1, DataVersions)
+			// @skip-check query-in-loop - Легкий запрос для штучной проверки удаления объекта.
+			If Not ObjectDeleted(UsageInstanceInfo1.UsageInstance1)
 				And Receiver.Find(UsageInstanceInfo1[SourceColumn1], DestinationColumn) = Undefined Then
 			Result = False;
 			Break;
@@ -729,12 +723,35 @@ Function ItemDeletionAllowed(AdditionalInfo)
 	Return Result;
 EndFunction
 
-Function ObjectDeleted(ItemToDeleteRef, DataVersions = Undefined)
-	Return ValueIsFilled(ItemToDeleteRef) 
-		And CommonClientServer.HasAttributeOrObjectProperty(ItemToDeleteRef, "DataVersion")
-		And ?(DataVersions <> Undefined, Not ValueIsFilled(DataVersions[ItemToDeleteRef])
-			Or Not ValueIsFilled(DataVersions[ItemToDeleteRef].DataVersion),
-			Not ValueIsFilled(Common.ObjectAttributeValue(ItemToDeleteRef, "DataVersion")));
+Function ObjectDeleted(ItemToDeleteRef)
+	
+	If Not ValueIsFilled(ItemToDeleteRef) Then
+		Return False;
+	EndIf;
+	
+	ObjectMetadata = ItemToDeleteRef.Metadata();
+	If Not Common.IsRefTypeObject(ObjectMetadata) Then
+		Return False;
+	EndIf;
+	
+	Query = New Query;
+	Query.Text =
+		"SELECT TOP 1
+		|	TRUE AS TrueValue
+		|FROM
+		|	&FullMetadataObjectName AS RemovableObject
+		|WHERE
+		|	RemovableObject.Ref = &Ref";
+	
+	Query.SetParameter("Ref", ItemToDeleteRef);
+	Query.Text = StrReplace(Query.Text, "&FullMetadataObjectName", ObjectMetadata.FullName());
+	
+	SetPrivilegedMode(True);
+	Result = Query.Execute().IsEmpty();
+	SetPrivilegedMode(False);
+	
+	Return Result;
+	
 EndFunction
 
 // Parameters:
@@ -766,7 +783,7 @@ Procedure ReflectPackageItemDeletionResult(DeletionParameters, PackageProcessing
 	EndIf;	
 	
 	If DeletionResult.IsMainObject Then
-		DeletionParameters.ProcessedItemsCount = DeletionParameters.ProcessedItemsCount + 1;
+		DeletionParameters.ProcessedItemsCount_SSLyf = DeletionParameters.ProcessedItemsCount_SSLyf + 1;
 	EndIf;
 	
 	NotifyOfProgress(DeletionParameters);
@@ -849,20 +866,16 @@ EndFunction
 Function DeletePackageItem(DeletionParameters, Item, UsageInstances, UndeletedItems)
 
 	Result = ResultOfDeletingAnElement(Item);
+	// @skip-check query-in-loop - Легкий запрос для штучной проверки удаления объекта.
 	If ObjectDeleted(Item.ItemToDeleteRef) Then // The object has already been deleted.
 		Return Result;
 	EndIf;
 	
-	If Item.ChildSubordinateObjects.Count() > 0 Then
-		DataVersions = StandardSubsystemsServer.ObjectAttributeValuesIfExist(
-			Item.ChildSubordinateObjects.UnloadColumn("Item"), "DataVersion");
-	EndIf;
-
 	// The item has child or subordinate objects pending deletion.
 	For Each ChildSubordinateItem In Item.ChildSubordinateObjects Do
-		If Not ObjectDeleted(ChildSubordinateItem.Item, DataVersions) 
-				Or UndeletedItems.Find(ChildSubordinateItem.Item) <> Undefined Then
-				
+		// @skip-check query-in-loop - Легкий запрос для штучной проверки удаления объекта.
+		If Not ObjectDeleted(ChildSubordinateItem.Item) 
+			Or UndeletedItems.Find(ChildSubordinateItem.Item) <> Undefined Then
 			Result.Code = DeletionResultCodes().HasUsageInstances;
 			Result.UsageInstances = RemainingUsageInstancesOfObjectToDelete(
 				DeletionParameters, UsageInstances, ChildSubordinateItem.Item);
@@ -891,7 +904,7 @@ Function DeletePackageItem(DeletionParameters, Item, UsageInstances, UndeletedIt
 
 	RemainingUsageInstances = RemainingUsageInstancesOfObjectToDelete(DeletionParameters, UsageInstances);
 	If RemainingUsageInstances.Count() = 0
-			Or RefsCleanupLocations.Count() = RemainingUsageInstances.Count() Then
+		Or RefsCleanupLocations.Count() = RemainingUsageInstances.Count() Then
 		
 		Result.UsageInstances = RefsCleanupLocations;  	
 	Else
@@ -1005,6 +1018,7 @@ Function CircularRefs(Package, UsageInstances)
 	CountInPackage = Package.Count();
 	While (Result[0].Count() <> CountInPackage) Do
 		CountInPackage = Result[0].Count();
+		// @skip-check query-in-loop - Легкий запрос для штучной проверки удаления объекта.
 		Result = RefsOnlyToItemsInPackage(Result[0], Result[1]);
 	EndDo;
 	
@@ -1021,20 +1035,21 @@ EndFunction
 //   See UsageInstances
 //
 Function RemainingUsageInstancesOfObjectToDelete(DeletionParameters, UsageInstances, LinkException = Undefined)
+	
 	Result = UsageInstances.CopyColumns();
-
-	DataVersions = StandardSubsystemsServer.ObjectAttributeValuesIfExist(
-		UsageInstances.UnloadColumn("UsageInstance1"), "DataVersion");
+	
 	For Each UsageInstanceInfo1 In UsageInstances Do
 		IsReference = UsageInstanceInfo1.UsageInstance1 <> Undefined 
 			And CommonClientServer.HasAttributeOrObjectProperty(UsageInstanceInfo1.UsageInstance1, "DataVersion");
 		IsConstant = Metadata.Constants.Contains(UsageInstanceInfo1.Metadata);	
 		
-		If IsReference
-			And (Not ObjectDeleted(UsageInstanceInfo1.UsageInstance1, DataVersions)
-				Or UsageInstanceInfo1.UsageInstance1 = LinkException)
-			And Not UsageInstanceInfo1.IsInternalData  Then
-			FillPropertyValues(Result.Add(), UsageInstanceInfo1);
+		If IsReference Then
+			// @skip-check query-in-loop - Легкий запрос для штучной проверки удаления объекта.
+			ObjectDeleted = ObjectDeleted(UsageInstanceInfo1.UsageInstance1);
+			If (Not ObjectDeleted Or UsageInstanceInfo1.UsageInstance1 = LinkException)
+				And Not UsageInstanceInfo1.IsInternalData  Then
+				FillPropertyValues(Result.Add(), UsageInstanceInfo1);
+			EndIf;
 		EndIf;
 		
 		If Common.IsSequence(UsageInstanceInfo1.Metadata) Then
@@ -1053,8 +1068,9 @@ Function RemainingUsageInstancesOfObjectToDelete(DeletionParameters, UsageInstan
 			FillPropertyValues(Result.Add(), UsageInstanceInfo1);
 		EndIf;
 	EndDo;
-
+	
 	Return Result;
+	
 EndFunction
 
 Function RefsCleanupLocations(DeletionParameters, UsageInstances)
@@ -1064,20 +1080,20 @@ Function RefsCleanupLocations(DeletionParameters, UsageInstances)
 		Return Result;
 	EndIf;
 	
-	DataVersions = StandardSubsystemsServer.ObjectAttributeValuesIfExist(
-		UsageInstances.UnloadColumn("UsageInstance1"), "DataVersion");
 	UsageInstances.Sort("Metadata");
 	For Each UsageInstanceInfo1 In UsageInstances Do
 		
 		UsageInstanceType = TypeOf(UsageInstanceInfo1.UsageInstance1);
 		IsReference = Common.IsReference(UsageInstanceType);
 		
-		If IsReference
-			And Not ObjectDeleted(UsageInstanceInfo1.UsageInstance1, DataVersions) 
-			And Common.ObjectAttributeValue(UsageInstanceInfo1.UsageInstance1, "DeletionMark") 
-			And Not UsageInstanceInfo1.IsInternalData Then
-				
-			FillPropertyValues(Result.Add(), UsageInstanceInfo1);
+		If IsReference Then
+			// @skip-check query-in-loop - Легкий запрос для штучной проверки удаления объекта.
+			ObjectDeleted = ObjectDeleted(UsageInstanceInfo1.UsageInstance1);
+			If Not ObjectDeleted
+				And Common.ObjectAttributeValue(UsageInstanceInfo1.UsageInstance1, "DeletionMark") 
+				And Not UsageInstanceInfo1.IsInternalData Then
+				FillPropertyValues(Result.Add(), UsageInstanceInfo1);
+			EndIf;
 		EndIf;
 	EndDo;
 	
@@ -1095,8 +1111,11 @@ Function RefsOnlyToItemsInPackage(Package, UsageInstances)
 			Continue;
 		EndIf;
 		
-		ItemUsageInstances = UsageInstances.Copy(New Structure("ItemToDeleteRef", Item.ItemToDeleteRef), "UsageInstance1");
-		If SourceDestinationSubset(Package, ItemUsageInstances, "ItemToDeleteRef", "UsageInstance1") Or UsageInstances.Count() = 0 Then
+		ItemUsageInstances = UsageInstances.Copy(
+			New Structure("ItemToDeleteRef", Item.ItemToDeleteRef), "UsageInstance1");
+		// @skip-check query-in-loop - Легкий запрос для штучной проверки удаления объекта.
+		If SourceDestinationSubset(Package, ItemUsageInstances, "ItemToDeleteRef", "UsageInstance1")
+			Or UsageInstances.Count() = 0 Then
 			FillPropertyValues(NewPackage.Add(), Item);
 			
 			For Each Item In ItemUsageInstances Do
@@ -1210,7 +1229,7 @@ Function DeletionResult(ObjectsToDelete, DeletionParameters)
 	ProcessingParameters.Insert("ToRedelete",      New Array);
 	ProcessingParameters.Insert("CountOfItemsToDelete",    ObjectsToDelete.Count());
 	ProcessingParameters.Insert("NotDeletedObjectsCount",  0);
-	ProcessingParameters.Insert("ProcessedItemsCount",  0);
+	ProcessingParameters.Insert("ProcessedItemsCount_SSLyf",  0);
 	ProcessingParameters.Insert("Total",  0);
 	ProcessingParameters.Insert("Number",  0);
 	ProcessingParameters.Insert("JobID", "");
@@ -1577,8 +1596,8 @@ Procedure DeleteMarkedObjectsExclusively(ObjectsToDelete, ExecutionParameters)
 		DeletableObjectInfoRecords[RemovableObject].DataVersion = 
 			?(ValueIsFilled(DeletableObjectsInfoRecords[RemovableObject]), 
 				DeletableObjectsInfoRecords[RemovableObject].DataVersion, Undefined);
-		If Not ObjectDeleted(RemovableObject, DeletableObjectInfoRecords) 
-				And Not DeletableObjectsInfoRecords[RemovableObject].DeletionMark Then
+		// @skip-check query-in-loop - Легкий запрос для штучной проверки удаления объекта.
+		If Not ObjectDeleted(RemovableObject) And Not DeletableObjectsInfoRecords[RemovableObject].DeletionMark Then
 			ReasonForNotDeletion = New Structure;
 			ReasonForNotDeletion.Insert("ItemToDeleteRef", RemovableObject);
 			ReasonForNotDeletion.Insert("UsageInstance1", NStr("en = 'The object being deleted is not marked for deletion.'"));
@@ -1591,7 +1610,7 @@ Procedure DeleteMarkedObjectsExclusively(ObjectsToDelete, ExecutionParameters)
 		MetadataInformation = MetadataInfo.Find(TypeOf(RemovableObject), "Type");
 		MetadataInformation.Hierarchical = False; // Search only for subordinate items.
 		
-		// @skip-check query-in-loop
+		// @skip-check query-in-loop - 
 		ChildSubordinateObjects = ChildSubordinateItems(RemovableObject, MetadataInformation);
 		For Each SubordinateObject In ChildSubordinateObjects Do
 			If SubordinateObject.DeletionMark Or SubordinateObject.ElementType = "Subordinated" Then
@@ -1762,7 +1781,7 @@ EndFunction
 Procedure MarkCollectionTraversalProgress(ExecutionParameters, CollectionName)
 	ExecutionParameters.Number = ExecutionParameters.Number + 1;
 	
-	Percent = Round(100 * (ExecutionParameters.ProcessedItemsCount)
+	Percent = Round(100 * (ExecutionParameters.ProcessedItemsCount_SSLyf)
 		/ ExecutionParameters.CountOfItemsToDelete);
 	AdditionalParameters = Undefined;
 	
@@ -1787,10 +1806,10 @@ Procedure MarkCollectionTraversalProgress(ExecutionParameters, CollectionName)
 		
 		AdditionalParameters = New Structure;
 		AdditionalParameters.Insert("SessionNumber", InfoBaseSessionNumber());
-		AdditionalParameters.Insert("ProcessedItemsCount", ExecutionParameters.ProcessedItemsCount);
+		AdditionalParameters.Insert("ProcessedItemsCount_SSLyf", ExecutionParameters.ProcessedItemsCount_SSLyf);
 		Text = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Processed %1 of %2'"),
-			ExecutionParameters.ProcessedItemsCount,
+			ExecutionParameters.ProcessedItemsCount_SSLyf,
 			ExecutionParameters.CountOfItemsToDelete);
 		
 	ElsIf CollectionName = "ToRedelete" Then

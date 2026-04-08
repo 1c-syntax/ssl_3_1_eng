@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Internal
@@ -600,7 +599,7 @@ Procedure UpdateRemindersForSubjects(Subjects) Export
 	For Each TableRow In ResultTable2 Do
 		SubjectDate = Common.ObjectAttributeValue(TableRow.Source, TableRow.SourceAttributeName);
 		If (SubjectDate - TableRow.ReminderInterval) <> TableRow.EventTime Then
-			// @skip-check query-in-loop - запись данных набором с чтением в цикле.
+			// @skip-check query-in-loop - Write data as a dataset with reading within a loop.
 			DisableReminder(TableRow, False);
 			TableRow.ReminderTime = SubjectDate - TableRow.ReminderInterval;
 			TableRow.EventTime = SubjectDate;
@@ -610,8 +609,9 @@ Procedure UpdateRemindersForSubjects(Subjects) Export
 			
 			ReminderParameters = Common.ValueTableRowToStructure(TableRow);
 			ReminderParameters.Schedule = TableRow.Schedule.Get();
-			// @skip-check query-in-loop - запись данных набором с чтением в цикле.
+			// @skip-check query-in-loop - Write data as a dataset with reading within a loop.
 			Reminder = CreateReminder(ReminderParameters);
+			// @skip-check query-in-loop - Write data as a dataset with reading within a loop.
 			AttachReminder(Reminder);
 		EndIf;
 	EndDo;
@@ -689,6 +689,7 @@ Procedure AttachReminder(ReminderParameters, UpdateReminderPeriod = False, Shoul
 	EndIf;
 	RecordSet.Filter.User.Set(ReminderParameters.User);
 	RecordSet.Filter.Source.Set(ReminderParameters.Source);
+	RecordSet.Filter.EventTime.Set(ReminderParameters.EventTime);
 	
 	Block = New DataLock;
 	LockItem = Block.Add("InformationRegister.UserReminders");
@@ -696,39 +697,75 @@ Procedure AttachReminder(ReminderParameters, UpdateReminderPeriod = False, Shoul
 	LockItem.SetValue("Source", ReminderParameters.Source);
 	
 	If UpdateReminderPeriod Then
-		RecordSet.Filter.EventTime.Set(ReminderParameters.EventTime);
-		LockItem.SetValue("EventTime", ReminderParameters.EventTime);
-	EndIf;
-	
-	BeginTransaction();
-	Try
-		Block.Lock();
-		RecordSet.Read();
 		
-		If UpdateReminderPeriod Then
+		LockItem.SetValue("EventTime", ReminderParameters.EventTime);
+		
+		BeginTransaction();
+		Try
+			Block.Lock();
+			
+			RecordSet.Read();
 			For Each Record In RecordSet Do
 				FillPropertyValues(Record, ReminderParameters);
 			EndDo;
-		Else
 			If RecordSet.Count() > 0 Then
-				BusyTime = RecordSet.Unload(,"EventTime").UnloadColumn("EventTime");
-				While BusyTime.Find(ReminderParameters.EventTime) <> Undefined Do
-					ReminderParameters.EventTime = ReminderParameters.EventTime + 1;
-				EndDo;
+				RecordSet.Write();
 			EndIf;
-			NewRecord = RecordSet.Add();
-			FillPropertyValues(NewRecord, ReminderParameters);
-		EndIf;
+			CommitTransaction();
+		Except
+			RollbackTransaction();
+			Raise;
+		EndTry;
 		
-		If RecordSet.Count() > 0 Then
-			RecordSet.Write();
-		EndIf;
+	Else
 		
-		CommitTransaction();
-	Except
-		RollbackTransaction();
-		Raise;
-	EndTry;
+		Query = New Query;
+		Query.Text = 
+			"SELECT TOP 1
+			|	TRUE AS TrueValue
+			|FROM
+			|	InformationRegister.UserReminders AS UserReminders
+			|WHERE
+			|	UserReminders.User = &User
+			|	AND UserReminders.Source = &Source
+			|	AND UserReminders.EventTime = &EventTime";
+		
+		Query.SetParameter("User", ReminderParameters.User);
+		Query.SetParameter("Source", ReminderParameters.Source);
+		Query.SetParameter("EventTime", ReminderParameters.EventTime);
+		
+		BeginTransaction();
+		Try
+			Block.Lock();
+			
+			If Query.Execute().IsEmpty() Then
+				// Attach the new reminder.
+				Record = RecordSet.Add();
+				FillPropertyValues(Record, ReminderParameters);
+				RecordSet.Write();
+			Else
+				// Delete the old reminder.
+				RecordSet.Read();
+				RecordSet.Clear();
+				RecordSet.Write();
+				
+				// Add a reminder with a new event time.
+				NewTimeOfEvent = NewTimeOfEvent(
+					ReminderParameters.User, ReminderParameters.Source);
+				
+				RecordSet.Filter.EventTime.Set(NewTimeOfEvent);
+				Record = RecordSet.Add();
+				FillPropertyValues(Record, ReminderParameters);
+				Record.EventTime = NewTimeOfEvent;
+				RecordSet.Write();
+			EndIf;
+			CommitTransaction();
+		Except
+			RollbackTransaction();
+			Raise;
+		EndTry;
+		
+	EndIf;
 	
 EndProcedure
 
@@ -971,9 +1008,9 @@ Procedure UpdateRemindersList(OnStart)
 			Continue;
 		EndIf;
 		
-		// @skip-check query-in-loop - нет обращения к данным ИБ в запросе.
+		// @skip-check query-in-loop - The query does not address infobase data.
 		EventScheduleForYear = EventSchedule(Schedule, Reminder.EventTime, AddMonth(Reminder.EventTime, 12) - 1);
-		// @skip-check query-in-loop - нет обращения к данным ИБ в запросе.
+		// @skip-check query-in-loop - The query does not address infobase data.
 		ComingEventTime = EventSchedule(Schedule, Reminder.EventTime + 1, CurrentSessionDate());
 		
 		EventTime = Reminder.EventTime;
@@ -998,17 +1035,17 @@ Procedure UpdateRemindersList(OnStart)
 		If ShouldReconnectOnSchedule Then
 			BeginTransaction();
 			Try
-				// @skip-check query-in-loop - запись данных набором с чтением в цикле.
+				// @skip-check query-in-loop - Write data as a dataset with reading within a loop.
 				DisableReminder(Reminder, IsOverdueReminder, OnStart);
 				
 				If Not IsOverdueReminder Then
 					ReminderParameters = Common.ValueTableRowToStructure(Reminder);
 					ReminderParameters.Schedule = Reminder.Schedule.Get();
-					// @skip-check query-in-loop - запись данных набором с чтением в цикле.
+					// @skip-check query-in-loop - Write data as a dataset with reading within a loop.
 					Reminder = CreateReminder(ReminderParameters);
 					Reminder.EventTime = EventTime;
 					Reminder.ReminderTime = Reminder.EventTime - Reminder.ReminderInterval;
-					
+					// @skip-check query-in-loop - Write data as a dataset with reading within a loop.
 					AttachReminder(Reminder,, OnStart);
 				EndIf;
 				CommitTransaction();
@@ -1188,7 +1225,7 @@ Procedure OnCreateAtServer(Form, PlacementParameters) Export
 		InputField.HorizontalStretch = False;
 		
 		SubsystemSettings = SubsystemSettings();
-		TimeIntervals = SubsystemSettings.StandardIntervals;
+		TimeIntervals_ = SubsystemSettings.StandardIntervals;
 		
 		InputField.ChoiceList.Clear();
 		If Not SettingsOfReminder.ShouldAddFlag Then
@@ -1196,7 +1233,7 @@ Procedure OnCreateAtServer(Form, PlacementParameters) Export
 		EndIf;
 		InputField.ChoiceList.Add(UserRemindersClientServer.EnumPresentationOnOccurrence());
 		
-		For Each Interval In TimeIntervals Do
+		For Each Interval In TimeIntervals_ Do
 			If Not ShouldDisplayShortIntervals And TimeIntervalFromString(Interval) < 24*60*60 Then
 				Continue;
 			EndIf;
@@ -1307,7 +1344,7 @@ Procedure DeleteRemindersBySubject(SubjectOf, AttributeName)
 	RemindersBySubject = UserReminders.FindReminders(SubjectOf);
 	For Each Reminder In RemindersBySubject Do
 		If Lower(Reminder.SourceAttributeName) = Lower(AttributeName) Then
-			// @skip-check query-in-loop - запись данных набором с чтением в цикле.
+			// @skip-check query-in-loop - Write data as a dataset with reading within a loop.
 			DisableReminder(Reminder, False);
 		EndIf;
 	EndDo;
@@ -1374,6 +1411,45 @@ EndFunction
 Function ShouldShowRemindersInNotificationCenter() Export
 	Return Common.CommonSettingsStorageLoad("UserCommonSettings", 
 		"ShouldShowRemindersInNotificationCenter", False);
+EndFunction
+
+Function NewTimeOfEvent(User, Source)
+	
+	Query = New Query;
+	
+	Query.Text = 
+		"SELECT
+		|	UserReminders.EventTime AS EventTime
+		|INTO Dates
+		|FROM
+		|	InformationRegister.UserReminders AS UserReminders
+		|WHERE
+		|	UserReminders.User = &User
+		|	AND UserReminders.Source = &Source
+		|
+		|INDEX BY
+		|	EventTime
+		|;
+		|
+		|////////////////////////////////////////////////////////////////////////////////
+		|SELECT TOP 1
+		|	DATEADD(MIN(DatesOnLeft.EventTime), SECOND, 1) AS NewTimeOfEvent
+		|FROM
+		|	Dates AS DatesOnLeft
+		|		LEFT JOIN Dates AS DatesOnRight
+		|		ON (DATEADD(DatesOnLeft.EventTime, SECOND, 1) = DatesOnRight.EventTime)
+		|WHERE
+		|	DatesOnRight.EventTime IS NULL";
+	
+	Query.SetParameter("User", User);
+	Query.SetParameter("Source", Source);
+	
+	Selection = Query.Execute().Select();
+	Selection.Next();
+	NewTimeOfEvent = Selection.NewTimeOfEvent;
+	
+	Return NewTimeOfEvent;
+	
 EndFunction
 
 #EndRegion

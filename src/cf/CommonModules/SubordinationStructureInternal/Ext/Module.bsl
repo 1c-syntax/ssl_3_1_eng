@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Internal
@@ -27,9 +26,13 @@ EndProcedure
 //   AttachableCommandsKinds - See AttachableCommandsOverridable.OnDefineAttachableCommandsKinds.AttachableCommandsKinds
 //
 Procedure OnDefineAttachableCommandsKinds(AttachableCommandsKinds) Export
-
+	
+	If Common.SubsystemExists("StandardSubsystems.ReportsOptions") Then
+		Return;
+	EndIf;
+	
 	Kind = AttachableCommandsKinds.Add();
-	Kind.Name         = "RelatedDocuments";
+	Kind.Name         = "Reports";
 	Kind.SubmenuName  = "ReportsSubmenu";
 	Kind.Title   = NStr("en = 'Reports'");
 	Kind.Order     = 50;
@@ -53,7 +56,7 @@ Procedure OnDefineCommandsAttachedToObject(FormSettings, Sources, AttachedReport
 
 	Command = Commands.Add();
 	Command.Presentation      = NStr("en = 'Related documents'");
-	Command.Kind                = "RelatedDocuments";
+	Command.Kind                = "Reports";
 	Command.MultipleChoice = False;
 	Command.FormParameterName  = "FilterObject";
 	Command.FormName           = FormMetadata.FullName();
@@ -61,6 +64,7 @@ Procedure OnDefineCommandsAttachedToObject(FormSettings, Sources, AttachedReport
 	Command.ParameterType       = CommandParameterType;
 	Command.Shortcut    = New Shortcut(Key.S, False, True, True);
 	Command.Picture           = PictureLib.SubordinationStructure;
+	Command.Order = 100;
 
 EndProcedure
 
@@ -95,19 +99,24 @@ EndFunction
 Procedure FillSourcesTypes(SourcesTypes, Sources)
 
 	For Each Source In Sources Do
+		If Not Common.MetadataObjectAvailableByFunctionalOptions(Source.Metadata) Then
+			Continue;
+		EndIf;
 
 		If TypeOf(Source.DataRefType) = Type("Type") Then
-
 			SourcesTypes.Add(Source.DataRefType);
-
 		ElsIf TypeOf(Source.DataRefType) = Type("TypeDescription") Then
-
-			CommonClientServer.SupplementArray(SourcesTypes, Source.DataRefType.Types());
-
+			For Each Type In Source.DataRefType.Types() Do
+				MetadataObject = Metadata.FindByType(Type);
+				If MetadataObject = Undefined
+					Or Not Common.MetadataObjectAvailableByFunctionalOptions(MetadataObject) Then
+					Continue;
+				EndIf;
+				SourcesTypes.Add(Type);
+			EndDo;
 		EndIf;
 
 		FillSourcesTypes(SourcesTypes, Source.Rows);
-
 	EndDo;
 
 EndProcedure

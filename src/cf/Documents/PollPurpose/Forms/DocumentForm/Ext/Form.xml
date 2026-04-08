@@ -118,10 +118,10 @@
 					</ButtonGroup>
 				</ChildItems>
 			</Popup>
-			<Button name="FormHelp" id="110">
+			<Button name="FormHelp_SSLyf" id="110">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.StandardCommand.Help</CommandName>
-				<ExtendedTooltip name="FormHelpExtendedTooltip" id="111"/>
+				<ExtendedTooltip name="FormHelp_SSLyfExtendedTooltip" id="111"/>
 			</Button>
 		</ChildItems>
 	</AutoCommandBar>

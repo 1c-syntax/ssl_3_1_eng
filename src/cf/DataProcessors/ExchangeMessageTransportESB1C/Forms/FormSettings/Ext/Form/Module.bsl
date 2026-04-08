@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -44,8 +43,7 @@ Procedure DecorationPreSettingsURLProcessing(Item, FormattedStringURL, StandardP
 	
 	If FormattedStringURL = "IntegrationServices" Then
 	
-		AttachableExternalProcessingOnServer();
-		OpenForm("ExternalDataProcessor.StandardIntegrationServicesManagment.Form");
+		OpenForm("DataProcessor.ExchangeMessageTransportESB1C.Form.IntegrationServiceManagementForm");
 	
 	ElsIf FormattedStringURL = "ScheduledJob" Then
 		
@@ -55,16 +53,16 @@ Procedure DecorationPreSettingsURLProcessing(Item, FormattedStringURL, StandardP
 			FormParameters.Insert("Action", "Change");
 			FormParameters.Insert("Id", ScheduledJobID);
 		
-			NameOfTaskForm = "DataProcessor.ScheduledAndBackgroundJobs.Form.ScheduledJob";
-			OpenForm(NameOfTaskForm, FormParameters, ThisObject);
+			NameOfRoutineTaskForm = "DataProcessor.ScheduledAndBackgroundJobs.Form.ScheduledJob";
+			OpenForm(NameOfRoutineTaskForm, FormParameters, ThisObject);
 		
 		Else
 			
 			FormParameters = New Structure;
 			FormParameters.Insert("Id", ScheduledJobID);
 			
-			NameOfTaskForm = "DataProcessor.ExchangeMessageTransportESB1C.Form.ScheduledJobSetupForm";
-			OpenForm(NameOfTaskForm, FormParameters, ThisObject);
+			NameOfRoutineTaskForm = "DataProcessor.ExchangeMessageTransportESB1C.Form.ScheduledJobSetupForm";
+			OpenForm(NameOfRoutineTaskForm, FormParameters, ThisObject);
 		
 		EndIf;
 		
@@ -201,13 +199,6 @@ Procedure FillInListOfChannels()
 		Object.ReceiptChannel = List[0].Value;
 	EndIf;
 	
-EndProcedure
-
-&AtServer
-Procedure AttachableExternalProcessingOnServer()
-
-	ExternalDataProcessors.Connect("v8res://mngbase/StandardIntegrationServicesManagment.epf", "StandardIntegrationServicesManagment", False);
-
 EndProcedure
 
 #EndRegion

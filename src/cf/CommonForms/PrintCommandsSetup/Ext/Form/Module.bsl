@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -28,8 +27,8 @@ EndProcedure
 &AtClient
 Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 	
-	NotifyDescription = New CallbackDescription("BeforeCloseConfirmationReceived", ThisObject);
-	CommonClient.ShowFormClosingConfirmation(NotifyDescription, Cancel, Exit,, WarningText);
+	CallbackDescription = New CallbackDescription("BeforeCloseConfirmationReceived", ThisObject);
+	CommonClient.ShowFormClosingConfirmation(CallbackDescription, Cancel, Exit,, WarningText);
 	
 EndProcedure
 
@@ -143,9 +142,9 @@ Procedure WriteCommandsSettings()
 EndProcedure
 
 &AtClient
-Procedure OnCheckChange(FormTree, CheckBoxName)
+Procedure OnCheckChange(FormTree_, CheckBoxName)
 	
-	CurrentData = FormTree.CurrentData;
+	CurrentData = FormTree_.CurrentData;
 	
 	If CurrentData[CheckBoxName] = 2 Then
 		CurrentData[CheckBoxName] = 0;
@@ -219,7 +218,7 @@ Procedure FillPrintCommandsList()
 			EndIf;
 			PrintCommandDetails = SourceDetails.GetItems().Add();
 			FillPropertyValues(PrintCommandDetails, PrintCommand);
-			PrintCommandDetails.Visible = Not PrintCommand.isDisabled;
+			PrintCommandDetails.Visible = Not PrintCommand.TurnedOff;
 			If PrintCommandDetails.PrintManager = "StandardSubsystems.AdditionalReportsAndDataProcessors" Then
 				PrintCommandDetails.Comment = String(PrintCommand.AdditionalParameters.Ref);
 				PrintCommandDetails.URL = GetURL(PrintCommand.AdditionalParameters.Ref);
@@ -274,7 +273,7 @@ Procedure GoToList()
 	For Each ClientApplicationWindow In GetWindows() Do
 		If ClientApplicationWindow.GetURL() = URL Then
 			Form = ClientApplicationWindow.Content[0];
-			NotifyDescription = New CallbackDescription("GoToListCompletion", ThisObject, 
+			CallbackDescription = New CallbackDescription("GoToListCompletion", ThisObject, 
 				New Structure("Form, URL", Form, URL));
 			Buttons = New ValueList;
 			Buttons.Add("Reopen", NStr("en = 'Reopen'"));
@@ -282,7 +281,7 @@ Procedure GoToList()
 			QueryText = 
 				NStr("en = 'The list is already open. Reopen the list
 				|to see the changes in Print menu?'");
-			ShowQueryBox(NotifyDescription, QueryText, Buttons, , "Reopen");
+			ShowQueryBox(CallbackDescription, QueryText, Buttons, , "Reopen");
 			Return;
 		EndIf;
 	EndDo;

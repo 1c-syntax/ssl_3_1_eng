@@ -120,7 +120,7 @@
 			</EnumValue>
 			<EnumValue uuid="b98dacc7-29e1-426b-a664-0a988f18186c">
 				<Properties>
-					<Name>isDisabled</Name>
+					<Name>TurnedOff</Name>
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>

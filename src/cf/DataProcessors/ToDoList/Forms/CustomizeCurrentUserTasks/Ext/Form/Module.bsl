@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -38,8 +37,8 @@ Procedure DisplayedUserTasksTreeOnChange(Item)
 	
 	Modified = True;
 	If Item.CurrentData.IsSection Then
-		For Each ToDoItem In Item.CurrentData.GetItems() Do
-			ToDoItem.Check = Item.CurrentData.Check;
+		For Each CaseFile In Item.CurrentData.GetItems() Do
+			CaseFile.Check = Item.CurrentData.Check;
 		EndDo;
 	ElsIf Item.CurrentData.Check Then
 		Item.CurrentData.GetParent().Check = True;
@@ -206,7 +205,7 @@ Procedure FillUserTaskTree(ViewSettings)
 	UserTasksTree.Columns.Add("Validation", New TypeDescription("Boolean"));
 	CurrentSection = "";
 	IndexOf        = 0;
-	ToDoItemIndex    = 0;
+	CaseFileIndex    = 0;
 	TreeRow  = Undefined;
 	
 	If ViewSettings.SectionsVisibility.Count() = 0 Then
@@ -214,10 +213,10 @@ Procedure FillUserTaskTree(ViewSettings)
 	EndIf;
 	
 	PictureNotification = PictureLib.Notifications;
-	For Each ToDoItem In ToDoList Do
+	For Each CaseFile In ToDoList Do
 		
-		If ToDoItem.IsSection
-			And CurrentSection <> ToDoItem.OwnerID Then
+		If CaseFile.IsSection
+			And CurrentSection <> CaseFile.OwnerID Then
 			If TreeRow <> Undefined Then
 				RowFilter = New Structure;
 				RowFilter.Insert("IsHidden", False);
@@ -225,11 +224,11 @@ Procedure FillUserTaskTree(ViewSettings)
 				TreeRow.IsHidden = (NotHidden1.Count() = 0);
 			EndIf;
 			
-			TreeRow = UserTasksTree.Rows.Find(ToDoItem.OwnerID, "Id");
+			TreeRow = UserTasksTree.Rows.Find(CaseFile.OwnerID, "Id");
 			If TreeRow = Undefined Then
 				TreeRow = UserTasksTree.Rows.Add();
-				TreeRow.Presentation = ToDoItem.SectionPresentation;
-				TreeRow.Id = ToDoItem.OwnerID;
+				TreeRow.Presentation = CaseFile.SectionPresentation;
+				TreeRow.Id = CaseFile.OwnerID;
 				TreeRow.IsSection     = True;
 				TreeRow.Check       = True;
 				TreeRow.IndexOf        = IndexOf;
@@ -244,28 +243,28 @@ Procedure FillUserTaskTree(ViewSettings)
 			Else
 				IndexOf = TreeRow.IndexOf;
 			EndIf;
-			ToDoItemIndex = 0;
+			CaseFileIndex = 0;
 			TreeRow.Validation = True;
-		ElsIf Not ToDoItem.IsSection Then
-			UserTaskParent = UserTasksTree.Rows.Find(ToDoItem.OwnerID, "Id", True);
+		ElsIf Not CaseFile.IsSection Then
+			UserTaskParent = UserTasksTree.Rows.Find(CaseFile.OwnerID, "Id", True);
 			If UserTaskParent = Undefined Then
 				Continue;
 			EndIf;
-			UserTaskParent.ToDoDetails = UserTaskParent.ToDoDetails + ?(IsBlankString(UserTaskParent.ToDoDetails), "", Chars.LF) + ToDoItem.Presentation;
+			UserTaskParent.ToDoDetails = UserTaskParent.ToDoDetails + ?(IsBlankString(UserTaskParent.ToDoDetails), "", Chars.LF) + CaseFile.Presentation;
 			Continue;
 		EndIf;
 		
-		UserTaskRow = TreeRow.Rows.Find(ToDoItem.Id, "Id");
+		UserTaskRow = TreeRow.Rows.Find(CaseFile.Id, "Id");
 		If UserTaskRow = Undefined Then
 			UserTaskRow = TreeRow.Rows.Add();
-			UserTaskRow.Presentation = ToDoItem.Presentation;
-			UserTaskRow.Id = ToDoItem.Id;
+			UserTaskRow.Presentation = CaseFile.Presentation;
+			UserTaskRow.Id = CaseFile.Id;
 			UserTaskRow.IsSection     = False;
 			UserTaskRow.Check       = True;
-			UserTaskRow.IndexOf        = ToDoItemIndex;
-			UserTaskRow.IsHidden       = ToDoItem.HideInSettings;
-			UserTaskRow.Important        = ToDoItem.Important;
-			UserTaskRow.OutputInNotifications = ToDoItem.OutputInNotifications;
+			UserTaskRow.IndexOf        = CaseFileIndex;
+			UserTaskRow.IsHidden       = CaseFile.HideInSettings;
+			UserTaskRow.Important        = CaseFile.Important;
+			UserTaskRow.OutputInNotifications = CaseFile.OutputInNotifications;
 			
 			If UserTaskRow.OutputInNotifications Then
 				UserTaskRow.Picture = PictureNotification;
@@ -279,12 +278,12 @@ Procedure FillUserTaskTree(ViewSettings)
 					UserTaskRow.Check = UserTaskVisible;
 				EndIf;
 			EndIf;
-			ToDoItemIndex = ToDoItemIndex + 1;
+			CaseFileIndex = CaseFileIndex + 1;
 			
-			CurrentSection = ToDoItem.OwnerID;
+			CurrentSection = CaseFile.OwnerID;
 		Else
-			UserTaskRow.Important = ToDoItem.Important;
-			ToDoItemIndex = UserTaskRow.IndexOf + 1;
+			UserTaskRow.Important = CaseFile.Important;
+			CaseFileIndex = UserTaskRow.IndexOf + 1;
 		EndIf;
 		UserTaskRow.Validation = True;
 	EndDo;
@@ -317,8 +316,8 @@ Procedure ShouldSaveSettings()
 	UserTasksTree = FormAttributeToValue("DisplayedUserTasksTree");
 	For Each Section In UserTasksTree.Rows Do
 		ViewSettings.SectionsVisibility.Insert(Section.Id, Section.Check);
-		For Each ToDoItem In Section.Rows Do
-			ViewSettings.UserTasksVisible.Insert(ToDoItem.Id, ToDoItem.Check);
+		For Each CaseFile In Section.Rows Do
+			ViewSettings.UserTasksVisible.Insert(CaseFile.Id, CaseFile.Check);
 		EndDo;
 	EndDo;
 	
@@ -364,13 +363,13 @@ Procedure SetSectionOrder(ViewSettings)
 		UserTasks = SectionRow.Rows;
 		LastUserTaskIndex = UserTasks.Count() - 1;
 		For Each RowUserTask In UserTasks Do
-			SavedToDoItem = SavedSection.Rows.Find(RowUserTask.Id, "Id");
-			If SavedToDoItem = Undefined Then
+			SavedCaseFile = SavedSection.Rows.Find(RowUserTask.Id, "Id");
+			If SavedCaseFile = Undefined Then
 				RowUserTask.IndexOf = LastUserTaskIndex;
 				LastUserTaskIndex = LastUserTaskIndex - 1;
 				Continue;
 			EndIf;
-			RowUserTask.IndexOf = SavedToDoItem.IndexOf;
+			RowUserTask.IndexOf = SavedCaseFile.IndexOf;
 		EndDo;
 		UserTasks.Sort("IndexOf asc");
 	EndDo;

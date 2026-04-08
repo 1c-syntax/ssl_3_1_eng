@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -18,6 +17,8 @@
 // Parameters:
 //  User - CatalogRef.Users
 //               - CatalogRef.ExternalUsers
+//               - Array of CatalogRef.Users
+//               - Array of CatalogRef.ExternalUsers
 //               - Undefined - For all users.
 //
 //  HasChanges - Boolean - (return value) - if recorded,
@@ -31,14 +32,99 @@ Procedure UpdateRegisterData(User = Undefined, HasChanges = Undefined) Export
 	
 	Query = PropertiesQuery(User);
 	Selection = Query.Execute().Select();
+	Current_Type = Undefined;
+	CurrentBatchOfRefs = Undefined;
+	AllIBUsers = New Map;
+	If User = Undefined
+	 Or Selection.Count() > 1000 Then
+		IBUsers = InfoBaseUsers.GetUsers();
+		For Each IBUser In IBUsers Do
+			AllIBUsers.Insert(IBUser.UUID, IBUser);
+		EndDo;
+	EndIf;
 	
-	While Selection.Next() Do
-		Properties = UserNewProperties(Selection.Ref, Selection);
-		If Properties = Undefined Then
-			Continue;
+	While True Do
+		BatchOfRefs = Undefined;
+		While Selection.Next() Do
+			Properties = UserNewProperties(Selection.Ref, Selection,,
+				AllIBUsers.Get(Selection.IBUserID));
+			If Properties = Undefined Then
+				Continue;
+			EndIf;
+			If Current_Type <> TypeOf(Selection.Ref)
+			 Or CurrentBatchOfRefs.Count() >= 100 Then
+				BatchOfRefs = CurrentBatchOfRefs;
+				Current_Type = TypeOf(Selection.Ref);
+				CurrentBatchOfRefs = New ValueTable;
+				CurrentBatchOfRefs.Columns.Add("Ref",
+					New TypeDescription(CommonClientServer.ValueInArray(Current_Type)));
+			EndIf;
+			CurrentBatchOfRefs.Add().Ref = Selection.Ref;
+			If ValueIsFilled(BatchOfRefs) Then
+				Break;
+			EndIf;
+		EndDo;
+		If Not ValueIsFilled(BatchOfRefs) Then
+			If Not ValueIsFilled(CurrentBatchOfRefs) Then
+				Break;
+			EndIf;
+			BatchOfRefs = CurrentBatchOfRefs;
+			CurrentBatchOfRefs = BatchOfRefs.Copy(New Array);
 		EndIf;
-		// @skip-check query-in-loop  в транзакции
-		UpdateUserInfoRecords(Selection.Ref, Undefined,,, HasChanges);
+		
+		Block = New DataLock;
+		If TypeOf(BatchOfRefs[0].Ref) = Type("CatalogRef.ExternalUsers") Then
+			LockItem = Block.Add("Catalog.ExternalUsers");
+		Else
+			LockItem = Block.Add("Catalog.Users");
+		EndIf;
+		LockItem.DataSource = BatchOfRefs;
+		LockItem.UseFromDataSource("Ref", "Ref");
+		LockItem = Block.Add("InformationRegister.UsersInfo");
+		LockItem.DataSource = BatchOfRefs;
+		LockItem.UseFromDataSource("User", "Ref");
+		Query = PropertiesQuery(BatchOfRefs, True);
+		MergeMode  = Common.RecordSetMergeMode();
+		BatchMode = MergeMode <> Undefined;
+		RecordSet = ServiceRecordSet(InformationRegisters.UsersInfo);
+		If Not BatchMode Then
+			Record = RecordSet.Add();
+		EndIf;
+		
+		BeginTransaction();
+		Try
+			Block.Lock();
+			CurrentDataSelection = Query.Execute().Select();
+			While CurrentDataSelection.Next() Do
+				Properties = UserNewProperties(CurrentDataSelection.Ref, CurrentDataSelection);
+				If Properties = Undefined Then
+					Continue;
+				EndIf;
+				If Not BatchMode Then
+					RecordSet.Filter.User.Set(CurrentDataSelection.Ref);
+				Else
+					Record = RecordSet.Add();
+				EndIf;
+				If CurrentDataSelection.NumberOfStatePicture = Null Then
+					Record.User = CurrentDataSelection.Ref;
+				Else
+					FillPropertyValues(Record, CurrentDataSelection);
+				EndIf;
+				FillPropertyValues(Record, Properties);
+				If Not BatchMode Then
+					RecordSet.Write();
+					HasChanges = True;
+				EndIf;
+			EndDo;
+			If BatchMode And ValueIsFilled(RecordSet) Then
+				RecordSet.Write(MergeMode);
+				HasChanges = True;
+			EndIf;
+			CommitTransaction();
+		Except
+			RollbackTransaction();
+			Raise;
+		EndTry;
 	EndDo;
 	
 EndProcedure
@@ -506,9 +592,85 @@ Function NewProperties()
 	
 EndFunction
 
-Function PropertiesQuery(User) Export
+Function PropertiesQuery(User, AllRegisterFields = False) Export
 	
-	QueryText =
+	Query = New Query;
+	Query.SetParameter("User", User);
+	
+	If Not ValueIsFilled(User)
+	 Or TypeOf(User) <> Type("CatalogRef.Users")
+	   And TypeOf(User) <> Type("CatalogRef.ExternalUsers") Then
+		
+		ReferencesQueryText = ReferencesQueryText();
+		If User = Undefined Then
+			ReferencesQueryText = StrReplace(ReferencesQueryText,
+				"Users.Ref IN(&User)", "TRUE");
+			ReferencesQueryText = StrReplace(ReferencesQueryText,
+				"UsersInfo.User IN(&User)", "TRUE");
+		EndIf;
+		Query.Text = ReferencesQueryText;
+		ReferencesQueryText = StrReplace(ReferencesQueryText,
+			"UsersReferences", "ExternalUsersReferences");
+		ReferencesQueryText = StrReplace(ReferencesQueryText,
+			"Catalog.Users", "Catalog.ExternalUsers");
+		QueryText = ?(AllRegisterFields, PropertiesQueryTextAllRegisterFields(), PropertiesQueryText());
+		Query.Text = Query.Text + Common.QueryBatchSeparator()
+			+ ReferencesQueryText + Common.QueryBatchSeparator()
+			+ QueryText;
+		QueryText = StrReplace(QueryText, "Users.Department", "UNDEFINED");
+		QueryText = StrReplace(QueryText, "Users.Individual", "UNDEFINED");
+		QueryText = StrReplace(QueryText, "UsersReferences", "ExternalUsersReferences");
+		Query.Text = Query.Text + Common.UnionAllText()
+			+ StrReplace(QueryText, "Catalog.Users", "Catalog.ExternalUsers");
+	Else
+		QueryText = StrReplace(PropertiesQueryText(),
+			"UsersReferences", "(SELECT &User AS Ref)");
+		If TypeOf(User) = Type("CatalogRef.Users") Then
+			Query.Text = QueryText;
+		Else
+			QueryText = StrReplace(QueryText, "Users.Department", "UNDEFINED");
+			QueryText = StrReplace(QueryText, "Users.Individual", "UNDEFINED");
+			Query.Text = StrReplace(QueryText, "Catalog.Users",
+				"Catalog.ExternalUsers");
+		EndIf;
+	EndIf;
+	
+	Return Query;
+	
+EndFunction
+
+// Intended for PropertiesQuery function.
+Function ReferencesQueryText()
+	
+	Return
+	"SELECT DISTINCT
+	|	References.Ref AS Ref
+	|INTO UsersReferences
+	|FROM
+	|	(SELECT
+	|		Users.Ref AS Ref
+	|	FROM
+	|		Catalog.Users AS Users
+	|	WHERE
+	|		Users.Ref IN(&User)
+	|	
+	|	UNION ALL
+	|	
+	|	SELECT
+	|		CAST(UsersInfo.User AS Catalog.Users)
+	|	FROM
+	|		InformationRegister.UsersInfo AS UsersInfo
+	|	WHERE
+	|		VALUETYPE(UsersInfo.User) = TYPE(Catalog.Users)
+	|		AND UsersInfo.User <> VALUE(Catalog.Users.EmptyRef)
+	|		AND UsersInfo.User IN(&User)) AS References";
+	
+EndFunction
+
+// Intended for PropertiesQuery function.
+Function PropertiesQueryText()
+	
+	Return
 	"SELECT
 	|	ISNULL(Users.Ref, UsersInfo.User) AS Ref,
 	|	Users.IBUserID AS IBUserID,
@@ -539,40 +701,38 @@ Function PropertiesQuery(User) Export
 	|	UsersInfo.Language AS Language,
 	|	UsersInfo.UnsafeActionProtection AS UnsafeActionProtection
 	|FROM
-	|	Catalog.Users AS Users
+	|	UsersReferences AS References
+	|		LEFT JOIN Catalog.Users AS Users
+	|		ON (Users.Ref = References.Ref)
 	|		LEFT JOIN InformationRegister.UsersInfo AS UsersInfo
-	|		ON (UsersInfo.User = Users.Ref)
+	|		ON (UsersInfo.User = References.Ref)
 	|WHERE
-	|	&FilterByUser";
+	|	NOT(Users.Ref IS NULL
+	|				AND UsersInfo.User IS NULL)";
 	
-	Query = New Query;
+EndFunction
+
+// Intended for PropertiesQuery function.
+Function PropertiesQueryTextAllRegisterFields()
 	
-	If User = Undefined Then
-		QueryText = StrReplace(QueryText, "&FilterByUser", "TRUE");
-		Query.Text = QueryText;
-		QueryText = StrReplace(QueryText, "Users.Department", "UNDEFINED");
-		QueryText = StrReplace(QueryText, "Users.Individual", "UNDEFINED");
-		Query.Text = Query.Text + Chars.LF + Chars.LF
-			+ "UNION ALL" + Chars.LF + Chars.LF
-			+ StrReplace(QueryText, "Catalog.Users",
-				"Catalog.ExternalUsers");
-	Else
-		QueryText = StrReplace(QueryText, "LEFT JOIN", "FULL JOIN");
-		QueryText = StrReplace(QueryText, "&FilterByUser",
-				"Users.Ref = &User
-			|	OR UsersInfo.User = &User");
-		Query.SetParameter("User", User);
-		If TypeOf(User) = Type("CatalogRef.Users") Then
-			Query.Text = QueryText;
-		Else
-			QueryText = StrReplace(QueryText, "Users.Department", "UNDEFINED");
-			QueryText = StrReplace(QueryText, "Users.Individual", "UNDEFINED");
-			Query.Text = StrReplace(QueryText, "Catalog.Users",
-				"Catalog.ExternalUsers");
-		EndIf;
-	EndIf;
-	
-	Return Query;
+	Return
+	"SELECT
+	|	ISNULL(Users.Ref, UsersInfo.User) AS Ref,
+	|	Users.IBUserID AS IBUserID,
+	|	Users.DeletionMark AS DeletionMark,
+	|	Users.Invalid AS Invalid,
+	|	Users.Department AS Department,
+	|	Users.Individual AS Individual,
+	|	UsersInfo.*
+	|FROM
+	|	UsersReferences AS References
+	|		LEFT JOIN Catalog.Users AS Users
+	|		ON (Users.Ref = References.Ref)
+	|		LEFT JOIN InformationRegister.UsersInfo AS UsersInfo
+	|		ON (UsersInfo.User = References.Ref)
+	|WHERE
+	|	NOT(Users.Ref IS NULL
+	|				AND UsersInfo.User IS NULL)";
 	
 EndFunction
 
@@ -691,7 +851,7 @@ Procedure UpdateUsersInfoAndDisableAuthentication() Export
 		Try
 			Block.Lock();
 			HasChanges = False;
-			// @skip-check query-in-loop  в транзакции
+			// @skip-check query-in-loop - Batch-wise data processing within a transaction
 			DeleteInfoRecordsOnDeletedUsers(User, HasChanges);
 			If Not HasChanges Then
 				UserObject = ServiceItem(User);
@@ -706,7 +866,7 @@ Procedure UpdateUsersInfoAndDisableAuthentication() Export
 								UsersInternal.StoredIBUserProperties(PreviousProperties));
 						EndIf;
 					EndIf;
-					// @skip-check query-in-loop  в транзакции
+					// @skip-check query-in-loop - Batch-wise data processing within a transaction
 					UpdateUserInfoRecords(User, UserObject);
 					If UserObject.Modified() Then
 						// ACC:1363-off - Cleanup of stored authentication properties that do not participate in data exchange.
@@ -842,7 +1002,7 @@ Procedure ResetOpenIDConnectAuthenticationForAllUsers()
 		Try
 			IBUser.Write();
 			If String <> Undefined Then
-				// @skip-check query-in-loop  в транзакции
+				// @skip-check query-in-loop - Batch-wise data processing within a transaction
 				UpdateUserInfoRecords(String.Ref, Undefined);
 			EndIf;
 			CommitTransaction();
@@ -867,6 +1027,13 @@ Function HasEnabledOpenIDConnectAuth()
 	Return False;
 	
 EndFunction
+
+// See StandardSubsystemsServer.WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode
+Procedure WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode(Methods) Export
+	
+	Methods.Insert("UpdateUsersInfoAndDisableAuthentication");
+	
+EndProcedure
 
 #EndRegion
 

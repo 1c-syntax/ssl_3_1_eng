@@ -41,7 +41,7 @@
 					<Title formatted="false">
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Change the application name, configure additional attributes, and other general settings.</v8:content>
+							<v8:content>Change the application title, configure additional attributes, and other general settings.</v8:content>
 						</v8:item>
 					</Title>
 					<VerticalAlign>Top</VerticalAlign>
@@ -909,33 +909,6 @@
 									<ShowTitle>false</ShowTitle>
 									<ExtendedTooltip name="GroupSettingsSignaturesExtendedTooltip" id="2143"/>
 									<ChildItems>
-										<LabelField name="CryptoSignatureTypeDefault1" id="2245">
-											<DataPath>ConstantCryptoSignatureTypeDefault</DataPath>
-											<Visible>false</Visible>
-											<Title>
-												<v8:item>
-													<v8:lang>en</v8:lang>
-													<v8:content>Signature type for documents</v8:content>
-												</v8:item>
-											</Title>
-											<TitleLocation>Top</TitleLocation>
-											<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
-											<ContextMenu name="CryptoSignatureTypeDefault1ContextMenu" id="2246"/>
-											<ExtendedTooltip name="CryptoSignatureTypeDefault1ExtendedTooltip" id="2247">
-												<Title formatted="false">
-													<v8:item>
-														<v8:lang>en</v8:lang>
-														<v8:content>In the web application, you can select types of signatures with timestamps when signing by a certificate installed on the computer that also has a digital signature application installed.</v8:content>
-													</v8:item>
-												</Title>
-												<Events>
-													<Event name="URLProcessing">DefaultCryptoSignatureType1ExtendedTooltipURLProcessing</Event>
-												</Events>
-											</ExtendedTooltip>
-											<Events>
-												<Event name="OnChange">SignatureTypeOnChange</Event>
-											</Events>
-										</LabelField>
 										<RadioButtonField name="CryptoSignatureTypeDefault" id="2175">
 											<DataPath>ConstantCryptoSignatureTypeDefault</DataPath>
 											<Title>
@@ -999,7 +972,7 @@
 													</v8:item>
 												</Title>
 												<Events>
-													<Event name="URLProcessing">DefaultCryptoSignatureTypeExtendedTooltipURLProcessing</Event>
+													<Event name="URLProcessing">CryptoSignatureTypeDefaultExtendedTooltipURLProcessing</Event>
 												</Events>
 											</ExtendedTooltip>
 											<Events>
@@ -1135,7 +1108,7 @@
 														<Title formatted="false">
 															<v8:item>
 																<v8:lang>en</v8:lang>
-																<v8:content>Enhance signatures up to the selected type</v8:content>
+																<v8:content>Enhance signatures up to the selected type.</v8:content>
 															</v8:item>
 														</Title>
 													</ExtendedTooltip>
@@ -1156,6 +1129,62 @@
 															<ContextMenu name="DecorationUpgradeSignaturesAutomaticallyContextMenu" id="2234"/>
 															<ExtendedTooltip name="DecorationUpgradeSignaturesAutomaticallyExtendedTooltip" id="2235"/>
 														</LabelDecoration>
+														<RadioButtonField name="RefineSignaturesAutomatically1" id="2291">
+															<DataPath>ConstantRefineSignaturesAutomatically</DataPath>
+															<Visible>false</Visible>
+															<Title>
+																<v8:item>
+																	<v8:lang>en</v8:lang>
+																	<v8:content>Enhance signatures automatically</v8:content>
+																</v8:item>
+															</Title>
+															<TitleLocation>None</TitleLocation>
+															<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
+															<RadioButtonType>Auto</RadioButtonType>
+															<ChoiceList>
+																<xr:Item>
+																	<xr:Presentation/>
+																	<xr:CheckState>0</xr:CheckState>
+																	<xr:Value xsi:type="FormChoiceListDesTimeValue">
+																		<Presentation>
+																			<v8:item>
+																				<v8:lang>en</v8:lang>
+																				<v8:content>Do not enhance</v8:content>
+																			</v8:item>
+																		</Presentation>
+																		<Value xsi:type="xs:decimal">0</Value>
+																	</xr:Value>
+																</xr:Item>
+																<xr:Item>
+																	<xr:Presentation/>
+																	<xr:CheckState>0</xr:CheckState>
+																	<xr:Value xsi:type="FormChoiceListDesTimeValue">
+																		<Presentation>
+																			<v8:item>
+																				<v8:lang>en</v8:lang>
+																				<v8:content>In administrator interface *</v8:content>
+																			</v8:item>
+																		</Presentation>
+																		<Value xsi:type="xs:decimal">2</Value>
+																	</xr:Value>
+																</xr:Item>
+															</ChoiceList>
+															<ContextMenu name="ImproveSignaturesAutomatically1ContextMenu" id="2292"/>
+															<ExtendedTooltip name="ImproveSignaturesAutomatically1ExtendedTooltip" id="2293">
+																<Title formatted="true">
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>* Using commands in the &lt;link ReportOnRenewalOfSignatures&gt;report&lt;/&gt; and the "To-do list" panel.</v8:content>
+																	</v8:item>
+																</Title>
+																<Events>
+																	<Event name="URLProcessing">AutoRefineSignaturesExtendedTooltipURLProcessing</Event>
+																</Events>
+															</ExtendedTooltip>
+															<Events>
+																<Event name="OnChange">RefineSignaturesOnChange</Event>
+															</Events>
+														</RadioButtonField>
 														<RadioButtonField name="RefineSignaturesAutomatically" id="2155">
 															<DataPath>ConstantRefineSignaturesAutomatically</DataPath>
 															<Title>
@@ -1217,7 +1246,7 @@
 																	</v8:item>
 																</Title>
 																<Events>
-																	<Event name="URLProcessing">RefineSignaturesAutomaticallyExtendedTooltipURLProcessing</Event>
+																	<Event name="URLProcessing">AutoRefineSignaturesExtendedTooltipURLProcessing</Event>
 																</Events>
 															</ExtendedTooltip>
 															<Events>
@@ -1338,7 +1367,7 @@
 									</v8:item>
 								</Title>
 								<Events>
-									<Event name="URLProcessing">CheckDigitalSignaturesAtServerExtendedTooltipURLProcessing</Event>
+									<Event name="URLProcessing">VerifyDigitalSignaturesOnTheServerExtendedTooltipURLProcessing</Event>
 								</Events>
 							</ExtendedTooltip>
 							<Events>
@@ -1366,7 +1395,7 @@
 									</v8:item>
 								</Title>
 								<Events>
-									<Event name="URLProcessing">CreateDigitalSignaturesAtServerExtendedTooltipURLProcessing</Event>
+									<Event name="URLProcessing">GenerateDigitalSignaturesAtServerExtendedTooltipURLProcessing</Event>
 								</Events>
 							</ExtendedTooltip>
 							<Events>
@@ -1419,6 +1448,129 @@
 								<Event name="URLProcessing">DecorationCheckCryptoProviderInstallationURLProcessing</Event>
 							</Events>
 						</LabelDecoration>
+					</ChildItems>
+				</UsualGroup>
+				<UsualGroup name="MobileSignatureGroup" id="2294">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Mobile signature</v8:content>
+						</v8:item>
+					</Title>
+					<Group>Vertical</Group>
+					<ShowTitle>false</ShowTitle>
+					<ExtendedTooltip name="MobileSignatureGroupExtendedTooltip" id="2295"/>
+					<ChildItems>
+						<UsualGroup name="MobileSignatureSettingsGroup" id="2302">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Mobile signature settings</v8:content>
+								</v8:item>
+							</Title>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="MobileSignatureSettingsGroupExtendedTooltip" id="2303"/>
+							<ChildItems>
+								<CheckBoxField name="UseStateKey" id="2296">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>GosKey</v8:content>
+										</v8:item>
+									</Title>
+									<TitleLocation>Right</TitleLocation>
+									<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
+									<CheckBoxType>Auto</CheckBoxType>
+									<ContextMenu name="UseStateKeyContextMenu" id="2297"/>
+									<ExtendedTooltip name="UseStateKeyExtendedTooltip" id="2298">
+										<Width>43</Width>
+										<AutoMaxWidth>false</AutoMaxWidth>
+										<Title formatted="false">
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Send documents for signing in the GosKey mobile application (Gosuslugi)</v8:content>
+											</v8:item>
+										</Title>
+									</ExtendedTooltip>
+									<Events>
+										<Event name="OnChange">Attachable_OnChangeAttribute</Event>
+									</Events>
+								</CheckBoxField>
+								<CheckBoxField name="UseMobileSignatureService" id="2299">
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>My Signature (Federal Tax Service)</v8:content>
+										</v8:item>
+									</Title>
+									<TitleLocation>Right</TitleLocation>
+									<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
+									<CheckBoxType>Auto</CheckBoxType>
+									<ContextMenu name="UseMobileSignatureServiceContextMenu" id="2300"/>
+									<ExtendedTooltip name="UseMobileSignatureServiceExtendedTooltip" id="2301">
+										<Width>43</Width>
+										<AutoMaxWidth>false</AutoMaxWidth>
+										<Title formatted="false">
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Send documents for signing in the My Signature mobile application (Federal Tax Service)</v8:content>
+											</v8:item>
+										</Title>
+									</ExtendedTooltip>
+									<Events>
+										<Event name="OnChange">Attachable_OnChangeAttribute</Event>
+									</Events>
+								</CheckBoxField>
+							</ChildItems>
+						</UsualGroup>
+						<UsualGroup name="MobileSignatureAccountsGroup" id="2304">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Mobile signature accounts</v8:content>
+								</v8:item>
+							</Title>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="MobileSignatureAccountsGroupExtendedTooltip" id="2305"/>
+							<ChildItems>
+								<Button name="SettingsForSendingToStateKey" id="2306">
+									<Type>Hyperlink</Type>
+									<CommandName>0</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Set up sending to GosKey</v8:content>
+										</v8:item>
+									</Title>
+									<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
+									<ExtendedTooltip name="SettingsForSendingToStateKeyExtendedTooltip" id="2307">
+										<Width>43</Width>
+										<AutoMaxWidth>false</AutoMaxWidth>
+										<Title formatted="false">
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Access settings for company employees to send documents for signing in GosKey.</v8:content>
+											</v8:item>
+										</Title>
+									</ExtendedTooltip>
+								</Button>
+								<Button name="MobileSignatureServiceSignatories" id="2308">
+									<Type>Hyperlink</Type>
+									<CommandName>0</CommandName>
+									<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>
+									<ExtendedTooltip name="MobileSignatureServiceSignatoriesExtendedTooltip" id="2309">
+										<Width>43</Width>
+										<AutoMaxWidth>false</AutoMaxWidth>
+										<Title formatted="false">
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Settings for document recipients to sign in the mobile application.</v8:content>
+											</v8:item>
+										</Title>
+									</ExtendedTooltip>
+								</Button>
+							</ChildItems>
+						</UsualGroup>
 					</ChildItems>
 				</UsualGroup>
 				<UsualGroup name="CloudSignatureGroup" id="2113">

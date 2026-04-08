@@ -206,7 +206,7 @@
 						</InputField>
 					</ChildItems>
 				</UsualGroup>
-				<LabelDecoration name="GenerateErrorReport" id="45">
+				<LabelDecoration name="GenerateErrorReport_SSLyf" id="45">
 					<Title formatted="false">
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -215,10 +215,10 @@
 					</Title>
 					<GroupHorizontalAlign>Right</GroupHorizontalAlign>
 					<Hyperlink>true</Hyperlink>
-					<ContextMenu name="GenerateErrorReportContextMenu" id="46"/>
-					<ExtendedTooltip name="GenerateErrorReportExtendedTooltip" id="47"/>
+					<ContextMenu name="GenerateErrorReport_SSLyfContextMenu" id="46"/>
+					<ExtendedTooltip name="GenerateErrorReport_SSLyfExtendedTooltip" id="47"/>
 					<Events>
-						<Event name="Click">GenerateErrorReportClick</Event>
+						<Event name="Click">GenerateErrorReport_SSLyfClick</Event>
 					</Events>
 				</LabelDecoration>
 			</ChildItems>

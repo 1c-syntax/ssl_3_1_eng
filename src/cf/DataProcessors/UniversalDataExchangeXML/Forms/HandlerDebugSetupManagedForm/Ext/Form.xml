@@ -303,16 +303,16 @@
 								<Event name="StartChoice">EventHandlerExternalDataProcessorFileNameStartChoice</Event>
 							</Events>
 						</InputField>
-						<Button name="CheckAvailability" id="64">
+						<Button name="CheckAvailability_SSLyf" id="64">
 							<Type>UsualButton</Type>
-							<CommandName>Form.Command.CheckAvailability</CommandName>
+							<CommandName>Form.Command.CheckAvailability_SSLyf</CommandName>
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
 									<v8:content>Check availability</v8:content>
 								</v8:item>
 							</Title>
-							<ExtendedTooltip name="CheckAvailabilityExtendedTooltip" id="65"/>
+							<ExtendedTooltip name="CheckAvailability_SSLyfExtendedTooltip" id="65"/>
 						</Button>
 					</ChildItems>
 				</UsualGroup>
@@ -416,7 +416,7 @@
 			<Action>Done</Action>
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
-		<Command name="CheckAvailability" id="4">
+		<Command name="CheckAvailability_SSLyf" id="4">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
@@ -429,7 +429,7 @@
 					<v8:content>Check availability</v8:content>
 				</v8:item>
 			</ToolTip>
-			<Action>CheckAvailability</Action>
+			<Action>CheckAvailability_SSLyf</Action>
 		</Command>
 	</Commands>
 	<Parameters>

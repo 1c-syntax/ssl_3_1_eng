@@ -1,18 +1,17 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Public
 
-#Region ForCallsFromOtherSubsystems
+#Region InterfaceImplementation
 
 // StandardSubsystems.BatchEditObjects
 
@@ -419,7 +418,7 @@ EndFunction
 //   * MailServerName - String
 //   * AuthorizationSettings - See Catalogs.InternetServicesAuthorizationSettings.SettingsAuthorizationInternetService
 //
-Function ConnectionSettingsByEmailAddress(Email, Password = "") Export
+Function ConnectionSettingsByEmailAddress(Email, Password = "", ToRegisterApplication = False) Export
 	
 	AddressStructure1 = CommonClientServer.URIStructure(Email);
 	MailDomain = AddressStructure1.Host;
@@ -435,7 +434,7 @@ Function ConnectionSettingsByEmailAddress(Email, Password = "") Export
 			MailServerName = FoundSettings;
 			FoundSettings = MailServersSettings[FoundSettings];
 		EndIf;
-
+		
 		If FoundSettings = Undefined Then
 			ServerNames = DefineDomainMailServersNames(AddressStructure1.Host);
 			For Each ServerName In ServerNames Do
@@ -477,7 +476,7 @@ Function ConnectionSettingsByEmailAddress(Email, Password = "") Export
 	EndIf;
 	
 	SetPrivilegedMode(True);
-	AuthorizationSettings = ServerAuthorizationSettings(FoundSettings, MailServerName, MailDomain);
+	AuthorizationSettings = ServerAuthorizationSettings(FoundSettings, MailServerName, MailDomain, ToRegisterApplication);
 	SetPrivilegedMode(False);
 	
 	Result = New Structure;
@@ -492,9 +491,16 @@ EndFunction
 // Returns:
 //   See Catalogs.InternetServicesAuthorizationSettings.SettingsAuthorizationInternetService
 //
-Function ServerAuthorizationSettings(FoundSettings, MailServerName, MailDomain)
+Function ServerAuthorizationSettings(FoundSettings, MailServerName, MailDomain, ToRegisterApplication)
 	
-	AuthorizationSettings = Catalogs.InternetServicesAuthorizationSettings.SettingsAuthorizationInternetService(MailServerName, MailDomain);
+	AuthorizationSettings = Catalogs.InternetServicesAuthorizationSettings.SettingsAuthorizationInternetService(
+		MailServerName, MailDomain);
+	
+	If Not ValueIsFilled(AuthorizationSettings.Ref) And Not ToRegisterApplication Then
+		AuthorizationSettings = Catalogs.GeneralSettingsForAuthorizationOfInternetServices.SettingsAuthorizationInternetService(
+			MailServerName, MailDomain);
+	EndIf;
+	
 	SettingsFromClassifier = FoundSettings["OAuth"];
 	
 	If Not ValueIsFilled(SettingsFromClassifier) Then
@@ -556,8 +562,10 @@ Function ServerAuthorizationSettings(FoundSettings, MailServerName, MailDomain)
 	
 	AuthorizationSettings.RedirectAddressDefault = SettingsFromClassifier["DefaultRedirectURI"];
 	AuthorizationSettings.RedirectionAddressWebClient = SettingsFromClassifier["WebClientRedirectURI"];
-	
 	AuthorizationSettings.DeviceRegistrationAddress = SettingsFromClassifier["DeviceAuthorizationURI"];
+	
+	AuthorizationSettings.PasswordInputHint = StringFunctions.FormattedString(
+		StringForCurrentLanguage(SettingsFromClassifier["PasswordDescription"]));
 	
 	Return AuthorizationSettings;
 	
@@ -594,6 +602,7 @@ Function MailServersSettings()
 	MailServersSettings = Undefined;
 	
 	If Common.SubsystemExists("StandardSubsystems.GetFilesFromInternet") Then
+		
 		ModuleNetworkDownload = Common.CommonModule("GetFilesFromInternet");
 		
 		AddressOfFileWithSettings = EmailOperationsInternal.AddressOfFileWithSettings();
@@ -605,6 +614,7 @@ Function MailServersSettings()
 			MailServersSettings = ReadJSON(JSONReader, True);
 			JSONReader.Close();
 		EndIf;
+		
 	EndIf;
 	
 	Return MailServersSettings;
@@ -705,7 +715,7 @@ Function GenerateProfile(KnownSettings, Email, Password = "")
 	Return Profile;
 	
 EndFunction
-	
+
 Function DefinePOPSettings(Email, Password)
 	For Each Profile In POPProfiles(Email, Password) Do
 		ServerMessage = TestConnectionToIncomingMailServer(Profile, InternetMailProtocol.POP3);
@@ -867,7 +877,7 @@ Function DefaultSettings(Email, Password)
 	Settings.Insert("UseSecureConnectionForOutgoingMail", True);
 	Settings.Insert("SignInBeforeSendingRequired", False);
 	
-	Settings.Insert("ServerTimeout", 30);
+	Settings.Insert("ServerTimeout", 10);
 	Settings.Insert("KeepEmailCopiesOnServer", True);
 	Settings.Insert("DeleteEmailsFromServerAfter", 0);
 	
@@ -1433,7 +1443,7 @@ Function CheckProfilesSettings(OutgoingMailProfile, IncomingMailProfile, Val Ema
 	
 EndFunction
 
-Function SettingsDescription(OutgoingMailProfile, IncomingMailProfile)
+Function SettingsDescription(OutgoingMailProfile, IncomingMailProfile) Export
 	
 	SettingsDescription = New Array;
 	
@@ -1483,7 +1493,40 @@ Function SettingsDescription(OutgoingMailProfile, IncomingMailProfile)
 	
 EndFunction
 
-Function ApplicationInfo()
+Function AccountParameters1() Export
+	
+	AccountParameters1 = New Structure;
+	AccountParameters1.Insert("Description");
+	AccountParameters1.Insert("Email");
+	AccountParameters1.Insert("Password");
+	AccountParameters1.Insert("Timeout");
+	AccountParameters1.Insert("UserName");
+	AccountParameters1.Insert("UseForSending");
+	AccountParameters1.Insert("UseForReceiving");
+	AccountParameters1.Insert("UseSecureConnectionForIncomingMail");
+	AccountParameters1.Insert("UseSecureConnectionForOutgoingMail");
+	AccountParameters1.Insert("KeepMessageCopiesAtServer");
+	AccountParameters1.Insert("KeepMailAtServerPeriod");
+	AccountParameters1.Insert("User");
+	AccountParameters1.Insert("SMTPUser");
+	AccountParameters1.Insert("IncomingMailServerPort");
+	AccountParameters1.Insert("OutgoingMailServerPort");
+	AccountParameters1.Insert("ProtocolForIncomingMail");
+	AccountParameters1.Insert("IncomingMailServer");
+	AccountParameters1.Insert("OutgoingMailServer");
+	AccountParameters1.Insert("SignInBeforeSendingRequired");
+	AccountParameters1.Insert("AuthorizationRequiredOnSendEmails");
+	AccountParameters1.Insert("AccountOwner");
+	AccountParameters1.Insert("EmailServiceAuthorization");
+	AccountParameters1.Insert("EmailServiceName");
+	AccountParameters1.Insert("AuthenticationOption");
+	AccountParameters1.Insert("CreatingAccountThroughAssistant");
+	
+	Return AccountParameters1;
+	
+EndFunction
+
+Function ApplicationInfo() Export
 	
 	Result = New Array;
 	
@@ -1508,6 +1551,14 @@ EndFunction
 Function MailServerConnectionTestEvent()
 	Return NStr("en = 'Mail server connection test'", Common.DefaultLanguageCode());
 EndFunction
+
+// See StandardSubsystemsServer.WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode
+Procedure WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode(Methods) Export
+	
+	Methods.Insert("ValidateAccountSettings", True);
+	Methods.Insert("DefineAccountSettings", True);
+	
+EndProcedure
 
 #EndRegion
 

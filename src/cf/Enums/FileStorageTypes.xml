@@ -118,6 +118,42 @@
 					<Comment/>
 				</Properties>
 			</EnumValue>
+			<EnumValue uuid="c2d1db76-93d3-4781-9c57-889f923e51de">
+				<Properties>
+					<Name>InBuiltInBinaryDataStorage</Name>
+					<Synonym>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Internal binary data storage</v8:content>
+						</v8:item>
+					</Synonym>
+					<Comment/>
+				</Properties>
+			</EnumValue>
+			<EnumValue uuid="d7813707-822b-4e27-9ed9-d37d2d8c70e6">
+				<Properties>
+					<Name>InExternalBinaryDataStorage</Name>
+					<Synonym>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>External binary data storage</v8:content>
+						</v8:item>
+					</Synonym>
+					<Comment/>
+				</Properties>
+			</EnumValue>
+			<EnumValue uuid="f874497f-9f25-4c02-a5d2-b2b3b08995b7">
+				<Properties>
+					<Name>InVolumesVolumeIsNotDefined</Name>
+					<Synonym>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Volumes (volume undefined)</v8:content>
+						</v8:item>
+					</Synonym>
+					<Comment/>
+				</Properties>
+			</EnumValue>
 		</ChildObjects>
 	</Enum>
 </MetaDataObject>

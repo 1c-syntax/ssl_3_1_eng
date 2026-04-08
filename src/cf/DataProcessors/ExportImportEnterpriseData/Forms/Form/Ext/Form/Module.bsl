@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -33,11 +32,11 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	FormOpenOption = ?(Parameters.Property("ImportOnly"), "ImportOnly", "");
 	
 	If FormOpenOption = "ImportOnly" Then
-		ThisObject.Title = NStr("en = 'Import EnterpriseData data'");
+		Title = NStr("en = 'Import EnterpriseData data'");
 		Items.LabelExportWithIntegratedDataProcessor.Visible = True;
 	Else
 		Items.LabelExportWithIntegratedDataProcessor.Visible = False;
-		ThisObject.Title = NStr("en = 'Export and import EnterpriseData data'");
+		Title = NStr("en = 'Export and import EnterpriseData data'");
 	EndIf;
 	
 	MetaDataProcessorName = DataProcessorObject.Metadata().Name;
@@ -368,8 +367,8 @@ Procedure StartDataImport()
 		IdleParameters = ModuleTimeConsumingOperationsClient.IdleParameters(ThisObject);
 		IdleParameters.OutputIdleWindow = False;
 		
-		NotifyDescription = New CallbackDescription("OnCompleteImport", ThisObject);
-		ModuleTimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, NotifyDescription, IdleParameters);
+		CallbackDescription = New CallbackDescription("OnCompleteImport", ThisObject);
+		ModuleTimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CallbackDescription, IdleParameters);
 	EndIf;
 
 EndProcedure
@@ -401,8 +400,8 @@ Procedure ExportData()
 		IdleParameters = ModuleTimeConsumingOperationsClient.IdleParameters(ThisObject);
 		IdleParameters.OutputIdleWindow = False;
 		
-		NotifyDescription = New CallbackDescription("OnCompleteExport", ThisObject);
-		ModuleTimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, NotifyDescription, IdleParameters);
+		CallbackDescription = New CallbackDescription("OnCompleteExport", ThisObject);
+		ModuleTimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CallbackDescription, IdleParameters);
 	EndIf;
 EndProcedure
 
@@ -1057,7 +1056,7 @@ Procedure ImportExportSettingsAtServer()
 			
 			XMLWriter = New XMLWriter;
 			XMLWriter.SetString("UTF-8");
-			RdNode(XMLReader, XMLWriter);
+			ReadNode(XMLReader, XMLWriter);
 			Text = XMLWriter.Close();
 			
 			ANewLineOfSelectionOfSKD.Filter = Common.ValueFromXMLString(Text);
@@ -1074,7 +1073,7 @@ Procedure ImportExportSettingsAtServer()
 EndProcedure
 
 &AtServer
-Procedure RdNode(XMLReader, XMLWriter)
+Procedure ReadNode(XMLReader, XMLWriter)
 	
 	XMLWriter.WriteStartElement(XMLReader.Name);
 	For Cnt = 0 To XMLReader.AttributeCount() - 1 Do
@@ -1086,7 +1085,7 @@ Procedure RdNode(XMLReader, XMLWriter)
 	While XMLReader.Read() Do
 		
 		If XMLReader.NodeType = XMLNodeType.StartElement Then
-			RdNode(XMLReader, XMLWriter)
+			ReadNode(XMLReader, XMLWriter)
 		ElsIf XMLReader.NodeType = XMLNodeType.Text Then
 			XMLWriter.WriteText(XMLReader.Value);
 		ElsIf XMLReader.NodeType = XMLNodeType.EndElement Then

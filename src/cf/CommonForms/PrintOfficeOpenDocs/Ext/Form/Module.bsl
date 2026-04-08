@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Variables
@@ -144,7 +143,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			"OutputImmediately", False);
 	EndIf;
 	
-	PrintManagement.PrintDocumentsOnCreateAtServer(ThisObject, Cancel, StandardProcessing);
+	PrintManagement.ProcessSendingCommands(ThisObject);
 	
 EndProcedure
 
@@ -794,8 +793,8 @@ Procedure SelectionProcessingFollowUp(Result, ChoiceParameters) Export
 				FilesInTempStorage = PutFilesToArchive(FilesInTempStorage, ValueSelected);
 				WrittenObjects = AttachPrintFormsToObject(FilesInTempStorage);
 				ChoiceParameters.Insert("WrittenObjects", WrittenObjects);
-				NotifyDescription = New CallbackDescription("SelectionProcessingCompletion", ThisObject, ChoiceParameters);
-				SignWrittenObjects(WrittenObjects, NotifyDescription);
+				CallbackDescription = New CallbackDescription("SelectionProcessingCompletion", ThisObject, ChoiceParameters);
+				SignWrittenObjects(WrittenObjects, CallbackDescription);
 				Return;
 			EndIf;
 		EndIf;
@@ -871,8 +870,8 @@ Procedure SIgnFiles(FilesInTempStorage, ChoiceParameters)
 	
 	ChoiceParameters.Insert("MapBetweenFilesAndPrintableObjects", Map);
 	
-	NotifyDescription = New CallbackDescription("SelectionProcessingCompletion", ThisObject, ChoiceParameters);
-	ModuleDigitalSignatureClient.Sign(DataDetails,, NotifyDescription, SignatureParameters);
+	CallbackDescription = New CallbackDescription("SelectionProcessingCompletion", ThisObject, ChoiceParameters);
+	ModuleDigitalSignatureClient.Sign(DataDetails,, CallbackDescription, SignatureParameters);
 	
 EndProcedure
 
@@ -1017,8 +1016,8 @@ Procedure ContinuePrintingAfterInstall1CEnterpriseExtension(ExtensionAttached, A
 	
 #If WebClient Then
 	Text = NStr("en = 'Print the document using an application designed to manage this file.'");
-	NotifyDescription = New CallbackDescription("OpenMarkedPrintForms", ThisObject);
-	ShowMessageBox(NotifyDescription, Text,,NStr("en = 'Print document from web client'"));
+	CallbackDescription = New CallbackDescription("OpenMarkedPrintForms", ThisObject);
+	ShowMessageBox(CallbackDescription, Text,,NStr("en = 'Print document from web client'"));
 	Return;
 #EndIf
 	
@@ -1171,10 +1170,10 @@ EndProcedure
 
 &AtClient
 Procedure SendPrintFormsByEmail()
-	NotifyDescription = New CallbackDescription("SendPrintFormsByEmailAccountSetupOffered", ThisObject);
+	CallbackDescription = New CallbackDescription("SendPrintFormsByEmailAccountSetupOffered", ThisObject);
 	If CommonClient.SubsystemExists("StandardSubsystems.EmailOperations") Then
 		ModuleEmailOperationsClient = CommonClient.CommonModule("EmailOperationsClient");
-		ModuleEmailOperationsClient.CheckAccountForSendingEmailExists(NotifyDescription);
+		ModuleEmailOperationsClient.CheckAccountForSendingEmailExists(CallbackDescription);
 	EndIf;
 EndProcedure
 
@@ -1269,7 +1268,8 @@ Function PutFilesToArchive(DocsPrintForms, PassedSettings)
 	For Each FileStructure In DocsPrintForms Do
 			
 		FileData = GetFromTempStorage(FileStructure.AddressInTempStorage);
-		FullFileName = TempDirectoryName + FileStructure.Presentation;
+		FileName = CommonClientServer.ReplaceProhibitedCharsInFileName(FileStructure.Presentation);
+		FullFileName = TempDirectoryName + FileName;
 		FileData.Write(FullFileName);
 		
 		PrintObject = ?(SetPrintObject And ValueIsFilled(FileStructure.PrintObject), FileStructure.PrintObject, Undefined);
@@ -1477,8 +1477,8 @@ Procedure SavePrintFormsToDirectory(FilesListInTempStorage, Val DirectoryName = 
 		Return;
 	EndIf;
 	
-	NotifyDescription = New CallbackDescription("WhenPreparingFileNames", ThisObject, DirectoryName);
-	PreparationParameters = PrintManagementClient.FileNamePreparationOptions(FilesListInTempStorage, DirectoryName, NotifyDescription);
+	CallbackDescription = New CallbackDescription("WhenPreparingFileNames", ThisObject, DirectoryName);
+	PreparationParameters = PrintManagementClient.FileNamePreparationOptions(FilesListInTempStorage, DirectoryName, CallbackDescription);
 	PrepareFileNamesToSaveToADirectory(PreparationParameters);
 	
 EndProcedure
@@ -1510,8 +1510,8 @@ Procedure WhenPreparingFileNames(FilesListInTempStorage, DirectoryName) Export
 
 #If Not WebClient Then
 	If ValueIsFilled(DirectoryName) Then
-		NotifyDescription = New CallbackDescription("OpenFolderSaveTo", ThisObject, DirectoryName); 
-		ShowUserNotification(NStr("en = 'Print form saved'"), NotifyDescription,
+		CallbackDescription = New CallbackDescription("OpenFolderSaveTo", ThisObject, DirectoryName); 
+		ShowUserNotification(NStr("en = 'Print form saved'"), CallbackDescription,
 			StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'to directory %1'"), DirectoryName), 
 			PictureLib.DialogInformation);
 	EndIf;

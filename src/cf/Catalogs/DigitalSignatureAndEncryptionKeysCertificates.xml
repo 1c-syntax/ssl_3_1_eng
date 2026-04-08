@@ -1387,6 +1387,48 @@ certificate expiration.</v8:content>
 							<DataHistory>Use</DataHistory>
 						</Properties>
 					</Attribute>
+					<Attribute uuid="26593d71-6002-4217-9661-8e649c899456">
+						<Properties>
+							<Name>WithoutUsingKey</Name>
+							<Synonym>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>No key used</v8:content>
+								</v8:item>
+							</Synonym>
+							<Comment/>
+							<Type>
+								<v8:Type>xs:boolean</v8:Type>
+							</Type>
+							<PasswordMode>false</PasswordMode>
+							<Format/>
+							<EditFormat/>
+							<ToolTip>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Allows the user to use the certificate for operations that do not require the digital signature key, such as selecting a certificate for encryption.</v8:content>
+								</v8:item>
+							</ToolTip>
+							<MarkNegatives>false</MarkNegatives>
+							<Mask/>
+							<MultiLine>false</MultiLine>
+							<ExtendedEdit>false</ExtendedEdit>
+							<MinValue xsi:nil="true"/>
+							<MaxValue xsi:nil="true"/>
+							<FillChecking>DontCheck</FillChecking>
+							<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>
+							<ChoiceParameterLinks/>
+							<ChoiceParameters/>
+							<QuickChoice>Auto</QuickChoice>
+							<CreateOnInput>Auto</CreateOnInput>
+							<ChoiceForm/>
+							<LinkByType/>
+							<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>
+							<Indexing>DontIndex</Indexing>
+							<FullTextSearch>Use</FullTextSearch>
+							<DataHistory>Use</DataHistory>
+						</Properties>
+					</Attribute>
 				</ChildObjects>
 			</TabularSection>
 			<Form>ItemForm</Form>
@@ -1404,11 +1446,10 @@ certificate expiration.</v8:content>
 			<Form>CertificateAboutToExpireNotification</Form>
 			<Form>CertificateCheck</Form>
 			<Form>UsersList</Form>
-			<Form>EditFirstNameAndPatronymic</Form>
+			<Form>EditNameAndMiddleName</Form>
 			<Form>InstallingTheCertificate</Form>
-			<Template>ComponentExtraCryptoAPI_3_0_3_49</Template>
+			<Template>ComponentExtraCryptoAPI_3_1_3_15</Template>
 			<Template>Stamp</Template>
-			<Template>ExtendedStamp</Template>
 		</ChildObjects>
 	</Catalog>
 </MetaDataObject>

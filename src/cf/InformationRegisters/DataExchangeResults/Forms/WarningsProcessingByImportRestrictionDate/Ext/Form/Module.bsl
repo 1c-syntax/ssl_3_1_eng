@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -47,9 +46,9 @@ Procedure AcceptVersion(Command)
 	
 	QueryText = NStr("en = 'Accept versions in the selected lines even though import is restricted?'", CommonClient.DefaultLanguageCode());
 	
-	NotifyDescription = New CallbackDescription("AcceptVersionCompletion", ThisObject);
+	CallbackDescription = New CallbackDescription("AcceptVersionCompletion", ThisObject);
 	
-	ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.YesNo, , DialogReturnCode.No);
+	ShowQueryBox(CallbackDescription, QueryText, QuestionDialogMode.YesNo, , DialogReturnCode.No);
 	
 EndProcedure
 

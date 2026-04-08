@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -99,7 +98,35 @@ Function ContactsFilledIn(Value) Export
 	Return TrimAll(Value) <> BlankAddressTextAsHyperlink();
 EndFunction
 
-
+// Returns the full description (the type and the name) of an address object.
+// The output format depends on the passed parameters: the prefix usage and the order of type and name.
+// 
+// Parameters:
+//  Address - Structure - Address broken down by fields
+//  FieldName - String - Address field name
+//  TypePrefix - String - The type prefix in case the address consists of two fields. For example, "ave." in "Maple ave."
+//                         If the field name is set to "Number", the address is not concatenated.
+//                         Instead, the function uses the original name. For example, "PremiseType".
+//  reverseorder - Boolean - If set to "True", the address object type comes before the address. For example, "ave. Maple".
+// 
+// Returns:
+//  String - The generated description of the address object.
+//
+Function AddressObjectName(Address, FieldName, TypePrefix = "", reverseorder = False) Export
+	
+	If IsBlankString(TypePrefix) Then
+		Return TrimAll(Address[FieldName]);
+	EndIf;
+	
+	FieldNameWithPrefix = ?(FieldName = "Number", TypePrefix, FieldName + TypePrefix);
+	
+	If reverseorder Then
+		Return TrimAll(Address[FieldNameWithPrefix] +  " " + Address[FieldName]);
+	EndIf;
+	
+	Return TrimAll(Address[FieldName] +  " " + Address[FieldNameWithPrefix]);
+	
+EndFunction
 
 
 #Region ObsoleteProceduresAndFunctions
@@ -132,7 +159,7 @@ Function GenerateAddressPresentation(AddressStructure1, Presentation, KindDescri
 	EndIf;
 	
 	AddressPresentationByStructure(AddressStructure1, "IndexOf", Presentation);
-	AddressPresentationByStructure(AddressStructure1, "State_SSLym", Presentation, "AreaAbbr", AddShortForms);
+	AddressPresentationByStructure(AddressStructure1, "State", Presentation, "AreaAbbr", AddShortForms);
 	AddressPresentationByStructure(AddressStructure1, "County", Presentation, "CountyAbbr", AddShortForms);
 	AddressPresentationByStructure(AddressStructure1, "District", Presentation, "DistrictAbbr", AddShortForms);
 	AddressPresentationByStructure(AddressStructure1, "City", Presentation, "CityAbbr", AddShortForms);
@@ -241,7 +268,7 @@ Function NewContactInformationDetails(Val ContactInformationType) Export
 	
 	Result = New Structure;
 	
-	Result.Insert("version", 4);
+	Result.Insert("version", 5);
 	Result.Insert("value",   "");
 	Result.Insert("comment", "");
 	Result.Insert("type",    ContactInformationTypeToString(ContactInformationType));
@@ -333,11 +360,11 @@ EndFunction
 //    * Presentation    - String - Text presentation of the address according to its administrative structure.
 //                                  For example, "Av. Larco 1234, Miraflores 15074, Lima, Peru".
 //    * AddressType        - String - Main address type. Applies only to addresses in the Russian Federation.
-//                                  Valid options are "FreeForm" and "Foreign".
+//                                  Valid options are "FreeForm" and "Foreign2".
 //    * Country           - String - Text presentation of a country. For example, "Peru".
 //    * CountryCode        - String - Country code. For example, "51".
 //    * IndexOf           - String - Postal code. For example, "15074".
-//    * State_SSLym           - String - Text presentation of a region or state. For example, "Miraflores".
+//    * State           - String - Text presentation of a region or state. For example, "Miraflores".
 //    * City            - String - Text presentation of a city. 
 //    * Street            - String - Text presentation of a street. For example, "Main".
 //    * AdditionalInformation - String - Text presentation of additional information  
@@ -357,7 +384,7 @@ Function AddressFields() Export
 	Result.Insert("CountryCode", "");
 	Result.Insert("IndexOf"   , "");
 	
-	Result.Insert("State_SSLym" , "");
+	Result.Insert("State" , "");
 	Result.Insert("District"  , "");
 	Result.Insert("City"  , "");
 	Result.Insert("Street"  , "");
@@ -381,6 +408,13 @@ Function ContactInformationTypeToString(Val ContactInformationType)
 	Result.Insert("", "");
 	Return Result[ContactInformationType];
 	
+EndFunction
+
+Function IsItForeignAddressOrEAEU(AddressType) Export
+	
+	Return StrCompare(AddressType, EEUAddress()) = 0
+	 Or StrCompare(AddressType, ForeignAddress()) = 0;
+	 
 EndFunction
 
 Function CustomFormatAddress() Export
@@ -538,12 +572,12 @@ Function ExtendedTooltipForAddress(CommandsForOutput, AddressPresentation, Comme
 	
 	ShowOnMap = "";
 	For Each CommandToOutput In CommandsForOutput Do
-		TypeOfAction = ActionKindOfContactInformationTypeCommand(CommandToOutput.Value.Action);
-		If StrCompare(TypeOfAction, "ShowOnMap") = 0 Then
+		ActionKind = ActionKindOfContactInformationTypeCommand(CommandToOutput.Value.Action);
+		If StrCompare(ActionKind, "ShowOnMap") = 0 Then
 			If IsBlankString(ShowOnMap) Then
-				ShowOnMap = New FormattedString(CommandToOutput.Value.Title,, WebColors.Gray,, TypeOfAction);
+				ShowOnMap = New FormattedString(CommandToOutput.Value.Title,, WebColors.Gray,, ActionKind);
 			Else
-				ShowOnMap = New FormattedString(NStr("en = 'On map'"),, WebColors.Gray,, TypeOfAction);
+				ShowOnMap = New FormattedString(NStr("en = 'On map'"),, WebColors.Gray,, ActionKind);
 				Break;
 			EndIf;
 		EndIf;
@@ -584,12 +618,12 @@ EndFunction
 Function ActionKindOfContactInformationTypeCommand(Action) Export
 	
 	If Action = "ContactsManagerClient.ShowAddressOnGoogleMaps" Then
-		TypeOfAction = "ShowOnMap";
+		ActionKind = "ShowOnMap";
 	Else
-		TypeOfAction = "";
-		ContactsManagerClientServerLocalization.OnDefineContactInfoTypeCommandActions(Action, TypeOfAction);
+		ActionKind = "";
+		ContactsManagerClientServerLocalization.OnDefineContactInfoTypeCommandActions(Action, ActionKind);
 	EndIf;
-	Return TypeOfAction;
+	Return ActionKind;
 	
 EndFunction
 
@@ -723,14 +757,14 @@ EndFunction
 // Adds a string to an address presentation.
 //
 // Parameters:
-//    AddOn         - String - an address addition.
+//    Supplement         - String - an address addition.
 //    ConcatenationString - String - a concatenation string.
 //    Presentation      - String - address presentation.
 //
-Procedure SupplementAddressPresentation(AddOn, ConcatenationString, Presentation)
+Procedure SupplementAddressPresentation(Supplement, ConcatenationString, Presentation)
 	
-	If AddOn <> "" Then
-		Presentation = Presentation + ConcatenationString + AddOn;
+	If Supplement <> "" Then
+		Presentation = Presentation + ConcatenationString + Supplement;
 	EndIf;
 	
 EndProcedure
@@ -760,15 +794,15 @@ EndFunction
 Procedure AddressPresentationByStructure(AddressStructure1, DescriptionKey, Presentation, ShortFormKey = "", AddShortForms = False, ConcatenationString = ", ")
 	
 	If AddressStructure1.Property(DescriptionKey) Then
-		AddOn = TrimAll(AddressStructure1[DescriptionKey]);
-		If ValueIsFilled(AddOn) Then
+		Supplement = TrimAll(AddressStructure1[DescriptionKey]);
+		If ValueIsFilled(Supplement) Then
 			If AddShortForms And AddressStructure1.Property(ShortFormKey) Then
-				AddOn = AddOn + " " + TrimAll(AddressStructure1[ShortFormKey]);
+				Supplement = Supplement + " " + TrimAll(AddressStructure1[ShortFormKey]);
 			EndIf;
 			If ValueIsFilled(Presentation) Then
-				Presentation = Presentation + ConcatenationString + AddOn;
+				Presentation = Presentation + ConcatenationString + Supplement;
 			Else
-				Presentation = AddOn;
+				Presentation = Supplement;
 			EndIf;
 		EndIf;
 	EndIf;

@@ -183,6 +183,8 @@
 			<Form>Form</Form>
 			<Form>FormSettings</Form>
 			<Form>ScheduledJobSetupForm</Form>
+			<Form>IntegrationServiceManagementForm</Form>
+			<Form>IntegrationServiceSettingsForm</Form>
 		</ChildObjects>
 	</DataProcessor>
 </MetaDataObject>

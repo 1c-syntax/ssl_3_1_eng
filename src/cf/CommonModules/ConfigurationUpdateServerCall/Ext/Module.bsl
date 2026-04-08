@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Private
@@ -137,10 +136,7 @@ Function SubstituteParametersToText(Val Text, Val TextParameters)
 	
 EndFunction
 
-Procedure SaveConfigurationUpdateSettings(Settings) Export
-	VerifyAccessRights("Administration", Metadata);
-	ConfigurationUpdate.SaveConfigurationUpdateSettings(Settings);
-EndProcedure
+
 
 Procedure UpdatePatchesFromScript(NewPatches, PatchesToDelete) Export // ACC:557 To call from a script.
 	ConfigurationUpdate.UpdatePatchesFromScript(NewPatches, PatchesToDelete);
@@ -189,6 +185,11 @@ EndProcedure
 // ACC:557–off for using from the update script.
 //
 Procedure DisablePatchesFromScript() Export
+	
+	If Common.IsSubordinateDIBNode() Then
+		// In a subordinate node, patches are changed when synchronizing.
+		Return;
+	EndIf;
 	
 	MessageText = NStr("en = 'Temporary disabling of patches has been started followed by an application update.'");
 	WriteLogEvent(ConfigurationUpdate.EventLogEvent(), EventLogLevel.Information,,, MessageText);

@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Internal
@@ -546,6 +545,17 @@ Procedure DecodeAddressesInEmail(MailMessage) Export
 	DecodeAddressesCollection(MailMessage.To);
 	DecodeAddressesCollection(MailMessage.Bcc);
 	MailMessage.From.Address = PunycodeIntoString(MailMessage.From.Address);
+EndProcedure
+
+// See CommonOverridable.OnAddServerNotifications
+Procedure OnAddServerNotifications(Notifications) Export
+	
+	NameOfAlert = EmailOperationsInternalClientServer.ServerNotificationName();
+	
+	Notification = ServerNotifications.NewServerNotification(NameOfAlert);
+	Notification.NotificationReceiptModuleName = "EmailOperationsInternalClient";
+	Notifications.Insert(Notification.Name, Notification);
+	
 EndProcedure
 
 #EndRegion
@@ -1323,23 +1333,8 @@ Function AttachmentsDetails(AttachmentCollection) Export
 	Result = New Array;
 	For Each Attachment In AttachmentCollection Do
 		AttachmentDetails = AttachmentDetails();
-		If TypeOf(AttachmentCollection) = Type("ValueList") Then
-			AttachmentDetails.Presentation = Attachment.Presentation;
-			BinaryData = Undefined;
-			If TypeOf(Attachment.Value) = Type("BinaryData") Then
-				BinaryData = Attachment.Value;
-			Else
-				If IsTempStorageURL(Attachment.Value) Then
-					BinaryData = GetFromTempStorage(Attachment.Value);
-				Else
-					PathToFile = Attachment.Value;
-					BinaryData = New BinaryData(PathToFile);
-				EndIf;
-			EndIf;
-		Else // TypeOf(Parameters.Attachments) = "array of structures"
-			BinaryData = GetFromTempStorage(Attachment.AddressInTempStorage);
-			FillPropertyValues(AttachmentDetails, Attachment, , "AddressInTempStorage");
-		EndIf;
+		BinaryData = GetFromTempStorage(Attachment.AddressInTempStorage);
+		FillPropertyValues(AttachmentDetails, Attachment, , "AddressInTempStorage");
 		AttachmentDetails.AddressInTempStorage = PutToTempStorage(BinaryData, New UUID);
 		Result.Add(AttachmentDetails);
 	EndDo;
@@ -1495,12 +1490,12 @@ Function SendEmails(UserAccountOrConnection, Emails, ExceptionText = Undefined) 
 		Except
 			ErrorInfo = ErrorInfo();
 			
-			If Not EmailOperationsInternalClientServer.ThisIsErrorInWorkOfInternetMail(ErrorInfo)
+			If Not EmailOperationsInternalClientServer.IsInternetMailError(ErrorInfo)
 				Or ReceivingProtocol <> InternetMailProtocol.IMAP Or SenderAttributes.UseForReceiving Then
 				Raise;
 			EndIf;
 			
-			ErrorText = ExtendedErrorPresentation(ErrorInfo, Common.DefaultLanguageCode());
+			ErrorText = ExtendedErrorPresentation(ErrorInfo, Common.DefaultLanguageCode(), , Account);
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Cannot connect to IMAP server:
 				|%1'", Common.DefaultLanguageCode()), ErrorText);
@@ -1537,7 +1532,18 @@ Function SendEmails(UserAccountOrConnection, Emails, ExceptionText = Undefined) 
 			EncodeAddressesInEmailMessage(MailMessage);
 			
 			If ReceivingProtocol = InternetMailProtocol.IMAP Then
-				Join.Send(MailMessage, ProcessTexts, InternetMailProtocol.IMAP);
+				
+				Try
+					Join.Send(MailMessage, ProcessTexts, InternetMailProtocol.IMAP);
+				Except
+					ErrorInfo = ErrorInfo();
+					ExceptionClarification = CommonClientServer.ExceptionClarification(ErrorInfo);
+					ErrorCode = EmailOperationsInternalClientServer.InternetMailErrorCode();
+					
+					Raise(
+						ExceptionClarification.Text, ExceptionClarification.Category, ErrorCode, , ErrorInfo);
+				EndTry;
+				
 				EmailSendingResult.Insert("IMAPEmailID", MailMessage.MessageID);
 				
 				EmailFlags = New InternetMailMessageFlags;
@@ -1545,6 +1551,7 @@ Function SendEmails(UserAccountOrConnection, Emails, ExceptionText = Undefined) 
 				EmailsFlags = New Map;
 				EmailsFlags.Insert(MailMessage.MessageID, EmailFlags);
 				Join.SetMessagesFlags(EmailsFlags);
+				
 			EndIf;
 			
 			WrongRecipients = New Map;
@@ -1560,7 +1567,7 @@ Function SendEmails(UserAccountOrConnection, Emails, ExceptionText = Undefined) 
 				Else
 					
 					ExceptionClarification = CommonClientServer.ExceptionClarification(ErrorInfo);
-					ErrorCode = EmailOperationsInternalClientServer.ErrorCodeOfInternetMailWorks();
+					ErrorCode = EmailOperationsInternalClientServer.InternetMailErrorCode();
 					
 					Raise(
 						ExceptionClarification.Text, ExceptionClarification.Category, ErrorCode, , ErrorInfo);
@@ -1601,12 +1608,12 @@ Function SendEmails(UserAccountOrConnection, Emails, ExceptionText = Undefined) 
 		EndIf;
 		
 		ExceptionText = ErrorProcessing.BriefErrorDescription(ErrorInfo);
-		If Not EmailOperationsInternalClientServer.ThisIsErrorInWorkOfInternetMail(ErrorInfo)
+		If Not EmailOperationsInternalClientServer.IsInternetMailError(ErrorInfo)
 			Or EmailsSendingResults.Count() = 0 Then
 			Raise;
 		EndIf;
 		
-		ErrorText = ExtendedErrorPresentation(ErrorInfo, Common.DefaultLanguageCode());
+		ErrorText = ExtendedErrorPresentation(ErrorInfo, Common.DefaultLanguageCode(), , Account);
 		WriteLogEvent(EventNameSendEmail(), EventLogLevel.Error, , Account, ErrorText);
 		Return EmailsSendingResults;
 	EndTry;
@@ -1856,11 +1863,82 @@ Function EmailRecipientRejectedByServer(Val ErrorText)
 	
 EndFunction
 
-Function ExplanationOnError(ErrorText, Val LanguageCode = Undefined, ForSetupAssistant = False) Export
+// Returns parameters to get the error details.
+//
+// Returns:
+//  Structure:
+//    * ErrorText               - String - Detailed error text.
+//    * LanguageCode                  - String - The interface language for the current user.
+//    * Context                  - String - See ContextForClarification.
+//    * ServerNames             - String - See ServerNamesForClarification.
+//
+Function ExplanationParameters() Export
 	
-	If LanguageCode = Undefined Then
-		LanguageCode = CurrentLanguage().LanguageCode;
+	Result = New Structure;
+	Result.Insert("ErrorText", "");
+	Result.Insert("LanguageCode", CurrentLanguage().LanguageCode);
+	Result.Insert("Context", "");
+	Result.Insert("ServerNames", "");
+	
+	Return Result;
+	
+EndFunction
+
+// Returns context that requires error details.
+//
+// Returns:
+//  Structure:
+//    * Key - String
+//    * Value - String
+//
+Function ContextForClarification() Export
+	
+	Result = New Structure;
+	Result.Insert("AutomaticSetting", "AutomaticSetting");
+	Result.Insert("ManualSetting", "ManualSetting");
+	Result.Insert("SendingEmail", "SendingEmail");
+	
+	Return Result;
+	
+EndFunction
+
+// Returns email server names (separated with commas) that require error details.
+//
+// Parameters:
+//  IncomingMailServer - String
+//  OutgoingMailServer - String
+//
+// Returns:
+//  String
+//
+Function ServerNamesForClarification(IncomingMailServer, OutgoingMailServer) Export
+	
+	If IsBlankString(IncomingMailServer) And IsBlankString(OutgoingMailServer) Then
+		Return "";
 	EndIf;
+	
+	Result = New Array;
+	Result.Add(IncomingMailServer);
+	Result.Add(OutgoingMailServer);
+	
+	Return StrConcat(Result, ", ");
+	
+EndFunction
+
+// Returns error details.
+//
+// Parameters:
+//  ExplanationParameters - Structure - See ExplanationParameters.
+//
+// Returns:
+//  Structure:
+//    * PossibleReasons - Array
+//    * MethodsToFixError - Array
+//
+Function ExplanationOnError(ExplanationParameters) Export
+	
+	ErrorText = ExplanationParameters.ErrorText;
+	LanguageCode = ExplanationParameters.LanguageCode;
 	
 	ErrorsDetails = New Array;
 	
@@ -1895,10 +1973,10 @@ Function ExplanationOnError(ErrorText, Val LanguageCode = Undefined, ForSetupAss
 			EndDo;
 			
 			For Each Item In ErrorDescription["HowToFix"] Do
-				If Not RemedyApplicable(Item) Then
+				If Not RemedyApplicable(Item, ExplanationParameters) Then
 					Continue;
 				EndIf;
-
+				
 				Remedy = Item[LanguageCode];
 				If Remedy = Undefined Then
 					Remedy = Item[Common.DefaultLanguageCode()];
@@ -1921,7 +1999,7 @@ Function ExplanationOnError(ErrorText, Val LanguageCode = Undefined, ForSetupAss
 			MethodsToFixError.Add(NStr("en = 'Check the Internet connection.'"));
 		EndIf; 
 		
-		If ForSetupAssistant Then
+		If ThisIsAutomaticSetting(ExplanationParameters) Then
 			MethodsToFixError.Add(NStr("en = 'Check the specified settings.'"));
 		Else
 			MethodsToFixError.Add(StringFunctionsClientServer.SubstituteParametersToString(NStr(
@@ -1989,26 +2067,88 @@ Function FormattedStrings(Rows)
 	
 EndFunction
 
-Function RemedyApplicable(Remedy)
+Function ThisIsAutomaticSetting(ExplanationParameters)
+	
+	Return ExplanationParameters.Context = ContextForClarification().AutomaticSetting;
+	
+EndFunction
+
+Function RemedyApplicable(Remedy, ExplanationParameters)
 	
 	Result = True;
+	ExtendedTags = Remedy["TagsV2"];
 	
-	Tags = StrSplit(Lower(Remedy["Tags"]), ",");
-	For Each Tag_ In Tags Do
-		If Tag_ = "server" Then
-			Result = Result And Not Common.FileInfobase();
-		EndIf;
-	EndDo;
+	If ExtendedTags = Undefined Then
+		Return Result;
+	EndIf;
+	
+	CheckTroubleshootingMethodByContext(Result, ExtendedTags, ExplanationParameters);
+	CheckMethodOfEliminationByProvider(Result, ExtendedTags, ExplanationParameters);
 	
 	Return Result;
 	
 EndFunction
 
-Function ExtendedErrorPresentation(ErrorInfo, LanguageCode, EnableVerboseRepresentationErrors = True) Export
+Procedure CheckTroubleshootingMethodByContext(Result, ExtendedTags, ExplanationParameters)
+	
+	Contexts = ExtendedTags.Get("context");
+	
+	If Contexts = Undefined Then
+		Return;
+	EndIf;
+	
+	CurrentContext = ExplanationParameters.Context;
+	
+	For Each Context In Contexts Do
+		
+		If Context = "ClientServerMode" Then
+			Result = Result And Not Common.FileInfobase();
+		Else
+			Result = Result And CurrentContext = Context;
+		EndIf;
+		
+	EndDo;
+	
+EndProcedure
+
+Procedure CheckMethodOfEliminationByProvider(Result, ExtendedTags, ExplanationParameters)
+	
+	Providers = ExtendedTags.Get("provider");
+	
+	If Providers = Undefined Then
+		Return;
+	EndIf;
+	
+	ServerNames = ExplanationParameters.ServerNames;
+	
+	For Each Provider In Providers Do
+		Result = Result And StrFind(ServerNames, Provider) > 0;
+	EndDo;
+	
+EndProcedure
+
+Function ExtendedErrorPresentation(ErrorInfo, LanguageCode,
+	EnableVerboseRepresentationErrors = True, Account = Undefined) Export
 	
 	BriefErrorDescription = ErrorProcessing.BriefErrorDescription(ErrorInfo);
 	DetailErrorDescription = ErrorProcessing.DetailErrorDescription(ErrorInfo);
-	ExplanationOnError = ExplanationOnError(BriefErrorDescription, LanguageCode);
+	
+	IncomingMailServer = "";
+	OutgoingMailServer = "";
+	
+	If TypeOf(Account) = Type("CatalogRef.EmailAccounts") Then
+		UserAccountAttributes = Common.ObjectAttributesValues(Account, "IncomingMailServer, OutgoingMailServer");
+		IncomingMailServer = UserAccountAttributes.IncomingMailServer;
+		OutgoingMailServer = UserAccountAttributes.OutgoingMailServer;
+	EndIf;
+	
+	ExplanationParameters = ExplanationParameters();
+	ExplanationParameters.ErrorText = BriefErrorDescription;
+	ExplanationParameters.LanguageCode = LanguageCode;
+	ExplanationParameters.Context = ContextForClarification().SendingEmail;
+	ExplanationParameters.ServerNames = ServerNamesForClarification(IncomingMailServer, OutgoingMailServer);
+	
+	ExplanationOnError = ExplanationOnError(ExplanationParameters);
 	
 	Template = NStr("en = '%1
 	|
@@ -2565,7 +2705,7 @@ Procedure ConnectToInternetMail(InternetMail, Profile, Protocol)
 		
 		ErrorInfo = ErrorInfo();
 		ExceptionClarification = CommonClientServer.ExceptionClarification(ErrorInfo);
-		ErrorCode = EmailOperationsInternalClientServer.ErrorCodeOfInternetMailWorks();
+		ErrorCode = EmailOperationsInternalClientServer.InternetMailErrorCode();
 		
 		Raise(ExceptionClarification.Text, ExceptionClarification.Category, ErrorCode, , ErrorInfo);
 		
@@ -2902,5 +3042,87 @@ Function AddressOfExternalResource()
 EndFunction
 
 #EndRegion
+
+Function OpenAuthorizationOfMailServiceHasBeenPublished() Export
+	
+	ServicePublished = False;
+	InfobasePublicationURL = Common.InfobasePublicationURL();
+	
+	If Not ValueIsFilled(InfobasePublicationURL) Then
+		Return ServicePublished;
+	EndIf;
+	
+	If Not VerificationOfPublicationOfBuiltInServiceIsAvailable() Then
+		Return ServicePublished;
+	EndIf;
+	
+	URIStructure = CommonClientServer.URIStructure(InfobasePublicationURL);
+	
+	ServerAddress = URIStructure.Host;
+	ResourceAddress = "/" + URIStructure.PathAtServer + "/hs/oauth2_mail/ping";
+	Port = URIStructure.Port;
+	
+	Proxy = Undefined;
+	If Common.SubsystemExists("StandardSubsystems.GetFilesFromInternet") Then
+		ModuleNetworkDownload = Common.CommonModule("GetFilesFromInternet");
+		Proxy = ModuleNetworkDownload.GetProxy("https");
+	EndIf;
+	
+	SecureConnection = Undefined;
+	If Lower(URIStructure.Schema) = Lower("https") Then
+		SecureConnection = CommonClientServer.NewSecureConnection();
+	EndIf;
+	
+	Try
+		
+		Query = New HTTPRequest(ResourceAddress);
+		Join = New HTTPConnection(ServerAddress, Port, , , Proxy, 5, SecureConnection);
+		
+		Response = Join.Get(Query);
+		ServicePublished = Response.StatusCode = 200;
+		
+	Except
+		
+		CommentTemplate = NStr("en = 'Failed to verify publication of the HTTP service ""Open authorization of the email service"".
+			|
+			|Details:
+			|%1'");
+		
+		Comment = StringFunctionsClientServer.SubstituteParametersToString(
+			CommentTemplate,
+			ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+		
+		WriteLogEvent(
+			EventNameAuthorizationByProtocolOAuth(),
+			EventLogLevel.Information,
+			,
+			,
+			Comment);
+			
+	EndTry;
+	
+	Return ServicePublished;
+	
+EndFunction
+
+Function VerificationOfPublicationOfBuiltInServiceIsAvailable()
+	
+	Return Not (Common.FileInfobase()
+		And (Common.IsWebClient() Or Common.ClientConnectedOverWebServer()));
+	
+EndFunction
+
+Function AddressOfOpenAuthorizationOfMailService() Export
+	
+	Return Common.InfobasePublicationURL() + "/hs/oauth2_mail/callback";
+	
+EndFunction
+
+// See StandardSubsystemsServer.WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode
+Procedure WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode(Methods) Export
+	
+	Methods.Insert("GetStatusesOfEmailMessages", True);
+	
+EndProcedure
 
 #EndRegion

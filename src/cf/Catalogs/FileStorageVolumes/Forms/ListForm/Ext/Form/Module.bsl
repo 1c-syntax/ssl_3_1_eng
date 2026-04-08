@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -27,7 +26,23 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	Items.CheckIntegrity.Visible = Not Common.SubsystemExists("StandardSubsystems.AttachableCommands")
 		Or Not Common.SubsystemExists("StandardSubsystems.ReportsOptions") Or Not Common.SeparatedDataUsageAvailable();
+
+	ProcessedTypeOfFileStorageVolume = Parameters.ValueOfSelectionByTypeOfFileStorageVolume;
+	If Not ValueIsFilled(ProcessedTypeOfFileStorageVolume) Then
+		ProcessedTypeOfFileStorageVolume = Enums.TypesOfFileStorage.OperationalStorage;
+		Parameters.Filter.Insert("TypeOfFileStorageVolume", ProcessedTypeOfFileStorageVolume);
+	EndIf;
+
+	Items.MoveAllFilesToVolumes.Visible = ProcessedTypeOfFileStorageVolume = Enums.TypesOfFileStorage.OperationalStorage;
+
+	Items.ListTypeOfFileStorageVolume.Visible = Not ValueIsFilled(ProcessedTypeOfFileStorageVolume);
 	
+	Items.BinaryDataStorageManagementGroup.Visible = WorkingWithServerFileArchive.BinaryDataStoresAreAvailable();
+	
+	If WorkingWithServerFileArchive.UseFileArchive() Then
+		Title = StringFunctionsClientServer.SubstituteParametersToString("%1 (%2)", Title, ProcessedTypeOfFileStorageVolume);
+	EndIf
+
 EndProcedure
 
 #EndRegion
@@ -76,6 +91,10 @@ Procedure CheckIntegrity(Command)
 		Return;
 	EndIf;
 	
+	If Not VolumeIntegrityCheckIsAvailable(CurrentData.Ref) Then
+		Return;
+	EndIf;
+	
 	ReportParameters = New Structure();
 	ReportParameters.Insert("GenerateOnOpen", True);
 	ReportParameters.Insert("Filter", New Structure("Volume", CurrentData.Ref));
@@ -88,6 +107,13 @@ EndProcedure
 &AtClient
 Procedure Attachable_ExecuteCommand(Command)
 	If CommonClient.SubsystemExists("StandardSubsystems.AttachableCommands") Then
+		If Command.Name = "SubmenuReportsNormal__VolumeIntegrityCheck" Then
+			CurrentData = Items.List.CurrentData;
+			If CurrentData <> Undefined And Not VolumeIntegrityCheckIsAvailable(CurrentData.Ref) Then
+				Return;
+			EndIf;			
+		EndIf;
+		
 		ModuleAttachableCommandsClient = CommonClient.CommonModule("AttachableCommandsClient");
 		ModuleAttachableCommandsClient.StartCommandExecution(ThisObject, Command, Items.List);
 	EndIf;
@@ -115,6 +141,13 @@ Procedure Attachable_UpdateCommands()
 EndProcedure
 
 // End StandardSubsystems.AttachableCommands
+
+&AtClient
+Procedure ConfigureBinaryDataStores(Command)
+
+	OpenForm("DataProcessor.BinaryDataStorageManagement.Form.StoragesList", , ThisObject,,,,,FormWindowOpeningMode.LockWholeInterface);
+
+EndProcedure
 
 #EndRegion
 
@@ -226,5 +259,25 @@ Procedure EndSetClearDeletionMark(AdditionalParameters)
 	EndTry;
 	
 EndProcedure
+
+&AtServerNoContext
+Function ThisIsStorageVolumeOnDisks(Val StorageVolumeLink)
+
+	Return Catalogs.FileStorageVolumes.ThisIsStorageVolumeOnDisks(StorageVolumeLink);
+
+EndFunction
+
+&AtClient
+Function VolumeIntegrityCheckIsAvailable(FileStorageVolumeLink)
+
+	Result = ThisIsStorageVolumeOnDisks(FileStorageVolumeLink);
+	
+	If Not Result Then
+		ShowMessageBox(,NStr("en = 'Integrity check is only supported for volumes that store files in network directories'"));
+	EndIf;
+	
+	Return Result;
+
+EndFunction
 
 #EndRegion

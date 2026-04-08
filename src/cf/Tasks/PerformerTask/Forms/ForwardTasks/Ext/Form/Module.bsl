@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -94,8 +93,7 @@ Procedure PerformerOnChange(Item)
 	AddressingType = 0;
 	MainAddressingObject = Undefined;
 	AdditionalAddressingObject = Undefined;
-	SetAddressingObjectTypes();
-	SetItemsState();
+	SetItemsStateAndAddressingObjectsTypes();
 	
 EndProcedure
 
@@ -106,8 +104,7 @@ Procedure RoleOnChange(Item)
 	Performer = Undefined;
 	MainAddressingObject = Undefined;
 	AdditionalAddressingObject = Undefined;
-	SetAddressingObjectTypes();
-	SetItemsState();
+	SetItemsStateAndAddressingObjectsTypes();
 	
 EndProcedure
 
@@ -134,6 +131,22 @@ EndProcedure
 #EndRegion
 
 #Region Private
+
+&AtServer
+Procedure SetItemsStateAndAddressingObjectsTypes()
+	
+	If ValueIsFilled(Performer) Then
+		UserDetails = UsersInternal.UserDetails(Performer);
+		If UserDetails.Invalid Or UserDetails.DeletionMark Then
+			Common.MessageToUser(NStr("en = 'The task is assigned to an inactive user.'"),,,
+			"Performer");
+			Return;
+		EndIf;
+	EndIf;
+		
+	SetAddressingObjectTypes();
+	SetItemsState();
+EndProcedure
 
 &AtServer
 Procedure SetAddressingObjectTypes()

@@ -146,10 +146,10 @@
 				</Title>
 				<ExtendedTooltip name="FormGenerateFromTemplateExtendedTooltip" id="200"/>
 			</Button>
-			<Button name="FormHelp" id="89">
+			<Button name="FormHelp_SSLyf" id="89">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.StandardCommand.Help</CommandName>
-				<ExtendedTooltip name="FormHelpExtendedTooltip" id="110"/>
+				<ExtendedTooltip name="FormHelp_SSLyfExtendedTooltip" id="110"/>
 			</Button>
 		</ChildItems>
 	</AutoCommandBar>
@@ -281,14 +281,14 @@
 									<ShowTitle>false</ShowTitle>
 									<ExtendedTooltip name="AddresseesGroupExtendedTooltip" id="141"/>
 									<ChildItems>
-										<Table name="SMSMessageRecipients" id="45">
+										<Table name="Recipients" id="45">
 											<Representation>List</Representation>
 											<SkipOnInput>false</SkipOnInput>
 											<HeightInTableRows>3</HeightInTableRows>
 											<EnableStartDrag>true</EnableStartDrag>
 											<EnableDrag>true</EnableDrag>
 											<FileDragMode>AsFile</FileDragMode>
-											<DataPath>Object.SMSMessageRecipients</DataPath>
+											<DataPath>Object.Recipients</DataPath>
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
@@ -303,7 +303,7 @@
 											</CommandSet>
 											<RowFilter xsi:nil="true"/>
 											<ContextMenu name="SMSMessageRecipientsContextMenu" id="46"/>
-											<AutoCommandBar name="SMSMessageRecipientsCommandBar" id="47">
+											<AutoCommandBar name="RecipientsCommandBar" id="47">
 												<ChildItems>
 													<Button name="CreateContact" id="54">
 														<Type>CommandBarButton</Type>
@@ -334,7 +334,7 @@
 											<ExtendedTooltip name="SMSMessageRecipientsExtendedTooltip" id="144"/>
 											<SearchStringAddition name="SMSMessageRecipientsSearchString" id="174">
 												<AdditionSource>
-													<Item>SMSMessageRecipients</Item>
+													<Item>Recipients</Item>
 													<Type>SearchStringRepresentation</Type>
 												</AdditionSource>
 												<ContextMenu name="SMSMessageRecipientsSearchStringContextMenu" id="175"/>
@@ -342,7 +342,7 @@
 											</SearchStringAddition>
 											<ViewStatusAddition name="SMSMessageRecipientsViewStatus" id="177">
 												<AdditionSource>
-													<Item>SMSMessageRecipients</Item>
+													<Item>Recipients</Item>
 													<Type>ViewStatusRepresentation</Type>
 												</AdditionSource>
 												<ContextMenu name="SMSMessageRecipientsViewStatusContextMenu" id="178"/>
@@ -350,7 +350,7 @@
 											</ViewStatusAddition>
 											<SearchControlAddition name="SMSMessageRecipientsSearchControl" id="180">
 												<AdditionSource>
-													<Item>SMSMessageRecipients</Item>
+													<Item>Recipients</Item>
 													<Type>SearchControl</Type>
 												</AdditionSource>
 												<ContextMenu name="SMSMessageRecipientsSearchControlContextMenu" id="181"/>
@@ -363,7 +363,7 @@
 											</Events>
 											<ChildItems>
 												<InputField name="ContactPresentation" id="59">
-													<DataPath>Object.SMSMessageRecipients.ContactPresentation</DataPath>
+													<DataPath>Object.Recipients.ContactPresentation</DataPath>
 													<Title>
 														<v8:item>
 															<v8:lang>en</v8:lang>
@@ -384,7 +384,7 @@
 													</Events>
 												</InputField>
 												<InputField name="SMSMessageRecipientsHowToContact" id="61">
-													<DataPath>Object.SMSMessageRecipients.HowToContact</DataPath>
+													<DataPath>Object.Recipients.HowToContact</DataPath>
 													<Title>
 														<v8:item>
 															<v8:lang>en</v8:lang>
@@ -403,7 +403,7 @@
 													<ExtendedTooltip name="SMSMessageRecipientsHowToContactExtendedTooltip" id="146"/>
 												</InputField>
 												<InputField name="SMSMessageRecipientsMessageState" id="96">
-													<DataPath>Object.SMSMessageRecipients.MessageState</DataPath>
+													<DataPath>Object.Recipients.MessageState</DataPath>
 													<ReadOnly>true</ReadOnly>
 													<Title>
 														<v8:item>
@@ -943,7 +943,7 @@
 		</Command>
 	</Commands>
 	<Parameters>
-		<Parameter name="SMSMessageRecipients">
+		<Parameter name="Recipients">
 			<Type/>
 		</Parameter>
 		<Parameter name="Text">

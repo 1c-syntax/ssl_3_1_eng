@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Internal
@@ -465,15 +464,15 @@ Procedure OnFillToDoList(ToDoList) Export
 
 	UnusedAddInsCount = UnusedAddInsCount();
 	For Each Section In Sections Do
-		ToDoItem = ToDoList.Add ();
-		ToDoItem.Id  = "DeleteUnusedAddIns";
-		ToDoItem.HasToDoItems       = UnusedAddInsCount > 0;
-		ToDoItem.Presentation  = NStr("en = 'Delete unused add-ins'");
-		ToDoItem.Count     = UnusedAddInsCount;
-		ToDoItem.Important         = False;
-		ToDoItem.Form          = "Catalog.AddIns.ListForm";
-		ToDoItem.FormParameters = New Structure("UseFilter", 3);
-		ToDoItem.Owner       = Section;
+		CaseFile = ToDoList.Add ();
+		CaseFile.Id  = "DeleteUnusedAddIns";
+		CaseFile.HasToDoItems       = UnusedAddInsCount > 0;
+		CaseFile.Presentation  = NStr("en = 'Delete unused add-ins'");
+		CaseFile.Count     = UnusedAddInsCount;
+		CaseFile.Important         = False;
+		CaseFile.Form          = "Catalog.AddIns.ListForm";
+		CaseFile.FormParameters = New Structure("UseFilter", 3);
+		CaseFile.Owner       = Section;
 	EndDo;
 
 EndProcedure
@@ -527,7 +526,7 @@ EndFunction
 //
 Function CanImportFromPortalInteractively() Export
 
-	.GetAddIns
+	
 
 	Return False;
 
@@ -866,7 +865,7 @@ Function OperatingSystemSupportedByAddInn(AddInAttributes)
 	ElsIf NameOfThePlatformType = "Linux_ARM64" Then
 		Return AddInAttributes.Linux_ARM64;
 	ElsIf NameOfThePlatformType = "Linux_E2K" Then
-		Return AddInAttributes.Linux_E2K;
+		Return AddInAttributes.Linux_e2k;
 	ElsIf NameOfThePlatformType = "Android_ARM" Then
 		Return AddInAttributes.Android_ARM;
 	ElsIf NameOfThePlatformType = "Android_ARM_64" Then
@@ -1415,6 +1414,14 @@ EndFunction
 
 #EndRegion
 
-.GetAddIns
+
+
+// See StandardSubsystemsServer.WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode
+Procedure WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode(Methods) Export
+	
+	Methods.Insert("NewAddInsFromPortal", True);
+	Methods.Insert("UpdateAddInsFromPortal", True);
+	
+EndProcedure
 
 #EndRegion

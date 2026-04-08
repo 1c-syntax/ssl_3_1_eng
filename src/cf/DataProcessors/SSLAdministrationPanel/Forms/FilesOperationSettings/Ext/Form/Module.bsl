@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 // If the "FileOperations" subsystem is not integrated, delete the form from the configuration.
@@ -22,7 +21,11 @@ Var RefreshInterface;
 
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
-	
+
+	BinaryDataStoresAreAvailable = WorkingWithServerFileArchive.BinaryDataStoresAreAvailable();
+
+	FileStorageMethodCustomizeSelectionList();
+
 	MaxFileSize = FilesOperations.MaxFileSizeCommon() / (1024*1024);
 	MaxDataAreaFileSize = FilesOperations.MaxFileSize() / (1024*1024);
 	
@@ -53,11 +56,19 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.GroupDeduplication.Visible = ConstantsSet.FilesStorageMethod <> "InVolumesOnHardDrive" And Not IsDeduplicationCompleted();
 		FilesStorageMethodValue = ConstantsSet.FilesStorageMethod;
 		ConfigureSettingsOfStorageInVolumesAvailability();
+		UseFileArchive = ConstantsSet.UseFileArchive;
 	Else
 		Items.GroupDeduplication.Visible = False;
 	EndIf;
-	
+
+	UseOfFileArchiveIsAvailable = IsSystemAdministrator And WorkingWithServerFileArchive.FileArchiveIsAvailable();
+	Items.FileArchiveGroup.Visible = UseOfFileArchiveIsAvailable;
+	If UseOfFileArchiveIsAvailable Then
+		SetAvailabilityOfFileArchiveManagementSettings();
+	EndIf;
+
 	SetAvailability();
+	
 	ApplicationSettingsOverridable.FilesOperationSettingsOnCreateAtServer(ThisObject);
 	
 	If Common.IsMobileClient() Then
@@ -95,28 +106,28 @@ EndProcedure
 
 &AtClient
 Procedure FilesStorageMethodOnChange(Item)
-	
+
 	If ConstantsSet.FilesStorageMethod = FilesStorageMethodValue Then
 		Return;
 	EndIf;
 	
-	ConstantsSet.StoreFilesInVolumesOnHardDrive = ConstantsSet.FilesStorageMethod <> "InInfobase";
-	
+	ConstantsSet.StoreFilesInVolumesOnHardDrive = ThisIsWayToStoreFilesOnDisk(ConstantsSet.FilesStorageMethod);
+
 	NotificationProcessing = New CallbackDescription(
 		"FilesStorageMethodOnChangeCompletion", ThisObject, Item);
-	
-	If FilesStorageMethodValue <> "InInfobase"
+
+	If ThisIsWayToStoreFilesOnDisk(FilesStorageMethodValue)
 		And ConstantsSet.StoreFilesInVolumesOnHardDrive Then
 		
 		RunCallback(NotificationProcessing, DialogReturnCode.OK);
 		Return;
 	EndIf;
-	
+
 	Try
-		
+
 		RequestsForPermissionToUseExternalResources = PermissionRequestsToUseExternalResourcesOfFilesStorageVolumes(
 			ConstantsSet.StoreFilesInVolumesOnHardDrive);
-		
+
 		If CommonClient.SubsystemExists("StandardSubsystems.SecurityProfiles") Then
 			ModuleSafeModeManagerClient = CommonClient.CommonModule("SafeModeManagerClient");
 			ModuleSafeModeManagerClient.ApplyExternalResourceRequests(
@@ -124,14 +135,14 @@ Procedure FilesStorageMethodOnChange(Item)
 		Else
 			RunCallback(NotificationProcessing, DialogReturnCode.OK);
 		EndIf;
-		
+
 	Except
-		
+
 		ConstantsSet.FilesStorageMethod = FilesStorageMethodValue;
-		ConstantsSet.StoreFilesInVolumesOnHardDrive = FilesStorageMethodValue <> "InInfobase";
+		ConstantsSet.StoreFilesInVolumesOnHardDrive = ThisIsWayToStoreFilesOnDisk(FilesStorageMethodValue);
 		Raise;
-		
-	EndTry;
+
+	EndTry;		
 	
 EndProcedure
 
@@ -258,6 +269,24 @@ EndProcedure
 
 #EndRegion
 
+#Region FileArchiveWorkParameters
+
+&AtClient
+Procedure UseFileArchiveOnChange(Item)
+
+	Attachable_OnChangeAttribute(Item);
+
+EndProcedure
+
+&AtClient
+Procedure TextInformingUserAboutUnavailabilityOfFileInArchiveOnChange(Item)
+
+	Attachable_OnChangeAttribute(Item);
+
+EndProcedure
+
+#EndRegion
+
 #EndRegion
 
 #Region FormCommandsEventHandlers
@@ -271,9 +300,10 @@ EndProcedure
 
 &AtClient
 Procedure CatalogFileStorageVolumes(Command)
-	
-	OpenForm("Catalog.FileStorageVolumes.ListForm", , ThisObject);
-	
+
+	TypeOfFileStorageVolume = CommonClient.PredefinedItem("Enum.TypesOfFileStorage.OperationalStorage");
+	OpenFileStorageVolumeCatalogListFormWithSelectionByTypeOfFileStorageVolume(ThisObject, TypeOfFileStorageVolume);
+
 EndProcedure
 
 &AtClient
@@ -315,28 +345,59 @@ Async Procedure StartDeduplication(Command)
 		
 EndProcedure
 
+&AtClient
+Procedure CatalogOfFileStorageVolumesArchived(Command)
+
+	TypeOfFileStorageVolume = CommonClient.PredefinedItem("Enum.TypesOfFileStorage.ArchivalStorage");
+	OpenFileStorageVolumeCatalogListFormWithSelectionByTypeOfFileStorageVolume(ThisObject, TypeOfFileStorageVolume);
+
+EndProcedure
+
+&AtClient
+Procedure SettingUpWorkWithFileArchive(Command)
+
+	FormParameters = New Structure;
+	FormParameters.Insert("AllowedToOpenForm", True);
+	
+	OpenForm("InformationRegister.FileArchiveWorkSettings.ListForm", FormParameters, ThisObject);
+
+EndProcedure
 #EndRegion
 
 #Region Private
 
 &AtClient
 Procedure FilesStorageMethodOnChangeCompletion(Response, Item) Export
-	
+
 	If Response <> DialogReturnCode.OK Then
 		ConstantsSet.FilesStorageMethod = FilesStorageMethodValue;
-		ConstantsSet.StoreFilesInVolumesOnHardDrive = FilesStorageMethodValue <> "InInfobase";
+		ConstantsSet.StoreFilesInVolumesOnHardDrive = ThisIsWayToStoreFilesOnDisk(FilesStorageMethodValue);
 		Return;
 	EndIf;
-		
-	If FilesStorageMethodValue = "InInfobase"
-		And ConstantsSet.StoreFilesInVolumesOnHardDrive
-		And Not HasFileStorageVolumes() Then
-		
-		ShowMessageBox(, NStr("en = 'Storing files to the file server is enabled but the volumes are not configured.
-			|Files will be saved to the infobase until at least one file storage volume is configured.'"));
-	EndIf;
+
+	ChangeCompositionOfStoredData_ = False;
 	
-	OnChangeFilesStorageMethodAtServer();
+	If Not BinaryDataStoresAreAvailable Then
+		If FilesStorageMethodValue = "InInfobase"
+			And ConstantsSet.StoreFilesInVolumesOnHardDrive
+			And Not HasFileStorageVolumes("InVolumesOnHardDrive") Then
+			
+			ShowMessageBox(, NStr("en = 'Storing files to the file server is enabled but the volumes are not configured.
+				|Files will be saved to the infobase until at least one file storage volume is configured.'"));
+		EndIf;
+	Else
+
+		ChangeCompositionOfStoredData_ = True;
+
+		If WorkingWithClientServerFileArchive.StorageMethodUsesVolumes(ConstantsSet.FilesStorageMethod) Then
+			If Not HasFileStorageVolumes(ConstantsSet.FilesStorageMethod) Then
+				WarningText = GetWarningTextByFileStorageMethod(ConstantsSet.FilesStorageMethod);
+				ShowMessageBox(, NStr("ru = '" + WarningText + "'"));
+			EndIf;
+		EndIf;				
+	EndIf;
+		
+	OnChangeFilesStorageMethodAtServer(ChangeCompositionOfStoredData_);
 	RefreshReusableValues();
 	AfterChangeAttribute("FilesStorageMethod", False);
 	AfterChangeAttribute("StoreFilesInVolumesOnHardDrive");
@@ -422,11 +483,26 @@ Function OnChangeAttributeServer(TagName)
 EndFunction
 
 &AtServer
-Procedure OnChangeFilesStorageMethodAtServer()
+Procedure OnChangeFilesStorageMethodAtServer(Val ChangeCompositionOfStoredData_ = False)
+
+	BeginTransaction();
+	Try
+		Constants.FilesStorageMethod.Set(ConstantsSet.FilesStorageMethod);
+		Constants.StoreFilesInVolumesOnHardDrive.Set(ConstantsSet.StoreFilesInVolumesOnHardDrive);
+		
+		If ChangeCompositionOfStoredData_ Then
+			ChangeCompositionOfStoredData(ConstantsSet.FilesStorageMethod);
+		EndIf;
+		CommitTransaction();
+	Except
+		RollbackTransaction();
+		ConstantsSet.FilesStorageMethod		= FilesStorageMethodValue;
+		ConstantsSet.StoreFilesInVolumesOnHardDrive = FilesOperationsClientServer.ShouldStoreFilesInVolumes(FilesStorageMethodValue);
+
+		Raise;		
+	EndTry;
 	
 	FilesStorageMethodValue = ConstantsSet.FilesStorageMethod;
-	Constants.FilesStorageMethod.Set(ConstantsSet.FilesStorageMethod);
-	Constants.StoreFilesInVolumesOnHardDrive.Set(ConstantsSet.StoreFilesInVolumesOnHardDrive);
 	SetAvailability("ConstantsSet.FilesStorageMethod");
 	RefreshReusableValues();
 	
@@ -457,14 +533,21 @@ Procedure SetAvailability(DataPathAttribute = "")
 		Items.GroupCommentAllowInternetDownloadsInSync.Visible = Not AllowAccessToInternetServices;
 		 
 	EndIf;
-	
+
+	If DataPathAttribute = "UseFileArchive" Then
+		SetAvailabilityOfFileArchiveManagementSettings();
+	EndIf;	
+
 EndProcedure
 
 &AtServer
 Procedure ConfigureSettingsOfStorageInVolumesAvailability()
-	
-	Items.FilesVolumesManagementGroup.Enabled = ConstantsSet.StoreFilesInVolumesOnHardDrive;
-	Items.CatalogFileStorageVolumes.Enabled = ConstantsSet.StoreFilesInVolumesOnHardDrive;
+
+	StorageMethodUsesVolumes = WorkingWithClientServerFileArchive.StorageMethodUsesVolumes(ConstantsSet.FilesStorageMethod);
+
+	Items.FilesVolumesManagementGroup.Enabled = StorageMethodUsesVolumes;
+	Items.CatalogFileStorageVolumes.Enabled = StorageMethodUsesVolumes;
+
 	Items.CreateSubdirectoriesWithOwnersNames.Enabled = ConstantsSet.StoreFilesInVolumesOnHardDrive;
 	Items.FilesSizeManagementInIBGroup.Enabled =
 		ConstantsSet.FilesStorageMethod = "InInfobaseAndVolumesOnHardDrive";
@@ -496,6 +579,11 @@ Function SaveAttributeValue(DataPathAttribute)
 		ElsIf DataPathAttribute = "DenyUploadFilesByExtension" Then
 			ConstantsSet.DenyUploadFilesByExtension = DenyUploadFilesByExtension;
 			ConstantName = "DenyUploadFilesByExtension";
+		ElsIf DataPathAttribute = "UseFileArchive" Then
+			ConstantsSet.UseFileArchive = UseFileArchive;
+			ConstantName = "UseFileArchive";
+
+			OnChangingUseOfFileArchive(UseFileArchive);
 		EndIf;
 		
 	Else
@@ -531,11 +619,9 @@ Function PermissionRequestsToUseExternalResourcesOfFilesStorageVolumes(Include)
 	CatalogName = "FileStorageVolumes";
 	
 	If Include Then
-		Catalogs[CatalogName].AddRequestsToUseExternalResourcesForAllVolumes(
-			PermissionRequestsToUse);
+		Catalogs[CatalogName].AddRequestsToUseExternalResourcesForAllVolumes(PermissionRequestsToUse);
 	Else
-		Catalogs[CatalogName].AddRequestsToStopUsingExternalResourcesForAllVolumes(
-			PermissionRequestsToUse);
+		Catalogs[CatalogName].AddRequestsToStopUsingExternalResourcesForAllVolumes(PermissionRequestsToUse);
 	EndIf;
 	
 	Return PermissionRequestsToUse;
@@ -543,10 +629,22 @@ Function PermissionRequestsToUseExternalResourcesOfFilesStorageVolumes(Include)
 EndFunction
 
 &AtServerNoContext
-Function HasFileStorageVolumes()
-	
-	Return FilesOperationsInVolumesInternal.HasFileStorageVolumes();
-	
+Function HasFileStorageVolumes(Val ProcessedFileStorageMethod = Undefined)
+
+	If ProcessedFileStorageMethod = Undefined Then
+		
+		TypeOfFileStorageVolume = Undefined;
+		FilesStorageMethod = Undefined;
+	Else
+
+		TypeOfFileStorageVolume = Enums.TypesOfFileStorage.OperationalStorage;
+
+		FilesStorageMethod = WorkingWithServerFileArchive.StorageMethodForSelectingStorageVolumes(ProcessedFileStorageMethod);
+
+	EndIf;
+
+	Return FilesOperationsInVolumesInternal.HasFileStorageVolumes(TypeOfFileStorageVolume, FilesStorageMethod);
+
 EndFunction
 
 &AtServer
@@ -619,5 +717,153 @@ Function FilesSizeInInfobase()
 	Return FilesSizeMB;
 	
 EndFunction
+
+&AtClient
+Procedure OpenFileStorageVolumeCatalogListFormWithSelectionByTypeOfFileStorageVolume(OwnerForm, ValueForFilter)
+
+	FormParameters = New Structure("Filter, ValueOfSelectionByTypeOfFileStorageVolume", New Structure("TypeOfFileStorageVolume", ValueForFilter), ValueForFilter);
+	OpenForm("Catalog.FileStorageVolumes.ListForm", FormParameters, OwnerForm, True);
+
+EndProcedure
+
+&AtServer
+Procedure FileStorageMethodCustomizeSelectionList()
+
+	If Not WorkingWithServerFileArchive.ChangesInFileStorageMethodsAreAvailable() Then
+		Return;
+	EndIf;
+	
+	If Items.Find("FilesStorageMethod") = Undefined Then
+		Return;
+	EndIf;
+
+	ChangeableStorageMethods = New Structure;
+	ChangeableStorageMethods.Insert("InVolumesOnHardDrive"						, NStr("en = 'Volumes (network directories)'"));
+	ChangeableStorageMethods.Insert("InInfobase"				, NStr("en = 'Database'"));
+	ChangeableStorageMethods.Insert("InInfobaseAndVolumesOnHardDrive"	, NStr("en = 'Volumes or database'"));
+	
+	SelectionListFileStorageMethod = Items.FilesStorageMethod.ChoiceList;
+	
+	For Each ChangeableStorageMethod In ChangeableStorageMethods Do
+		SearchResult = SelectionListFileStorageMethod.FindByValue(ChangeableStorageMethod.Key);
+		If SearchResult <> Undefined Then
+			SearchResult.Presentation = ChangeableStorageMethod.Value;
+		EndIf;		
+	EndDo;
+	
+	If Not BinaryDataStoresAreAvailable Then
+		Return;
+	EndIf;
+
+	SelectionListFileStorageMethod.Add("InBuiltInBinaryDataStorage"	, NStr("en = 'Internal binary data storage (CORP)'"));
+	SelectionListFileStorageMethod.Add("InExternalBinaryDataStorage"	, NStr("en = 'External binary data storage (CORP)'"));
+
+EndProcedure
+
+&AtClient
+Function ThisIsWayToStoreFilesOnDisk(VerifiableWayToStoreFiles)
+
+	Return FilesOperationsClientServer.ShouldStoreFilesInVolumes(VerifiableWayToStoreFiles);
+
+EndFunction
+
+&AtClient
+Function GetWarningTextByFileStorageMethod(ProcessedFileStorageMethod)
+
+	Result = "";
+
+	If ProcessedFileStorageMethod = "InVolumesOnHardDrive" Then
+
+		Result = NStr("en = 'File storage on the file server is enabled, but archive volumes are not configured yet.'");
+
+	ElsIf ProcessedFileStorageMethod = "InInfobaseAndVolumesOnHardDrive" Then
+
+		Result = NStr("en = 'File storage in the database and external storage is enabled, but storage volumes are not configured yet.'");
+
+	ElsIf ProcessedFileStorageMethod = "InBuiltInBinaryDataStorage" Then
+
+		Result = NStr("en = 'File storage in the internal binary data repository is enabled, but storage volumes are not configured yet.'");
+
+	ElsIf ProcessedFileStorageMethod = "InExternalBinaryDataStorage" Then
+		
+		Result = NStr("en = 'File storage in the external binary data repository is enabled, but storage volumes are not configured yet.'");
+
+	EndIf;
+
+	If Not IsBlankString(Result) Then
+
+		MessageTemplate = NStr("en = '%1
+		|Files will be stored in the infobase until a file storage volume is configured.'");
+
+		Result = StringFunctionsClientServer.SubstituteParametersToString(MessageTemplate, Result);
+
+	EndIf;
+
+	Return Result;
+
+EndFunction
+
+&AtServerNoContext
+Procedure ChangeCompositionOfStoredData(FilesStorageMethod)
+
+	AttributesForConfiguringCompositionOfStoredData = WorkingWithServerFileArchive.FileStorageAttributesNamesByStorageMethod(FilesStorageMethod);
+
+	If YouNeedToChangeCompositionOfStoredData(FilesStorageMethod, AttributesForConfiguringCompositionOfStoredData) Then
+		WorkingWithBinaryDataStoresServer.ConfigureCompositionOfStoredDataForAttributes_(AttributesForConfiguringCompositionOfStoredData);
+	EndIf;
+
+EndProcedure
+
+&AtServerNoContext
+Function YouNeedToChangeCompositionOfStoredData(FilesStorageMethod, AttributesForFileStorage)
+
+	If WorkingWithBinaryDataStoresServer.ThereAreNoBinaryDataStores() Then
+		Return False;
+	EndIf;
+
+	For Each NameOfFileStorageAttribute In AttributesForFileStorage Do
+
+		If WorkingWithBinaryDataStoresServer.YouNeedToConfigureCompositionOfStoredDataForAttributes(NameOfFileStorageAttribute, FilesStorageMethod) Then
+			Return True;
+		EndIf;
+
+	EndDo;
+
+	Return False;
+
+EndFunction
+
+&AtServer
+Procedure SetAvailabilityOfFileArchiveManagementSettings()
+
+	Items.SettingUpWorkWithFileArchive							.Enabled = UseFileArchive;
+	Items.CatalogOfFileStorageVolumesArchived						.Enabled = UseFileArchive;
+	Items.TextInformingUserAboutUnavailabilityOfFileInArchive	.Enabled = UseFileArchive;
+
+EndProcedure
+
+&AtServerNoContext
+Procedure OnChangingUseOfFileArchive(UseFileArchive)
+
+	JobParameters = New Structure;
+	JobParameters.Insert("Metadata", Metadata.ScheduledJobs.TransferringFilesBetweenOperationalStorageAndFileArchive);
+	If Not Common.DataSeparationEnabled() Then
+		JobParameters.Insert("MethodName", Metadata.ScheduledJobs.TransferringFilesBetweenOperationalStorageAndFileArchive.MethodName);
+	EndIf;
+	
+	SetPrivilegedMode(True);
+	
+	JobsList = ScheduledJobsServer.FindJobs(JobParameters);
+	ParameterName = "Use";
+	If JobsList.Count() = 0 Then
+		JobParameters.Insert(ParameterName, UseFileArchive);
+		ScheduledJobsServer.AddJob(JobParameters);
+	Else
+		JobParameters = New Structure(ParameterName, UseFileArchive);
+		For Each Job In JobsList Do
+			ScheduledJobsServer.ChangeJob(Job, JobParameters);
+		EndDo;
+	EndIf;
+EndProcedure
 
 #EndRegion

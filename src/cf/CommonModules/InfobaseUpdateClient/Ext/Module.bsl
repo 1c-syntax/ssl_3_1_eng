@@ -1,16 +1,15 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//
 
 #Region Public
 
-#Region ForCallsFromOtherSubsystems
+#Region InterfaceImplementation
 
 // OnlineUserSupport.GetApplicationUpdates
 
@@ -170,7 +169,7 @@ Procedure OnProcessCommand(ReportForm, Command, Result) Export
 	
 	If ReportForm.ReportSettings.FullName = "Report.DeferredUpdateProgress" Then
 		Details = ReportForm.ReportSpreadsheetDocument.CurrentArea.Details;
-		Cache = ReportForm.Report.SettingsComposer.Settings.DataParameters.Items.Find("Cache");
+		Cache = ReportForm.Report.SettingsComposer.Settings.DataParameters.Items.Find("Cache_SSLyf");
 		CachePriorities = ReportForm.Report.SettingsComposer.Settings.DataParameters.Items.Find("CachePriorities");
 		DetailsValue = InfobaseUpdateInternalServerCall.ReportDetailsData(
 			ReportForm.ReportDetailsData,
@@ -272,8 +271,8 @@ Procedure UnlockObjectToEdit(ObjectsArray, AdditionalParameters) Export
 	If AdditionalParameters.Property("Form") Then
 		Parameters.Form = AdditionalParameters.Form;
 	EndIf;
-	NotifyDescription = New CallbackDescription("UnlockObjectToEditAfterQuestion", ThisObject, Parameters);
-	ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.YesNo);
+	CallbackDescription = New CallbackDescription("UnlockObjectToEditAfterQuestion", ThisObject, Parameters);
+	ShowQueryBox(CallbackDescription, QueryText, QuestionDialogMode.YesNo);
 	
 EndProcedure
 
@@ -419,7 +418,7 @@ Procedure InitiateAreaUpdate(Parameters, WarningDetails) Export
 	OpenForm("DataProcessor.ApplicationUpdateResult.Form.MessageToLimitedAccessUser");
 EndProcedure
 
-Procedure ProcessManualPatchCheckResult(Result, NotifyDescription) Export
+Procedure ProcessManualPatchCheckResult(Result, CallbackDescription) Export
 	
 	If Result = Undefined Then
 		Return;
@@ -446,7 +445,7 @@ Procedure ProcessManualPatchCheckResult(Result, NotifyDescription) Export
 	
 	QuestionParameters.Picture = PictureLib.DialogQuestion;
 	QuestionParameters.DefaultButton = DialogReturnCode.Yes;
-	StandardSubsystemsClient.ShowQuestionToUser(NotifyDescription, Message, QuestionDialogMode.YesNo, QuestionParameters);
+	StandardSubsystemsClient.ShowQuestionToUser(CallbackDescription, Message, QuestionDialogMode.YesNo, QuestionParameters);
 	
 EndProcedure
 
@@ -479,8 +478,8 @@ Procedure ProcessManualPatchInstallationResult(Result, AdditionalParameters) Exp
 		Buttons.Add("Close", NStr("en = 'Close'"));
 		QuestionParameters.Picture = PictureLib.DialogExclamation;
 		QuestionParameters.DefaultButton = "Close";
-		NotifyDescription = New CallbackDescription("HandlePatchInstallationError", ThisObject);
-		StandardSubsystemsClient.ShowQuestionToUser(NotifyDescription, ErrorText, Buttons, QuestionParameters);
+		CallbackDescription = New CallbackDescription("HandlePatchInstallationError", ThisObject);
+		StandardSubsystemsClient.ShowQuestionToUser(CallbackDescription, ErrorText, Buttons, QuestionParameters);
 		
 		Return;
 	EndIf;

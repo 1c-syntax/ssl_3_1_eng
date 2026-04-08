@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -25,12 +24,10 @@ Procedure BeforeWrite(Cancel)
 		Return;
 	EndIf;
 	
-	If UsersInternalCached.ShouldRegisterChangesInAccessRights()
+	If UsersInternal.ShouldRegisterChangesInAccessRights()
 	 Or Not DataExchange.Load Then
 		
-		If Common.FileInfobase() Then
-			AccessManagementInternal.LockRegistersBeforeWritingAccessConfigurationObjectToFileInformationSystem();
-		EndIf;
+		AccessManagement.SetLockBeforeWriteToFileIB(, True);
 		PreviousValues1 = PreviousValues1();
 	EndIf;
 	// ACC:75-on
@@ -139,7 +136,7 @@ Procedure OnWrite(Cancel)
 		Return;
 	EndIf;
 	
-	If UsersInternalCached.ShouldRegisterChangesInAccessRights() Then
+	If UsersInternal.ShouldRegisterChangesInAccessRights() Then
 		SetSafeModeDisabled(True);
 		SetPrivilegedMode(True);
 		
@@ -220,6 +217,8 @@ Procedure OnWrite(Cancel)
 		InformationRegisters.AccessGroupsValues.UpdateRegisterData(ProfileAccessGroups);
 	EndIf;
 	
+	SendProfileChangesMessage();
+	
 EndProcedure
 
 Procedure FillCheckProcessing(Cancel, CheckedAttributes)
@@ -250,6 +249,16 @@ Procedure OnCopy(CopiedObject)
 		Roles.Clear();
 	EndIf;
 	
+EndProcedure
+
+Procedure BeforeDelete(Cancel)
+
+	If DataExchange.Load Then
+		Return;
+	EndIf;
+	
+	SendProfileChangesMessage(True);	
+
 EndProcedure
 
 #EndRegion
@@ -484,6 +493,20 @@ Function PreviousValues1()
 		"Ref, Description, Parent, DeletionMark, Roles, Purpose, AccessKinds, AccessValues");
 	
 EndFunction
+
+Procedure SendProfileChangesMessage(ThisIsRemoval = False)
+	
+	If DataExchange.Load Then
+		Return;
+	EndIf;
+	
+	If AccessManagementInternal.IsAccessManagementSaaSSupported() Then
+		ModuleAccessManagementInternalSaaS = Common.CommonModule(
+			"AccessManagementInternalSaaS");
+		ModuleAccessManagementInternalSaaS.SendMessageAboutAccessGroupChanges(ThisObject, ThisIsRemoval);
+	EndIf;
+	
+EndProcedure
 
 #EndRegion
 

@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Internal
@@ -46,8 +45,16 @@ EndProcedure
 // Returns:
 //   Boolean
 //
-Function HasFileStorageVolumes() Export
-	
+Function HasFileStorageVolumes(Val TypeOfFileStorageVolume = Undefined, Val FilesStorageMethod = Undefined) Export
+
+	If TypeOfFileStorageVolume = Undefined Then
+		TypeOfFileStorageVolume = Enums.TypesOfFileStorage.OperationalStorage;
+	EndIf;
+
+	If FilesStorageMethod = Undefined Then
+		FilesStorageMethod = Enums.WaysToStoreFiles.InNetworkDirectories;
+	EndIf;
+
 	Query = New Query;
 	Query.Text =
 	"SELECT TOP 1
@@ -55,8 +62,15 @@ Function HasFileStorageVolumes() Export
 	|FROM
 	|	Catalog.FileStorageVolumes AS FileStorageVolumes
 	|WHERE
-	|	FileStorageVolumes.DeletionMark = FALSE";
-	
+	|	FileStorageVolumes.DeletionMark = FALSE
+	|	AND FileStorageVolumes.TypeOfFileStorageVolume = &TypeOfFileStorageVolume
+	|	AND (&AnyWayToStoreFiles
+	|			OR FileStorageVolumes.FilesStorageMethod = &FilesStorageMethod)";
+
+	Query.SetParameter("TypeOfFileStorageVolume"		, TypeOfFileStorageVolume);
+	Query.SetParameter("FilesStorageMethod"		, FilesStorageMethod);
+	Query.SetParameter("AnyWayToStoreFiles"	, FilesStorageMethod = "InVolumesWithAnyStorageMethod");
+
 	SetSafeModeDisabled(True); 
 	SetPrivilegedMode(True);
 	Return Not Query.Execute().IsEmpty();
@@ -73,6 +87,8 @@ EndFunction
 //   AttachedFile - DefinedType.AttachedFile - a reference to the catalog item with file.
 //   RaiseException1 - Boolean - if True, returns Undefined
 //                     instead of raising an exception. The default value is True.
+//   GettingFileFromArchive - Boolean 
+//							  The default value is False.
 //
 // Returns:
 //   BinaryData, Undefined - binary data of the attachment. If the binary data of the file is not found
@@ -80,14 +96,14 @@ EndFunction
 //                               the return value is Undefined.
 //                               
 //
-Function FileData(AttachedFile, Val RaiseException1 = True) Export
-	
+Function FileData(AttachedFile, Val RaiseException1 = True, GettingFileFromArchive = False) Export
+
 	FileProperties = FilePropertiesInVolume(AttachedFile);
 	Try
 		Return New BinaryData(FullFileNameInVolume(FileProperties));
 	Except
 		FileObject1 = FilesOperationsInternal.FileObject1(AttachedFile);
-		FilesOperationsInternal.ReportErrorFileNotFound(FileObject1, RaiseException1);
+		FilesOperationsInternal.ReportErrorFileNotFound(FileObject1, RaiseException1, GettingFileFromArchive);
 		Return Undefined;
 	EndTry;
 	
@@ -136,8 +152,8 @@ EndFunction
 //
 // Parameters:
 //   AttachedFile  - See FilesOperationsInVolumesInternal.FileAddingOptions
-//                       - DefinedType.AttachedFileObject - An attachment catalog item
-//                         or a structure with properties whose data is saved to a volume.
+//                       - DefinedType.AttachedFileObject - 
+//                         
 //   BinaryDataOrPath - BinaryData
 //                         - String - binary data of the file or the full file path.
 //   FileDateInVolume - Date - if not specified, set it so the current session date.
@@ -153,7 +169,7 @@ Procedure AppendFile(AttachedFile, BinaryDataOrPath,
 	FillInTheFileDetails(AttachedFile, BinaryDataOrPath, FileDateInVolume, 
 		FillInternalStorageAttribute, VolumeForPlacement);
 	
-	If AttachedFile.FileStorageType <> Enums.FileStorageTypes.InInfobase Then
+	If AttachedFile.FileStorageType = Enums.FileStorageTypes.InVolumesOnHardDrive Then
 		WriteTheFileDataToTheVolume(AttachedFile, BinaryDataOrPath);
 	EndIf;
 	
@@ -169,8 +185,8 @@ EndProcedure
 // 
 // Parameters:
 //   AttachedFile  - See FilesOperationsInVolumesInternal.FileAddingOptions
-//                       - DefinedType.AttachedFileObject - An attachment catalog item whose data is saved to a volume,
-//                                     or a structure with properties required to save data to the volume.
+//                       - DefinedType.AttachedFileObject - 
+//                                     
 //                                     
 //   BinaryDataOrPath - BinaryData
 //                         - String - binary data of the file or the full file path.
@@ -228,34 +244,44 @@ Procedure FillInTheFileDetails(AttachedFile, BinaryDataOrPath,
 	EndIf;
 
 	If FileStorageType = Enums.FileStorageTypes.InInfobase Then
-		
+
+		AttachedFile.FileStorageType = Enums.FileStorageTypes.InInfobase;
+		AttachedFile.Volume = Undefined;
+		AttachedFile.PathToFile = "";
+
+		RecordingParametersVIB = WorkingWithServerFileArchive.CompletedParametersOfEntryInInformationDatabase(AttachedFile);
+
 		FileRef = AttachedFile.Ref;
 		If Not ValueIsFilled(FileRef) Then
 			MetadataAttachedFile = AttachedFile.Metadata(); // MetadataObject
 			FileRef = Catalogs[MetadataAttachedFile.Name].GetRef();
 			AttachedFile.SetNewObjectRef(FileRef);
 		EndIf;
-		
+
 		FileData = ?(TypeOf(BinaryDataOrPath) = Type("String"),
 			New BinaryData(BinaryDataOrPath), BinaryDataOrPath);
-		FilesOperationsInternal.WriteFileToInfobase(FileRef, FileData);
+		FilesOperationsInternal.WriteFileToInfobase(FileRef, FileData, RecordingParametersVIB);
 		
-		AttachedFile.FileStorageType = Enums.FileStorageTypes.InInfobase;
-		AttachedFile.Volume = Undefined;
-		AttachedFile.PathToFile = "";
 		If FillInternalStorageAttribute Then
-			AttachedFile.FileStorage = New ValueStorage(FileData, New Deflation(9));
+			AttachedFile.FileStorage = New ValueStorage(FileData, New Deflation(9));			
 		EndIf;
 
 	Else
-		
+
 		If ValueIsFilled(VolumeForPlacement) Then
 			AttachedFile.Volume = VolumeForPlacement;
 		Else
-			AttachedFile.Volume = FreeVolume(AttachedFile);
+			AttachedFile.Volume = WorkingWithServerFileArchive.FreeStorageVolumeByFileStorageType(AttachedFile, 
+																												FileStorageType,
+																												Enums.TypesOfFileStorage.OperationalStorage);
 		EndIf;
-		AttachedFile.FileStorageType = Enums.FileStorageTypes.InVolumesOnHardDrive;
 		
+		If FileStorageType = Enums.FileStorageTypes.InVolumesVolumeIsNotDefined Then
+			AttachedFile.FileStorageType = WorkingWithServerFileArchive.StorageTypeByFileStorageVolume(AttachedFile.Volume);
+		ElsIf AttachedFile.FileStorageType <> FileStorageType Then
+			AttachedFile.FileStorageType = FileStorageType;
+		EndIf;
+
 		FileProperties = FilePropertiesInVolume();
 		FillPropertyValues(FileProperties, AttachedFile);
 		If FileProperties.FileOwner = Undefined 
@@ -264,11 +290,16 @@ Procedure FillInTheFileDetails(AttachedFile, BinaryDataOrPath,
 				AttachedFile.Owner, "FileOwner");
 		EndIf;
 		
-		VolumePath = FullVolumePath(AttachedFile.Volume);
-		PathToFile = FullFileNameInVolume(FileProperties, FileDateInVolume);
-		
-		AttachedFile.PathToFile = Mid(PathToFile, StrLen(VolumePath) + 1);
-		AttachedFile.AdditionalProperties.Insert("VolumePath", VolumePath);
+		If AttachedFile.FileStorageType = Enums.FileStorageTypes.InVolumesOnHardDrive Then
+			VolumePath = FullVolumePath(AttachedFile.Volume);
+			PathToFile = FullFileNameInVolume(FileProperties, FileDateInVolume);
+			
+			AttachedFile.PathToFile = Mid(PathToFile, StrLen(VolumePath) + 1);
+			AttachedFile.AdditionalProperties.Insert("VolumePath", VolumePath);
+		Else
+			AttachedFile.PathToFile = "";
+		EndIf;
+
 		If FillInternalStorageAttribute Then
 			AttachedFile.FileStorage = New ValueStorage(Undefined);
 		EndIf;
@@ -703,7 +734,7 @@ Procedure OnDefineChecks(ChecksGroups, Checks) Export
 	Validation.Id                = "StandardSubsystems.ReferenceToNonexistingFilesInVolumeCheck";
 	Validation.HandlerChecks           = "FilesOperationsInVolumesInternal.ReferenceToNonexistingFilesInVolumeCheck";
 	Validation.AccountingChecksContext = "SystemChecks";
-	Validation.isDisabled                    = True;
+	Validation.TurnedOff                    = True;
 	
 EndProcedure
 
@@ -740,7 +771,7 @@ Procedure ReferenceToNonexistingFilesInVolumeCheck(Validation, CheckParameters) 
 			If Not CheckAttachedFilesObject(MetadataObject) Then
 				Continue;
 			EndIf;
-			// @skip-check query-in-loop
+			// @skip-check query-in-loop - Batch processing of a large amount of data.
 			SearchRefsToNonExistingFilesInVolumes(MetadataObject, CheckParameters, AvailableVolumes);
 		EndDo;
 	EndDo;
@@ -749,7 +780,7 @@ EndProcedure
 
 #EndRegion
 
-// Returns a flag that files can be stored in volumes.
+// Returns a flag indicating whether files can be stored in disk volumes.
 //
 // Returns:
 //  Boolean
@@ -758,8 +789,8 @@ Function ShouldStoreFilesInVolumes() Export
 	
 	SetPrivilegedMode(True);
 	FilesStorageMethod = Constants.FilesStorageMethod.Get();
-	Return FilesStorageMethod = "InVolumesOnHardDrive"
-		Or FilesStorageMethod = "InInfobaseAndVolumesOnHardDrive";
+	
+	Return FilesOperationsClientServer.ShouldStoreFilesInVolumes(FilesStorageMethod);
 	
 EndFunction
 
@@ -1001,9 +1032,13 @@ Procedure WriteTheFileDataToTheVolume(AttachedFile, BinaryDataOrPath)
 			BinaryDataOrPath.Write(PathToFile);
 		EndIf;
 		
-		FileInVolume = New File(PathToFile);
-		FileInVolume.SetModificationUniversalTime(AttachedFile.UniversalModificationDate);
-		FileInVolume.SetReadOnly(True);
+		
+		FilesOperationsInternal.SetModificationUniversalTime(PathToFile, AttachedFile.UniversalModificationDate);
+		
+		File = New File(PathToFile);
+		If File.Exists() Then
+			File.SetReadOnly(True);
+		EndIf;
 		
 	Except
 		
@@ -1075,7 +1110,7 @@ Procedure ClearDeletedFiles() Export
 	EndDo;
 	
 	For Each Volume In ProcessedDirectories Do
-		// @skip-check query-in-loop - Незначительное количество вызовов.
+		// @skip-check query-in-loop - 
 		ClearDeletedFilesInTheVolume(Volume.Value);
 	EndDo;
 EndProcedure
@@ -1488,9 +1523,14 @@ EndFunction
 Procedure BeforeUpdatingTheFileData(Context) Export
 	Context.AttributesToChange.Insert("PathToFile", "");
 	Context.AttributesToChange.Insert("Volume", Catalogs.FileStorageVolumes.EmptyRef());
+	Context.AttributesToChange.Insert("FileStorageType", Undefined);
 	If Not Context.IsNew Then
-		FileProperties = FilePropertiesInVolume(Context.AttachedFile);
-		Context.OldFilePath = FullFileNameInVolume(FileProperties);
+		FileStorageTypeToBeChecked = Context.FileAddingOptions.FileStorageType;
+		If FileStorageTypeToBeChecked <> Enums.FileStorageTypes.InExternalBinaryDataStorage
+				And FileStorageTypeToBeChecked <> Enums.FileStorageTypes.InBuiltInBinaryDataStorage Then
+			FileProperties = FilePropertiesInVolume(Context.AttachedFile);
+			Context.OldFilePath = FullFileNameInVolume(FileProperties);
+		EndIf;
 	EndIf;
 	
 	FilePropertiesContainer = FileAddingOptions();
@@ -1499,11 +1539,12 @@ Procedure BeforeUpdatingTheFileData(Context) Export
 	FilePropertiesContainer.PathToFile = ""; // Always create a new version in the volume without overwriting the old one.
 	
 	SetSafeModeDisabled(True);
-	AppendFile(FilePropertiesContainer, Context.FileData);
+	AppendFile(FilePropertiesContainer, Context.FileData,,,FilePropertiesContainer.Volume);
 	SetSafeModeDisabled(False);
-	
+
 	Context.AttributesToChange.PathToFile = FilePropertiesContainer.PathToFile;
 	Context.AttributesToChange.Volume = FilePropertiesContainer.Volume;
+	Context.AttributesToChange.FileStorageType = FilePropertiesContainer.FileStorageType;
 EndProcedure
 
 // It is called in a modification transaction.
@@ -1716,20 +1757,19 @@ Procedure AddFilesToVolumesOnPlace(FilesPathsMap, FileStorageType)
 			DataLock.Lock();
 			
 			Object = FileRef.GetObject(); // DefinedType.AttachedFileObject
-			Object.FileStorageType = FilesOperationsInternal.FileStorageType(Object.Size, Object.Extension);
-			
-			If FileStorageType = Enums.FileStorageTypes.InInfobase Then
-				
+
+			BinaryData = New BinaryData(FullFilePathInVolume);
+
+			WorkingWithServerFileArchive.FillInFileStorageParameters(Object, BinaryData, Object.Size, Object.Extension);
+
+			If WorkingWithFilesInBinaryDataWarehouseIsService.StorageTypeDoesNotUseDisks(Object.FileStorageType) Then
+
 				// In the destination, files must be stored within the infobase.
 				// Therefore, save them to the infobase even if originally they are stored in volumes.
-				
-				Object.Volume = Catalogs.FileStorageVolumes.EmptyRef();
-				Object.PathToFile = "";
-				Object.FileStorageType = Enums.FileStorageTypes.InInfobase;
-				
-				BinaryData = New BinaryData(FullFilePathInVolume);
-				FilesOperationsInternal.WriteFileToInfobase(Object.Ref, BinaryData);
-				
+
+				RecordingParametersVIB = WorkingWithServerFileArchive.CompletedParametersOfEntryInInformationDatabase(Object);
+				FilesOperationsInternal.WriteFileToInfobase(Object.Ref, BinaryData, RecordingParametersVIB);
+
 			Else
 				
 				// In the destination base, files must be stored in volumes. Move the unzipped file to the volume.
@@ -1738,9 +1778,9 @@ Procedure AddFilesToVolumesOnPlace(FilesPathsMap, FileStorageType)
 				Common.ShortenFileName(FileName);
 				FullPathNew = FileSource.Path + FileName;
 				MoveFile(FullFilePathInVolume, FullPathNew);
-				
-				AppendFile(Object, FullPathNew);
-				
+
+				AppendFile(Object, FullPathNew,,,Object.Volume);
+
 			EndIf;
 			
 			Object.AdditionalProperties.Insert("FilePlacementInVolumes", True); // Intended to successfully write signed files.
@@ -1982,7 +2022,10 @@ Function AvailableVolumes(CheckParameters = Undefined) Export
 	|		ELSE FileStorageVolumes.FullPathLinux
 	|	END AS FullPath
 	|FROM
-	|	Catalog.FileStorageVolumes AS FileStorageVolumes");
+	|	Catalog.FileStorageVolumes AS FileStorageVolumes
+	|WHERE
+	|	FileStorageVolumes.TypeOfFileStorageVolume = VALUE(Enum.TypesOfFileStorage.OperationalStorage)
+	|	AND FileStorageVolumes.FilesStorageMethod = VALUE(Enum.WaysToStoreFiles.InNetworkDirectories)");
 	Query.SetParameter("IsWindowsServer", Common.IsWindowsServer());
 	Result = Query.Execute().Select();
 	
@@ -2154,7 +2197,7 @@ Procedure SearchRefsToNonExistingFilesInVolumes(MetadataObject, CheckParameters,
 		EndDo;
 		
 		Query.SetParameter("Ref", ResultString1.ObjectWithIssue);
-		Result = Query.Execute().Unload(); // @skip-check query-in-loop 
+		Result = Query.Execute().Unload(); // @skip-check query-in-loop - Batch-wise data processing
 		
 	EndDo;
 	
@@ -2337,6 +2380,8 @@ EndFunction
 // Parameters:
 //   FileSize - Number - a size of the file to be added in bytes.
 //   FileExtention - String - an extension of the file being added.
+//   FilesStorageMethod - String, Undefined - For allowed values, see constant
+//                                                 FilesStorageMethod. Default is  Undefined.
 //
 // Returns:
 //   EnumRef.FileStorageTypes - If the file storage method in the settings is InVolumesOnHardDrive,
@@ -2344,9 +2389,14 @@ EndFunction
 //       InInfobaseAndVolumesOnHardDrive, the return value is InInfobase
 //      when the file matches the infobase storage parameters. Otherwise, the return value is InVolumesOnHardDrive.
 //
-Function FileStorageType(Val FileSize, Val FileExtention) Export
-	
-	StorageType = Enums.FileStorageTypes.InVolumesOnHardDrive;
+Function FileStorageType(Val FileSize, Val FileExtention, Val FilesStorageMethod = Undefined) Export
+
+	If FilesStorageMethod = Undefined Then
+		StorageType = Enums.FileStorageTypes.InVolumesOnHardDrive;
+	Else
+		StorageType = WorkingWithServerFileArchive.FileStorageTypeByStorageMethod(FilesStorageMethod);
+	EndIf;
+
 	If ShouldStoreFilesInVolumesAndInfobase() Then
 		
 		StorageParameters = FilesStorageParametersInInfobase();
@@ -2373,14 +2423,20 @@ EndFunction
 // Parameters:
 //   AttachedFile - DefinedType.AttachedFileObject
 //                      - See FilesOperationsInVolumesInternal.FileAddingOptions
+//   TypeOfFileStorageVolume	- EnumRef.TypesOfFileStorage - Volume storage option. Default is Undefined.
+//   FilesStorageMethod	- EnumRef.FilesStorageMethods, String
 //
 // Returns:
 //   CatalogRef.FileStorageVolumes
 //
-Function FreeVolume(AttachedFile)
-	
+Function FreeVolume(AttachedFile, Val TypeOfFileStorageVolume = Undefined, Val FilesStorageMethod = Undefined) Export
+
+	If TypeOfFileStorageVolume = Undefined Then
+		TypeOfFileStorageVolume = Enums.TypesOfFileStorage.OperationalStorage;
+	EndIf;
+
 	SetPrivilegedMode(True);
-	
+
 	Query = New Query;
 	Query.Text = 
 	"SELECT
@@ -2390,9 +2446,17 @@ Function FreeVolume(AttachedFile)
 	|	Catalog.FileStorageVolumes AS FileStorageVolumes
 	|WHERE
 	|	FileStorageVolumes.DeletionMark = FALSE
+	|	AND FileStorageVolumes.TypeOfFileStorageVolume = &TypeOfFileStorageVolume
+	|	AND (&AnyWayToStoreFiles
+	|			OR FileStorageVolumes.FilesStorageMethod = &FilesStorageMethod)
 	|
 	|ORDER BY
 	|	FileStorageVolumes.FillOrder";
+
+	Query.SetParameter("TypeOfFileStorageVolume"		, TypeOfFileStorageVolume);
+	Query.SetParameter("FilesStorageMethod"		, FilesStorageMethod);
+	Query.SetParameter("AnyWayToStoreFiles"	, FilesStorageMethod = "InVolumesWithAnyStorageMethod");
+
 	Result = Query.Execute();
 	If Result.IsEmpty() Then
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
@@ -2412,7 +2476,7 @@ Function FreeVolume(AttachedFile)
 		EndIf;
 
 		If SizesOfVolumes = Undefined Then
-			// @skip-check query-in-loop - Разовый вызов
+			// @skip-check query-in-loop - 
 			SizesOfVolumes = SizesOfVolumes(FileStorageVolumes.UnloadColumn("Ref"));
 		EndIf;
 		VolumeSize = SizesOfVolumes[FileStorageVolume.Ref];
@@ -2466,5 +2530,15 @@ Function FileSystemProperties(Directory)
 EndFunction
 
 #EndRegion
+
+// See StandardSubsystemsServer.WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode
+Procedure WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode(Methods) Export
+	
+	Methods.Insert("UpdateVolumePathLinux");
+	Methods.Insert("FillFilesStorageSettings");
+	Methods.Insert("SetTheWayToFormTheVolumePath");
+	Methods.Insert("ReferenceToNonexistingFilesInVolumeCheck");
+	
+EndProcedure
 
 #EndRegion

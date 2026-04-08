@@ -1,0 +1,328 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.18">
+	<Title>
+		<v8:item>
+			<v8:lang>en</v8:lang>
+			<v8:content>Add storage</v8:content>
+		</v8:item>
+	</Title>
+	<AutoTitle>false</AutoTitle>
+	<Customizable>false</Customizable>
+	<AutoCommandBar name="FormCommandBar" id="-1">
+		<Autofill>false</Autofill>
+	</AutoCommandBar>
+	<Events>
+		<Event name="OnOpen">OnOpen</Event>
+		<Event name="OnCreateAtServer">OnCreateAtServer</Event>
+	</Events>
+	<ChildItems>
+		<RadioButtonField name="StoreType" id="18">
+			<DataPath>StoreType</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Type</v8:content>
+				</v8:item>
+			</Title>
+			<TitleLocation>Left</TitleLocation>
+			<RadioButtonType>Auto</RadioButtonType>
+			<ColumnsCount>1</ColumnsCount>
+			<ContextMenu name="StoreTypeContextMenu" id="19"/>
+			<ExtendedTooltip name="StoreTypeExtendedTooltip" id="20"/>
+			<Events>
+				<Event name="OnChange">StoreTypeOnChange</Event>
+			</Events>
+		</RadioButtonField>
+		<InputField name="StorageName" id="15">
+			<DataPath>StorageName</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Name</v8:content>
+				</v8:item>
+			</Title>
+			<ContextMenu name="StorageNameContextMenu" id="16"/>
+			<ExtendedTooltip name="StorageNameExtendedTooltip" id="17"/>
+			<Events>
+				<Event name="OnChange">StorageNameOnChange</Event>
+			</Events>
+		</InputField>
+		<InputField name="ConnectionAddress" id="7">
+			<DataPath>ConnectionAddress</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>URL</v8:content>
+				</v8:item>
+			</Title>
+			<ContextMenu name="ConnectionAddressContextMenu" id="8"/>
+			<ExtendedTooltip name="ConnectionAddressExtendedTooltip" id="9"/>
+			<Events>
+				<Event name="OnChange">ConnectionAddressOnChange</Event>
+			</Events>
+		</InputField>
+		<InputField name="AccessID" id="21">
+			<DataPath>AccessID</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Access ID</v8:content>
+				</v8:item>
+			</Title>
+			<ContextMenu name="AccessIDContextMenu" id="22"/>
+			<ExtendedTooltip name="AccessIDExtendedTooltip" id="23"/>
+			<Events>
+				<Event name="OnChange">AccessIDOnChange</Event>
+			</Events>
+		</InputField>
+		<InputField name="SecretKey" id="24">
+			<DataPath>SecretKey</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Access key</v8:content>
+				</v8:item>
+			</Title>
+			<PasswordMode>true</PasswordMode>
+			<ContextMenu name="SecretKeyContextMenu" id="25"/>
+			<ExtendedTooltip name="SecretKeyExtendedTooltip" id="26"/>
+			<Events>
+				<Event name="OnChange">SecretKeyOnChange</Event>
+			</Events>
+		</InputField>
+		<InputField name="State" id="27">
+			<DataPath>State</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Region</v8:content>
+				</v8:item>
+			</Title>
+			<ContextMenu name="StateContextMenu" id="28"/>
+			<ExtendedTooltip name="StateExtendedTooltip" id="29"/>
+			<Events>
+				<Event name="OnChange">StateOnChange</Event>
+			</Events>
+		</InputField>
+		<CheckBoxField name="AllowRecording" id="30">
+			<DataPath>AllowRecording</DataPath>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Write access</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTipRepresentation>Button</ToolTipRepresentation>
+			<CheckBoxType>Switcher</CheckBoxType>
+			<ContextMenu name="AllowRecordingContextMenu" id="31"/>
+			<ExtendedTooltip name="AllowRecordingExtendedTooltip" id="32"/>
+			<Events>
+				<Event name="OnChange">AllowRecordingOnChange</Event>
+			</Events>
+		</CheckBoxField>
+		<InputField name="MinimumSizeOfRecordedData" id="33">
+			<DataPath>MinimumSizeOfRecordedData</DataPath>
+			<Enabled>false</Enabled>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Minimum data size (bytes)</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>The minimum size of data that can be written to the storage. Must be at least 2048 bytes.</v8:content>
+				</v8:item>
+			</ToolTip>
+			<ContextMenu name="MinimumSizeOfRecordedDataContextMenu" id="34"/>
+			<ExtendedTooltip name="MinimumSizeOfRecordedDataExtendedTooltip" id="35"/>
+			<Events>
+				<Event name="OnChange">MinimumSizeOfRecordedDataOnChange</Event>
+			</Events>
+		</InputField>
+		<UsualGroup name="ButtonsGroup" id="5">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Buttons</v8:content>
+				</v8:item>
+			</Title>
+			<GroupHorizontalAlign>Right</GroupHorizontalAlign>
+			<Representation>None</Representation>
+			<ShowTitle>false</ShowTitle>
+			<ExtendedTooltip name="ButtonsGroupExtendedTooltip" id="6"/>
+			<ChildItems>
+				<Button name="OKButton" id="1">
+					<Type>UsualButton</Type>
+					<CommandName>Form.Command.OK</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>OK</v8:content>
+						</v8:item>
+					</Title>
+					<ExtendedTooltip name="OKButtonExtendedTooltip" id="2"/>
+				</Button>
+				<Button name="CancelButton" id="3">
+					<Type>UsualButton</Type>
+					<CommandName>Form.Command.Cancel</CommandName>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Cancel</v8:content>
+						</v8:item>
+					</Title>
+					<ExtendedTooltip name="CancelButtonExtendedTooltip" id="4"/>
+				</Button>
+			</ChildItems>
+		</UsualGroup>
+	</ChildItems>
+	<Attributes>
+		<Attribute name="Object" id="1">
+			<Type>
+				<v8:Type>cfg:DataProcessorObject.BinaryDataStorageManagement</v8:Type>
+			</Type>
+			<MainAttribute>true</MainAttribute>
+		</Attribute>
+		<Attribute name="ConnectionAddress" id="2">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="StorageName" id="4">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Storage name</v8:content>
+				</v8:item>
+			</Title>
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="StoreType" id="5">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Storage type</v8:content>
+				</v8:item>
+			</Title>
+			<Type>
+				<v8:Type>xs:decimal</v8:Type>
+				<v8:NumberQualifiers>
+					<v8:Digits>10</v8:Digits>
+					<v8:FractionDigits>0</v8:FractionDigits>
+					<v8:AllowedSign>Any</v8:AllowedSign>
+				</v8:NumberQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="SecretKey" id="3">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="AccessID" id="6">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Access ID</v8:content>
+				</v8:item>
+			</Title>
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="State" id="7">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Region</v8:content>
+				</v8:item>
+			</Title>
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="AllowRecording" id="8">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Attribute>
+		<Attribute name="MinimumSizeOfRecordedData" id="9">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Minimum data size</v8:content>
+				</v8:item>
+			</Title>
+			<Type>
+				<v8:Type>xs:decimal</v8:Type>
+				<v8:NumberQualifiers>
+					<v8:Digits>10</v8:Digits>
+					<v8:FractionDigits>0</v8:FractionDigits>
+					<v8:AllowedSign>Any</v8:AllowedSign>
+				</v8:NumberQualifiers>
+			</Type>
+		</Attribute>
+	</Attributes>
+	<Commands>
+		<Command name="OK" id="1">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>OK</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>OK</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Action>OK</Action>
+		</Command>
+		<Command name="Cancel" id="2">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Cancel</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Cancel</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Action>Cancel</Action>
+		</Command>
+	</Commands>
+	<Parameters>
+		<Parameter name="OpenByScenario">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Parameter>
+	</Parameters>
+</Form>

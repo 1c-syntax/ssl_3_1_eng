@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -516,7 +515,7 @@ EndFunction
 // 
 
 &AtClient
-Function Attachable_GettingCorresponding_ParametersWhenOpening(Cancel, SkipPage, Val IsMoveNext) Export
+Function Attachable_GettingCorrespondentParameters_WhenOpening(Cancel, SkipPage, Val IsMoveNext)
 
 	BackgroundJob = GettingParametersOfCorrespondentBeginning();
 	
@@ -549,6 +548,10 @@ EndFunction
 
 &AtClient
 Procedure GettingCorrespondentParametersCompletion(BackgroundJob, AdditionalParameters) Export 
+	
+	If BackgroundJob = Undefined Then
+		Return;
+	EndIf;
 	
 	If BackgroundJob.Status = "Error" Then 
 		ErrorMessage = BackgroundJob.DetailErrorDescription;
@@ -663,11 +666,16 @@ Procedure FillCorrespondentParameters(CorrespondentParameters, CorrespondentInSa
 			CorrespondentParameters.SupportedObjectsInFormat, New Deflation(9));
 	
 	ElsIf StrLen(Object.DestinationInfobaseID) = 9 Then
+		
 		Object.UsePrefixesForExchangeSettings               = False;
 		Object.UsePrefixesForCorrespondentExchangeSettings = False;
+		
 		If IsBlankString(Object.SourceInfobaseID) Then
+			
 			Object.SourceInfobaseID = Object.SourceInfobasePrefix;
+			
 		EndIf;
+		
 	EndIf;
 	
 EndProcedure
@@ -901,9 +909,9 @@ Procedure FillNavigationTable()
 	
 	Transition = NavigationTable.Add();
 	Transition.NavigationNumber = 1;
-	Transition.MainPageName     = "GettingParametersPageIsCorresponding";
+	Transition.MainPageName     = "GetCorrespondentParametersPage";
 	Transition.NavigationPageName    = "NavigationWaitPage";
-	Transition.OnOpenHandlerName = "Attachable_GettingCorresponding_ParametersWhenOpening";
+	Transition.OnOpenHandlerName = "Attachable_GettingCorrespondentParameters_WhenOpening";
 	
 	Transition = NavigationTable.Add();
 	Transition.NavigationNumber = 2;

@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Variables
@@ -118,7 +117,6 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			
 			If Not AccessLevel.ChangeAuthorizationPermission Then
 				CanSignIn = False;
-				CanSignInDirectChangeValue = False;
 			EndIf;
 			
 			IBUserEmailAddress = "";
@@ -138,7 +136,6 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 				
 				If AccessLevel.ChangeAuthorizationPermission Then
 					CanSignIn = True;
-					CanSignInDirectChangeValue = True;
 				EndIf;
 			EndIf;
 		EndIf;
@@ -146,6 +143,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		// Open an existing item.
 		ReadIBUser();
 	EndIf;
+	FillDirectChangeValues();
 	
 	SetPrivilegedMode(False);
 	
@@ -770,7 +768,7 @@ Procedure InvalidOnChange(Item)
 	
 	If DataSeparationEnabled
 	   And Not Object.Invalid Then
-		CanSignInDirectChangeValue = True;
+		DirectChangeValues.CanSignIn = True;
 	EndIf;
 	
 	If Object.Invalid Then
@@ -779,12 +777,12 @@ Procedure InvalidOnChange(Item)
 		   And Not InfobaseUserAuthWithOpenIDConnect
 		   And Not InfobaseUserAuthWithAccessToken
 		   And Not IBUserOSAuthentication
-		   And Not IBUserStandardAuthenticationDirectChangeValue
+		   And Not DirectChangeValues.StandardAuthentication
 		   And IBUserStandardAuthentication Then
 			
 			IBUserStandardAuthentication = False;
 		EndIf;
-	ElsIf CanSignInDirectChangeValue Then
+	ElsIf DirectChangeValues.CanSignIn Then
 		If Not IBUserStandardAuthentication
 		   And Not IBUserOpenIDAuthentication
 		   And Not InfobaseUserAuthWithOpenIDConnect
@@ -827,7 +825,7 @@ Procedure CanSignInOnChange(Item)
 	   And Not InfobaseUserAuthWithOpenIDConnect
 	   And Not InfobaseUserAuthWithAccessToken
 	   And Not IBUserOSAuthentication
-	   And Not IBUserStandardAuthenticationDirectChangeValue
+	   And Not DirectChangeValues.StandardAuthentication
 	   And IBUserStandardAuthentication Then
 		
 		IBUserStandardAuthentication = False;
@@ -858,7 +856,7 @@ Procedure CanSignInOnChange(Item)
 			NStr("en = 'Once you save the changes, only the administrator can allow login to the application.'"));
 	EndIf;
 	
-	CanSignInDirectChangeValue = CanSignIn;
+	DirectChangeValues.CanSignIn = CanSignIn;
 	
 EndProcedure
 
@@ -874,7 +872,7 @@ EndProcedure
 Procedure IBUserNameOnChange(Item)
 	
 	IBUserName = TrimAll(IBUserName);
-	IBUserNameDirectChangeValue = IBUserName;
+	DirectChangeValues.Name = IBUserName;
 	
 	SetPropertiesAvailability(ThisObject);
 	DetermineNecessityForSynchronizationWithService(ThisObject);
@@ -884,17 +882,28 @@ EndProcedure
 &AtClient
 Procedure IBUserStandardAuthenticationOnChange(Item)
 	
+	If IBUserStandardAuthentication Then
+		UserMustChangePasswordOnAuthorization = UserMustChangePasswordOnAuthorizationPrevious;
+	Else
+		UserMustChangePasswordOnAuthorizationPrevious = UserMustChangePasswordOnAuthorization;
+		RefreshUserMustChangePasswordOnAuthorization();
+	EndIf;
+	RefreshIBUserCannotRecoveryPassword();
+	
 	AuthenticationOnChange();
-	IBUserStandardAuthenticationDirectChangeValue = IBUserStandardAuthentication;
+	DirectChangeValues.StandardAuthentication = IBUserStandardAuthentication;
 	
 EndProcedure
 
 &AtClient
 Procedure UserMustChangePasswordOnAuthorizationOnChange(Item)
 	
-	If UserMustChangePasswordOnAuthorization Then
-		IBUserCannotChangePassword = False;
-	EndIf;
+	RefreshIBUserCannotChangePassword();
+	RefreshIBUserCannotRecoveryPassword();
+	
+	DirectChangeValues.UserMustChangePasswordOnAuthorization = UserMustChangePasswordOnAuthorization;
+	
+	SetPropertiesAvailability(ThisObject);
 	
 EndProcedure
 
@@ -908,12 +917,21 @@ EndProcedure
 &AtClient
 Procedure IBUserCannotChangePasswordOnChange(Item)
 	
-	If IBUserCannotChangePassword Then
-		UserMustChangePasswordOnAuthorization               = False;
-		IBUserCannotRecoveryPassword = True;
-	EndIf;
+	RefreshUserMustChangePasswordOnAuthorization();
+	RefreshIBUserCannotRecoveryPassword();
+	
+	DirectChangeValues.CannotChangePassword =
+		IBUserCannotChangePassword;
 	
 	SetPropertiesAvailability(ThisObject);
+	
+EndProcedure
+
+&AtClient
+Procedure IBUserCannotRecoveryPasswordOnChange(Item)
+	
+	DirectChangeValues.CannotRecoveryPassword =
+		IBUserCannotRecoveryPassword;
 	
 EndProcedure
 
@@ -1125,14 +1143,25 @@ EndProcedure
 &AtClient
 Procedure Attachable_ContactInformationOnChange(Item)
 	
+	If Not ItIsPossibleToChangeValueOfContactDetails(Item) Then
+		Return;
+	EndIf;
+	
 	ModuleContactsManagerClient =
 		CommonClient.CommonModule("ContactsManagerClient");
 	ModuleContactsManagerClient.StartChanging(ThisObject, Item);
+	
+	ContactInformationOnChange();
 	
 EndProcedure
 
 &AtClient
 Procedure Attachable_ContactInformationStartChoice(Item, ChoiceData, StandardProcessing)
+	
+	If Not ItIsPossibleToChangeValueOfContactDetails(Item,, True) Then
+		StandardProcessing = False;
+		Return;
+	EndIf;
 	
 	ModuleContactsManagerClient =
 		CommonClient.CommonModule("ContactsManagerClient");
@@ -1163,9 +1192,16 @@ EndProcedure
 &AtClient
 Procedure Attachable_ContactInformationClearing(Item, StandardProcessing)
 	
+	If Not ItIsPossibleToChangeValueOfContactDetails(Item, True) Then
+		StandardProcessing = False;
+		Return;
+	EndIf;
+	
 	ModuleContactsManagerClient =
 		CommonClient.CommonModule("ContactsManagerClient");
 	ModuleContactsManagerClient.StartClearing(ThisObject, Item.Name);
+	
+	ContactInformationOnChange();
 	
 EndProcedure
 
@@ -1464,12 +1500,15 @@ Procedure CustomizeForm(CurrentObject, OnCreateAtServer = False, WriteParameters
 	
 	If Not OnCreateAtServer Then
 		ReadIBUser(, False);
+		FillDirectChangeValues();
 	EndIf;
 	
 	SetPrivilegedMode(True);
 	InformationRegisters.UsersInfo.ReadUserInfo(ThisObject);
 	WhetherRightsAreAssigned = InformationRegisters.UsersInfo.WhetherRightsAreAssigned(Object.IBUserID);
 	SetPrivilegedMode(False);
+	
+	UserMustChangePasswordOnAuthorizationPrevious = UserMustChangePasswordOnAuthorization;
 	
 	AccessLevel = UsersInternal.UserPropertiesAccessLevel(CurrentObject);
 	
@@ -1497,7 +1536,7 @@ Procedure CustomizeForm(CurrentObject, OnCreateAtServer = False, WriteParameters
 	// Viewability settings.
 	Items.ContactInformation.Visible   = ValueIsFilled(ActionsOnForm.ContactInformation);
 	Items.IBUserProperies.Visible = ValueIsFilled(ActionsOnForm.IBUserProperies);
-	Items.GroupName.Visible              = ValueIsFilled(ActionsOnForm.IBUserProperies);
+	Items.GroupName_SSLyf.Visible              = ValueIsFilled(ActionsOnForm.IBUserProperies);
 	
 	OutputRolesList = ValueIsFilled(ActionsOnForm.Roles);
 	Items.RolesRepresentation.Visible = OutputRolesList;
@@ -1544,7 +1583,7 @@ Procedure CustomizeForm(CurrentObject, OnCreateAtServer = False, WriteParameters
 	Items.IBUserProperies.ReadOnly =
 		Not (  ActionsOnForm.IBUserProperies = "Edit"
 		    And (AccessLevel.ListManagement Or AccessLevel.ChangeCurrent));
-	Items.GroupName.ReadOnly = Items.IBUserProperies.ReadOnly;
+	Items.GroupName_SSLyf.ReadOnly = Items.IBUserProperies.ReadOnly;
 	
 	Items.IBUserName.ReadOnly                          = Not AccessLevel.AuthorizationSettings2;
 	Items.IBUserStandardAuthentication.ReadOnly    = Not AccessLevel.AuthorizationSettings2;
@@ -1642,8 +1681,8 @@ Procedure UpdateUsername(Form, DescriptionOnChange = False)
 	ShortName = UsersInternalClientServer.GetIBUserShortName(Form.Object.Description);
 	
 	If Not ShowNameOfItemMarkedAsUnfilled Then
-		If (Not ValueIsFilled(Form.IBUserNameDirectChangeValue)
-		      Or Form.IBUserNameDirectChangeValue = ShortName)
+		If (Not ValueIsFilled(Form.DirectChangeValues.Name)
+		      Or Form.DirectChangeValues.Name = ShortName)
 		   And Form.IBUserName = ShortName Then
 			
 			Form.IBUserName = "";
@@ -1659,6 +1698,146 @@ Procedure UpdateUsername(Form, DescriptionOnChange = False)
 EndProcedure
 
 &AtClient
+Procedure ContactDetailsStartOfSelectionEnd(Result, Context) Export
+	
+	CurrentValue = ThisObject[Result.Item.Name];
+	
+	ThisObject[Result.Item.Name] = Result.NewValue;
+	If Not ItIsPossibleToChangeValueOfContactDetails(Result.Item) Then
+		Result.Cancel = True;
+	EndIf;
+	
+	ThisObject[Result.Item.Name] = CurrentValue;
+	
+EndProcedure
+
+&AtClient
+Function ItIsPossibleToChangeValueOfContactDetails(Item, BeforeCleaning = False, StartChoice = False)
+	
+	ModuleContactsManagerClientServer =
+		CommonClient.CommonModule("ContactsManagerClientServer");
+	
+	CITable = ModuleContactsManagerClientServer.DescriptionOfTheContactInformationOnTheForm(ThisObject);
+	Var_AttributeName = Item.Name;
+	FoundRows = CITable.FindRows(New Structure("AttributeName", Var_AttributeName));
+	If FoundRows.Count() <> 1 Then
+		Return True;
+	EndIf;
+	
+	CIKind = FoundRows[0].Kind;
+	If CIKind = ContactInformationKindUserEmail Then
+		AttributeNameOfFirstKEY = "ContactInformationFieldUserEmail";
+	ElsIf CIKind = ContactInformationKindUserPhone Then
+		AttributeNameOfFirstKEY = "ContactInformationFieldUserPhone";
+	Else
+		Return True;
+	EndIf;
+	
+	AllRowsOfThisKind = CITable.FindRows(New Structure("Kind", CIKind));
+	
+	PreviousValue2 = "";
+	ThereIsSecondMeaning = False;
+	For Each KindRow In AllRowsOfThisKind Do
+		If KindRow.AttributeName = Var_AttributeName Then
+			PreviousValue2 = KindRow.Presentation;
+		ElsIf ValueIsFilled(ThisObject[KindRow.AttributeName]) Then
+			ThereIsSecondMeaning = True;
+		EndIf;
+	EndDo;
+	
+	NewValue = ThisObject[Var_AttributeName];
+	OnChange = Not BeforeCleaning And Not StartChoice;
+	
+	If Var_AttributeName = AttributeNameOfFirstKEY Then
+		If Not ThereIsSecondMeaning
+		 Or StartChoice
+		 Or Not ValueIsFilled(PreviousValue2)
+		 Or OnChange
+		   And ValueIsFilled(NewValue) Then
+			Return True;
+		EndIf;
+		If CIKind = ContactInformationKindUserEmail Then
+			ShowMessageBox(, StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'Before clearing an email in the ""%1"" tab, you need to clear all additional emails in the ""%2"" tab.'"),
+				Items.Main_Page.Title,
+				Items.ContactInformation.Title));
+		Else
+			ShowMessageBox(, StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'Before clearing a phone number in the ""%1"" tab, you need to clear all additional phone numbers in the ""%2"" tab.'"),
+				Items.Main_Page.Title,
+				Items.ContactInformation.Title));
+		EndIf;
+	Else
+		If ThereIsSecondMeaning
+		 Or BeforeCleaning
+		 Or OnChange
+		   And Not ValueIsFilled(NewValue)
+		 Or StartChoice
+		   And ValueIsFilled(NewValue) Then
+			Return True;
+		EndIf;
+		If CIKind = ContactInformationKindUserEmail Then
+			ShowMessageBox(, StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'Before filling out an additional email in the ""%1"" tab, you need to fill out the email in the ""%2"" tab.'"),
+				Items.ContactInformation.Title,
+				Items.Main_Page.Title));
+		Else
+			ShowMessageBox(, StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'Before filling out an additional phone number in the ""%1"" tab, you need to fill out the phone number in the ""%2"" tab.'"),
+				Items.ContactInformation.Title,
+				Items.Main_Page.Title));
+		EndIf;
+	EndIf;
+	
+	If OnChange Then
+		ThisObject[Var_AttributeName] = PreviousValue2;
+	EndIf;
+	
+	Return False;
+	
+EndFunction
+
+&AtClient
+Procedure ContactInformationOnChange()
+	
+	RefreshIBUserCannotRecoveryPassword();
+	
+	SetPropertiesAvailability(ThisObject);
+	
+EndProcedure
+
+&AtClient
+Procedure RefreshUserMustChangePasswordOnAuthorization()
+	
+	UserMustChangePasswordOnAuthorization =
+		IBUserStandardAuthentication
+		And Not IBUserCannotChangePassword
+		And DirectChangeValues.UserMustChangePasswordOnAuthorization;
+	
+EndProcedure
+
+&AtClient
+Procedure RefreshIBUserCannotChangePassword()
+	
+	IBUserCannotChangePassword =
+		Not UserMustChangePasswordOnAuthorization
+		And DirectChangeValues.CannotChangePassword;
+	
+EndProcedure
+
+&AtClient
+Procedure RefreshIBUserCannotRecoveryPassword()
+	
+	IBUserCannotRecoveryPassword =
+		Not ValueIsFilled(AttributeWithEmailForPasswordRecoveryName)
+		Or Not ValueIsFilled(ThisObject[AttributeWithEmailForPasswordRecoveryName])
+		Or Not IBUserStandardAuthentication
+		Or IBUserCannotChangePassword
+		Or DirectChangeValues.CannotRecoveryPassword;
+	
+EndProcedure
+
+&AtClient
 Procedure AuthenticationOnChange()
 	
 	If Not IBUserStandardAuthentication
@@ -1667,8 +1846,7 @@ Procedure AuthenticationOnChange()
 	   And Not InfobaseUserAuthWithAccessToken
 	   And Not IBUserOSAuthentication Then
 	
-		CanSignIn                       = False;
-		IBUserCannotRecoveryPassword = True;
+		CanSignIn = False;
 		
 		If DataSeparationEnabled Then
 			Object.Invalid = True;
@@ -1677,13 +1855,7 @@ Procedure AuthenticationOnChange()
 		EndIf;
 		
 	ElsIf Not CanSignIn Then
-		CanSignIn = CanSignInDirectChangeValue;
-		
-		If ValueIsFilled(AttributeWithEmailForPasswordRecoveryName)
-			And ValueIsFilled(ThisObject[AttributeWithEmailForPasswordRecoveryName]) Then
-				IBUserCannotRecoveryPassword = False;
-		EndIf;
-		
+		CanSignIn = DirectChangeValues.CanSignIn;
 	EndIf;
 	
 	SetPropertiesAvailability(ThisObject);
@@ -2231,7 +2403,6 @@ Procedure ReadIBUser(OnCopyItem = False, OnCreateAtServer = True)
 	IBUserMain   = False;
 	IBUserPassword     = Undefined;
 	CanSignIn   = False;
-	CanSignInDirectChangeValue = False;
 	
 	If OnCreateAtServer And OnCopyItem Then
 		
@@ -2241,7 +2412,6 @@ Procedure ReadIBUser(OnCopyItem = False, OnCreateAtServer = True)
 			// Mapping an infobase user to a catalog user.
 			If Users.CanSignIn(ReadProperties) Then
 				CanSignIn = True;
-				CanSignInDirectChangeValue = True;
 				IBUserDetails.StandardAuthentication = True;
 			EndIf;
 			
@@ -2286,7 +2456,6 @@ Procedure ReadIBUser(OnCopyItem = False, OnCreateAtServer = True)
 			
 			If Users.CanSignIn(ReadProperties) Then
 				CanSignIn = True;
-				CanSignInDirectChangeValue = True;
 			EndIf;
 			
 			FillPropertyValues(
@@ -2338,14 +2507,26 @@ Procedure ReadIBUser(OnCopyItem = False, OnCreateAtServer = True)
 		IBUserOSAuthentication             = StoredProperties.OSAuthentication;
 	EndIf;
 	
-	If IBUserExists Then
-		IBUserStandardAuthenticationDirectChangeValue
-			= IBUserStandardAuthentication;
-	EndIf;
-	
 	ProcessRolesInterface("FillRoles", IBUserDetails.Roles);
 	
 	CanSignInOnRead = CanSignIn;
+	
+EndProcedure
+
+&AtServer
+Procedure FillDirectChangeValues()
+	
+	DirectChangeValues = New Structure;
+	DirectChangeValues.Insert("CanSignIn",         CanSignIn);
+	DirectChangeValues.Insert("Name",                            IBUserName);
+	DirectChangeValues.Insert("StandardAuthentication",      IBUserStandardAuthentication);
+	DirectChangeValues.Insert("UserMustChangePasswordOnAuthorization", UserMustChangePasswordOnAuthorization);
+	DirectChangeValues.Insert("CannotChangePassword",        IBUserCannotChangePassword);
+	DirectChangeValues.Insert("CannotRecoveryPassword", IBUserCannotRecoveryPassword);
+	
+	If Not IBUserExists Then
+		DirectChangeValues.StandardAuthentication = False;
+	EndIf;
 	
 EndProcedure
 
@@ -2599,14 +2780,17 @@ Procedure SetPropertiesAvailability(Form)
 	// Setting availability of related items.
 	Items.CanSignIn.Enabled    = Not Object.Invalid;
 	Items.IBUserProperies.Enabled    = Not Object.Invalid;
-	Items.GroupName.Enabled                 = Not Object.Invalid;
+	Items.GroupName_SSLyf.Enabled                 = Not Object.Invalid;
 	Items.ChangeRestrictionGroup.Enabled = Not Object.Invalid
 	                                               And Not Items.Description.ReadOnly;
 	
 	Items.OneCEnterpriseAuthenticationParameters.Enabled = Form.IBUserStandardAuthentication;
 	Items.IBUserOSUser.Enabled         = Form.IBUserOSAuthentication;
 	
-	Items.IBUserCannotRecoveryPassword.Enabled = Not Form.IBUserCannotChangePassword;
+	Items.IBUserCannotRecoveryPassword.Enabled =
+		Not Form.IBUserCannotChangePassword
+		And ValueIsFilled(Form.AttributeWithEmailForPasswordRecoveryName)
+		And ValueIsFilled(Form[Form.AttributeWithEmailForPasswordRecoveryName]);
 	
 	// Adjusting SaaS settings.
 	If ActionsWithSaaSUser <> Undefined Then

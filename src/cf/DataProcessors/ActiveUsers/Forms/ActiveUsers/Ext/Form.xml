@@ -339,8 +339,8 @@
 					<ContextMenu name="UserFullNameContextMenu" id="5"/>
 					<ExtendedTooltip name="UserFullNameExtendedTooltip" id="54"/>
 				</InputField>
-				<InputField name="Package" id="8">
-					<DataPath>UsersList.Package</DataPath>
+				<InputField name="Application" id="8">
+					<DataPath>UsersList.Application</DataPath>
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -351,8 +351,8 @@
 					<Width>20</Width>
 					<Wrap>false</Wrap>
 					<BorderColor>style:BorderColor</BorderColor>
-					<ContextMenu name="PackageContextMenu" id="9"/>
-					<ExtendedTooltip name="PackageExtendedTooltip" id="55"/>
+					<ContextMenu name="ApplicationContextMenu" id="9"/>
+					<ExtendedTooltip name="ApplicationExtendedTooltip" id="55"/>
 				</InputField>
 				<InputField name="WorkStart" id="10">
 					<DataPath>UsersList.WorkStart</DataPath>
@@ -471,7 +471,7 @@
 						</v8:StringQualifiers>
 					</Type>
 				</Column>
-				<Column name="Package" id="3">
+				<Column name="Application" id="3">
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>

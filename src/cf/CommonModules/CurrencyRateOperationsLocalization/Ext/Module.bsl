@@ -1,5 +1,5 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
@@ -65,7 +65,11 @@ Procedure OnImportClassifier(Id, Version, Address, Processed, AdditionalParamete
 
 EndProcedure
 
-// See ToDoListOverridable.OnDetermineToDoListHandlers.
+// Adds a new item to the to-do list.
+//
+// Parameters:
+//   ToDoList - See ToDoListServer.ToDoList.
+//
 Procedure OnFillToDoList(ToDoList) Export
 
 	
@@ -112,4 +116,14 @@ EndProcedure
 
 #EndRegion
 
+#Region Private
 
+
+// See StandardSubsystemsServer.WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode
+Procedure WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode(Methods) Export
+	
+	Methods.Insert("OnImportUpToDateRates", True);
+	
+EndProcedure
+
+#EndRegion

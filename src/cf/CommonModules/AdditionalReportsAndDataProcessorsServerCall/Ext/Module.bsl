@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Private
@@ -66,7 +65,6 @@ Function PutInStorage(Ref, FormIdentifier) Export
 EndFunction
 
 Function StartTimeConsumingOperation(Val UUID, Val CommandParameters) Export
-	MethodName = "AdditionalReportsAndDataProcessors.ExecuteCommand";
 	
 	StartSettings1 = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
 	StartSettings1.WaitCompletion = 0;
@@ -75,7 +73,40 @@ Function StartTimeConsumingOperation(Val UUID, Val CommandParameters) Export
 		String(CommandParameters.AdditionalDataProcessorRef),
 		CommandParameters.CommandID);
 	
-	Return TimeConsumingOperations.ExecuteInBackground(MethodName, CommandParameters, StartSettings1);
+	Return TimeConsumingOperations.ExecuteInBackground("AdditionalReportsAndDataProcessors.ExecuteCommand",
+		CommandParameters, StartSettings1);
+	
+EndFunction
+
+Function ConductingIsAvailable(References) Export
+	
+	RefsTypes = New Map;
+	
+	For Each Ref In References Do
+		If Ref = Undefined Then
+			Continue;
+		EndIf;
+		Type = TypeOf(Ref);
+		If RefsTypes[Type] = Undefined Then
+			RefsTypes[Type] = New Array;
+		EndIf;
+		RefsTypes[Type].Add(Ref);
+	EndDo;
+	
+	If Not ValueIsFilled(RefsTypes) Then
+		Return False;
+	EndIf;
+	
+	For Each RefsType In RefsTypes Do
+		MetadataObject = Metadata.FindByType(RefsType.Key);
+		If MetadataObject = Undefined Or Not Common.IsDocument(MetadataObject) 
+			Or MetadataObject.Posting = Metadata.ObjectProperties.Posting.Deny Then
+				Return False;
+		EndIf;
+	EndDo;
+	
+	Return True;
+	
 EndFunction
 
 #EndRegion

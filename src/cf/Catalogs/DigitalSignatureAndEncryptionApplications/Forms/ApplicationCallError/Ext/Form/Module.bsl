@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -64,24 +63,24 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		AdditionalData.UnsignedData = Undefined;
 	EndIf;
 	
-	// 
-	If Common.SubsystemExists("StandardSubsystems.ContactingTechnicalSupport") Then
+	// StandardSubsystems.SupportRequests
+	If Common.SubsystemExists("StandardSubsystems.SupportRequests") Then
 		
-		ModuleForContactingTechnicalSupportService = Common.CommonModule(
-			"ContactingTechnicalSupportInternal");
+		ModuleSupportRequestsInternal = Common.CommonModule(
+			"SupportRequestsInternal");
 		
-		ModuleForContactingTechnicalSupportService.OnCreateAtServer(ThisObject);
+		ModuleSupportRequestsInternal.OnCreateAtServer(ThisObject);
 		
 		If ShowInstruction Then
-			ModuleForContactingTechnicalSupportService.ShowHelpNeededSection(Items);
+			ModuleSupportRequestsInternal.ShowNeedHelpSection(Items);
 		Else
-			ModuleForContactingTechnicalSupportService.HideHelpNeededSection(Items);
+			ModuleSupportRequestsInternal.HideNeedHelpSection(Items);
 		EndIf;
 		
 	Else
 		Items.AssistanceRequiredGroup.Visible = False;
 	EndIf;
-	// End StandardSubsystems.ContactingTechnicalSupport
+	// End StandardSubsystems.SupportRequests
 	
 	StandardSubsystemsServer.ResetWindowLocationAndSize(ThisObject);
 	
@@ -161,14 +160,14 @@ Procedure InstallExtension(Command)
 EndProcedure
 
 &AtClient
-Procedure QuestionInSupport(Command)
+Procedure SupportTicket(Command)
 	
 	ExportTechnicalInfo(False);
 	
 EndProcedure
 
 &AtClient
-Procedure InformationToSendToSupport(Command)
+Procedure InfoForSupport(Command)
 	
 	Items.AssistanceRequiredGroup.Hide();
 	ExportTechnicalInfo(True);

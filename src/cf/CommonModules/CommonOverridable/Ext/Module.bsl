@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -464,5 +463,55 @@ Procedure WhenDefiningAFeatureThisIsTheBasicVersionOfTheConfiguration(ThisIsBasi
 EndProcedure
 
 #EndRegion
+
+// Refines the validation of methods used during the static search for procedure and function names
+// that are passed as parameters to procedures and functions described in the comments to the procedure
+// StandardSubsystemsServer.OnDefineMethodsAllowedToBeCalledAsArbitraryCode.
+//  Used in the SSLImplementationsCheck report to cover cases when
+// subsystems allow passing full handler names as parameters,
+// for example, session parameter setting handlers,
+// infobase update handlers and others
+// See also: OnSetUpValidationOfMethodsCalledAsArbitraryCode.
+//
+// Parameters:
+//  Settings - Structure:
+//   * HandlersDetails - ValueTable:
+//      ** ProcedureNames - Map of KeyAndValue:
+//          *** Key - See Common.ExecuteConfigurationMethod.MethodName
+//          *** Value - Undefined, Boolean - if True, then a background launch permission is required.
+//      ** ErrorTitle - String - an error title with a parameter for the full handler procedure name.
+//   * CheckExceptions - ValueTable:
+//      ** FullObjectName - String - a common module name, for example, "CommonModule.Common",
+//           metadata object name (manager module), for example, "Catalog.Companies",
+//           or name of the object module of the data processor or report, for example, "Report.SSLImplementationsCheck.ObjectModule".
+//      ** ProcedureName - String - the name of a procedure or function declared in the module.
+//      ** FragmentOfContent - String - a fragment of the call site content to be skipped.
+//           The content fragments are specified in the detailed error description of the SSLImplementationCheck report.
+//   * ErrorWhenSpecifiedMethodIsNotCalled - Boolean - initial value is True.
+//       If true, the SSLImplementationsCheck report will add errors
+//       when the method specified in the OnDefineMethodsAllowedToBeCalledAsArbitraryCode procedure
+//       is not found among the called methods which were found by the report (considering the calling method is in the background or not in the background)
+//   * ExceptionsWhenSpecifiedMethodIsNotCalled - Map of KeyAndValue:
+//      ** Key - String - a common module name, for example, "CommonModule.Common",
+//           metadata object name (manager module), for example, "Catalog.Companies",
+//           or name of the object module of the data processor or report, for example, "Report.SSLImplementationsCheck.ObjectModule".
+//      ** Value - See StandardSubsystemsServer.WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode.Methods
+//
+// Example:
+//	Handlers = New Map;
+//	CommonOverridable.OnAddSessionParameterSettingHandlers(Handlers);
+//	
+//	ProceduresNames = New Map;
+//	For Each KeyAndValue From Handlers Do
+//		ProceduresNames.Insert(KeyAndValue.Value);
+//	EndDo;
+//	
+//	HandlerDetails = Settings.HandlersDetails.Add();
+//	HandlerDetails.ProceduresNames = ProcedureNames;
+//	HandlerDetails.ErrorTitle = NStr("en = 'Session parameter setting handler""%1"".'");
+//
+Procedure WhenSettingUpVerificationOfMethodsCalledAsArbitraryCode(Settings) Export
+	
+EndProcedure
 
 #EndRegion

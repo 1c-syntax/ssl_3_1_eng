@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Variables
@@ -57,13 +56,14 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndDo;
 	
 	ValuesForSelection = Parameters.ValuesForSelection;
-	Marked = Parameters.Marked;
+	Marked_SSLyf = Parameters.Marked_SSLyf;
 	
 	If AllTypesWithQuickChoice Then
 		QuickChoice = True;
 	EndIf;
 	
-	If Not RestrictSelectionBySpecifiedValues And QuickChoice And Not Parameters.ValuesForSelectionFilled Then
+	If Not RestrictSelectionBySpecifiedValues And QuickChoice 
+	   And (Parameters.ChoiceParameters.Count() > 0 Or Not Parameters.ValuesForSelectionFilled) Then
 		ValuesForSelection = ReportsServer.ValuesForSelection(Parameters);
 	EndIf;
 	
@@ -89,9 +89,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		ValuesForSelection.FillChecks(False);
 		CommonClientServer.SupplementList(List, ValuesForSelection, True, True);
 	EndIf;
-	If TypeOf(Marked) = Type("ValueList") Then
-		Marked.FillChecks(True);
-		CommonClientServer.SupplementList(List, Marked, True, Not RestrictSelectionBySpecifiedValues);
+	If TypeOf(Marked_SSLyf) = Type("ValueList") Then
+		Marked_SSLyf.FillChecks(True);
+		CommonClientServer.SupplementList(List, Marked_SSLyf, True, Not RestrictSelectionBySpecifiedValues);
 	EndIf;
 	
 	If List.Count() = 0 Then
@@ -223,11 +223,11 @@ Procedure ListChoiceProcessing(Item, SelectionResult, StandardProcessing)
 	Selected_ = ReportsClientServer.ValuesByList(SelectionResult);
 	Selected_.FillChecks(True);
 	
-	AddOn = CommonClientServer.SupplementList(List, Selected_, True, True);
-	If AddOn.Total = 0 Then
+	Supplement = CommonClientServer.SupplementList(List, Selected_, True, True);
+	If Supplement.Total = 0 Then
 		Return;
 	EndIf;
-	If AddOn.Total = 1 Then
+	If Supplement.Total = 1 Then
 		NotificationTitle = NStr("en = 'Item added to list'");
 	Else
 		NotificationTitle = NStr("en = 'Items added to list'");

@@ -1,16 +1,15 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//
 
 #Region Public
 
-#Region ForCallsFromOtherSubsystems
+#Region InterfaceImplementation
 
 // Called from the "OnOpen" handler of the SSL/OSL administration panel.
 // Sets up the visibility of the SSL library management elements.
@@ -56,16 +55,19 @@ EndProcedure
 //    * RunResult - See TimeConsumingOperations.ExecuteInBackground
 //
 Procedure OnlineSupportAndServicesAllowSendDataOnChange(Form, Item, OperationParametersList) Export
-
-	If OperationParametersList.RunResult <> Undefined Then
-		Form.MonitoringCenterJobID = OperationParametersList.RunResult.JobID;
-		Form.MonitoringCenterJobResultAddress = OperationParametersList.RunResult.ResultAddress;
-		ModuleMonitoringCenterClient = CommonClient.CommonModule("MonitoringCenterClient");
-		Notification = New CallbackDescription("AfterUpdateID", ModuleMonitoringCenterClient);
-		IdleParameters = TimeConsumingOperationsClient.IdleParameters(Form);
-		IdleParameters.OutputIdleWindow = False;
-		TimeConsumingOperationsClient.WaitCompletion(OperationParametersList.RunResult, Notification, IdleParameters);
+	
+	If Not CommonClient.SubsystemExists("StandardSubsystems.MonitoringCenter")
+		Or OperationParametersList.RunResult = Undefined Then
+		Return;
 	EndIf;
+
+	Form.MonitoringCenterJobID = OperationParametersList.RunResult.JobID;
+	Form.MonitoringCenterJobResultAddress = OperationParametersList.RunResult.ResultAddress;
+	ModuleMonitoringCenterClient = CommonClient.CommonModule("MonitoringCenterClient");
+	Notification = New CallbackDescription("AfterUpdateID", ModuleMonitoringCenterClient);
+	IdleParameters = TimeConsumingOperationsClient.IdleParameters(Form);
+	IdleParameters.OutputIdleWindow = False;
+	TimeConsumingOperationsClient.WaitCompletion(OperationParametersList.RunResult, Notification, IdleParameters);
 	
 EndProcedure
 

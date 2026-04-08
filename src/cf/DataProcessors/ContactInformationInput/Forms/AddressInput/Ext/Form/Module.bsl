@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 // Form parameterization:
@@ -55,8 +54,14 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If IsBlankString(ContactInformationValue) Then
 		LocalityDetailed = ContactsManager.NewContactInformationDetails(Enums.ContactInformationTypes.Address); // New address.
-		LocalityDetailed.addressType = ContactsManagerClientServer.ForeignAddress();
-		LocalityDetailed.value       = Parameters.Presentation;
+		
+		If ValueIsFilled(Parameters.Presentation) Then
+			LocalityDetailed.value       = Parameters.Presentation;
+			LocalityDetailed.addressType = ContactsManagerClientServer.CustomFormatAddress();
+		Else
+			LocalityDetailed.addressType = ContactsManagerClientServer.ForeignAddress();
+		EndIf;
+		
 	ElsIf ContactsManagerClientServer.IsJSONContactInformation(ContactInformationValue) Then
 		AddressData = ContactsManagerInternal.JSONToContactInformationByFields(ContactInformationValue, Enums.ContactInformationTypes.Address);
 		LocalityDetailed = PrepareAddressForInput(AddressData);
@@ -64,6 +69,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	FillInPredefinedAddressOptions();
 	SetAttributesValueByContactInformation(LocalityDetailed);
+	
+	AllowAddressInputInFreeForm = ContactsManagerClientServer.IsAddressInFreeForm(LocalityDetailed.addressType);
 	
 	If ValueIsFilled(LocalityDetailed.Comment) Then
 		Items.PagesMain.PagesRepresentation = FormPagesRepresentation.TabsOnTop;
@@ -220,8 +227,8 @@ Procedure CityOnChange(Item)
 EndProcedure
 
 &AtClient
-Procedure State_SSLymOnChange(Item)
-	LocalityDetailed.area = State_SSLym;
+Procedure StateOnChange(Item)
+	LocalityDetailed.area = State;
 	UpdateAddressPresentation();
 EndProcedure
 
@@ -289,6 +296,8 @@ Procedure CustomFormatAddress(Command)
 	
 	If ContactsManagerClientServer.IsAddressInFreeForm(LocalityDetailed.addressType) Then
 		
+		AllowAddressInputInFreeForm = False;
+		
 		FieldsSet = StrSplit(LocalityDetailed.value, ",");
 		For FieldNumber = 0 To FieldsSet.UBound() Do
 			FieldsSet[FieldNumber] = TrimAll(FieldsSet[FieldNumber]);
@@ -353,6 +362,7 @@ Procedure CustomFormatAddress(Command)
 		
 		Items.CustomFormatAddress.Check   = True;
 		LocalityDetailed.addressType     = ContactsManagerClientServer.CustomFormatAddress();
+		AllowAddressInputInFreeForm      = True;
 		
 		ClearSettlementFields();
 		If IsBlankString(LocalityDetailed.value) Then
@@ -366,7 +376,7 @@ Procedure CustomFormatAddress(Command)
 	Street                    = LocalityDetailed.street;
 	AdditionalInformation = LocalityDetailed.houseNumber;
 	City                    = LocalityDetailed.city;
-	State_SSLym                   = LocalityDetailed.area;
+	State                   = LocalityDetailed.area;
 	PostalCode           = LocalityDetailed.ZIPCode;
 
 EndProcedure
@@ -436,12 +446,12 @@ Function PresentationOfAddressInFreeForm(Val Address, Val IncludeCountryInPresen
 		AddressParts = StrSplit(Address.value, ",");
 		If ValueIsFilled(Address.value) And StrCompare(AddressParts[0], Address.country) = 0 Then
 			AddressParts.Delete(0);
-			Address.value = StrConcat(AddressParts, ",");
+			Address.Value = StrConcat(AddressParts, ",");
 		EndIf;
 		
 	EndIf;
 	
-	Return Address.value;
+	Return Address.Value;
 	
 EndFunction
 
@@ -600,6 +610,10 @@ Procedure AfterClosingHistoryForm(Result, AdditionalParameters) Export
 		AddressValidFrom = AddressOnDate;
 		AddressOnDate = Result.CurrentAddress;
 		LocalityDetailed = ContactsManagerClientServer.NewContactInformationDetails(PredefinedValue("Enum.ContactInformationTypes.Address"));
+		If Not AllowAddressInputInFreeForm Then
+			LocalityDetailed.addressType = ContactsManagerClientServer.ForeignAddress();
+		EndIf;
+		ClearAddressFieldsOnForm();
 	Else
 		Filter = New Structure("Kind",  ContactInformationKindDetails(ThisObject).Ref);
 		FoundRows = ContactInformationAdditionalAttributesDetails.FindRows(Filter);
@@ -821,7 +835,7 @@ Procedure SetAttributesValueByContactInformation(AddressData)
 	Street         = AddressData.street;
 	AdditionalInformation         = AddressData.houseNumber;
 	City          = AddressData.city;
-	State_SSLym         = AddressData.area;
+	State         = AddressData.area;
 	PostalCode = AddressData.ZIPCode;
 	
 EndProcedure
@@ -968,12 +982,19 @@ Procedure ClearAddressClient()
 		
 	EndDo;
 	
-	Street                    = "";
-	AdditionalInformation = "";
-	City                    = "";
-	State_SSLym                   = "";
-	PostalCode           = "";
+	ClearAddressFieldsOnForm();
 	
+EndProcedure
+
+&AtClient
+Procedure ClearAddressFieldsOnForm()
+	Street                           = "";
+	AdditionalInformation        = "";
+	City                           = "";
+	State                          = "";
+	PostalCode                  = "";
+	ForeignAddressPresentation = "";
+	AddressPresentation             = "";
 EndProcedure
 
 &AtServer
@@ -1066,7 +1087,7 @@ EndFunction
 Procedure FillAddressPresentation(Address, IncludeCountryInPresentation, AddressType = Undefined)
 	
 	If AddressType = Undefined Then
-		AddressType = Address.addressType;
+		AddressType = Address.AddressType;
 	EndIf;
 	
 	If ContactsManagerClientServer.IsAddressInFreeForm(AddressType)Then

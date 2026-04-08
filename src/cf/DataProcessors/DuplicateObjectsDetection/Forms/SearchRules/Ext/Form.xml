@@ -45,10 +45,10 @@
 				</Title>
 				<ExtendedTooltip name="FormHelpGroupExtendedTooltip" id="15"/>
 				<ChildItems>
-					<Button name="FormHelp" id="18">
+					<Button name="FormHelp_SSLyf" id="18">
 						<Type>CommandBarButton</Type>
 						<CommandName>Form.StandardCommand.Help</CommandName>
-						<ExtendedTooltip name="FormHelpExtendedTooltip" id="19"/>
+						<ExtendedTooltip name="FormHelp_SSLyfExtendedTooltip" id="19"/>
 					</Button>
 				</ChildItems>
 			</ButtonGroup>

@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Internal
@@ -1451,7 +1450,7 @@ Procedure OnStartSelectMetadataObjectOfAccessRightsAnalysisReport(ReportForm,
 	Collections.Add("BusinessProcesses");
 	Collections.Add("Tasks");
 	
-	Selected_ = CommonClient.CopyRecursive(SelectionConditions.Marked);
+	Selected_ = CommonClient.CopyRecursive(SelectionConditions.Marked_SSLyf);
 	DeleteDisabledValues(Selected_);
 	
 	PickingParameters = StandardSubsystemsClientServer.MetadataObjectsSelectionParameters();
@@ -1479,8 +1478,8 @@ Procedure OnStartSelectDataElementOfAccessRightsAnalysisReport(ReportForm,
 	
 	Context = New Structure;
 	Context.Insert("ClosingNotification1", ClosingNotification1);
-	Context.Insert("InitialValue", ?(ValueIsFilled(SelectionConditions.Marked),
-		SelectionConditions.Marked[0].Value, Undefined));
+	Context.Insert("InitialValue", ?(ValueIsFilled(SelectionConditions.Marked_SSLyf),
+		SelectionConditions.Marked_SSLyf[0].Value, Undefined));
 	
 	List = AccessManagementInternalServerCall.ListOfTypesForSelection(
 		SelectionConditions.AvailableTypes);
@@ -1547,7 +1546,7 @@ Procedure AttheStartofSelectingReportValuesRoleRights(ReportForm, SelectionCondi
 	
 	StandardProcessing = False;
 	
-	Selected_ = CommonClient.CopyRecursive(SelectionConditions.Marked);
+	Selected_ = CommonClient.CopyRecursive(SelectionConditions.Marked_SSLyf);
 	DeleteDisabledValues(Selected_);
 	Collections = New ValueList;
 	

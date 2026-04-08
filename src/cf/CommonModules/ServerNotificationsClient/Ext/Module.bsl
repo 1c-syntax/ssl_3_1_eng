@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -110,7 +109,7 @@ Procedure AddIndicator(StartMoment, ProcedureName) Export
 	
 EndProcedure
 
-#Region ForCallsFromOtherSubsystems
+#Region InterfaceImplementation
 
 // Returns the session's UUID obtained from
 // the session properties SessionStart and SessionNumber.
@@ -177,6 +176,7 @@ Procedure BeforeStart(Parameters) Export
 	
 	DataReceiptStatus.IsCheckAllowed = True;
 	AttachServerNotificationReceiptCheckHandler();
+	AttachNewMessageHandler(DataReceiptStatus());
 	
 EndProcedure
 
@@ -240,12 +240,10 @@ Procedure CheckGetServerNotificationsWithIndicators(DataReceiptStatus, Indicator
 		- ?(Second(CurrentSessionDate) < DataReceiptStatus.WaitingCountersDateAlignmentSecondsNumber, 60, 0);
 	
 	Interval = 60;
-	AreChatsActive =
-		DataReceiptStatus.IsRecurringDataSendEnabled
-		And (DataReceiptStatus.AreClientNotificationsAvailable
-		   Or DataReceiptStatus.CollaborationSystemConnected
-		     And DataReceiptStatus.IsNewPersonalMessageHandlerAttached
-		     And DataReceiptStatus.LastReceivedMessageDate + 60 > CurrentSessionDate);
+	AreChatsActive = DataReceiptStatus.AreClientNotificationsAvailable
+		Or DataReceiptStatus.CollaborationSystemConnected
+		  And DataReceiptStatus.IsNewPersonalMessageHandlerAttached
+		  And DataReceiptStatus.LastReceivedMessageDate + 60 > CurrentSessionDate;
 	
 	StartMoment = CurrentUniversalDateInMilliseconds();
 	Try
@@ -352,6 +350,28 @@ Procedure CheckGetServerNotificationsWithIndicators(DataReceiptStatus, Indicator
 		CommonCallParameters);
 	AddMainIndicator(Indicators, StartMoment,
 		"ServerNotificationsInternalServerCall.SessionUndeliveredServerNotifications");
+	
+	If TypeOf(CommonCallResult) <> Type("Structure") Then
+		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'The function %1()
+			           |returned an invalid value ""%2"" of type %3 instead of the expected type %4. Possible reasons:
+			           |- The function was modified by an extension.
+			           |- The 1C:Enterprise metadata cache on the client or server was not refreshed correctly after a configuration update. Try clearing the cache.
+			           |- An unexpected server-side error occurred and was handled incorrectly by 1C:Enterprise, returning Undefined instead of raising an exception. To report a bug, ensure that the issue can be reproduced and include the steps required to trigger it.'"),
+			"ServerNotificationsInternalServerCall.SessionUndeliveredServerNotifications",
+			String(CommonCallResult),
+			String(TypeOf(CommonCallResult)),
+			String(Type("Structure")));
+		Try
+			Raise ErrorText;
+		Except
+			ErrorInfo = ErrorInfo();
+			ServerNotificationsInternalServerCall.RegisterUndeliveredServerNotificationsRetrievalError(
+				ErrorProcessing.DetailErrorDescription(ErrorInfo));
+		EndTry;
+		AttachServerNotificationReceiptCheckHandler(15);
+		Return;
+	EndIf;
 	
 	If MessagesNew <> Undefined Then
 		MessagesNew.Clear();
@@ -570,6 +590,9 @@ Function DataReceiptStatus() Export
 		ApplicationParameters.Insert(AppParameterName, DataReceiptStatus);
 	EndIf;
 	
+	DataReceiptStatus.AreClientNotificationsAvailable =
+		StandardSubsystemsClientCached.AreClientNotificationsAvailable();
+	
 	Return DataReceiptStatus;
 	
 EndFunction
@@ -642,8 +665,7 @@ Function NewReceiptStatus()
 	State.Insert("LastNotificationDate", '00010101');
 	State.Insert("Notifications", New Map);
 	State.Insert("ReceivedNotifications", New Array);
-	State.Insert("AreClientNotificationsAvailable",
-		ServerNotificationsInternalClientServer.AreClientNotificationsAvailable());
+	State.Insert("AreClientNotificationsAvailable", False);
 	State.Insert("CollaborationSystemConnected", False);
 	State.Insert("PersonalChatID", Undefined);
 	State.Insert("GlobalChatID", Undefined);
@@ -664,7 +686,7 @@ Procedure AttachNewMessageHandler(DataReceiptStatus)
 	Context = New Structure("DataReceiptStatus", DataReceiptStatus);
 	
 	If DataReceiptStatus.AreClientNotificationsAvailable Then
-		ClientNotificationManager().ПодключитьОбработчик(
+		ClientNotificationManager().AttachHandler(
 			ServerNotificationsInternalClientServer.ServerNotificationsNotificationsKey(),
 			New CallbackDescription("OnGetNewClientNotification", ThisObject, Context,
 				"OnErrorGettingNewClientNotification", ThisObject));
@@ -820,8 +842,8 @@ Procedure OnReceiptServerNotification(Data, DataReceiptStatus)
 	EndIf;
 	
 	If Data.NameOfAlert <> "NoServerNotifications" Then
-		If Data.SMSMessageRecipients <> Undefined Then
-			SessionsKeys = Data.SMSMessageRecipients.Get(DataReceiptStatus.IBUserID);
+		If Data.Recipients <> Undefined Then
+			SessionsKeys = Data.Recipients.Get(DataReceiptStatus.IBUserID);
 			If TypeOf(SessionsKeys) <> Type("Array")
 			 Or SessionsKeys.Find(DataReceiptStatus.SessionKey) = Undefined
 			   And SessionsKeys.Find("*") = Undefined Then

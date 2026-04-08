@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -26,9 +25,9 @@ Function PermissionKey(Val Resolution) Export
 	Hashing = New DataHashing(HashFunction.MD5);
 	Hashing.Append(Common.XDTODataObjectToXMLString(Resolution));
 	
-	AddOn = PermissionAddition(Resolution);
-	If ValueIsFilled(AddOn) Then
-		Hashing.Append(Common.ValueToXMLString(AddOn));
+	Supplement = PermissionAddition(Resolution);
+	If ValueIsFilled(Supplement) Then
+		Hashing.Append(Common.ValueToXMLString(Supplement));
 	EndIf;
 	
 	Var_Key = XDTOFactory.Create(XDTOFactory.Type("http://www.w3.org/2001/XMLSchema", "hexBinary"), Hashing.HashSum).LexicalValue;

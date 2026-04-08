@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Variables
@@ -920,13 +919,13 @@ EndProcedure
 &AtClient
 Procedure ImportSchema(Command)
 
-	NotifyDescription = New CallbackDescription("ImportSchemaAfterLocateFile", ThisObject);
+	CallbackDescription = New CallbackDescription("ImportSchemaAfterLocateFile", ThisObject);
 
 	ImportParameters = FileSystemClient.FileImportParameters();
 	ImportParameters.Dialog.Filter = NStr("en = 'XML files (*.xml) |*.xml'");
 	ImportParameters.FormIdentifier = UUID;
 
-	FileSystemClient.ImportFile_(NotifyDescription, ImportParameters);
+	FileSystemClient.ImportFile_(CallbackDescription, ImportParameters);
 
 EndProcedure
 
@@ -1872,7 +1871,7 @@ Procedure ShowChoiceList(Item, StandardProcessing)
 	EndIf;
 
 	OpeningParameters = New Structure;
-	OpeningParameters.Insert("Marked", MarkedValues);
+	OpeningParameters.Insert("Marked_SSLyf", MarkedValues);
 	OpeningParameters.Insert("TypeDescription", Item.AvailableTypes);
 	OpeningParameters.Insert("ValuesForSelection", ValuesForSelection);
 	OpeningParameters.Insert("ValuesForSelectionFilled", Item.ChoiceList.Count() > 0);
@@ -3350,7 +3349,7 @@ Procedure ClearTheMenuOfGroupingLevels()
 			Continue;
 		EndIf;
 
-		NameOfTheAdditionalButton = Button.Name + "More";
+		NameOfTheAdditionalButton = Button.Name + "SeeMore";
 		AdditionalButton = Items.Find(NameOfTheAdditionalButton);
 
 		If AdditionalButton <> Undefined Then
@@ -3409,7 +3408,7 @@ Procedure FillInTheMenuOfGroupingLevels(IndexOfTheReportStructure)
 		Button.LocationInCommandBar = ButtonLocationInCommandBar.InCommandBar;
 		
 		// "More actions" submenu.
-		Button = Items.Add(Properties.CommandName + "More", Type("FormButton"), Items.GroupsLevelsGroupMore);
+		Button = Items.Add(Properties.CommandName + "SeeMore", Type("FormButton"), Items.GroupsLevelsGroupMore);
 		Button.Type = FormButtonType.CommandBarButton;
 		Button.CommandName = Properties.CommandName;
 		Button.Title = Properties.RepresentationOfTheGroupingLevel;
@@ -4044,7 +4043,7 @@ Procedure SetVisibilityAvailability()
 	EndIf;
 
 	If DetailsMode Then
-		Title = Title + " (" + NStr("en = 'Details'") + ")";
+		Title = Title + " (" + NStr("en = 'Drill-down'") + ")";
 	EndIf;
 EndProcedure
 
@@ -4203,9 +4202,12 @@ Procedure SetCurrentOptionKey(ReportFullName, ReportObject)
 	Details = CommonClientServer.StructureProperty(Parameters, "Details");
 	CurrentVariantKeyDetail = "";
 	If TypeOf(Details) = Type("DataCompositionDetailsProcessDescription") Then
-		Settings = GetFromTempStorage(Details.Data).Settings;
-		CurrentVariantKeyDetail = CommonClientServer.StructureProperty(
-			Settings.AdditionalProperties, "VariantKey", "");
+		DetailsData = GetFromTempStorage(Details.Data);
+		If TypeOf(DetailsData) = Type("DataCompositionDetailsData") Then
+			Settings = DetailsData.Settings;
+			CurrentVariantKeyDetail = CommonClientServer.StructureProperty(
+				Settings.AdditionalProperties, "VariantKey", "");
+		EndIf;
 	EndIf;
 
 	If ValueIsFilled(CurrentVariantKeyDetail) Then
@@ -4747,7 +4749,7 @@ Procedure UpdateOptionsSelectionCommands()
 			Items.Move(Button, Items.ReportOptionsGroup);
 			
 			// "More actions" submenu (All actions).
-			MoreButton = Items.Find(FormOption.CommandName + "More");
+			MoreButton = Items.Find(FormOption.CommandName + "SeeMore");
 			MoreButton.Visible = True;
 			MoreButton.Title = TableRow.Description;
 			Items.Move(MoreButton, Items.MoreCommandBarReportOptionsGroup);
@@ -4767,7 +4769,7 @@ Procedure UpdateOptionsSelectionCommands()
 			Button.Title = TableRow.Description;
 			
 			// "More actions" submenu.
-			MoreButton = Items.Add(FormOption.CommandName + "More", Type("FormButton"),
+			MoreButton = Items.Add(FormOption.CommandName + "SeeMore", Type("FormButton"),
 				Items.MoreCommandBarReportOptionsGroup);
 			MoreButton.Type = FormButtonType.CommandBarButton;
 			MoreButton.CommandName = FormOption.CommandName;
@@ -4790,7 +4792,7 @@ Procedure UpdateOptionsSelectionCommands()
 		Button.Visible = False;
 		
 		// "More actions" submenu (All actions).
-		MoreButton = Items.Find(FormOption.CommandName + "More");
+		MoreButton = Items.Find(FormOption.CommandName + "SeeMore");
 		MoreButton.Check = False;
 		MoreButton.Visible = False;
 	EndDo;

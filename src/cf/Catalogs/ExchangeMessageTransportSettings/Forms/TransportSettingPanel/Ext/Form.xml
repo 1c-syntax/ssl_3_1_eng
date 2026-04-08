@@ -13,6 +13,7 @@
 		<Autofill>false</Autofill>
 	</AutoCommandBar>
 	<Events>
+		<Event name="NotificationProcessing">NotificationProcessing</Event>
 		<Event name="OnCreateAtServer">OnCreateAtServer</Event>
 	</Events>
 	<ChildItems>
@@ -193,8 +194,8 @@
 									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
-									<ContextMenu name="TransportTypesAliasContextMenu" id="37"/>
-									<ExtendedTooltip name="TransportTypesAliasExtendedTooltip" id="38"/>
+									<ContextMenu name="TypesOfTransportAliasContextMenu" id="37"/>
+									<ExtendedTooltip name="TypesOfTransportAliasExtendedTooltip" id="38"/>
 								</InputField>
 								<PictureField name="TypesOfTransportPictureHelp" id="42">
 									<DataPath>TypesOfTransport.PictureHelp</DataPath>
@@ -234,7 +235,7 @@
 							<ShowTitle>false</ShowTitle>
 							<ExtendedTooltip name="GroupSetupNotCompletedExtendedTooltip" id="4"/>
 							<ChildItems>
-								<PictureDecoration name="SettingImageIsNotJammed" id="5">
+								<PictureDecoration name="ImageSetupIsNotComplete" id="5">
 									<Width>3</Width>
 									<Height>2</Height>
 									<Title formatted="false">
@@ -250,10 +251,10 @@
 										<xr:LoadTransparent>true</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
-									<ContextMenu name="SettingImageIsNotJammedContextMenu" id="6"/>
-									<ExtendedTooltip name="SettingImageIsNotJammedExtendedTooltip" id="7"/>
+									<ContextMenu name="ImageSetupIsNotCompleteContextMenu" id="6"/>
+									<ExtendedTooltip name="ImageSetupIsNotCompleteExtendedTooltip" id="7"/>
 								</PictureDecoration>
-								<LabelDecoration name="SettingIsNotBlockedLabel" id="8">
+								<LabelDecoration name="InscriptionSetupNotCompleted" id="8">
 									<AutoMaxWidth>false</AutoMaxWidth>
 									<HorizontalStretch>true</HorizontalStretch>
 									<Title formatted="false">
@@ -263,8 +264,8 @@
 										</v8:item>
 									</Title>
 									<GroupVerticalAlign>Center</GroupVerticalAlign>
-									<ContextMenu name="SettingIsNotBlockedLabelContextMenu" id="9"/>
-									<ExtendedTooltip name="SettingIsNotBlockedLabelExtendedTooltip" id="10"/>
+									<ContextMenu name="InscriptionSetupNotCompletedContextMenu" id="9"/>
+									<ExtendedTooltip name="InscriptionSetupNotCompletedExtendedTooltip" id="10"/>
 								</LabelDecoration>
 							</ChildItems>
 						</UsualGroup>
@@ -368,6 +369,11 @@
 					</Title>
 					<Type>
 						<v8:Type>v8ui:Picture</v8:Type>
+					</Type>
+				</Column>
+				<Column name="RequiredAttributesOfSettingsAreFilledIn" id="10">
+					<Type>
+						<v8:Type>xs:boolean</v8:Type>
 					</Type>
 				</Column>
 			</Columns>

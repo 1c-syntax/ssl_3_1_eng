@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Internal
@@ -108,7 +107,7 @@ Procedure AddAccountingSystemChecks(ChecksGroups, Checks)
 	Validation.HandlerChecks           = "AccountingAuditInternal.CheckUnfilledRequiredAttributes";
 	Validation.AccountingChecksContext = "SystemChecks";
 	Validation.SupportsRandomCheck = True;
-	Validation.isDisabled                      = True;
+	Validation.TurnedOff                      = True;
 	
 	Validation = Checks.Add();
 	Validation.GroupID          = ChecksGroup.Id;
@@ -136,7 +135,7 @@ Procedure AddAccountingSystemChecks(ChecksGroups, Checks)
 	Validation.HandlerChecks           = "AccountingAuditInternal.CheckReferenceIntegrity";
 	Validation.AccountingChecksContext = "SystemChecks";
 	Validation.SupportsRandomCheck = True;
-	Validation.isDisabled                      = True;
+	Validation.TurnedOff                      = True;
 	
 	Validation = Checks.Add();
 	Validation.GroupID            = ChecksGroup.Id;
@@ -149,7 +148,7 @@ Procedure AddAccountingSystemChecks(ChecksGroups, Checks)
 	Validation.HandlerChecks             = "AccountingAuditInternal.CheckCircularRefs";
 	Validation.GoToCorrectionHandler = "Report.AccountingCheckResults.Form.AutoCorrectIssues";
 	Validation.AccountingChecksContext   = "SystemChecks";
-	Validation.isDisabled                      = True;
+	Validation.TurnedOff                      = True;
 	
 	Validation = Checks.Add();
 	Validation.GroupID            = ChecksGroup.Id;
@@ -168,7 +167,7 @@ Procedure AddAccountingSystemChecks(ChecksGroups, Checks)
 	Validation.HandlerChecks             = "AccountingAuditInternal.CheckMissingPredefinedItems";
 	Validation.GoToCorrectionHandler = "Report.AccountingCheckResults.Form.AutoCorrectIssues";
 	Validation.AccountingChecksContext   = "SystemChecks";
-	Validation.isDisabled                      = True;
+	Validation.TurnedOff                      = True;
 	
 	Validation = Checks.Add();
 	Validation.GroupID          = ChecksGroup.Id;
@@ -183,7 +182,7 @@ Procedure AddAccountingSystemChecks(ChecksGroups, Checks)
 	Validation.Id                = "StandardSubsystems.CheckDuplicatePredefinedItems1";
 	Validation.HandlerChecks           = "AccountingAuditInternal.CheckDuplicatePredefinedItems";
 	Validation.AccountingChecksContext = "SystemChecks";
-	Validation.isDisabled                    = True;
+	Validation.TurnedOff                    = True;
 	
 	Validation = Checks.Add();
 	Validation.GroupID          = ChecksGroup.Id;
@@ -204,7 +203,7 @@ Procedure AddAccountingSystemChecks(ChecksGroups, Checks)
 	Validation.Id                = "StandardSubsystems.CheckNoPredefinedExchangePlansNodes";
 	Validation.HandlerChecks           = "AccountingAuditInternal.CheckPredefinedExchangePlanNodeAvailability";
 	Validation.AccountingChecksContext = "SystemChecks";
-	Validation.isDisabled                    = True;
+	Validation.TurnedOff                    = True;
 	
 EndProcedure
 
@@ -275,7 +274,7 @@ EndFunction
 //      * AdditionalParameters                - ValueStorage - an additional check information for program
 //                                                 use.
 //      * Comment                            - String - a comment to the check.
-//      * isDisabled                              - Boolean - if True, the check will not be performed in the background on schedule.
+//      * TurnedOff                              - Boolean - if True, the check will not be performed in the background on schedule.
 //
 Function NewChecksTable() Export
 	
@@ -297,7 +296,7 @@ Function NewChecksTable() Export
 	ChecksColumns.Add("AdditionalParameters",                New TypeDescription("ValueStorage"));
 	ChecksColumns.Add("ParentID",                  New TypeDescription("String", , , , New StringQualifiers(256)));
 	ChecksColumns.Add("Comment",                            New TypeDescription("String", , , , New StringQualifiers(256)));
-	ChecksColumns.Add("isDisabled",                              New TypeDescription("Boolean"));
+	ChecksColumns.Add("TurnedOff",                              New TypeDescription("Boolean"));
 	ChecksColumns.Add("SupportsRandomCheck",         New TypeDescription("Boolean"));
 	Checks.Indexes.Add("Id");
 	

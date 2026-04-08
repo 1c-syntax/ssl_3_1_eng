@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -178,7 +177,7 @@ EndFunction
 //	ApplicationStartupParameters = FileSystem.ApplicationStartupParameters();
 //	ApplicationStartupParameters.WaitForCompletion = True;
 //	ApplicationStartupParameters.GetOutputStream = True;
-//	Result = FileSystem("ping 127.0.0.1 -n 5", ApplicationStartupParameters);
+//	Result = FileSystem.StartApplication("ping 127.0.0.1 -n 5", ApplicationStartupParameters);
 //	Common.MessageToUser(Result.OutputStream);
 //
 //	// Starting with waiting for completion and getting output thread, and with start command concatenation
@@ -196,8 +195,8 @@ EndFunction
 Function StartApplication(Val StartupCommand, ApplicationStartupParameters = Undefined) Export 
 	
 	// ACC:534-off - This function provides safe startup methods.
-	
-	CommandString = CommonInternalClientServer.SafeCommandString(StartupCommand);
+	ThisIsTheAdministrator = Users.IsFullUser(, True);
+	CommandString = CommonInternalClientServer.SafeCommandString(StartupCommand, ThisIsTheAdministrator);
 	
 	If ApplicationStartupParameters = Undefined Then 
 		ApplicationStartupParameters = ApplicationStartupParameters();

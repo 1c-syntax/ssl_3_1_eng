@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Private
@@ -608,7 +607,13 @@ Function CallingBack(TaskID__, Error, Area) Export
 	ModuleDataExchangeInternalPublication = Common.CommonModule("DataExchangeInternalPublication");
 	ModuleDataExchangeInternalPublication.MarkTaskAsCompleted(TaskID__, Error);
 		
-	If Error = "" Then
+	CancelRepeatTaskFlagIsEnabled = StrFind(Error, ModuleDataExchangeInternalPublication.IndicatesWhetherTaskHasBeenCanceledAgain()) > 0;
+		
+	If Error = "" Or CancelRepeatTaskFlagIsEnabled Then
+		
+		If CancelRepeatTaskFlagIsEnabled Then
+			Error = StrReplace(Error, ModuleDataExchangeInternalPublication.IndicatesWhetherTaskHasBeenCanceledAgain() + ":", "");
+		EndIf;
 		
 		Task = ModuleDataExchangeInternalPublication.NextTask(TaskID__);
 		JobPrev = TaskID__;
@@ -628,7 +633,6 @@ Function CallingBack(TaskID__, Error, Area) Export
 		JobParameters.Insert("MethodName"    , "DataExchangeInternalPublication.RunTaskQueue");
 		JobParameters.Insert("DataArea", Area);
 		JobParameters.Insert("Use", True);
-		JobParameters.Insert("ScheduledStartTime", CurrentSessionDate());
 		JobParameters.Insert("Parameters", ProcedureParameters);
 		JobParameters.Insert("RestartCountOnFailure", 3);
 		JobParameters.Insert("RestartIntervalOnFailure", 900);
@@ -793,7 +797,6 @@ Procedure ExportDataInClientServerModeInternalPublication(ExchangePlanName,
 	JobParameters.Insert("MethodName"    , "DataExchangeInternalPublication.ExportToFileTransferServiceForInfobaseNode");
 	JobParameters.Insert("DataArea", DataArea);
 	JobParameters.Insert("Use", True);
-	JobParameters.Insert("ScheduledStartTime", CurrentSessionDate());
 	JobParameters.Insert("Parameters", ProcedureParameters);
 	JobParameters.Insert("RestartCountOnFailure", 3);
 	JobParameters.Insert("RestartIntervalOnFailure", 900);
@@ -872,7 +875,6 @@ Procedure ImportDataInClientServerModeInternalPublication(ExchangePlanName,
 	JobParameters.Insert("MethodName"    , "DataExchangeInternalPublication.ImportFromFileTransferServiceForInfobaseNode");
 	JobParameters.Insert("DataArea", DataArea);
 	JobParameters.Insert("Use", True);
-	JobParameters.Insert("ScheduledStartTime", CurrentSessionDate());
 	JobParameters.Insert("Parameters", ProcedureParameters);
 	JobParameters.Insert("RestartCountOnFailure", 3);
 	JobParameters.Insert("RestartIntervalOnFailure", 900);

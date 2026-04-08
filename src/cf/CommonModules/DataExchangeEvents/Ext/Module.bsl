@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -73,7 +72,7 @@ EndProcedure
 //
 // Parameters:
 //  ExchangePlanName - String - a name of the exchange plan, for which the registration is carried out.
-//  Source       - НаборЗаписейРегистра - an event source.
+//  Source       -  InformationRegisterRecordSet - an event source.
 //  Cancel          - Boolean - a flag of canceling the handler.
 //  Replacing      - Boolean - a flag showing whether the existing record set is replaced.
 // 
@@ -279,10 +278,10 @@ EndFunction
 //                          metadata object.
 //
 // Returns:
-//   Boolean - Indicates whether automatic object registration is enabled in the given exchange plan:
-//           * True - True if metadata object automatic registration is allowed in the exchange plan;
-//           * False   - Object's auto-registration is set to "Prohibited", or the object is missing from
-//                      the exchange plan.
+//   Boolean - Indicates whether object auto-registration is enabled in the given exchange plan. 
+//            True if auto-registration is enabled for the metadata object.
+//            False auto-registration is disabled for the metadata object
+//                      or the exchange plan does not include the metadata object.
 //
 Function AutoRegistrationAllowed(MetadataObject, ExchangePlanName) Export
 	
@@ -309,7 +308,7 @@ EndFunction
 //                        AccountingRegisterRecordSet.<Name>,
 //                        CalculationRegisterRecordSet.<Name> - a record set.
 //
-//  ExchangePlanNode     - ПланыОбменаОбъект - a node
+//  ExchangePlanNode     - ExchangePlanObject - a node
 //                        to be checked.
 //
 // Returns:
@@ -387,9 +386,7 @@ EndProcedure
 //   DataElement - ConstantValueManager
 //                 - CatalogObject
 //                 - DocumentObject
-//                 - InformationRegisterRecordSet
-//                 - и т.п. -
-//                   a data item.
+//                 - InformationRegisterRecordSet - a data item.
 //   ItemSend - DataItemSend - See the "ItemSend" parameter description in Syntax Assistant
 //                      for methods OnSendDataToMaster() and OnSendDataToSlave().
 //   InitialImageCreating - Boolean - indicates that the procedure is called upon creating the initial DIB image.
@@ -451,8 +448,11 @@ EndProcedure
 // in a distributed infobase.
 //
 // Parameters:
-//   See the OnReceiveDataFromMaster event handler in Syntax Assistant.
-// 
+//  DataElement - Arbitrary
+//  ItemReceive - DataItemReceive
+//  SendBack - Boolean
+//  Sender - ExchangePlanObject
+//
 Procedure OnReceiveDataFromMasterInBeginning(DataElement, ItemReceive, SendBack, Sender) Export
 	
 	If DataExchangeInternal.DataExchangeMessageImportModeBeforeStart(
@@ -476,7 +476,9 @@ EndProcedure
 // The procedure is called from the OnReceiveDataFromMaster exchange plan handler.
 //
 // Parameters:
-//   See the OnReceiveDataFromMaster event handler in Syntax Assistant.
+//  DataElement - Arbitrary
+//  ItemReceive - DataItemReceive
+//  Sender - ExchangePlanObject
 // 
 Procedure OnReceiveDataFromMasterInEnd(DataElement, ItemReceive, Val Sender) Export
 	
@@ -496,7 +498,9 @@ EndProcedure
 // The procedure is called from the OnReceiveDataFromSlave exchange plan handler.
 //
 // Parameters:
-//   See the OnReceiveDataFromSlave event handler in Syntax Assistant.
+//  DataElement - Arbitrary
+//  ItemReceive - DataItemReceive
+//  Sender - ExchangePlanObject
 // 
 Procedure OnReceiveDataFromSlaveInEnd(DataElement, ItemReceive, Val Sender) Export
 	
@@ -622,6 +626,16 @@ Procedure OnCreateObjectVersion(Object, ObjectVersionInfo, RefExists, Sender) Ex
 		ModuleObjectsVersioning.CreateObjectVersionByDataExchange(Object, NewObjectVersionInfo, RefExists, Sender);
 		
 	EndIf;
+	
+EndProcedure
+
+// See ODataInterfaceOverridable.OnPopulateDependantTablesForODataImportExport
+Procedure OnPopulateDependantTablesForODataImportExport(Tables) Export
+	
+	Tables.Add(Metadata.InformationRegisters.SynchronizedObjectPublicIDs.FullName());
+	Tables.Add(Metadata.InformationRegisters.DataExchangeResults.FullName());
+	Tables.Add(Metadata.InformationRegisters.InfobaseObjectsMaps.FullName());
+	Tables.Add(Metadata.InformationRegisters.DeleteDataExchangeResults.FullName());
 	
 EndProcedure
 
@@ -1110,18 +1124,16 @@ Procedure ClearRefsToInfobaseNode(Source, Cancel) Export
 			ModuleJobsQueue = Common.CommonModule("JobsQueue");
 			ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
 			
-			JobKey = StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Data exchange with external system (%1)'"),
-				Source.Code);
-				
-			Filter = New Structure;
-			Filter.Insert("DataArea", ModuleSaaSOperations.SessionSeparatorValue());
-			Filter.Insert("Key",          JobKey);
+			If ValueIsFilled(Source.Code) Then
+				Filter = New Structure;
+				Filter.Insert("DataArea", ModuleSaaSOperations.SessionSeparatorValue());
+				Filter.Insert("Key",          Source.Code);
 			
-			JobTable = ModuleJobsQueue.GetJobs(Filter);
-			For Each JobRow In JobTable Do
-				ModuleJobsQueue.DeleteJob(JobRow.Id);
-			EndDo;
+				JobTable = ModuleJobsQueue.GetJobs(Filter);
+				For Each JobRow In JobTable Do
+					ModuleJobsQueue.DeleteJob(JobRow.Id);
+				EndDo;
+			EndIf
 		EndIf;
 		
 		If Common.SubsystemExists("StandardSubsystems.SaaSOperations.DataExchangeSaaS") Then
@@ -1206,6 +1218,7 @@ Procedure RegisterObjectChange(ExchangePlanName, Object, Cancel, AdditionalParam
 	OptionalParameters.Insert("IsConstant", False);
 	OptionalParameters.Insert("WriteMode", Undefined);
 	OptionalParameters.Insert("Replacing", Undefined);
+	OptionalParameters.Insert("ExtendedSubstitution", Undefined);
 	
 	If AdditionalParameters <> Undefined Then
 		FillPropertyValues(OptionalParameters, AdditionalParameters);
@@ -1215,6 +1228,7 @@ Procedure RegisterObjectChange(ExchangePlanName, Object, Cancel, AdditionalParam
 		// Add, Replacing, RefreshEnabled, Join, Delete.
 		// Among these, the "Add" mode corresponds to "False", while all other modes correspond to "True".
 		AdaptValueSubstitutionOfOptionalRegistrationParameters(OptionalParameters);
+		
 	EndIf;
 	
 	IsRegister = OptionalParameters.IsRegister;
@@ -1222,6 +1236,10 @@ Procedure RegisterObjectChange(ExchangePlanName, Object, Cancel, AdditionalParam
 	IsConstant = OptionalParameters.IsConstant;
 	WriteMode = OptionalParameters.WriteMode;
 	Replacing = OptionalParameters.Replacing;
+	ExtendedSubstitution = OptionalParameters.ExtendedSubstitution;
+	If ValueIsFilled(ExtendedSubstitution) And TypeOf(ExtendedSubstitution) <> Type("Boolean") Then
+		Object.AdditionalProperties.Insert("ExtendedSubstitution", ExtendedSubstitution);
+	EndIf;
 	
 	Try
 		
@@ -1447,6 +1465,7 @@ Procedure AdaptValueSubstitutionOfOptionalRegistrationParameters(OptionalParamet
 	
 	If IsExtendedReplacementMode = True Then
 		
+		OptionalParameters.ExtendedSubstitution = OptionalParameters.Replacing;
 		OptionalParameters.Replacing = True;
 		Return;
 		
@@ -2917,7 +2936,7 @@ Procedure OnSendData(DataElement, ItemSend, Val Recipient, Val InitialImageCreat
 			
 		EndIf;
 			
-	ElsIf ObjectExportMode = Enums.ExchangeObjectExportModes.NotExport Then
+	ElsIf ObjectExportMode = Enums.ExchangeObjectExportModes.NotToExport Then
 		
 		ItemSend = DataItemSend.Ignore;
 		
@@ -3595,6 +3614,28 @@ Function RecordSet(Val Data)
 	MetadataObject = Data.Metadata();
 	
 	RecordSet = RecordSetByType(MetadataObject);
+	
+	ExtendedSubstitution = Undefined;
+	If Data.AdditionalProperties.Property("ExtendedSubstitution", ExtendedSubstitution) Then
+		If Common.IsRecordSetMerge(ExtendedSubstitution)
+			Or Common.IsRecordSetUpdate(ExtendedSubstitution)
+			Or Common.IsRecordSetDeletion(ExtendedSubstitution) Then
+			
+			RecordSet.ExtendedReplaceMode = Data.ExtendedReplaceMode;
+			RecordSet.AdditionalProperties.Insert("ExtendedSubstitution", ExtendedSubstitution);
+			SetDataFromInfobase = Common.SetRecordsFromDatabase(Data, ExtendedSubstitution);
+			RecordSet.Load(SetDataFromInfobase);
+			
+			Return RecordSet;
+			
+		ElsIf Common.IsRecordSetAddition(ExtendedSubstitution) Then
+			RecordSet.ExtendedReplaceMode = Data.ExtendedReplaceMode;
+			RecordSet.AdditionalProperties.Insert("ExtendedSubstitution", ExtendedSubstitution);
+		
+			Return RecordSet;
+			
+		EndIf;
+	EndIf;
 	
 	For Each FilterValue In Data.Filter Do
 		

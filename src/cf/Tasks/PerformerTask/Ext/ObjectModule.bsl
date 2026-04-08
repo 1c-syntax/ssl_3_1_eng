@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -59,16 +58,33 @@ Procedure BeforeWrite(Cancel)
 		BusinessProcessesAndTasksServer.OnMarkTaskForDeletion(Ref, DeletionMark);
 	EndIf;
 	
+	ThisIsTest = AdditionalProperties.Property("IsCheckOnly") And AdditionalProperties.IsCheckOnly;
+	IsRedirection = AdditionalProperties.Property("Redirection1") And AdditionalProperties.Redirection1;
+	
+	If IsUserPerformer(Performer)
+	   And Not ThisIsTest 
+	   And Not IsRedirection Then
+		
+		UserDetails = Common.ObjectAttributesValues(Performer, "Invalid,DeletionMark");
+		
+		If UserDetails.Invalid 
+		 Or UserDetails.DeletionMark Then
+			Common.MessageToUser(NStr("en = 'The task is assigned to an inactive user.'"),,,, Cancel);
+			Return; 
+		EndIf;
+		
+	EndIf;
+	
 	If Not InitialAttributes.Executed And Executed Then
 		
 		If BusinessProcessState = Enums.BusinessProcessStates.Suspended Then
 			Raise NStr("en = 'Cannot perform tasks of suspended business processes.'");
 		EndIf;
 		
-		// If the task is completed, assign the "Performer" attribute to the user who fulfilled it.
-		// This is required for reporting.
-		// (Assign only if it wasn't completed in the infobase and was in the object.)
-		// 
+		// If the task is completed, write the user who completed it to the Performer attribute.
+		// This is required for reporting purposes.
+		// Write it only if the status in the infobase was incomplete
+		// and has changed to complete in the object.
 		If Not ValueIsFilled(Performer) Then
 			Performer = Users.AuthorizedUser();
 		EndIf;
@@ -112,12 +128,19 @@ Procedure BeforeWrite(Cancel)
 		AcceptForExecutionDate = CurrentSessionDate();
 	EndIf;
 	
-	If AdditionalProperties.Property("IsCheckOnly")
-	   And AdditionalProperties.IsCheckOnly Then
+	If ThisIsTest Then
 		Executed = False;
 	EndIf;
 	
 EndProcedure
+
+Function IsUserPerformer(Performer)
+	
+	Return ValueIsFilled(Performer) 
+	   And (TypeOf(Performer) = Type("CatalogRef.Users") 
+	 Or TypeOf(Performer) = Type("CatalogRef.ExternalUsers"));
+	
+EndFunction
 
 Procedure Filling(FillingData, FillingText, StandardProcessing)
 	

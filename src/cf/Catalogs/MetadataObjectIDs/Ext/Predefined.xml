@@ -1146,4 +1146,16 @@
 		<Description/>
 		<IsFolder>false</IsFolder>
 	</Item>
+	<Item id="06562364-9733-435f-9e75-eff9490c2152">
+		<Name>InformationRegisterMobileSignatureServiceStatuses</Name>
+		<Code/>
+		<Description/>
+		<IsFolder>false</IsFolder>
+	</Item>
+	<Item id="326c0878-0d06-4969-864b-2ff720b4b6ca">
+		<Name>InformationRegisterCertificateIssuanceApplications</Name>
+		<Code/>
+		<Description/>
+		<IsFolder>false</IsFolder>
+	</Item>
 </PredefinedData>

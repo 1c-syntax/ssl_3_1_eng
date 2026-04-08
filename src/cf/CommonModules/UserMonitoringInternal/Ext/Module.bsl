@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Internal
@@ -95,15 +94,15 @@ Procedure OnFillToDoList(ToDoList) Export
 	// Therefore, don't check if the subsystem is integrated.
 	ModuleToDoListServer = Common.CommonModule("ToDoListServer");
 	
-	ToDoItem = ToDoList.Add();
-	ToDoItem.Id  = "KeepRegistrationSettingsForDataAccessEventsUpToDate";
-	ToDoItem.HasToDoItems       = True;
-	ToDoItem.Important         = True;
-	ToDoItem.Count     = UnfoundFields.Count();
-	ToDoItem.Presentation  = NStr("en = 'Update data access logging settings'");
-	ToDoItem.ToolTip      = NStr("en = 'Access control is disabled for outdated settings.'");
-	ToDoItem.Form          = "CommonForm.RegistrationSettingsForDataAccessEvents";
-	ToDoItem.Owner       = AdministrationSection;
+	CaseFile = ToDoList.Add();
+	CaseFile.Id  = "KeepRegistrationSettingsForDataAccessEventsUpToDate";
+	CaseFile.HasToDoItems       = True;
+	CaseFile.Important         = True;
+	CaseFile.Count     = UnfoundFields.Count();
+	CaseFile.Presentation  = NStr("en = 'Update data access logging settings'");
+	CaseFile.ToolTip      = NStr("en = 'Access control is disabled for outdated settings.'");
+	CaseFile.Form          = "CommonForm.RegistrationSettingsForDataAccessEvents";
+	CaseFile.Owner       = AdministrationSection;
 	
 EndProcedure
 

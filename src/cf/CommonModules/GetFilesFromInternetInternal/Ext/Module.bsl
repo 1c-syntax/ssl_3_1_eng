@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Internal
@@ -1025,7 +1024,13 @@ EndFunction
 Function CheckServerAvailability(ServerAddress) Export
 	
 	Result = New Structure("Available, DiagnosticsLog", False, "");
-
+	
+	If Not Common.DomainNameCorrect(ServerAddress) Then
+		Result.DiagnosticsLog = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Invalid server address: %1'"), ServerAddress);
+		Return Result;
+	EndIf;
+	
 	ApplicationStartupParameters = FileSystem.ApplicationStartupParameters();
 	ApplicationStartupParameters.WaitForCompletion = True;
 	ApplicationStartupParameters.GetOutputStream = True;
@@ -1087,6 +1092,13 @@ Function CheckServerAvailability(ServerAddress) Export
 EndFunction
 
 Function ServerRouteTraceLog(ServerAddress) Export
+	
+	If Not Common.DomainNameCorrect(ServerAddress) Then
+		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Route tracing to remote server %1 failed:
+				|Invalid server address.'"), ServerAddress);
+		Return ErrorText;
+	EndIf;
 	
 	ApplicationStartupParameters = FileSystem.ApplicationStartupParameters();
 	ApplicationStartupParameters.WaitForCompletion = True;

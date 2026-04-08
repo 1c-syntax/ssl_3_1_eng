@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Variables
@@ -183,8 +182,8 @@ Procedure MappingColumnsListStartChoice(Item, ChoiceData, StandardProcessing)
 	EndIf;
 	
 	FormParameters      = New Structure("ColumnsList", MapByColumn);
-	NotifyDescription  = New CallbackDescription("AfterColumnsChoiceForMapping", ThisObject);
-	OpenForm("DataProcessor.ImportDataFromFile.Form.SelectColumns", FormParameters, ThisObject, , , , NotifyDescription, FormWindowOpeningMode.LockOwnerWindow);
+	CallbackDescription  = New CallbackDescription("AfterColumnsChoiceForMapping", ThisObject);
+	OpenForm("DataProcessor.ImportDataFromFile.Form.SelectColumns", FormParameters, ThisObject, , , , CallbackDescription, FormWindowOpeningMode.LockOwnerWindow);
 	
 EndProcedure
 
@@ -458,6 +457,7 @@ EndProcedure
 
 #Region Private
 
+//
 
 // Ending the form closing dialog.
 &AtClient
@@ -664,6 +664,7 @@ Procedure NotifyFormsAboutChange(ReferencesArrray)
 	StandardSubsystemsClient.NotifyFormsAboutChange(ReferencesArrray);
 EndProcedure
 
+//
 
 &AtServer
 Procedure InsertFromClipboardInitialization()
@@ -854,11 +855,6 @@ Procedure GenerateTemplateByImportType()
 	ImportParameters = DefaultImportParameters;
 	
 	ChangeTemplateByColumnsInformation();
-EndProcedure
-
-&AtServer
-Procedure SaveTableToCSVFile(FullFileName)
-	DataProcessors.ImportDataFromFile.SaveTableToCSVFile(FullFileName, ColumnsInformation);
 EndProcedure
 
 #EndRegion
@@ -1137,7 +1133,7 @@ Procedure ExecuteDataToImportMappingStepClient()
 	If ImportType = "PastingFromClipboard" Then
 		Statistics = MappingStatistics();
 		
-		If Statistics.Mapped2 > 0 Then
+		If Statistics.Mapped2 > 0 Or Statistics.Ambiguous1 > 0 Then
 			TextFound = NStr("en = '%2 out of %1 entered lines will be added to the list.'");
 			Items.MappingResultLabel.Title = StringFunctionsClientServer.SubstituteParametersToString(TextFound,
 				Statistics.Total, Statistics.Mapped2);
@@ -2560,18 +2556,24 @@ Function BatchAttributesModificationAtServer(UpperPosition, LowerPosition)
 	Return ReferencesArrray;
 EndFunction
 
+//
 
 &AtClient
 Procedure AfterFileChoiceForSaving(Result, AdditionalParameters) Export
 	
 	If Result <> Undefined Then
-		PathToFile = Result[0];
-		SelectedFile = CommonClientServer.ParseFullFileName(PathToFile);
+		PathToFile      = Result[0];
+		SelectedFile   = CommonClientServer.ParseFullFileName(PathToFile);
 		FileExtention = CommonClientServer.ExtensionWithoutPoint(SelectedFile.Extension);
 	
 		If ValueIsFilled(SelectedFile.Name) Then
 			If FileExtention = "csv" Then
-				SaveTableToCSVFile(PathToFile);
+				
+				AddressInTempStorage = CreateCSVInTemporaryStorage(ColumnsInformation);
+				FileSavingParameters = FileSystemClient.FileSavingParameters();
+				FileSystemClient.SaveFile(Undefined, AddressInTempStorage,
+					PathToFile, FileSavingParameters);
+				
 			Else
 				If FileExtention = "xlsx" Then
 					FileType = SpreadsheetDocumentFileType.XLSX;
@@ -2590,6 +2592,7 @@ Procedure AfterFileChoiceForSaving(Result, AdditionalParameters) Export
 			EndIf;
 		EndIf;
 	EndIf;
+	
 EndProcedure
 
 &AtClient
@@ -2623,35 +2626,109 @@ EndProcedure
 Procedure AfterFileExtensionChoice(Result, Parameter) Export
 	If ValueIsFilled(Result) Then
 		AddressInTempStorage = UUID;
-		SaveTemplateToTempStorage(Result, AddressInTempStorage);
+		SaveTemplateToTempStorage(Result, TemplateWithData, ColumnsInformation, AddressInTempStorage);
 		FileSavingParameters = FileSystemClient.FileSavingParameters();
 		FileSystemClient.SaveFile(Undefined, AddressInTempStorage,
 			MappingObjectName + "." + Result, FileSavingParameters);
 	EndIf;
 EndProcedure
 
-&AtServer
-Procedure SaveTemplateToTempStorage(FileExtention, AddressInTempStorage)
+&AtServerNoContext
+Procedure SaveTemplateToTempStorage(FileExtention, Val TemplateWithData, Val ColumnsInformation, AddressInTempStorage)
+
+	FileExtention = Lower(TrimAll(FileExtention));
 	
-	FileName = GetTempFileName(FileExtention);
-	If FileExtention = "csv" Then 
-		SaveTableToCSVFile(FileName);
-	ElsIf FileExtention = "xlsx" Then
-		TemplateWithData.Write(FileName, SpreadsheetDocumentFileType.XLSX);
-	ElsIf FileExtention = "xls" Then
-		TemplateWithData.Write(FileName, SpreadsheetDocumentFileType.XLS);
-	ElsIf FileExtention = "ods" Then
-		TemplateWithData.Write(FileName, SpreadsheetDocumentFileType.ODS);
-	Else 
-		TemplateWithData.Write(FileName, SpreadsheetDocumentFileType.MXL);
+	ValidExtensions = New Map;
+	ValidExtensions.Insert("csv",  True);
+	ValidExtensions.Insert("xlsx", True);
+	ValidExtensions.Insert("xls",  True);
+	ValidExtensions.Insert("ods",  True);
+	ValidExtensions.Insert("mxl",  True);
+	
+	If ValidExtensions.Get(FileExtention) = Undefined Then
+		Raise StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Template saving is cancelled. Invalid file extension: %1'"), FileExtention);
 	EndIf;
-	BinaryData = New BinaryData(FileName);
+
+	BinaryData = Undefined;
+	FileName       = "";
+
+	Try
+		
+		If FileExtention = "csv" Then
+			AddressInTempStorage = CreateCSVInTemporaryStorage(ColumnsInformation);
+			Return;
+			
+		ElsIf FileExtention = "xls" Then
+			
+			FileName = GetTempFileName("xls");
+			TemplateWithData.Write(FileName, SpreadsheetDocumentFileType.XLS);
+			
+			FileOnHardDrive = New File(FileName);
+			If Not FileOnHardDrive.Exists() Then
+				Raise NStr("en = 'Template saving is cancelled. Cannot create a temporary file.'");
+			EndIf;
+			
+			BinaryData = New BinaryData(FileName);
+			
+		Else
+			
+			Stream = New MemoryStream();
+			
+			Try
+
+				If FileExtention = "xlsx" Then
+					TemplateWithData.Write(Stream, SpreadsheetDocumentFileType.XLSX);
+				ElsIf FileExtention = "ods" Then
+					TemplateWithData.Write(Stream, SpreadsheetDocumentFileType.ODS);
+				Else
+					TemplateWithData.Write(Stream, SpreadsheetDocumentFileType.MXL);
+				EndIf;
+				
+				BinaryData = Stream.CloseAndGetBinaryData();
+				
+			Except
+				Try
+					Stream.Close();
+				Except
+					EventLog.AddMessageForEventLog(ImportDataFromFile.EventLogEvent(),
+						EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+				EndTry;
+				Raise;
+			EndTry;
+			
+		EndIf;
+		
+		If BinaryData = Undefined Or BinaryData.Size() = 0 Then
+			Raise NStr("en = 'Template saving is cancelled. An empty file received.'");
+		EndIf;
+
+		If BinaryData.Size() > DataProcessors.ImportDataFromFile.MaximumSizeOfTemplateFile() Then
+			Raise NStr("en = 'Template saving was cancelled because the file size limit was exceeded.'");
+		EndIf;
+
+		AddressInTempStorage = 
+			PutToTempStorage(BinaryData, AddressInTempStorage);
+
+	Except
+		
+		EventLog.AddMessageForEventLog(ImportDataFromFile.EventLogEvent(), 
+				EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+		
+		Raise;
+		
+	EndTry;
 	
-	AddressInTempStorage = PutToTempStorage(BinaryData, AddressInTempStorage);
-	
-	FileSystem.DeleteTempFile(FileName);
+	If ValueIsFilled(FileName) Then
+		FileSystem.DeleteTempFile(FileName);
+	EndIf;
 	
 EndProcedure
+
+&AtServerNoContext
+Function CreateCSVInTemporaryStorage(Val ColumnsInformation)
+	Return DataProcessors.ImportDataFromFile.CreateCSVInTemporaryStorage(ColumnsInformation);
+EndFunction
 
 &AtServerNoContext
 Function GenerateFileNameForMetadataObject(MetadataObjectName)

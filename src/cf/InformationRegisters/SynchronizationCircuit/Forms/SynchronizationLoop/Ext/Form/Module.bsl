@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -19,25 +18,37 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		
 	Query = New Query;
 	Query.Text = 
-		"SELECT
-		|	Settings.InfobaseNode AS InfobaseNode,
-		|	Settings.ExchangeDataRegistrationOnLoop AS ExchangeDataRegistrationOnLoop
-		|FROM
-		|	InformationRegister.CommonInfobasesNodesSettings AS Settings
-		|WHERE
-		|	Settings.IsLoopDetected";
+	"SELECT
+	|	Settings.InfobaseNode AS InfobaseNode,
+	|	Settings.ExchangeDataRegistrationOnLoop AS ExchangeDataRegistrationOnLoop,
+	|	Settings.DisableSynchronizationCircuitMonitoring AS DisableSynchronizationCircuitMonitoring
+	|FROM
+	|	InformationRegister.CommonInfobasesNodesSettings AS Settings
+	|WHERE
+	|	Settings.IsLoopDetected
+	|;
+	|
+	|////////////////////////////////////////////////////////////////////////////////
+	|SELECT TOP 1
+	|	Settings.InfobaseNode AS InfobaseNode
+	|FROM
+	|	InformationRegister.CommonInfobasesNodesSettings AS Settings
+	|WHERE
+	|	Settings.DisableSynchronizationCircuitMonitoring";
 	
-	Table = Query.Execute().Unload();
-	NodeTable_.Load(Table);
+	QueryResult = Query.ExecuteBatch();
 	
+	NodeTable_.Load(QueryResult[0].Unload());
 	If NodeTable_.Count() > 0 Then
 		
 		Items.GroupThisInfobase.Visible = True;
+		Items.FormSwitchControl.Visible = False;
 		Items.GroupAnotherInfobase.Visible = False;
 		
 	Else
 		
 		Items.GroupThisInfobase.Visible = False;
+		Items.FormSwitchControl.Visible = True;
 		Items.GroupAnotherInfobase.Visible = True;
 		
 		Items.InformationAnotherInfobase.Title = StringFunctions.FormattedString(
@@ -45,14 +56,38 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			DataExchangeLoopControl.InfobaseWithSuspendedRegistrationPresentation());
 		
 	EndIf;
-		
+	
+	SynchronizationLoopMonitoringIsEnabled = QueryResult[1].IsEmpty();
+	LoopingWarningIsHidden = DataExchangeLoopControl.LoopingWarningIsHiddenFromUser();
+	
 	SetConditionalAppearance();
-		
+	
+EndProcedure
+
+&AtClient
+Procedure OnOpen(Cancel)
+	
+	FormElementHeaders();
+	
 EndProcedure
 
 #EndRegion
 
 #Region FormTableItemsEventHandlersNodeTable_
+
+&AtClient
+Procedure NodeTable_DisableSynchronizationCircuitMonitoringOnChange(Item)
+	
+	CurrentRowData = Items.NodeTable_.CurrentData;
+	If CurrentRowData = Undefined Then
+		
+		Return;
+		
+	EndIf;
+	
+	LoopControlManagement(CurrentRowData.InfobaseNode, CurrentRowData.DisableSynchronizationCircuitMonitoring);
+	
+EndProcedure
 
 &AtClient
 Procedure NodeTable_Selection(Item, RowSelected, Field, StandardProcessing)
@@ -75,6 +110,93 @@ Procedure NodeTable_Selection(Item, RowSelected, Field, StandardProcessing)
 	
 EndProcedure
 
+#EndRegion
+
+#Region FormCommandsEventHandlers
+
+&AtClient
+Procedure CloseForm(Command)
+	
+	Notify("ChangingVisibilityOfLoopingWarnings");
+	Close();
+	
+EndProcedure
+
+&AtClient
+Procedure SynchronizationCircuit(Command)
+	
+	OpenForm("InformationRegister.SynchronizationCircuit.ListForm");
+	
+EndProcedure
+
+&AtClient
+Procedure SwitchControl(Command)
+	
+	SwitchControlAtServer();
+	FormElementHeaders();
+	
+EndProcedure
+
+&AtClient
+Procedure DisplayLoopingWarning(Command)
+	
+	LoopingWarningIsHidden = Not LoopingWarningIsHidden;
+	DataExchangeServerCall.HideShowLoopingWarningFromUser(LoopingWarningIsHidden);
+	FormElementHeaders();
+	
+EndProcedure
+
+#EndRegion
+
+#Region Private
+
+&AtClient
+Procedure FormElementHeaders()
+	
+	If SynchronizationLoopMonitoringIsEnabled = True Then
+		
+		LineHeader = NStr("en = 'Disable control'", CommonClient.DefaultLanguageCode());
+		
+	Else
+		
+		LineHeader = NStr("en = 'Enable control'", CommonClient.DefaultLanguageCode());
+		
+	EndIf;
+	
+	Items.FormSwitchControl.Title = LineHeader;
+	
+	
+	If LoopingWarningIsHidden = True Then
+		
+		LineHeader = NStr("en = 'Show synchronization loop warning'", CommonClient.DefaultLanguageCode());
+		
+	Else
+		
+		LineHeader = NStr("en = 'Hide synchronization loop warning'", CommonClient.DefaultLanguageCode());
+		
+	EndIf;
+	
+	Items.FormDisplayLoopingWarning.Title = LineHeader;
+	
+EndProcedure
+
+&AtServer
+Function SubAssetsWithDetectedLooping()
+	
+	Query = New Query(
+	"SELECT DISTINCT
+	|	SynchronizationCircuit.InfobaseNode AS ExchangePlanNode
+	|FROM
+	|	InformationRegister.SynchronizationCircuit AS SynchronizationCircuit
+	|		INNER JOIN InformationRegister.CommonInfobasesNodesSettings AS CommonInfobasesNodesSettings
+	|		ON SynchronizationCircuit.InfobaseNode = CommonInfobasesNodesSettings.InfobaseNode
+	|WHERE
+	|	NOT SynchronizationCircuit.InfobaseNode IS NULL");
+	
+	Return Query.Execute().Unload().UnloadColumn("ExchangePlanNode");
+	
+EndFunction
+
 &AtServer
 Procedure PauseResumeRegistration(InfobaseNode, ExchangeDataRegistrationOnLoop)
 	
@@ -83,7 +205,7 @@ Procedure PauseResumeRegistration(InfobaseNode, ExchangeDataRegistrationOnLoop)
 	Try 
 		
 		InformationRegisters.CommonInfobasesNodesSettings.SetLoop(
-			InfobaseNode,, 
+			InfobaseNode,,
 			ExchangeDataRegistrationOnLoop);
 		
 	Except
@@ -94,20 +216,24 @@ Procedure PauseResumeRegistration(InfobaseNode, ExchangeDataRegistrationOnLoop)
 	
 EndProcedure
 
-#EndRegion
-
-#Region FormCommandsEventHandlers
-
-&AtClient
-Procedure CloseForm(Command)
+&AtServer
+Procedure SwitchControlAtServer()
 	
-	Close();
+	SubAssetsWithDetectedLooping = SubAssetsWithDetectedLooping();
+	For Each ExchangePlanNode In SubAssetsWithDetectedLooping Do
+		
+		InformationRegisters.CommonInfobasesNodesSettings.SetLoop(ExchangePlanNode, , , SynchronizationLoopMonitoringIsEnabled);
+		
+	EndDo;
+	
+	SynchronizationLoopMonitoringIsEnabled = Not SynchronizationLoopMonitoringIsEnabled;
+	If Not SynchronizationLoopMonitoringIsEnabled Then
+		
+		DataExchangeServerCall.HideShowLoopingWarningFromUser(True);
+		
+	EndIf;
 	
 EndProcedure
-
-#EndRegion
-
-#Region Private
 
 &AtServer
 Procedure SetConditionalAppearance()
@@ -160,6 +286,25 @@ Procedure SetConditionalAppearance()
 	Item.Appearance.SetParameterValue("Text", Text);
 	Item.Appearance.SetParameterValue("ReadOnly", True);
 	Item.Appearance.SetParameterValue("TextColor", WebColors.Blue);
+	
+EndProcedure
+
+&AtServer
+Procedure LoopControlManagement(Val InfobaseNode, Val DisableSynchronizationCircuitMonitoring)
+	
+	SetPrivilegedMode(True);
+	
+	Try 
+		
+		InformationRegisters.CommonInfobasesNodesSettings.SetLoop(
+			InfobaseNode,,, DisableSynchronizationCircuitMonitoring);
+		
+	Except
+		
+		WriteLogEvent(, EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+		
+	EndTry;
+	
 	
 EndProcedure
 

@@ -48,11 +48,11 @@
 				<ContextMenu name="SearchStringContextMenu" id="100"/>
 				<ExtendedTooltip name="SearchStringExtendedTooltip" id="101"/>
 			</SearchStringAddition>
-			<Button name="FormHelp" id="104">
+			<Button name="FormHelp_SSLyf" id="104">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.StandardCommand.Help</CommandName>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
-				<ExtendedTooltip name="FormHelpExtendedTooltip" id="105"/>
+				<ExtendedTooltip name="FormHelp_SSLyfExtendedTooltip" id="105"/>
 			</Button>
 		</ChildItems>
 	</AutoCommandBar>

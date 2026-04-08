@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -74,7 +73,7 @@ EndProcedure
 
 #Region Private
 
-Procedure PrepareDataToRecord() Export
+Procedure PrepareDataToRecord(DataStorage) Export
 	
 	ReceivingParameters = Undefined;
 	If Not AdditionalProperties.Property("ReceivingParameters", ReceivingParameters) Then
@@ -86,8 +85,8 @@ Procedure PrepareDataToRecord() Export
 	For Each String In DataToWrite Do
 		
 		Data = InformationRegisters.ProgramInterfaceCache.PrepareVersionCacheData(String.DataType, ReceivingParameters);
-		String.Data = New ValueStorage(Data, New Deflation(9));
-		
+		DataStorage = New ValueStorage(Data, New Deflation(9));
+		String.Data = DataStorage;
 	EndDo;
 	
 	PreparedData1 = True;

@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -43,9 +42,15 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Return;
 	EndIf;
 	
+	SignatureData = GetFromTempStorage(SignatureAddress);
+	
+	If Not ValueIsFilled(SignatureData) Then
+		Return;
+	EndIf;
+	
 	SignAlgorithmDoesNotComplyWithGOST = "";
 	SignAlgorithm = DigitalSignatureInternalClientServer.GeneratedSignAlgorithm(
-		SignatureAddress, True, False, SignAlgorithmDoesNotComplyWithGOST);
+		SignatureData, True, False, SignAlgorithmDoesNotComplyWithGOST);
 		
 	If ValueIsFilled(SignAlgorithmDoesNotComplyWithGOST) Then
 		SignAlgorithm = SignAlgorithmDoesNotComplyWithGOST;
@@ -62,9 +67,11 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	If ValueIsFilled(Status) Then
 		Items.DecorationStatus.Title = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Status as of %1: %2'"), SignatureValidationDate, Status);
-	Else
+	ElsIf ValueIsFilled(BriefCheckResult) Then
 		Items.DecorationStatus.Title = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Status as of %1: %2'"), SignatureValidationDate, BriefCheckResult);
+	Else
+		Items.DecorationStatus.Visible = False;
 	EndIf;
 	
 	Items.ErrorDescription.Visible = Not IsBlankString(ErrorDescription);

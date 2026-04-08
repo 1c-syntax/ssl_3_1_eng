@@ -677,5 +677,8 @@ Select and install&lt;/&gt; a digital signing and encryption application or a li
 				</v8:StringQualifiers>
 			</Type>
 		</Parameter>
+		<Parameter name="Components">
+			<Type/>
+		</Parameter>
 	</Parameters>
 </Form>

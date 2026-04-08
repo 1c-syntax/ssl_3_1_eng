@@ -203,8 +203,8 @@ the Collaboration System</v8:content>
 					<ContextMenu name="NotificationTypeInGroupContextMenu" id="42"/>
 					<ExtendedTooltip name="NotificationTypeInGroupExtendedTooltip" id="43"/>
 				</LabelField>
-				<LabelField name="SMSMessageRecipients" id="50">
-					<DataPath>List.SMSMessageRecipients</DataPath>
+				<LabelField name="Recipients" id="50">
+					<DataPath>List.Recipients</DataPath>
 					<ContextMenu name="SMSMessageRecipientsContextMenu" id="51"/>
 					<ExtendedTooltip name="SMSMessageRecipientsExtendedTooltip" id="52"/>
 				</LabelField>

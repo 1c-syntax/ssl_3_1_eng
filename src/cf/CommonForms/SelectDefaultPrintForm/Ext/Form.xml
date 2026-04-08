@@ -12,6 +12,7 @@
 	</AutoCommandBar>
 	<Events>
 		<Event name="OnCreateAtServer">OnCreateAtServer</Event>
+		<Event name="FillCheckProcessingAtServer">FillCheckProcessingAtServer</Event>
 	</Events>
 	<ChildItems>
 		<LabelDecoration name="InformationDecoration" id="37">
@@ -22,10 +23,7 @@
 				</v8:item>
 			</Title>
 			<ContextMenu name="InformationDecorationContextMenu" id="38"/>
-			<ExtendedTooltip name="InformationDecorationExtendedTooltip" id="39">
-				<Visible>false</Visible>
-				<Enabled>false</Enabled>
-			</ExtendedTooltip>
+			<ExtendedTooltip name="InformationDecorationExtendedTooltip" id="39"/>
 		</LabelDecoration>
 		<UsualGroup name="GroupSelectValues" id="56">
 			<Title>
@@ -37,10 +35,7 @@
 			<Group>AlwaysHorizontal</Group>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<ExtendedTooltip name="GroupSelectValuesExtendedTooltip" id="57">
-				<Visible>false</Visible>
-				<Enabled>false</Enabled>
-			</ExtendedTooltip>
+			<ExtendedTooltip name="GroupSelectValuesExtendedTooltip" id="57"/>
 			<ChildItems>
 				<UsualGroup name="GroupLeftIndent" id="58">
 					<Title>
@@ -51,17 +46,11 @@
 					</Title>
 					<Representation>None</Representation>
 					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="GroupLeftIndentExtendedTooltip" id="59">
-						<Visible>false</Visible>
-						<Enabled>false</Enabled>
-					</ExtendedTooltip>
+					<ExtendedTooltip name="GroupLeftIndentExtendedTooltip" id="59"/>
 					<ChildItems>
 						<LabelDecoration name="IndentDecoration" id="62">
 							<ContextMenu name="IndentDecorationContextMenu" id="63"/>
-							<ExtendedTooltip name="IndentDecorationExtendedTooltip" id="64">
-								<Visible>false</Visible>
-								<Enabled>false</Enabled>
-							</ExtendedTooltip>
+							<ExtendedTooltip name="IndentDecorationExtendedTooltip" id="64"/>
 						</LabelDecoration>
 					</ChildItems>
 				</UsualGroup>
@@ -75,10 +64,7 @@
 					<Group>Vertical</Group>
 					<Representation>None</Representation>
 					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="GroupRightValuesExtendedTooltip" id="61">
-						<Visible>false</Visible>
-						<Enabled>false</Enabled>
-					</ExtendedTooltip>
+					<ExtendedTooltip name="GroupRightValuesExtendedTooltip" id="61"/>
 					<ChildItems>
 						<RadioButtonField name="DefaultPrintForm" id="34">
 							<DataPath>DefaultPrintForm</DataPath>
@@ -92,10 +78,7 @@
 							<RadioButtonType>Auto</RadioButtonType>
 							<ColumnsCount>1</ColumnsCount>
 							<ContextMenu name="DefaultPrintFormContextMenu" id="35"/>
-							<ExtendedTooltip name="DefaultPrintFormExtendedTooltip" id="36">
-								<Visible>false</Visible>
-								<Enabled>false</Enabled>
-							</ExtendedTooltip>
+							<ExtendedTooltip name="DefaultPrintFormExtendedTooltip" id="36"/>
 						</RadioButtonField>
 					</ChildItems>
 				</UsualGroup>
@@ -105,10 +88,7 @@
 			<Visible>false</Visible>
 			<TextColor>style:NoteText</TextColor>
 			<ContextMenu name="DecorationNoteToSelectedPrintFormsContextMenu" id="54"/>
-			<ExtendedTooltip name="DecorationNoteToSelectedPrintFormsExtendedTooltip" id="55">
-				<Visible>false</Visible>
-				<Enabled>false</Enabled>
-			</ExtendedTooltip>
+			<ExtendedTooltip name="DecorationNoteToSelectedPrintFormsExtendedTooltip" id="55"/>
 		</LabelDecoration>
 		<CommandBar name="ButtonsGroup" id="45">
 			<Title>
@@ -118,10 +98,7 @@
 				</v8:item>
 			</Title>
 			<HorizontalLocation>Right</HorizontalLocation>
-			<ExtendedTooltip name="ButtonsGroupExtendedTooltip" id="46">
-				<Visible>false</Visible>
-				<Enabled>false</Enabled>
-			</ExtendedTooltip>
+			<ExtendedTooltip name="ButtonsGroupExtendedTooltip" id="46"/>
 			<ChildItems>
 				<Button name="OK" id="30">
 					<Type>CommandBarButton</Type>
@@ -133,10 +110,7 @@
 							<v8:content>Select and generate</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="OKExtendedTooltip" id="31">
-						<Visible>false</Visible>
-						<Enabled>false</Enabled>
-					</ExtendedTooltip>
+					<ExtendedTooltip name="OKExtendedTooltip" id="31"/>
 				</Button>
 				<Button name="Cancel" id="32">
 					<Type>CommandBarButton</Type>
@@ -147,18 +121,12 @@
 							<v8:content>Cancel</v8:content>
 						</v8:item>
 					</Title>
-					<ExtendedTooltip name="CancelExtendedTooltip" id="33">
-						<Visible>false</Visible>
-						<Enabled>false</Enabled>
-					</ExtendedTooltip>
+					<ExtendedTooltip name="CancelExtendedTooltip" id="33"/>
 				</Button>
 				<Button name="Help" id="67">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.StandardCommand.Help</CommandName>
-					<ExtendedTooltip name="HelpExtendedTooltip" id="68">
-						<Visible>false</Visible>
-						<Enabled>false</Enabled>
-					</ExtendedTooltip>
+					<ExtendedTooltip name="HelpExtendedTooltip" id="68"/>
 				</Button>
 			</ChildItems>
 		</CommandBar>

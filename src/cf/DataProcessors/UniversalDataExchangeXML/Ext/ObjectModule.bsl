@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -15,12 +14,12 @@
 ////////////////////////////////////////////////////////////////////////////////
 // ACRONYMS IN VARIABLE NAMES
 
-//  
-//  
-//  
-//  
-//  
-//  
+//  OCR - Object conversion rule
+//  PCR - Property conversion rules
+//  PGCR - Property group conversion rule
+//  VCR - Value conversion rule
+//  DER - Data export rule
+//  DCR - Data cleansing rule
 
 #Region ModuleAuxiliaryVariablesForWritingAlgorithmsCommonForImportAndExport
 
@@ -2724,7 +2723,7 @@ EndProcedure
 //
 Function ObjectVersion() Export
 	
-	Version = "1.0.4.183";
+	Version = "1.0.5.225";
 	Return Version;
 	
 EndFunction
@@ -2995,13 +2994,13 @@ EndProcedure
 
 Function WriteTextToTemporaryFile(TempFileList)
 	
-	RecordFileName = GetTempFileName();
-	
 	RecordsTemporaryFile = New TextWriter;
 	
 	If SafeMode() <> False Then
 		SetSafeModeDisabled(True);
 	EndIf;
+	
+	RecordFileName = GetTempFileName();
 	
 	Try
 		RecordsTemporaryFile.Open(RecordFileName, TextEncoding.UTF8);
@@ -5529,7 +5528,7 @@ Function ReplaceAlgorithmCallsWithTheirHandlerScript(Handler, AlgorithmOwner, Re
 					WriteAlgorithmBlockTitle(HandlerNew, Algorithm, PrefixStringForInlineCode, NStr("en = '{RECURSIVE ALGORITHM CALL}'"));
 					
 					OperatorString = NStr("en = '%1 ""RECURSIVE ALGORITHM CALL: %2"";'");
-					OperatorString = SubstituteParametersToString(OperatorString, "CauseTheException", Algorithm);
+					OperatorString = SubstituteParametersToString(OperatorString, "Raise", Algorithm);
 					
 					HandlerNew = HandlerNew + Chars.LF + PrefixStringForInlineCode + OperatorString;
 					
@@ -10438,8 +10437,8 @@ Function GetDataTypeForDestination(Value)
 	
 	DestinationType = deValueTypeAsString(Value);
 	
-	// If there's an OCR with the destination type set to "DestinationType", then:
-	// If there's a rule, keep the search result. Otherwise, keep "'.
+	// Find an OCR with the DestinationType destination type.
+	// If there is a rule, keep the search result. Otherwise, keep "".
 	TableRow = ConversionRulesTable.Find(DestinationType, "Receiver");
 	
 	If TableRow = Undefined Then
@@ -14289,14 +14288,6 @@ Procedure InitAttributesAndModuleVariables()
 	
 	AlgorithmsDebugMode = mAlgorithmDebugModes.DontUse;
 	
-	// Standard subsystem modules.
-	Try
-		// Don't call CalculateInSafeMode. Calculation takes a string literal instead.
-		ModulePeriodClosingDates = Eval("PeriodClosingDates");
-	Except
-		ModulePeriodClosingDates = Undefined;
-	EndTry;
-	
 	ConfigurationSeparators = New Array;
 	For Each CommonAttribute In Metadata.CommonAttributes Do
 		If CommonAttribute.DataSeparation = Metadata.ObjectProperties.CommonAttributeDataSeparation.Separate Then
@@ -14304,6 +14295,13 @@ Procedure InitAttributesAndModuleVariables()
 		EndIf;
 	EndDo;
 	ConfigurationSeparators = New FixedArray(ConfigurationSeparators);
+	
+	// Standard subsystem modules.
+	Try
+		ModulePeriodClosingDates = EvalExpression("PeriodClosingDates");
+	Except
+		ModulePeriodClosingDates = Undefined;
+	EndTry;
 	
 	TempFilesDirectory = GetTempFileName();
 	DeleteFiles(TempFilesDirectory);
@@ -14726,7 +14724,7 @@ EndFunction
 Function CommonModule(Name) Export
 	
 	If Metadata.CommonModules.Find(Name) <> Undefined Then
-		Module = Eval(Name);
+		Module = EvalExpression(Name);
 	Else
 		Module = Undefined;
 	EndIf;

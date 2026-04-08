@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Variables
@@ -43,8 +42,8 @@ Procedure OpenNewForm(FormType, ServerParameters1, ClientParameters = Undefined,
 	
 	FormsKinds =
 		",DataSigning,DataEncryption,DataDecryption,
-		|,SelectSigningOrDecryptionCertificate,CertificateCheck,";
-	
+		|,SelectSigningOrDecryptionCertificate,CertificateCheck,SendForSigning,";
+		
 	If StrFind(FormsKinds, "," + FormType + ",") = 0 Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Error in procedure %1. %2 ""%3"" is not supported.'"),
@@ -55,7 +54,17 @@ Procedure OpenNewForm(FormType, ServerParameters1, ClientParameters = Undefined,
 		NewFormOwner = New UUID;
 	EndIf;
 	
-	NewFormName = "Catalog.DigitalSignatureAndEncryptionKeysCertificates.Form." + FormType;
+	If FormType = "SendForSigning" Then
+		NewFormName = "";
+		DigitalSignatureClientLocalization.OnDefineSignatureSubmissionForm(NewFormName);
+		If NewFormName = "" Then
+			Raise StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'Error in procedure %1. %2 ""%3"" is not supported.'"),
+				"OpenNewForm", "FormType", FormType);
+		EndIf;
+	Else
+		NewFormName = "Catalog.DigitalSignatureAndEncryptionKeysCertificates.Form." + FormType;
+	EndIf;
 	
 	Context = New Structure;
 	Form = OpenForm(NewFormName, ServerParameters1, NewFormOwner,,,,
@@ -89,7 +98,13 @@ EndProcedure
 &AtClient
 Procedure OpenNewFormFollowUp(Result, Context) Export
 	
-	If Context.Form.IsOpen() Then
+	Form = Context.Form;
+	If Form.IsOpen() Then
+		Return;
+	ElsIf Context.Form.FormName =
+		"Catalog.DigitalSignatureAndEncryptionKeysCertificates.Form.SelectSigningOrDecryptionCertificate"
+		And Not IsBlankString(Form.WarningTextOnOpen) Then
+		ShowMessageBox(, Form.WarningTextOnOpen);
 		Return;
 	EndIf;
 	

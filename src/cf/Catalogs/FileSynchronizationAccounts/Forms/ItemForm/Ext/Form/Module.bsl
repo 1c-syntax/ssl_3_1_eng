@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -121,12 +120,12 @@ Procedure CheckSettings(Command)
 	ClearMessages();
 	
 	If Object.Ref.IsEmpty() Or Modified Then
-		NotifyDescription = New CallbackDescription("CheckSettingsCompletion", ThisObject);
+		CallbackDescription = New CallbackDescription("CheckSettingsCompletion", ThisObject);
 		QueryText = NStr("en = 'To proceed with the settings validation, save the account data. Do you want to continue?'");
 		Buttons = New ValueList;
 		Buttons.Add("Continue", NStr("en = 'Continue'"));
 		Buttons.Add(DialogReturnCode.Cancel);
-		ShowQueryBox(NotifyDescription, QueryText, Buttons);
+		ShowQueryBox(CallbackDescription, QueryText, Buttons);
 		Return;
 	EndIf;
 	

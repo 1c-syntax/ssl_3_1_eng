@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -32,7 +31,7 @@ EndProcedure
 
 &AtClient
 Procedure OnOpen(Cancel)
-	AttachIdleHandler("FillInListOfCertificates", 0.1, True);
+	AttachIdleHandler("FillCertificatesListWaitHandler", 0.1, True);
 EndProcedure
 
 #EndRegion
@@ -40,27 +39,36 @@ EndProcedure
 #Region Private
 
 &AtClient
-Async Procedure FillInListOfCertificates()
+Procedure FillCertificatesListWaitHandler()
+	FillInListOfCertificates(False);
+EndProcedure
+
+&AtClient
+Procedure FillInListOfCertificates(Refresh)
+	
+	Certificates.Clear();
 	
 	Token = New Structure;
 	Token.Insert("Slot");
 	Token.Insert("SerialNumber");
+	Token.Insert("Presentation");
 	FillPropertyValues(Token, ThisObject);
 	
 	Items.GroupRefreshCertificates.Visible = True;
-	Result = Await DigitalSignatureClientLocalization.TokenCertificates(Token, Undefined, True);
+	DigitalSignatureClientLocalization.OnGettingCertificatesOnToken(New CallbackDescription("AfterGettingCertificateOnToken", ThisObject),
+		Token, True, Undefined, Refresh);
 	
-	ErrorText = "";
-	If Result.CheckCompleted Then
-		Errors = New Array;
-		PopulateCertificateListOnServer(Result.Certificates, Errors);
-		If Errors.Count() > 0 Then
-			ErrorText = StrConcat(Errors, Chars.LF);
-		EndIf;
-	Else
-		ErrorText = Result.Error;
+EndProcedure
+
+&AtClient
+Procedure AfterGettingCertificateOnToken(CertificatesArray, Context) Export
+
+	Errors = New Array;
+	PopulateCertificateListOnServer(CertificatesArray, Errors);
+	If Errors.Count() > 0 Then
+		ErrorText = StrConcat(Errors, Chars.LF);
 	EndIf;
-	
+		
 	If ValueIsFilled(ErrorText) Then
 		FormParameters = New Structure;
 		FormParameters.Insert("WarningTitle", NStr("en = 'Couldn''t read certificates stored on the token'"));
@@ -70,34 +78,37 @@ Async Procedure FillInListOfCertificates()
 	EndIf;
 	
 	Items.GroupRefreshCertificates.Visible = False;
-	
+
 EndProcedure
 
 &AtClient
 Procedure Refresh(Command)
-	FillInListOfCertificates()
+	FillInListOfCertificates(True);
 EndProcedure
 
 &AtServer
 Procedure PopulateCertificateListOnServer(CertificatesAsString, Errors)
-	
-	Certificates.Clear();
-	
+		
 	For Each Certificate In CertificatesAsString Do
 		
-		Certificate = StrReplace(Certificate, "-----BEGIN CERTIFICATE-----", "");
-		Certificate = StrReplace(Certificate, "-----END CERTIFICATE-----", "");
-		Certificate = StrReplace(Certificate, Chars.LF, "");
-		
-		Try
-			CertificateData = Base64Value(Certificate);
-		Except
-			Errors.Add(ErrorProcessing.BriefErrorDescription(ErrorInfo()));
-			Continue;
-		EndTry;
-
-		If TypeOf(CertificateData) <> Type("BinaryData") Then
-			Continue;
+		If TypeOf(Certificate) = Type("String") Then
+			
+			Certificate = StrReplace(Certificate, "-----BEGIN CERTIFICATE-----", "");
+			Certificate = StrReplace(Certificate, "-----END CERTIFICATE-----", "");
+			Certificate = StrReplace(Certificate, Chars.LF, "");
+			
+			Try
+				CertificateData = Base64Value(Certificate);
+			Except
+				Errors.Add(ErrorProcessing.BriefErrorDescription(ErrorInfo()));
+				Continue;
+			EndTry;
+			
+			If TypeOf(CertificateData) <> Type("BinaryData") Then
+				Continue;
+			EndIf;
+		Else
+			CertificateData = Certificate;
 		EndIf;
 
 		Try
@@ -131,7 +142,6 @@ Procedure CertificatesSelection(Item, RowSelected, Field, StandardProcessing)
 	Else
 		DigitalSignatureClient.OpenCertificate(CertificateRef);
 	EndIf;
-	
 	
 EndProcedure 
 

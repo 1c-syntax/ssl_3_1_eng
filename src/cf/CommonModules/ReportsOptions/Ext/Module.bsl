@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -1381,7 +1380,7 @@ EndProcedure
 // Gets options of the passed report and their presentations.
 //
 // Parameters:
-//  FullReportName - See MetadataObjectReport.FullName()
+//  FullReportName - See MetadataObjectReport.FullName()()
 //  InfoBaseUser - String - Name of the infobase user.
 //  ReportOptionTable - ValueTable - Table that stores report option data:
 //       * ObjectKey - String - Report key in format "Report.ReportName".
@@ -2183,6 +2182,7 @@ Function PredefinedReportsOptions(ReportsType = "BuiltIn", ConnectedToTheStorage
 	ReportsSubsystems = PlacingReportsToSubsystems();
 	StorageFlagCache = Undefined;
 	
+	MetadataObjectsDetails = New Array;
 	For Each ReportMetadata In Metadata.Reports Do 
 		If Not SeparatedDataUsageAvailable And ReportMetadata.ConfigurationExtension() <> Undefined Then
 			Continue;
@@ -2192,8 +2192,16 @@ Function PredefinedReportsOptions(ReportsType = "BuiltIn", ConnectedToTheStorage
 			And Not ReportAttachedToStorage(ReportMetadata, StorageFlagCache) Then
 			Continue;
 		EndIf;
+		MetadataObjectsDetails.Add(ReportMetadata);
+	EndDo;
+	
+	ReportsIDs = Common.MetadataObjectIDs(MetadataObjectsDetails);
+	
+	For Each ReportMetadata In MetadataObjectsDetails Do
 		
-		ReportRef = Common.MetadataObjectID(ReportMetadata);
+		FullReportName = ReportMetadata.FullName();
+		ReportRef = ReportsIDs.Get(FullReportName);
+		
 		ReportType = ReportByStringType(ReportRef);
 		If ReportsType <> Undefined And ReportsType <> ReportType Then
 			Continue;
@@ -2216,7 +2224,7 @@ Function PredefinedReportsOptions(ReportsType = "BuiltIn", ConnectedToTheStorage
 				DCSchema = ReportManager.GetTemplate(ReportMetadata.MainDataCompositionSchema.Name);
 			Except
 				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Cannot read the %1 report scheme:
+					NStr("en = 'Cannot read the schema of report ""%1"":
 						|%2'"), ReportMetadata.Name, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 				WriteToLog(EventLogLevel.Warning, ErrorText, ReportMetadata);
 			EndTry;
@@ -2297,7 +2305,7 @@ Function PredefinedReportsOptions(ReportsType = "BuiltIn", ConnectedToTheStorage
 		
 		// Process reports included in the AttachableReportsAndDataProcessors subsystem.
 		If HasAttachableCommands And AttachableReportsAndProcessorsComposition.Contains(ReportMetadata) Then
-			VenderSettings = ModuleAttachableCommands.AttachableObjectSettings(ReportMetadata.FullName());
+			VenderSettings = ModuleAttachableCommands.AttachableObjectSettings(FullReportName);
 			If VenderSettings <> Undefined Then
 				If VenderSettings.DefineFormSettings Then
 					DescriptionOfReport.DefineFormSettings = True;
@@ -8552,7 +8560,7 @@ Function UpdateReportOptionsFromFiles(FilesDetails) Export
 	For Each FileDetails In FilesDetails Do 
 		
 		ReportOptionDetails = ReportOptionDetails(FileDetails);
-		Ref = UpdateReportOptionByDetails(ReportOptionDetails); // @skip-check query-in-loop - По-объектная запись данных.
+		Ref = UpdateReportOptionByDetails(ReportOptionDetails); // @skip-check query-in-loop - 
 		ReportOptionDetails.Insert("Ref", Ref);
 		
 		ReportsOptionsDetails.Add(ReportOptionDetails);
@@ -8606,19 +8614,19 @@ EndFunction
 Function ReportOptionDetails(FileDetails)
 	
 	DirectoryName = CommonClientServer.AddLastPathSeparator(FileSystem.CreateTemporaryDirectory());
-	ArchiveFileName = GetTempFileName("zip"); // ACC:441 - The DeleteReportOptionDetailsFiles procedure deletes temporary files
+	ArchiveFileName_ = GetTempFileName("zip"); // ACC:441 - The DeleteReportOptionDetailsFiles procedure deletes temporary files
 	
 	BinaryData = GetFromTempStorage(FileDetails.Location); // BinaryData
-	BinaryData.Write(ArchiveFileName);
+	BinaryData.Write(ArchiveFileName_);
 	
-	Archive = New ZipFileReader(ArchiveFileName);
+	Archive = New ZipFileReader(ArchiveFileName_);
 	Archive.ExtractAll(DirectoryName);
 	
 	ReportOptionDetails = ReadReportOptionSettings(DirectoryName);
 	
 	If ValueIsFilled(ReportOptionDetails.ErrorDescription) Then 
 		
-		DeleteReportOptionDetailsFiles(DirectoryName, ArchiveFileName);
+		DeleteReportOptionDetailsFiles(DirectoryName, ArchiveFileName_);
 		Raise ReportOptionDetails.ErrorDescription;
 		
 	EndIf;
@@ -8637,7 +8645,7 @@ Function ReportOptionDetails(FileDetails)
 		
 	EndDo;
 	
-	DeleteReportOptionDetailsFiles(DirectoryName, ArchiveFileName);
+	DeleteReportOptionDetailsFiles(DirectoryName, ArchiveFileName_);
 	
 	Return ReportOptionDetails;
 	
@@ -9117,10 +9125,10 @@ Function ReportOptionDescriptionTemplate(DescriptionsOccupied, Val Description, 
 	
 EndFunction
 
-Procedure DeleteReportOptionDetailsFiles(DirectoryName, ArchiveFileName)
+Procedure DeleteReportOptionDetailsFiles(DirectoryName, ArchiveFileName_)
 	
 	FileSystem.DeleteTemporaryDirectory(DirectoryName);
-	FileSystem.DeleteTempFile(ArchiveFileName);
+	FileSystem.DeleteTempFile(ArchiveFileName_);
 	
 EndProcedure
 
@@ -9933,5 +9941,19 @@ Function ReportOptionsToShow() Export
 EndFunction
 
 #EndRegion
+
+// See StandardSubsystemsServer.WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode
+Procedure WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode(Methods) Export
+	
+	Methods.Insert("UpdateUserReportOptionsSearchIndex");
+	Methods.Insert("ConfigurationCommonDataNonexclusiveUpdate");
+	Methods.Insert("InternalUserNonexclusiveUpdate");
+	Methods.Insert("UpdatePredefinedReportOptionsSearchIndex");
+	Methods.Insert("ConfigurationSharedDataNonexclusiveUpdate");
+	Methods.Insert("FindReportOptionsForOutput", True);
+	Methods.Insert("GenerateReportInBackground", True);
+	Methods.Insert("FillPredefinedReportsOptionsPresentations", True);
+	
+EndProcedure
 
 #EndRegion

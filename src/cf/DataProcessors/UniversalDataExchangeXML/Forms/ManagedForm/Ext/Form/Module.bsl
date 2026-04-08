@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -82,8 +81,8 @@ Procedure OnOpen(Cancel)
 		
 		If Object.AutomaticDataImportSetup = 1 Then
 			
-			NotifyDescription = New CallbackDescription("OnOpenCompletion", ThisObject);
-			ShowQueryBox(NotifyDescription, NStr("en = 'Do you want to import data from the exchange file?'"), QuestionDialogMode.YesNo, , DialogReturnCode.Yes);
+			CallbackDescription = New CallbackDescription("OnOpenCompletion", ThisObject);
+			ShowQueryBox(CallbackDescription, NStr("en = 'Do you want to import data from the exchange file?'"), QuestionDialogMode.YesNo, , DialogReturnCode.Yes);
 			
 		Else
 			
@@ -289,8 +288,8 @@ Procedure AfterExistenceCheckRulesFileName(Exists, AdditionalParameters) Export
 		Return;
 	EndIf;
 	
-	NotifyDescription = New CallbackDescription("RulesFileNameOnChangeCompletion", ThisObject);
-	ShowQueryBox(NotifyDescription, NStr("en = 'Do you want to import data exchange rules?'"), QuestionDialogMode.YesNo, , DialogReturnCode.Yes);
+	CallbackDescription = New CallbackDescription("RulesFileNameOnChangeCompletion", ThisObject);
+	ShowQueryBox(CallbackDescription, NStr("en = 'Do you want to import data exchange rules?'"), QuestionDialogMode.YesNo, , DialogReturnCode.Yes);
 	
 EndProcedure
 
@@ -493,9 +492,9 @@ Procedure GetExchangeFileInfo(Command)
 	
 	If IsClient Then
 		
-		NotifyDescription = New CallbackDescription("GetExchangeFileInfoCompletion", ThisObject);
+		CallbackDescription = New CallbackDescription("GetExchangeFileInfoCompletion", ThisObject);
  
-		BeginPutFileToServer(NotifyDescription,,, FileAddress, 
+		BeginPutFileToServer(CallbackDescription,,, FileAddress, 
 			PreparedParametersOfFilePlacementDialog(), UUID);	
 		
 	Else
@@ -535,8 +534,8 @@ EndProcedure
 &AtClient
 Procedure DeletionDelete(Command)
 	
-	NotifyDescription = New CallbackDescription("DeletionDeleteCompletion", ThisObject);
-	ShowQueryBox(NotifyDescription, NStr("en = 'Do you want to delete the selected data from the infobase?'"), QuestionDialogMode.YesNo, , DialogReturnCode.No);
+	CallbackDescription = New CallbackDescription("DeletionDeleteCompletion", ThisObject);
+	ShowQueryBox(CallbackDescription, NStr("en = 'Do you want to delete the selected data from the infobase?'"), QuestionDialogMode.YesNo, , DialogReturnCode.No);
 	
 EndProcedure
 
@@ -645,9 +644,9 @@ Procedure ImportDebugSetup(Command)
 	
 	If IsClient Then
 		
-		NotifyDescription = New CallbackDescription("ImportDebugSetupCompletion", ThisObject);
+		CallbackDescription = New CallbackDescription("ImportDebugSetupCompletion", ThisObject);
 
-		BeginPutFileToServer(NotifyDescription,,, ExchangeFileAddressInStorage, 
+		BeginPutFileToServer(CallbackDescription,,, ExchangeFileAddressInStorage, 
 			PreparedParametersOfFilePlacementDialog(), UUID);
 		
 	Else
@@ -696,9 +695,9 @@ Procedure ReadExchangeRules(Command)
 			RuleFileAddressInStorage = "";
 		EndIf;
 		
-		NotifyDescription = New CallbackDescription("ReadExchangeRulesCompletion", ThisObject); 
+		CallbackDescription = New CallbackDescription("ReadExchangeRulesCompletion", ThisObject); 
 				
-		BeginPutFileToServer(NotifyDescription,,, RuleFileAddressInStorage, 
+		BeginPutFileToServer(CallbackDescription,,, RuleFileAddressInStorage, 
 			PreparedParametersOfFilePlacementDialog(), UUID);
 		
 	Else
@@ -734,12 +733,12 @@ Procedure OpenInApplication(FileName, StandardProcessing = False)
 	
 	AdditionalParameters = New Structure();
 	AdditionalParameters.Insert("FileName", FileName);
-	AdditionalParameters.Insert("NotifyDescription", New CallbackDescription);
+	AdditionalParameters.Insert("CallbackDescription", New CallbackDescription);
 	
 	File = New File(FileName);
 	
-	NotifyDescription = New CallbackDescription("AfterDetermineFileExistence", ThisObject, AdditionalParameters);
-	File.BeginCheckingExistence(NotifyDescription);
+	CallbackDescription = New CallbackDescription("AfterDetermineFileExistence", ThisObject, AdditionalParameters);
+	File.BeginCheckingExistence(CallbackDescription);
 	
 EndProcedure
 
@@ -748,7 +747,7 @@ EndProcedure
 Procedure AfterDetermineFileExistence(Exists, AdditionalParameters) Export
 	
 	If Exists Then
-		BeginRunningApplication(AdditionalParameters.NotifyDescription, AdditionalParameters.FileName);
+		BeginRunningApplication(AdditionalParameters.CallbackDescription, AdditionalParameters.FileName);
 	EndIf;
 	
 EndProcedure
@@ -1373,9 +1372,9 @@ Procedure ExecuteImportFromForm()
 	
 	If IsClient Then
 		
-		NotifyDescription = New CallbackDescription("ExecuteImportFromFormCompletion", ThisObject);
+		CallbackDescription = New CallbackDescription("ExecuteImportFromFormCompletion", ThisObject);
 
-		BeginPutFileToServer(NotifyDescription,,, FileAddress, 
+		BeginPutFileToServer(CallbackDescription,,, FileAddress, 
 			PreparedParametersOfFilePlacementDialog(), UUID);
 		
 	Else
@@ -2048,16 +2047,16 @@ Procedure PutImportRulesFileInStorage()
 	
 	FileAddress = "";
 	
-	NotifyDescription = New CallbackDescription("PutImportRulesFileInStorageCompletion", ThisObject); 
+	CallbackDescription = New CallbackDescription("PutImportRulesFileInStorageCompletion", ThisObject); 
 	
 	If ThroughStorage Then
 				
-		BeginPutFileToServer(NotifyDescription,,, FileAddress, 
+		BeginPutFileToServer(CallbackDescription,,, FileAddress, 
 			PreparedParametersOfFilePlacementDialog(), UUID);
 		
 	Else 
 		
-		BeginPutFileToServer(NotifyDescription,,, FileAddress, NameOfImportRulesFile, UUID);
+		BeginPutFileToServer(CallbackDescription,,, FileAddress, NameOfImportRulesFile, UUID);
 		
 	EndIf;
 	

@@ -523,7 +523,7 @@
 			</Attribute>
 			<Attribute uuid="8e462c0e-c67a-45e9-9871-1f976b01632d">
 				<Properties>
-					<Name>DisableReason</Name>
+					<Name>TurnedOffReason</Name>
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>

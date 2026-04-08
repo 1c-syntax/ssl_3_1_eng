@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -101,6 +100,26 @@ Procedure PutToArchive(InfobaseNode, PathToSourceFile, Settings)
 		FileExtention = "xml";
 	EndIf;
 	
+	HashAmountOfExchangeMessages = "";
+	
+	If FileExtention = "zip" Then
+		TempDirectoryName = GetTempFileName("");
+		
+		If DataExchangeServer.UnpackZipFile(PathToSourceFile, TempDirectoryName) Then
+			UnpackedFileList = FindFiles(TempDirectoryName, GetAllFilesMask(), True);
+			
+			If UnpackedFileList.Count() Then
+				BinaryDataExchangeMessages = New BinaryData(UnpackedFileList[0].FullName);
+				HashAmountOfExchangeMessages = DataExchangeServer.HashAmountOfExchangeMessage(BinaryDataExchangeMessages);
+			EndIf;
+		EndIf; 
+		
+		DeleteFiles(TempDirectoryName);
+	Else
+		BinaryDataExchangeMessages = New BinaryData(PathToSourceFile);
+		HashAmountOfExchangeMessages = DataExchangeServer.HashAmountOfExchangeMessage(BinaryDataExchangeMessages);
+	EndIf;
+	
 	DeleteFileAfterPut = False;
 	If Settings.ShouldCompressFiles And FileExtention <> "zip" Then
 		
@@ -132,6 +151,7 @@ Procedure PutToArchive(InfobaseNode, PathToSourceFile, Settings)
 	NewArchive.FileSize = FileSize;
 	NewArchive.FileName = FileNameInArchive;
 	NewArchive.FileExtention = FileExtention;
+	NewArchive.TheHashSumOfTheFile = HashAmountOfExchangeMessages;
 	
 	If Settings.StoreOnDisk Then
 		
@@ -161,7 +181,9 @@ Procedure PutToArchive(InfobaseNode, PathToSourceFile, Settings)
 			InformationRegisters.DataExchangeResults.AddAnEntryAboutTheResultsOfTheExchange(WriteParameters);
 	
 		Else
-			NewArchive.Storage = New ValueStorage(New BinaryData(FileName), New Deflation(9));
+			
+			NewArchive.Storage = New ValueStorage(New BinaryData(FileName));
+			
 		EndIf;
 		
 	EndIf;

@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -70,23 +69,58 @@ EndFunction
 //
 Function GeneratePrintForms(ObjectsArray, Commands) Export
 	
+	Result = New Structure;
+	Result.Insert("PrintObjects");
+	Result.Insert("PrintFormsCollection");
+	Result.Insert("OutputParameters");
+	
 	PrintFormsCollection = New ValueTable;
 	For Each ColumnName In PrintManagementClientServer.PrintFormsCollectionFieldsNames() Do
 		PrintFormsCollection.Columns.Add(ColumnName);
 	EndDo;
 	
+	PrintObjects = New ValueList;
+	
 	For Each PrintCommand In Commands Do
-		Result = PrintManagement.GeneratePrintForms(
-			PrintCommand.PrintManager,
-			PrintCommand.Id,
-			ObjectsArray,
-			PrintCommand.AdditionalParameters);
+		ThisIsExternalPrintingForm = (PrintCommand.PrintManager = "StandardSubsystems.AdditionalReportsAndDataProcessors");
 		
-		CommonClientServer.SupplementTable(Result.PrintFormsCollection, PrintFormsCollection);
-		PrintManagement.OnExecutePrintCommand(ObjectsArray, PrintCommand, PrintFormsCollection);
+		If ThisIsExternalPrintingForm Then
+			Source = PrintCommand.AdditionalParameters.Ref;
+			PrintForms = PrintManagement.GenerateExternalPrintForm(Source, PrintCommand.Id, ObjectsArray, PrintObjects);
+		Else
+			PrintForms = PrintManagement.GeneratePrintForms(
+				PrintCommand.PrintManager,
+				PrintCommand.Id,
+				ObjectsArray,
+				PrintCommand.AdditionalParameters,
+				,
+				,
+				PrintObjects);
+		EndIf;
+		
+		PrintObjects = PrintForms.PrintObjects;
+		CommonClientServer.SupplementTable(PrintForms.PrintFormsCollection, PrintFormsCollection);
+		If Not ThisIsExternalPrintingForm Then
+			PrintManagement.OnExecutePrintCommand(ObjectsArray, PrintCommand, PrintFormsCollection);
+		EndIf;
 	EndDo;
 	
-	Return Common.ValueTableToArray(PrintFormsCollection);
+	Result.PrintObjects = PrintObjects;
+	Result.PrintFormsCollection = Common.ValueTableToArray(PrintFormsCollection);
+	
+	OutputParameters = PrintManagement.PrepareOutputParametersStructure();
+	SendOptions = OutputParameters.SendOptions;
+	SendOptions.Recipient = PrintForms.OutputParameters.SendOptions.Recipient;
+	
+	If PrintFormsCollection.Count() = 1 Then
+		SendOptions.Subject = PrintFormsCollection[0].TemplateSynonym;
+	Else 
+		SendOptions.Subject = NStr("en = 'Documents'");
+	EndIf;
+	
+	Result.OutputParameters = OutputParameters;
+	
+	Return Result;
 	
 EndFunction
 

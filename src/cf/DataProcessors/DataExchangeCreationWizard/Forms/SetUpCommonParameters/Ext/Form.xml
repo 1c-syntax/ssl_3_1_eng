@@ -28,15 +28,15 @@
 			<PagesRepresentation>None</PagesRepresentation>
 			<ExtendedTooltip name="PanelMainExtendedTooltip" id="2"/>
 			<ChildItems>
-				<Page name="GettingParametersPageIsCorresponding" id="35">
+				<Page name="GetCorrespondentParametersPage" id="35">
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Page Get peer's parameters</v8:content>
+							<v8:content>Get peer parameters page</v8:content>
 						</v8:item>
 					</Title>
 					<Group>AlwaysHorizontal</Group>
-					<ExtendedTooltip name="GettingParametersPageIsCorrespondingExtendedTooltip" id="36"/>
+					<ExtendedTooltip name="GetCorrespondentParametersPageExtendedTooltip" id="36"/>
 					<ChildItems>
 						<PictureDecoration name="ConnectionCheckOnlineWaitPictureDecoration" id="43">
 							<Title formatted="false">

@@ -1,18 +1,17 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Public
 
-#Region ForCallsFromOtherSubsystems
+#Region InterfaceImplementation
 
 // StandardSubsystems.AccessManagement
 
@@ -68,13 +67,13 @@ Procedure BeforeExportObject(Container, ObjectExportManager, Serializer, Object,
 		EndIf;
 		
 		Type = TypeOf(Record.VersionAuthor);
-		Var_Export = TypesToExport[Type];
-		If Var_Export = Undefined Then
-			Var_Export = Not Common.IsExchangePlan(Record.VersionAuthor.Metadata());
-			TypesToExport.Insert(Type, Var_Export);
+		ToExport = TypesToExport[Type];
+		If ToExport = Undefined Then
+			ToExport = Not Common.IsExchangePlan(Record.VersionAuthor.Metadata());
+			TypesToExport.Insert(Type, ToExport);
 		EndIf;
 		
-		If Not Var_Export Then
+		If Not ToExport Then
 			Record.VersionAuthor = Undefined;
 		EndIf;
 	EndDo;
@@ -122,7 +121,7 @@ Procedure DeleteVersionAuthorInfo(Val VersionAuthor) Export
 			Break;
 		EndIf;
 		
-		Selection = Query.Execute().Select(); // @skip-check query-in-loop
+		Selection = Query.Execute().Select(); // @skip-check query-in-loop - Batch processing of a large amount of data.
 	EndDo;
 	
 EndProcedure
@@ -215,15 +214,15 @@ Procedure GenerateReportOnChanges(ReportParameters, ResultAddress) Export
 				ObjectVersion.TabularSections[TableName].Copy();
 				
 			TableVersionRef = TabularSectionChangeTable[TableName][CurrentVersionColumnName];// ValueTable
-			TableVersionRef.Columns.Add("VersioningRowID");
+			TableVersionRef.Columns.Add(NameOfLineIDColumn());
 			For Each TableRow In TableVersionRef Do
-				TableRow.VersioningRowID = TableRow.LineNumber;
+				TableRow[NameOfLineIDColumn()] = TableRow.LineNumber;
 			EndDo;
 			
-			TableVersionRef.Columns.Add("VersioningModification");
-			TableVersionRef.FillValues(False, "VersioningModification");
+			TableVersionRef.Columns.Add(NameOfModificationColumn());
+			TableVersionRef.FillValues(False, NameOfModificationColumn());
 			
-			TableVersionRef.Columns.Add("VersioningChanges", New TypeDescription("Array"));
+			TableVersionRef.Columns.Add(NameOfChangesColumn(), New TypeDescription("Array"));
 			
 			TableWithChanges = TabularSectionChanges1.Get(TableName);
 			If TableWithChanges <> Undefined Then
@@ -233,47 +232,47 @@ Procedure GenerateReportOnChanges(ReportParameters, ResultAddress) Export
 				
 				For Each TSItem In ModifiedRows Do
 					VCTRow = TabularSectionChangeTable[TableName][PreviousVersionNumber][TSItem.IndexInTS0-1];
-					TableVersionRef[TSItem.IndexInTS1-1].VersioningRowID = VCTRow.VersioningRowID;
-					TableVersionRef[TSItem.IndexInTS1-1].VersioningModification = "And";
-					TableVersionRef[TSItem.IndexInTS1-1].VersioningChanges = TSItem.Differences1;
+					TableVersionRef[TSItem.IndexInTS1-1][NameOfLineIDColumn()] = VCTRow[NameOfLineIDColumn()];
+					TableVersionRef[TSItem.IndexInTS1-1][NameOfModificationColumn()] = "And";
+					TableVersionRef[TSItem.IndexInTS1-1][NameOfChangesColumn()] = TSItem.Differences1;
 				EndDo;
 				
 				For Each TSItem In AddedRows Do
-					TableVersionRef[TSItem.IndexInTS1-1].VersioningRowID = IncreaseCounter(counterUniqueID, TableName);
-					TableVersionRef[TSItem.IndexInTS1-1].VersioningModification = "D";
+					TableVersionRef[TSItem.IndexInTS1-1][NameOfLineIDColumn()] = IncreaseCounter(counterUniqueID, TableName);
+					TableVersionRef[TSItem.IndexInTS1-1][NameOfModificationColumn()] = "D";
 				EndDo;
 				
 				// UniqueID must be assigned for each item, for comparison with previous versions.
 				For IndexOf = 1 To TableVersionRef.Count() Do
-					If TableVersionRef[IndexOf-1].VersioningRowID = Undefined Then
+					If TableVersionRef[IndexOf-1][NameOfLineIDColumn()] = Undefined Then
 						// Found a row that must be looked up for mapping in the previous table.
 						TSRow = TableVersionRef[IndexOf-1];
 						
 						FilterParameters = New Structure;
 						CommonColumns = FindCommonColumns(TableVersionRef, TabularSectionChangeTable[TableName][PreviousVersionNumber]);
 						For Each ColumnName In CommonColumns Do
-							If (ColumnName <> "VersioningRowID") And (ColumnName <> "VersioningModification") Then
+							If (ColumnName <> NameOfLineIDColumn()) And (ColumnName <> NameOfModificationColumn()) Then
 								FilterParameters.Insert(ColumnName, TSRow[ColumnName]);
 							EndIf;
 						EndDo;
 						
 						PreviousTSRowArray = TabularSectionChangeTable[TableName][PreviousVersionNumber].FindRows(FilterParameters);
 						
-						FilterParameters.Insert("VersioningModification", Undefined);
+						FilterParameters.Insert(NameOfModificationColumn(), Undefined);
 						CurrentTSRowArray = TableVersionRef.FindRows(FilterParameters);
 						
 						For IDByTSCurrent = 1 To CurrentTSRowArray.Count() Do
 							If IDByTSCurrent <= PreviousTSRowArray.Count() Then
-								CurrentTSRowArray[IDByTSCurrent-1].VersioningRowID = PreviousTSRowArray[IDByTSCurrent-1].VersioningRowID;
+								CurrentTSRowArray[IDByTSCurrent-1][NameOfLineIDColumn()] = PreviousTSRowArray[IDByTSCurrent-1][NameOfLineIDColumn()];
 							EndIf;
-							CurrentTSRowArray[IDByTSCurrent-1].VersioningModification = False;
+							CurrentTSRowArray[IDByTSCurrent-1][NameOfModificationColumn()] = False;
 						EndDo;
 					EndIf;
 				EndDo;
 				For Each TSItem In DeletedRows Do
 					RowImaginary = TableVersionRef.Add();
-					RowImaginary.VersioningRowID = TabularSectionChangeTable[TableName][PreviousVersionNumber][TSItem.IndexInTS0-1].VersioningRowID;
-					RowImaginary.VersioningModification = "U";
+					RowImaginary[NameOfLineIDColumn()] = TabularSectionChangeTable[TableName][PreviousVersionNumber][TSItem.IndexInTS0-1][NameOfLineIDColumn()];
+					RowImaginary[NameOfModificationColumn()] = "U";
 				EndDo;
 			EndIf;
 		EndDo;
@@ -340,7 +339,7 @@ Procedure OutputAttributeChanges(ReportTS, ChangesTableBankingDetails_, VersionN
 	ReportTS.StartRowGroup("AttributeGroup");
 	
 	For Each ModAttributeItem In ChangesTableBankingDetails_ Do
-		If ModAttributeItem.VersioningModification = True Then
+		If ModAttributeItem[NameOfModificationColumn()] = True Then
 			
 			DescriptionDetailsStructure = ObjectsVersioning.DisplayedAttributeDescription(ObjectReference, ModAttributeItem.Description);
 			If Not DescriptionDetailsStructure.OutputAttribute Then
@@ -415,7 +414,6 @@ EndProcedure
 Procedure OutputTabularSectionChanges(ReportTS, TabularSectionChangeTable, VersionNumberArray,
 	counterUniqueID, CommonTemplate, ObjectReference)
 	
-	InternalColumnPrefix = "Versioning_";
 	TabularSectionAreaHeaderDisplayed = False;
 	
 	EmptyRowTemplate = CommonTemplate.GetArea("EmptyRow");
@@ -455,15 +453,15 @@ Procedure OutputTabularSectionChanges(ReportTS, TabularSectionChangeTable, Versi
 				CurrentVersionTS = CurrentTSVersions[CurrentTSVersionColumn];
 				
 				FoundRow = Undefined;
-				If CurrentVersionTS.Columns.Find("VersioningRowID") <> Undefined Then
-					FoundRow = CurrentVersionTS.Find(CurrCounterUUID, "VersioningRowID");
+				If CurrentVersionTS.Columns.Find(NameOfLineIDColumn()) <> Undefined Then
+					FoundRow = CurrentVersionTS.Find(CurrCounterUUID, NameOfLineIDColumn());
 				EndIf;
 				
 				If FoundRow <> Undefined Then
-					If (FoundRow.VersioningModification <> Undefined) Then
-						If (TypeOf(FoundRow.VersioningModification) = Type("String")
-							Or (TypeOf(FoundRow.VersioningModification) = Type("Boolean")
-							      And FoundRow.VersioningModification = True)) Then
+					If (FoundRow[NameOfModificationColumn()] <> Undefined) Then
+						If (TypeOf(FoundRow[NameOfModificationColumn()]) = Type("String")
+							Or (TypeOf(FoundRow[NameOfModificationColumn()]) = Type("Boolean")
+							      And FoundRow[NameOfModificationColumn()] = True)) Then
 							RowModified = True;
 						EndIf;
 					EndIf;
@@ -489,7 +487,7 @@ Procedure OutputTabularSectionChanges(ReportTS, TabularSectionChangeTable, Versi
 				CurrentTSVersionColumn = "Version" + Format(VersionNumberArray[IndexByVersions-1], "NG=0");
 				// Tabular section of the current version (table of modified values).
 				CurrentVersionTS = CurrentTSVersions[CurrentTSVersionColumn];// ValueTable
-				FoundRow = CurrentVersionTS.Find(CurrCounterUUID, "VersioningRowID");
+				FoundRow = CurrentVersionTS.Find(CurrCounterUUID, NameOfLineIDColumn());
 				
 				// Changed row found in a version (this change is possibly the latest).
 				If FoundRow <> Undefined Then
@@ -513,7 +511,7 @@ Procedure OutputTabularSectionChanges(ReportTS, TabularSectionChangeTable, Versi
 						ReportTS.Put(EmptyRowTemplate);
 					EndIf;
 					
-					Modification = FoundRow.VersioningModification;
+					Modification = FoundRow[NameOfModificationColumn()];
 					
 					If UUIDStringChanged = False Then
 						UUIDStringChanged = True;
@@ -529,7 +527,7 @@ Procedure OutputTabularSectionChanges(ReportTS, TabularSectionChangeTable, Versi
 						EndIf;
 						FillArray = New Array;
 						For Each Column In CurrentVersionTS.Columns Do
-							If StrFind(Column.Name, InternalColumnPrefix) = 1 Then
+							If StrFind(Column.Name, InternalColumnPrefix()) = 1 Then
 								Continue;
 							EndIf;
 							AttributeRepresentation = Column.Name;
@@ -567,12 +565,13 @@ Procedure OutputTabularSectionChanges(ReportTS, TabularSectionChangeTable, Versi
 					// Filling the next changed table row.
 					FillArray = New ValueList;
 					For Each Column In CurrentVersionTS.Columns Do
-						If StrFind(Column.Name, InternalColumnPrefix) = 1 Then
+						If StrFind(Column.Name, InternalColumnPrefix()) = 1 Then
 							Continue;
 						EndIf;
 						
 						Presentation = String(FoundRow[Column.Name]);
-						FillArray.Add(FoundRow["VersioningChanges"].Find(Column.Name) <> Undefined, Presentation);
+						NamesOfColumnsWithChanges = FoundRow[NameOfChangesColumn()]; // Array
+						FillArray.Add(NamesOfColumnsWithChanges.Find(Column.Name) <> Undefined, Presentation);
 					EndDo;
 					
 					If TypeOf(Modification) = Type("Boolean") Then
@@ -937,8 +936,8 @@ Procedure PrepareAttributeChangeTableColumns(ValueTable,
 	ValueTable = New ValueTable;
 	
 	ValueTable.Columns.Add("Description");
-	ValueTable.Columns.Add("VersioningModification");
-	ValueTable.Columns.Add("VersioningValueType"); // Expected value type.
+	ValueTable.Columns.Add(NameOfModificationColumn());
+	ValueTable.Columns.Add(NameOfValueTypeColumn()); // Expected value type.
 	
 	For IndexOf = 1 To VersionNumberArray.Count() Do
 		ValueTable.Columns.Add("Version" + Format(VersionNumberArray[IndexOf-1], "NG=0"));
@@ -1107,8 +1106,8 @@ Function CountInitialAttributeAndTabularSectionValues(AttributesTable, TableTS, 
 		NewRow = AttributesTable.Add();
 		NewRow[Column] = New Structure("ChangeKind, Value", "And", ValueTableRow);
 		NewRow.Description = ValueTableRow.AttributeDescription;
-		NewRow.VersioningModification = False;
-		NewRow.VersioningValueType = ValueTableRow.AttributeType;
+		NewRow[NameOfModificationColumn()] = False;
+		NewRow[NameOfValueTypeColumn()] = ValueTableRow.AttributeType;
 		
 	EndDo;
 	
@@ -1120,13 +1119,13 @@ Function CountInitialAttributeAndTabularSectionValues(AttributesTable, TableTS, 
 		
 		CurrentVT = TableTS[TSItem.Key]["Version" + Format(JuniorObjectVersion, "NG=0")];// ValueTable
 		
-		CurrentVT.Columns.Add("VersioningRowID");
-		CurrentVT.Columns.Add("VersioningModification");
-		CurrentVT.Columns.Add("VersioningChanges", New TypeDescription("Array"));
+		CurrentVT.Columns.Add(NameOfLineIDColumn());
+		CurrentVT.Columns.Add(NameOfModificationColumn());
+		CurrentVT.Columns.Add(NameOfChangesColumn(), New TypeDescription("Array"));
 		
 		For IndexOf = 1 To CurrentVT.Count() Do
-			CurrentVT[IndexOf-1].VersioningRowID = IndexOf;
-			CurrentVT[IndexOf-1].VersioningModification = False;
+			CurrentVT[IndexOf-1][InternalColumnPrefix() + "LineID"] = IndexOf;
+			CurrentVT[IndexOf-1][InternalColumnPrefix() + "Modification"] = False;
 		EndDo;
 	
 	EndDo;
@@ -1203,7 +1202,7 @@ Function CalculateChangedAttributeCount(ChangesTableBankingDetails_, VersionNumb
 	Result = 0;
 	
 	For Each VTItem1 In ChangesTableBankingDetails_ Do
-		If VTItem1.VersioningModification <> Undefined And VTItem1.VersioningModification = True Then
+		If VTItem1[NameOfModificationColumn()] <> Undefined And VTItem1[NameOfModificationColumn()] = True Then
 			Result = Result + 1;
 		EndIf;
 	EndDo;
@@ -1257,7 +1256,7 @@ Procedure FillAttributeChangingCharacteristic(SingleAttributeChangeTable,
 		EndIf;
 		
 		AttributeChange[CurrentVersionColumnName] = ChangeParameters;
-		AttributeChange.VersioningModification = True;
+		AttributeChange[NameOfModificationColumn()] = True;
 	EndDo;
 	
 EndProcedure
@@ -1796,7 +1795,7 @@ Procedure RemovePreviousExchangeWarningsByType(ObjectVersionInfo, AcceptableType
 			
 		EndIf;
 		
-		Selection = Query.Execute().Select(); // @skip-check query-in-loop
+		Selection = Query.Execute().Select(); // @skip-check query-in-loop - Batch processing of a large amount of data.
 		
 	EndDo;
 	
@@ -1839,9 +1838,46 @@ Procedure DeletePreviousWarningExchangesByComment(ObjectVersionInfo)
 			
 		EndIf;
 		
-		Selection = Query.Execute().Select(); // @skip-check query-in-loop
+		Selection = Query.Execute().Select(); // @skip-check query-in-loop - Batch processing of a large amount of data.
 		
 	EndDo;
+	
+EndProcedure
+
+Function InternalColumnPrefix()
+	
+	Return "Versioning_";
+	
+EndFunction
+
+Function NameOfLineIDColumn()
+
+	Return InternalColumnPrefix() + "LineID";
+
+EndFunction
+
+Function NameOfModificationColumn()
+
+	Return InternalColumnPrefix() + "Modification";
+
+EndFunction
+
+Function NameOfChangesColumn()
+
+	Return InternalColumnPrefix() + "Changes";
+
+EndFunction
+
+Function NameOfValueTypeColumn()
+
+	Return InternalColumnPrefix() + "ValueType";
+
+EndFunction
+
+// See StandardSubsystemsServer.WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode
+Procedure WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode(Methods) Export
+	
+	Methods.Insert("GenerateReportOnChanges", True);
 	
 EndProcedure
 

@@ -2547,7 +2547,7 @@
 						</v8:NumberQualifiers>
 					</Type>
 				</Column>
-				<Column name="ProcessedItemsCount" id="2">
+				<Column name="ProcessedItemsCount_SSLyf" id="2">
 					<Type>
 						<v8:Type>xs:decimal</v8:Type>
 						<v8:NumberQualifiers>
@@ -2557,7 +2557,7 @@
 						</v8:NumberQualifiers>
 					</Type>
 				</Column>
-				<Column name="DeletedItemsCount" id="3">
+				<Column name="DeletedItemsCount_SSLyf" id="3">
 					<Type>
 						<v8:Type>xs:decimal</v8:Type>
 						<v8:NumberQualifiers>
@@ -2796,7 +2796,7 @@
 					<v8:content>Show or hide details.</v8:content>
 				</v8:item>
 			</ToolTip>
-			<Action>More</Action>
+			<Action>ShowMoreDetails</Action>
 		</Command>
 	</Commands>
 </Form>

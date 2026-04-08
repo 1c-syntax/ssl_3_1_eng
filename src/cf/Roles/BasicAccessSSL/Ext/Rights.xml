@@ -430,6 +430,17 @@ ReportsOptions WHERE (ReportsOptions.User = FALSE
 		</right>
 	</object>
 	<object>
+		<name>Constant.TextInformingUserAboutUnavailabilityOfFileInArchive</name>
+		<right>
+			<name>Read</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>View</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
 		<name>InformationRegister.UserGroupsHierarchy</name>
 		<right>
 			<name>Read</name>
@@ -506,6 +517,33 @@ ReportsOptions WHERE (ReportsOptions.User = FALSE
 		<name>InformationRegister.UseSuppliedAdditionalReportsAndProcessorsInDataAreas</name>
 		<right>
 			<name>Read</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
+		<name>Configuration.StandardSubsystemsLibrary</name>
+		<right>
+			<name>MainWindowModeNormal</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>MainWindowModeWorkplace</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>MainWindowModeEmbeddedWorkplace</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>MainWindowModeFullscreenWorkplace</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>MainWindowModeKiosk</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>AnalyticsSystemClient</name>
 			<value>true</value>
 		</right>
 	</object>
@@ -1323,21 +1361,6 @@ WHERE User = &amp;AuthorizedUser
 		</right>
 	</object>
 	<object>
-		<name>Catalog.DigitalSignatureAndEncryptionKeysCertificates</name>
-		<right>
-			<name>Read</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>View</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>InputByString</name>
-			<value>true</value>
-		</right>
-	</object>
-	<object>
 		<name>Constant.ConfigurationUpdateStatus</name>
 		<right>
 			<name>Read</name>
@@ -1744,17 +1767,6 @@ WHERE User = &amp;AuthorizedUser
 		<name>Constant.UseSecurityProfiles</name>
 		<right>
 			<name>Read</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>View</name>
-			<value>true</value>
-		</right>
-	</object>
-	<object>
-		<name>Report.DigitalSignatureCertificates</name>
-		<right>
-			<name>Use</name>
 			<value>true</value>
 		</right>
 		<right>
@@ -2408,33 +2420,6 @@ WHERE User = &amp;AuthorizedUser
 		</right>
 		<right>
 			<name>Edit</name>
-			<value>true</value>
-		</right>
-	</object>
-	<object>
-		<name>Configuration.StandardSubsystemsLibrary</name>
-		<right>
-			<name>MainWindowModeNormal</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>MainWindowModeWorkplace</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>MainWindowModeEmbeddedWorkplace</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>MainWindowModeFullscreenWorkplace</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>MainWindowModeKiosk</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>AnalyticsSystemClient</name>
 			<value>true</value>
 		</right>
 	</object>

@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Variables
@@ -34,6 +33,10 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If Object.Ref.IsEmpty() Then
 		Object.FillOrder = FindMaxOrder() + 1;
+
+		DisplayingWarning = WarningOnEditRepresentation.DontShow;
+		Items.FilesStorageMethod.WarningOnEditRepresentation		= DisplayingWarning;
+		Items.NameOfBinaryDataStore.WarningOnEditRepresentation	= DisplayingWarning;
 	Else
 		
 		Items.FullPathLinux.WarningOnEditRepresentation
@@ -70,7 +73,13 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	// End StandardSubsystems.AttachableCommands
 	
 	Items.FormCheckVolumeIntegrity.Visible = Not Common.SubsystemExists("StandardSubsystems.AttachableCommands")
+
 		Or Not Common.SubsystemExists("StandardSubsystems.ReportsOptions") Or Not Common.SeparatedDataUsageAvailable();
+
+	WorkingWithServerFileArchive.FileStorageMethodFillSelectionList(Items.FilesStorageMethod.ChoiceList, Object.TypeOfFileStorageVolume);
+	FillInSelectionListOfBinaryDataStorageNames(Items.NameOfBinaryDataStore.ChoiceList);
+	RefreshVisibilityAtServer();
+	RefreshFormTitle();
 	
 EndProcedure
 
@@ -128,6 +137,13 @@ Procedure AfterWrite(WriteParameters)
 		Close();
 	EndIf;
 	
+EndProcedure
+
+&AtServer
+Procedure AfterWriteAtServer(CurrentObject, WriteParameters)
+
+	RefreshFormTitle();
+
 EndProcedure
 
 &AtServer
@@ -198,6 +214,13 @@ Procedure FullPathLinuxOnChange(Item)
 	
 EndProcedure
 
+&AtClient
+Procedure FilesStorageMethodOnChange(Item)
+
+	VisibilityOfAttributesDependsOnWayFilesAreStored = GetVisibilityOfAttributesFromFileStorageMethod(Object.FilesStorageMethod);
+	WorkingWithClientServerFileArchive.UpdateVisibilityOfAttributesOfFileStorageVolume(ThisObject, VisibilityOfAttributesDependsOnWayFilesAreStored);
+
+EndProcedure
 #EndRegion
 
 #Region FormCommandsEventHandlers
@@ -211,7 +234,12 @@ EndProcedure
 
 &AtClient
 Procedure CheckVolumeIntegrity(Command)
-	
+
+	If Not ThisIsStorageVolumeOnDisks(Object.Ref) Then
+		ShowMessageBox(,NStr("en = 'Integrity check is only supported for volumes that store files in network directories'"));
+		Return;
+	EndIf;	
+
 	If Not CheckFilling() Then
 		Return;
 	EndIf;
@@ -229,6 +257,12 @@ EndProcedure
 
 &AtClient
 Procedure DeleteUnnecessaryFiles(Command)
+
+	If Not ThisIsStorageVolumeOnDisks(Object.Ref) Then
+		ShowMessageBox(,NStr("en = 'File clean-up is only supported for volumes that store files in network directories'"));
+		Return;
+	EndIf;	
+
 	OpeningParameters = New Structure("FileStorageVolume", Object.Ref);
 	OpenForm("Catalog.FileStorageVolumes.Form.DeleteUnnecessaryFilesFromVolume", OpeningParameters, ThisObject);
 EndProcedure
@@ -299,14 +333,18 @@ EndProcedure
 // Finds maximum order among the volumes.
 &AtServer
 Function FindMaxOrder()
-	
+
 	Query = New Query;
 	Query.Text =
 	"SELECT
 	|	MAX(Volumes.FillOrder) AS MaxNumber
 	|FROM
-	|	Catalog.FileStorageVolumes AS Volumes";
-	
+	|	Catalog.FileStorageVolumes AS Volumes
+	|WHERE
+	|	Volumes.TypeOfFileStorageVolume = &TypeOfFileStorageVolume";
+
+	Query.SetParameter("TypeOfFileStorageVolume", Object.TypeOfFileStorageVolume);
+
 	Selection = Query.Execute().Select();
 	If Selection.Next() Then
 		If Selection.MaxNumber = Null Then
@@ -315,9 +353,9 @@ Function FindMaxOrder()
 			Return Number(Selection.MaxNumber);
 		EndIf;
 	EndIf;
-	
+
 	Return 0;
-	
+
 EndFunction
 
 &AtClient
@@ -381,6 +419,72 @@ EndProcedure
 &AtServer
 Procedure WriteAtServer()
 	Write();
+EndProcedure
+
+&AtServer
+Procedure RefreshVisibilityAtServer()
+
+	GroupVisibilityFileStorageMethod = WorkingWithServerFileArchive.BinaryDataStoresAreAvailable();
+
+	Items.FilesStorageMethodGroup.Visible = GroupVisibilityFileStorageMethod;
+
+	If GroupVisibilityFileStorageMethod Then
+
+		VisibilityOfAttributesDependsOnWayFilesAreStored = GetVisibilityOfAttributesFromFileStorageMethod(Object.FilesStorageMethod);
+
+		WorkingWithClientServerFileArchive.UpdateVisibilityOfAttributesOfFileStorageVolume(ThisObject, VisibilityOfAttributesDependsOnWayFilesAreStored);
+
+	EndIf;
+
+EndProcedure
+
+&AtServerNoContext
+Function GetVisibilityOfAttributesFromFileStorageMethod(Val FilesStorageMethod)
+
+	DirectoryVisibility		= FilesStorageMethod = Enums.WaysToStoreFiles.InNetworkDirectories;
+	VisibilityOfRepositoryName	= Not DirectoryVisibility And FilesStorageMethod = Enums.WaysToStoreFiles.InExternalStorageUsingS3Protocol;
+
+	Result = WorkingWithClientServerFileArchive.VisibilityParametersOfAttributesDependOnFileStorageMethod();
+	Result.VisibilityPathGroup					= DirectoryVisibility;
+	Result.VisibilityNameOfBinaryDataStore	= VisibilityOfRepositoryName;
+
+	Return Result;
+
+EndFunction
+
+&AtServerNoContext
+Procedure FillInSelectionListOfBinaryDataStorageNames(ChoiceList)
+
+	For Each ExternalHDDManager In BinaryDataExternalStorages Do
+		ChoiceList.Add(ExternalHDDManager.Name);
+	EndDo;
+
+EndProcedure 
+
+&AtServerNoContext
+Function ThisIsStorageVolumeOnDisks(Val StorageVolumeLink)
+
+	Return Catalogs.FileStorageVolumes.ThisIsStorageVolumeOnDisks(StorageVolumeLink);
+
+EndFunction
+
+&AtServer
+Procedure RefreshFormTitle()
+
+	If Not ValueIsFilled(Object.Ref) Then
+		If WorkingWithServerFileArchive.UseFileArchive() Then
+			AutoTitle = False;
+			ObjectPresentation = Object.Ref.Metadata().ObjectPresentation;
+
+			Title = NStr(StringFunctionsClientServer.SubstituteParametersToString("en = '%1 (%2) (Create)'", ObjectPresentation, Object.TypeOfFileStorageVolume));
+		EndIf;
+	ElsIf Not AutoTitle Then
+
+		Title		= "";
+		AutoTitle	= True;
+
+	EndIf;
+
 EndProcedure
 
 #EndRegion

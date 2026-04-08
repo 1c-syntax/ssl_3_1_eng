@@ -67,6 +67,64 @@
 			<PagesRepresentation>None</PagesRepresentation>
 			<ExtendedTooltip name="PanelMainExtendedTooltip" id="11"/>
 			<ChildItems>
+				<Page name="InitialSetupPage" id="163">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Page initial setup</v8:content>
+						</v8:item>
+					</Title>
+					<ExtendedTooltip name="InitialSetupPageExtendedTooltip" id="164"/>
+					<ChildItems>
+						<UsualGroup name="InitialSetupInformationGroup" id="173">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Initial setting info</v8:content>
+								</v8:item>
+							</Title>
+							<ToolTip>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Group initial setting info</v8:content>
+								</v8:item>
+							</ToolTip>
+							<HorizontalStretch>true</HorizontalStretch>
+							<Representation>None</Representation>
+							<ShowTitle>false</ShowTitle>
+							<BackColor>#CCFFCC</BackColor>
+							<ExtendedTooltip name="InitialSetupInformationGroupExtendedTooltip" id="174"/>
+							<ChildItems>
+								<PictureDecoration name="Decoration6" id="175">
+									<Width>5</Width>
+									<AutoMaxWidth>false</AutoMaxWidth>
+									<Height>2</Height>
+									<AutoMaxHeight>false</AutoMaxHeight>
+									<Zoomable>true</Zoomable>
+									<ImageScale>200</ImageScale>
+									<Picture>
+										<xr:Ref>StdPicture.Information</xr:Ref>
+										<xr:LoadTransparent>true</xr:LoadTransparent>
+									</Picture>
+									<ContextMenu name="Decoration6ContextMenu" id="176"/>
+									<ExtendedTooltip name="Decoration6ExtendedTooltip" id="177"/>
+								</PictureDecoration>
+								<LabelDecoration name="Decoration9" id="178">
+									<Title formatted="false">
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>If this is the initial setup in the first application, click New setup. If the first application is already configured, click Continue setup.</v8:content>
+										</v8:item>
+									</Title>
+									<GroupHorizontalAlign>Left</GroupHorizontalAlign>
+									<GroupVerticalAlign>Center</GroupVerticalAlign>
+									<ContextMenu name="Decoration9ContextMenu" id="179"/>
+									<ExtendedTooltip name="Decoration9ExtendedTooltip" id="180"/>
+								</LabelDecoration>
+							</ChildItems>
+						</UsualGroup>
+					</ChildItems>
+				</Page>
 				<Page name="TransportTypesPageNewSettings" id="12">
 					<Title>
 						<v8:item>
@@ -76,6 +134,48 @@
 					</Title>
 					<ExtendedTooltip name="TransportTypesPageNewSettingsExtendedTooltip" id="13"/>
 					<ChildItems>
+						<UsualGroup name="GroupInformationOfNewSetting" id="165">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>New setting into</v8:content>
+								</v8:item>
+							</Title>
+							<HorizontalStretch>true</HorizontalStretch>
+							<Representation>None</Representation>
+							<ShowTitle>false</ShowTitle>
+							<BackColor>#CCFFCC</BackColor>
+							<ExtendedTooltip name="GroupInformationOfNewSettingExtendedTooltip" id="166"/>
+							<ChildItems>
+								<PictureDecoration name="Decoration5" id="167">
+									<Width>5</Width>
+									<AutoMaxWidth>false</AutoMaxWidth>
+									<Height>2</Height>
+									<AutoMaxHeight>false</AutoMaxHeight>
+									<Zoomable>true</Zoomable>
+									<ImageScale>200</ImageScale>
+									<Picture>
+										<xr:Ref>StdPicture.Information</xr:Ref>
+										<xr:LoadTransparent>true</xr:LoadTransparent>
+									</Picture>
+									<ContextMenu name="Decoration5ContextMenu" id="168"/>
+									<ExtendedTooltip name="Decoration5ExtendedTooltip" id="169"/>
+								</PictureDecoration>
+								<LabelDecoration name="Decoration8" id="170">
+									<Height>2</Height>
+									<Title formatted="false">
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Setting up initial data synchronization… Choose a message delivery method.</v8:content>
+										</v8:item>
+									</Title>
+									<GroupHorizontalAlign>Left</GroupHorizontalAlign>
+									<GroupVerticalAlign>Center</GroupVerticalAlign>
+									<ContextMenu name="Decoration8ContextMenu" id="171"/>
+									<ExtendedTooltip name="Decoration8ExtendedTooltip" id="172"/>
+								</LabelDecoration>
+							</ChildItems>
+						</UsualGroup>
 						<UsualGroup name="TransportTypesNewSetting" id="93">
 							<Title>
 								<v8:item>
@@ -158,8 +258,8 @@
 									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
-									<ContextMenu name="TableNewSetupAliasContextMenu" id="122"/>
-									<ExtendedTooltip name="TableNewSetupAliasExtendedTooltip" id="123"/>
+									<ContextMenu name="NewSetupTableAliasContextMenu" id="122"/>
+									<ExtendedTooltip name="NewSetupTableAliasExtendedTooltip" id="123"/>
 								</InputField>
 								<PictureField name="NewSetupTablePictureHelp" id="147">
 									<DataPath>NewSetupTable.PictureHelp</DataPath>
@@ -311,8 +411,8 @@
 									</Title>
 									<EditMode>EnterOnInput</EditMode>
 									<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
-									<ContextMenu name="TableContinueSetupAliasContextMenu" id="143"/>
-									<ExtendedTooltip name="TableContinueSetupAliasExtendedTooltip" id="144"/>
+									<ContextMenu name="TableContinuedSettingsAliasContextMenu" id="143"/>
+									<ExtendedTooltip name="TableContinuedSettingsAliasExtendedTooltip" id="144"/>
 								</InputField>
 								<PictureField name="TableContinuedSettingsPictureHelp" id="150">
 									<DataPath>TableContinuedSettings.PictureHelp</DataPath>
@@ -635,6 +735,26 @@
 				</v8:StringQualifiers>
 			</Type>
 		</Attribute>
+		<Attribute name="IdOfNewRow" id="9">
+			<Type>
+				<v8:Type>xs:decimal</v8:Type>
+				<v8:NumberQualifiers>
+					<v8:Digits>10</v8:Digits>
+					<v8:FractionDigits>0</v8:FractionDigits>
+					<v8:AllowedSign>Nonnegative</v8:AllowedSign>
+				</v8:NumberQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="IdOfContinuationLine" id="10">
+			<Type>
+				<v8:Type>xs:decimal</v8:Type>
+				<v8:NumberQualifiers>
+					<v8:Digits>10</v8:Digits>
+					<v8:FractionDigits>0</v8:FractionDigits>
+					<v8:AllowedSign>Nonnegative</v8:AllowedSign>
+				</v8:NumberQualifiers>
+			</Type>
+		</Attribute>
 	</Attributes>
 	<Commands>
 		<Command name="Done" id="1">
@@ -683,4 +803,42 @@
 			<Action>DownloadConnectionSettings</Action>
 		</Command>
 	</Commands>
+	<Parameters>
+		<Parameter name="ExchangePlanName">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Parameter>
+		<Parameter name="TransportID">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Parameter>
+		<Parameter name="SettingID">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Parameter>
+		<Parameter name="WizardRunOption">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Parameter>
+	</Parameters>
 </Form>

@@ -27,11 +27,11 @@
 					</Button>
 				</ChildItems>
 			</ButtonGroup>
-			<Button name="FormHelp" id="48">
+			<Button name="FormHelp_SSLyf" id="48">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.StandardCommand.Help</CommandName>
 				<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
-				<ExtendedTooltip name="FormHelpExtendedTooltip" id="49"/>
+				<ExtendedTooltip name="FormHelp_SSLyfExtendedTooltip" id="49"/>
 			</Button>
 		</ChildItems>
 	</AutoCommandBar>

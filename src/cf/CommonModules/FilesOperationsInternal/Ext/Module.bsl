@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Internal
@@ -33,8 +32,8 @@ Function FilesVersionsCatalog() Export
 	Return Type("CatalogRef.FilesVersions"); 
 EndFunction
 
-//  
-// 
+// Determines whether the passed object is a "Files" catalog. 
+// Returns True for objects of the following types: metadata, reference, or object.
 // 
 // Parameters:
 //  VerificationObject - MetadataObject
@@ -42,7 +41,7 @@ EndFunction
 //                 - CatalogObject
 // 
 // Returns:
-//  Boolean - 
+//  Boolean - True if the passed object is the "Files" catalog.
 // 
 Function IsDirectoryFiles(VerificationObject) Export
 	
@@ -91,16 +90,14 @@ EndProcedure
 Procedure ImportFile_(Val FileObject, Val PathToFile) Export
 	
 	BinaryData = New BinaryData(PathToFile);
-	FileStorageType = FileStorageType(FileObject.Size, FileObject.Extension);
-	FileObject.FileStorageType = FileStorageType;
-	FileObject.PathToFile = "";
-	If FileStorageType = Enums.FileStorageTypes.InVolumesOnHardDrive Then
-		FilesOperationsInVolumesInternal.AppendFile(FileObject, BinaryData, , True);
+	
+	WorkingWithServerFileArchive.FillInFileStorageParameters(FileObject, BinaryData, FileObject.Size, FileObject.Extension);
+
+	If FileObject.FileStorageType = Enums.FileStorageTypes.InVolumesOnHardDrive Then
+		FilesOperationsInVolumesInternal.AppendFile(FileObject, BinaryData, , True, FileObject.Volume);
 	Else
 		FileObject.AdditionalProperties.Insert("FileBinaryData", BinaryData);
 		FileObject.FileStorage = New ValueStorage(Undefined);
-		FileObject.Volume = Catalogs.FileStorageVolumes.EmptyRef();
-		FileObject.FileStorageType = Enums.FileStorageTypes.InInfobase;
 	EndIf;
 	
 EndProcedure
@@ -331,10 +328,12 @@ EndFunction
 //     CommonModule
 //
 Function FileManagerByType(FileStorageType) Export
-	If FileStorageType = Enums.FileStorageTypes.InVolumesOnHardDrive Then
+	If FileStorageType = Enums.FileStorageTypes.InInfobase Then
+		Return FilesOperationsInternal;
+	ElsIf FileStorageType = Enums.FileStorageTypes.InVolumesOnHardDrive Then
 		Return FilesOperationsInVolumesInternal;
 	Else
-		Return FilesOperationsInternal;
+		Return WorkingWithFilesInBinaryDataWarehouseIsService;
 	EndIf;
 EndFunction
 
@@ -411,7 +410,8 @@ EndProcedure
 //  AttachedFile - DefinedType.AttachedFile
 //
 Procedure WhenUpdatingFileData(Context, AttachedFile) Export
-	WriteFileToInfobase(AttachedFile, Context.FileData);
+	RecordingParametersVIB = WorkingWithServerFileArchive.CompletedParametersOfEntryInInformationDatabase(AttachedFile);
+	WriteFileToInfobase(AttachedFile, Context.FileData, RecordingParametersVIB);
 EndProcedure
 
 // Parameters:
@@ -466,6 +466,215 @@ EndFunction
 //
 Function CatalogSuffixAttachedFiles() Export
 	Return "AttachedFiles";
+EndFunction
+
+// Verifies the attachment's presence in the archive.
+//
+// Parameters:
+//  AttachedFile	- DefinedType.AttachedFile - a reference to the catalog item with file.
+//  VersionRef		- CatalogRef.FilesVersions
+//
+// Returns:
+//  Boolean
+//
+Function FileIsLocatedInFileArchive(AttachedFile, VersionRef = Undefined) Export
+
+	FileToCheck = AttachedFile;
+
+	If Not ValueIsFilled(VersionRef) And Common.HasObjectAttribute("CurrentVersion",
+		Metadata.FindByType(TypeOf(AttachedFile))) Then
+
+		CurrentVersion = Common.ObjectAttributeValue(AttachedFile, "CurrentVersion");
+		If ValueIsFilled(CurrentVersion) Then
+			FileToCheck = CurrentVersion;
+		EndIf;
+	ElsIf ValueIsFilled(VersionRef) Then
+		FileToCheck = VersionRef;
+	EndIf;
+
+	Result = WorkingWithServerFileArchive.FileHasBeenTransferredToFileArchive(FileToCheck);
+
+	Return Result;
+
+EndFunction
+
+// Returns the file binary data.
+//
+// Parameters:
+//  AttachedFile - DefinedType.AttachedFile - a reference to the catalog item with file.
+//
+//  RaiseException1 - Boolean - if False is specified, the function will return Undefined
+//                     			  instead of throwing exceptions, the event log record level will be lowered to "Warning".
+//                                The default is True.
+//
+//  GettingFileFromArchive - Boolean - Indicates whether the file data should be retrieved from the archive storage
+//                                    (a disk volume or an external binary data storage volume).
+//
+// Returns:
+//  BinaryData, Undefined - Attachment binary data. If no binary data is found
+//                               in the infobase or volumes, an exception is thrown.
+//                               If no binary data is found and ShouldRaiseException is set to False,
+//                               the method returns Undefined.
+//
+// Example:
+//  Saving file data on the server:
+//	FileData = FilesOperationsInternal.FileBinaryData(File, False);
+//	If FileData <> Undefined Then
+//		FileData.Write(PathToFile);
+//	EndIf;
+//
+Function FileBinaryData(Val AttachedFile, Val RaiseException1 = True, GettingFileFromArchive = False) Export
+	
+	CommonClientServer.CheckParameter("FilesOperations.FileBinaryData", "AttachedFile", 
+		AttachedFile, Metadata.DefinedTypes.AttachedFile.Type);
+	
+	FileObject1 = FileObject1(AttachedFile);
+	If (FileObject1 = Undefined Or FileObject1.IsFolder) And Not RaiseException1 Then
+		Return Undefined;
+	EndIf;
+	
+	CommonClientServer.Validate(FileObject1 <> Undefined, 
+		StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Invalid value of parameter %1'"), "AttachedFile"),
+		"FilesOperations.FileBinaryData");
+	CommonClientServer.Validate(Not FileObject1.IsFolder, 
+		StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Invalid value of parameter %1 (file folder: ""%2"")'"),
+			"AttachedFile", Common.SubjectString(AttachedFile)),
+		"FilesOperations.FileBinaryData");
+	
+	SetSafeModeDisabled(True);
+	SetPrivilegedMode(True);
+	
+	If FileObject1.DeletionMark Then
+		ReportErrorFileNotFound(FileObject1, RaiseException1);
+		Return Undefined;
+	EndIf;
+	
+	If WorkingWithFilesInBinaryDataWarehouseIsService.StorageTypeDoesNotUseDisks(FileObject1.FileStorageType) Then
+
+		Result = FilesOperations.FileFromInfobaseStorage(FileObject1.Ref, GettingFileFromArchive);
+		If TypeOf(Result) = Type("ValueStorage") Then
+			Result = Result.Get();
+			If TypeOf(Result) = Type("BinaryData") Then
+				Return Result;
+			ElsIf TypeOf(Result) = Type("Picture") Then
+				Return Result.GetBinaryData();
+			EndIf;
+		EndIf;
+		
+		ReportErrorFileNotFound(FileObject1, RaiseException1, GettingFileFromArchive);
+		Return Undefined;
+			
+	Else
+		Return FilesOperationsInVolumesInternal.FileData(AttachedFile, RaiseException1, GettingFileFromArchive);
+	EndIf;
+	
+EndFunction
+
+// Long-running method executed within the FilesOperationsInternalClient....().
+//	Retrieves data for opening. Uses FilesOperationsInternalServerCall.FileDataToOpen().
+//
+// Parameters:
+//  TimeConsumingOperationParameters - see TimeConsumingOperationParameters
+//
+// Returns:
+//   Structure - See FilesOperationsInternalServerCall.FileData
+//
+Function FileDataToOpenAsynchronous(TimeConsumingOperationParameters) Export
+	
+	FunctionParameters = TimeConsumingOperationParameters.MethodParameters;
+	
+	Try
+	
+		FileData = FilesOperationsInternalServerCall.FileDataToOpen(FunctionParameters.AttachedFile, 
+																					FunctionParameters.FileVersion, 
+																					FunctionParameters.FormIdentifier,
+																					FunctionParameters.OwnerWorkingDirectory,
+																					FunctionParameters.FilePreviousURL,
+																					FunctionParameters.FileGettingParameters);
+																					
+	Except
+		If WorkingWithServerFileArchive.UseFileArchive() Then
+
+			FunctionParameters.FileGettingParameters.CheckPresenceOfFileInArchive = True;
+
+			FileData = FilesOperationsInternalServerCall.FileDataToOpen(FunctionParameters.AttachedFile, 
+																						FunctionParameters.FileVersion, 
+																						FunctionParameters.FormIdentifier,
+																						FunctionParameters.OwnerWorkingDirectory,
+																						FunctionParameters.FilePreviousURL,
+																						FunctionParameters.FileGettingParameters);
+
+			FileData.Insert("UpdateListsOfFilesOnForms", True);
+
+		Else
+	    	ErrorInfo = ErrorInfo();
+			Refinement = CommonClientServer.ExceptionClarification(ErrorInfo);
+	    	Raise(Refinement.Text, Refinement.Category,,, ErrorInfo);
+		EndIf;
+	EndTry;
+
+	Return FileData;
+
+EndFunction
+
+// Long-running method executed within the FilesOperationsInternalClient....().
+//  Retrieves data for saving. Uses FilesOperationsInternalServerCall.GetFileData().
+//
+// Parameters:
+//  TimeConsumingOperationParameters - see TimeConsumingOperationParameters
+//
+// Returns:
+//   Structure - See FilesOperationsInternalServerCall.FileData
+//
+Function FileDataEmailManagementAsynchronous(TimeConsumingOperationParameters) Export
+	
+	FunctionParameters = TimeConsumingOperationParameters.MethodParameters;
+	
+	AdditionalParameters = FilesOperationsClientServer.FileDataParameters();
+	FillPropertyValues(AdditionalParameters, FunctionParameters);
+	
+	FileData = FilesOperationsInternalServerCall.GetFileData(FunctionParameters.AttachedFile, AdditionalParameters);
+
+	Return FileData;
+	
+EndFunction
+
+// Long-running method executed within the FilesOperationsInternalClient....().
+//  Retrieves data for saving the file to disk. Uses FilesOperationsInternalServerCall.FileDataToSave().
+//
+// Parameters:
+//  TimeConsumingOperationParameters - see TimeConsumingOperationParameters
+//
+// Returns:
+//   Structure - See FilesOperationsInternalServerCall.FileData
+//
+Function FileDataToSaveAsynchronous(TimeConsumingOperationParameters) Export
+	
+	FunctionParameters = TimeConsumingOperationParameters.MethodParameters;
+
+	Try
+
+		FileData = FilesOperationsInternalServerCall.FileDataToSave(FunctionParameters.AttachedFile, FunctionParameters);
+		
+	Except
+		
+		If WorkingWithServerFileArchive.UseFileArchive() Then
+
+			FunctionParameters.FileGettingParameters.CheckPresenceOfFileInArchive = True;
+			
+			FileData = FilesOperationsInternalServerCall.FileDataToSave(FunctionParameters.AttachedFile, FunctionParameters);
+			
+		Else
+	    	ErrorInfo = ErrorInfo();
+			Refinement = CommonClientServer.ExceptionClarification(ErrorInfo);
+	    	Raise(Refinement.Text, Refinement.Category,,, ErrorInfo);
+		EndIf;
+	EndTry;
+	
+	Return FileData;
+
 EndFunction
 
 #Region DataExchangeProcedures
@@ -669,7 +878,7 @@ Procedure OnExecuteDeliveryToFolder(DeliveryParameters, Attachments) Export
 		FileInfo1.Comment = Comment;
 		
 		If ValueIsFilled(Attachment.FileRef) Then
-			VersionRef = CreateVersion(Attachment.FileRef, FileInfo1); // @skip-check query-in-loop - по-объектная запись данных.
+			VersionRef = CreateVersion(Attachment.FileRef, FileInfo1); // @skip-check query-in-loop - 
 			UpdateVersionInFile(Attachment.FileRef, VersionRef, FileInfo1.TempTextStorageAddress);
 		Else
 			Attachment.FileRef = FilesOperationsInternalServerCall.CreateFileWithVersion(DeliveryParameters.Folder, FileInfo1); 
@@ -857,22 +1066,21 @@ Procedure CopyAttachedFiles(Val Source, Val Recipient) Export
 			FileCopy.FileStorage = CopyFiles.FileStorage;
 			
 			BinaryData = FilesOperations.FileBinaryData(CopyFiles);
-			
-			FileStorageType = FileStorageType(FileCopy.Size, FileCopy.Extension);
-			If FileStorageType = Enums.FileStorageTypes.InInfobase Then
-				FileCopy.FileStorageType = FileStorageType;
-				WriteFileToInfobase(FileCopyRef, BinaryData);
+
+			WorkingWithServerFileArchive.FillInFileStorageParameters(FileCopy, BinaryData, FileCopy.Size, FileCopy.Extension);
+
+			If WorkingWithFilesInBinaryDataWarehouseIsService.StorageTypeDoesNotUseDisks(FileCopy.FileStorageType) Then
+				RecordingParametersVIB = WorkingWithServerFileArchive.CompletedParametersOfEntryInInformationDatabase(FileCopy);
+				WriteFileToInfobase(FileCopyRef, BinaryData, RecordingParametersVIB);
 			Else
-				FileCopy.Volume = Undefined;
-				FileCopy.PathToFile = Undefined;
-				FileCopy.FileStorageType = Undefined;
-				FilesOperationsInVolumesInternal.AppendFile(FileCopy, BinaryData);
+				FilesOperationsInVolumesInternal.AppendFile(FileCopy, BinaryData,,,FileCopy.Volume);
 			EndIf;
+
 			FileCopy.Write();
-			
+
 			If DigitalSignatureAvailable Then
 				ObjectSignatures = ModuleDigitalSignature.ObjectSignatures(CopyFiles);
-				ModuleDigitalSignature.AddSignature(FileCopy.Ref, ObjectSignatures);
+				ModuleDigitalSignature.AddSignature(FileCopy.Ref, ObjectSignatures);				
 				
 				SourceCertificates = ModuleDigitalSignature.EncryptionCertificates(CopyFiles);
 				ModuleDigitalSignature.WriteEncryptionCertificates(FileCopy, SourceCertificates);
@@ -1025,27 +1233,56 @@ EndFunction
 // Parameters:
 //  FileSize - Number
 //  FileExtention - String 
+//  BinaryDataStoresAreAvailable - Boolean, Undefined.
+//  FilesStorageMethod - String, Undefined - Refer to Constant.FilesStorageMethod. 
+//						   Default is Undefined.
 //
 // Returns:
 //   EnumRef.FileStorageTypes
 //
-Function FileStorageType(Val FileSize, Val FileExtention) Export
-	
-	If FilesOperationsInVolumesInternal.ShouldStoreFilesInVolumes()
-		And FilesOperationsInVolumesInternal.HasFileStorageVolumes() Then
-		Return FilesOperationsInVolumesInternal.FileStorageType(FileSize, FileExtention);
+Function FileStorageType(Val FileSize, Val FileExtention, BinaryDataStoresAreAvailable = Undefined, FilesStorageMethod = Undefined) Export
+
+	If BinaryDataStoresAreAvailable = Undefined Then
+		BinaryDataStoresAreAvailable = WorkingWithServerFileArchive.BinaryDataStoresAreAvailable();
+	EndIf;
+
+	If BinaryDataStoresAreAvailable Then
+
+		If FilesStorageMethod = Undefined Then
+			FilesStorageMethod = WorkingWithServerFileArchive.FilesStorageMethod();
+		EndIf;
+
+		If WorkingWithClientServerFileArchive.StorageMethodUsesVolumes(FilesStorageMethod)
+			And FilesOperationsInVolumesInternal.HasFileStorageVolumes(, WorkingWithServerFileArchive.StorageMethodForSelectingStorageVolumes(FilesStorageMethod)) Then
+			Return FilesOperationsInVolumesInternal.FileStorageType(FileSize, FileExtention, FilesStorageMethod);
+		Else
+			Return Enums.FileStorageTypes.InInfobase;
+		EndIf;
 	Else
-		Return Enums.FileStorageTypes.InInfobase;
+		If FilesOperationsInVolumesInternal.ShouldStoreFilesInVolumes()
+			And FilesOperationsInVolumesInternal.HasFileStorageVolumes() Then
+			Return FilesOperationsInVolumesInternal.FileStorageType(FileSize, FileExtention);
+		Else
+			Return Enums.FileStorageTypes.InInfobase;
+		EndIf;
 	EndIf;
 
 EndFunction
 
 // Checks whether there is at least one file in one of the volumes.
 //
+// Parameters:
+//  FileStorageType	- EnumRef.FileStorageTypes, Undefined. 
+//						  Default is Undefined.
+//
 // Returns:
 //  Boolean
 //
-Function HasFilesInVolumes() Export
+Function HasFilesInVolumes(Val FileStorageType = Undefined) Export
+	
+	If FileStorageType = Undefined Then
+		FileStorageType = Enums.FileStorageTypes.InVolumesOnHardDrive;
+	EndIf;
 	
 	Query = New Query;
 	Query.Text =
@@ -1054,7 +1291,9 @@ Function HasFilesInVolumes() Export
 	|FROM
 	|	InformationRegister.FilesInfo AS FilesInfo
 	|WHERE
-	|	FilesInfo.FileStorageType = VALUE(Enum.FileStorageTypes.InVolumesOnHardDrive)";
+	|	FilesInfo.FileStorageType = &FileStorageType";
+	
+	Query.SetParameter("FileStorageType", FileStorageType);
 	
 	Return Not Query.Execute().IsEmpty();
 	
@@ -1115,17 +1354,22 @@ Procedure CryptographyOnCreateFormAtServer(Form, IsListForm = True, RowsPictureO
 	Items = Form.Items;
 	
 	Signing = False;
+	SendingForSigning = False;
 	Encryption = False;
 	ViewEncrypted = False;
+	SendForSigningTitle = "";
 	
 	If Common.SubsystemExists("StandardSubsystems.DigitalSignature") Then
 	
 		ModuleDigitalSignatureInternal = Common.CommonModule("DigitalSignatureInternal");
 		If ModuleDigitalSignatureInternal.InteractiveUseofElectronicSignaturesandEncryption() Then
 			ModuleDigitalSignature = Common.CommonModule("DigitalSignature");
+			ModuleDigitalSignatureLocalization = Common.CommonModule("DigitalSignatureLocalization");
 			Signing            = ModuleDigitalSignature.AddEditDigitalSignatures();
 			Encryption            = ModuleDigitalSignature.EncryptAndDecryptData();
 			ViewEncrypted = ModuleDigitalSignature.DataDecryption();
+			SendingForSigning  = ModuleDigitalSignature.UseMobileSignatureService();
+			ModuleDigitalSignatureLocalization.OnRetrieveSendForSigningCommandTitle(SendForSigningTitle);
 		EndIf;
 		
 	EndIf;
@@ -1146,6 +1390,7 @@ Procedure CryptographyOnCreateFormAtServer(Form, IsListForm = True, RowsPictureO
 		Items.FormDigitalSignatureAndEncryptionCommandsGroup.Visible = DigitalSignatureAvailable;
 		
 		Items.FormSign.Visible = Signing;
+		SetVisibilityOfSendingForSigningCommand(Items, "FormSendForSigning", SendingForSigning, SendForSigningTitle);
 		Items.FormAddSignatureFromFile.Visible = Signing;
 		Items.FormEncrypt.Visible = Encryption;
 		Items.FormDecrypt.Visible = ViewEncrypted;
@@ -1153,6 +1398,7 @@ Procedure CryptographyOnCreateFormAtServer(Form, IsListForm = True, RowsPictureO
 		If IsListForm Then
 			
 			Items.ListContextMenuSign.Visible = Signing;
+			SetVisibilityOfSendingForSigningCommand(Items, "ListContextMenuSendForSigning", SendingForSigning, SendForSigningTitle);
 			Items.ListContextMenuAddSignatureFromFile.Visible = Signing;
 			Items.ListContextMenuEncrypt.Visible = Encryption;
 			Items.ListContextMenuDigitalSignatureAndEncryptionCommandsGroup.Visible = DigitalSignatureAvailable;
@@ -1160,6 +1406,7 @@ Procedure CryptographyOnCreateFormAtServer(Form, IsListForm = True, RowsPictureO
 		Else
 			Items.DigitalSignaturesExtendActionSignatures.Visible = Signing;
 			Items.DigitalSignatures.ChangeRowSet = Signing;
+			SetVisibilityOfSendingForSigningCommand(Items, "DigitalSignaturesSendForSigning", SendingForSigning, SendForSigningTitle);
 			Items.DigitalSignaturesSign.Visible = Signing;
 			Items.DigitalSignaturesDelete.Visible = Signing;
 			Items.DigitalSignaturesGroup.Visible = DigitalSignatureAvailable;
@@ -1226,7 +1473,7 @@ EndProcedure
 // Parameters:
 //   SignaturesInForm - ValueTable
 //
-Procedure MoveSignaturesCheckResults(SignaturesInForm, SignedFile) Export
+Procedure MoveSignaturesCheckResults(SignaturesInFileForm, SignedFile) Export
 	
 	If Not Common.SubsystemExists("StandardSubsystems.DigitalSignature") Then
 		Return;
@@ -1241,6 +1488,14 @@ Procedure MoveSignaturesCheckResults(SignaturesInForm, SignedFile) Export
 	SignaturesAcquisitionParameters = ModuleDigitalSignature.NewObjectSignaturesAcquisitionParameters();
 	SignaturesAcquisitionParameters.ShouldReturnMachineReadableLOAData = True;
 	SignaturesInObject = ModuleDigitalSignature.ObjectSignatures(SignedFile, SignaturesAcquisitionParameters);
+	
+	SignaturesInForm = New Array;
+	For Each CurrentSignature In SignaturesInFileForm Do
+		If Not ValueIsFilled(CurrentSignature.SignatureAddress) Then
+			Continue;
+		EndIf;
+		SignaturesInForm.Add(CurrentSignature);
+	EndDo;
 	
 	If SignaturesInForm.Count() <> SignaturesInObject.Count() Then
 		Return; // If the object was changed, the test results are not transferred.
@@ -1281,22 +1536,40 @@ Procedure MoveSignaturesCheckResults(SignaturesInForm, SignedFile) Export
 		HasCheckResult = True;
 	EndIf;
 	
-	For Each Signature In SignaturesInForm Do
-		SignatureInObject = SignaturesInObject.Get(SignaturesInForm.IndexOf(Signature));
-		If Signature.SignatureDate         <> SignatureInObject.SignatureDate
-		 Or Signature.Comment         <> SignatureInObject.Comment
-		 Or Signature.CertificateOwner <> SignatureInObject.CertificateOwner And ValueIsFilled(SignatureInObject.CertificateOwner)
-		 Or Signature.Thumbprint           <> SignatureInObject.Thumbprint And ValueIsFilled(SignatureInObject.Thumbprint)
-		 Or Signature.SignatureSetBy <> SignatureInObject.SignatureSetBy Then
-			Return; // If the object was changed, the test results are not transferred.
-		EndIf;
-	EndDo;
-	
 	Properties.Insert("Thumbprint");
 	Properties.Insert("CertificateOwner");
 	
 	For Each Signature In SignaturesInForm Do
-		SignatureInObject = SignaturesInObject.Get(SignaturesInForm.IndexOf(Signature));
+		
+		SignatureRow = Undefined; SignatureIndex = -1;
+		For Each SignatureInObject In SignaturesInObject Do
+			SignatureIndex = SignatureIndex + 1;
+			If Signature.Property("SignatureID") Then
+				If Signature.SignatureID = SignatureInObject.SignatureID Then
+					SignatureRow = SignatureInObject;
+					Break;
+				Else
+					Continue;
+				EndIf;
+			ElsIf Signature.SequenceNumber = SignatureInObject.SequenceNumber Then
+				If Signature.SignatureDate         <> SignatureInObject.SignatureDate
+					Or Signature.Comment         <> SignatureInObject.Comment
+					Or Signature.CertificateOwner <> SignatureInObject.CertificateOwner And ValueIsFilled(SignatureInObject.CertificateOwner)
+					Or Signature.Thumbprint           <> SignatureInObject.Thumbprint And ValueIsFilled(SignatureInObject.Thumbprint)
+					Or Signature.SignatureSetBy <> SignatureInObject.SignatureSetBy Then
+					Return; // If the object was changed, the test results are not transferred.
+				EndIf;
+				SignatureRow = SignatureInObject;
+				Break;
+			Else
+				Continue;
+			EndIf;
+		EndDo;
+		
+		If SignatureRow = Undefined Then
+			Continue;
+		EndIf;
+		
 		FillPropertyValues(Properties, SignatureInObject);
 		HasChanges = False;
 		For Each KeyAndValue In Properties Do
@@ -1308,6 +1581,7 @@ Procedure MoveSignaturesCheckResults(SignaturesInForm, SignedFile) Export
 		EndDo;
 		
 		If Not HasChanges Then
+			SignaturesInObject.Delete(SignatureIndex);
 			Continue; // Do not set the modification if the test results match.
 		EndIf;
 		
@@ -1317,6 +1591,7 @@ Procedure MoveSignaturesCheckResults(SignaturesInForm, SignedFile) Export
 			FillPropertyValues(SignatureInObject, Signature.CheckResult);
 		EndIf;
 		ModuleDigitalSignature.UpdateSignature(SignedFile, SignatureInObject);
+		SignaturesInObject.Delete(SignatureIndex);
 	EndDo;
 	
 EndProcedure
@@ -1416,7 +1691,7 @@ Procedure WriteEncryptionInformation(FileRef, EncryptionInformationWriteParamete
 				FileInfo1 = EncryptionInformationWriteParameters.FileInfo1;
 			EndIf;
 			
-			// @skip-check query-in-loop - По-объектная запись данных.
+			// @skip-check query-in-loop - 
 			UpdateFileVersion(FileRef, FileInfo1, VersionRef, EncryptionInformationWriteParameters.UUID);
 			
 			// For the option of storing files in volumes, delete the File from the temporary storage after receiving it.
@@ -1710,7 +1985,7 @@ Procedure ScheduledFileSynchronizationWebdav(Parameters = Undefined, ResultAddre
 			Continue;
 		EndIf;
 		
-		// @skip-check query-in-loop
+		// @skip-check query-in-loop - Batch processing of a large amount of data.
 		SynchronizeFilesWithCloudService(Selection.Ref);
 		
 	EndDo;
@@ -2292,7 +2567,7 @@ EndFunction
 
 #EndRegion
 
-#Region ForCallsFromOtherSubsystems
+#Region InterfaceImplementation
 
 // See StandardSubsystemsServer.OnSendDataToSlave.
 Procedure OnSendDataToSlave(DataElement, ItemSend, InitialImageCreating, Recipient) Export
@@ -2352,14 +2627,14 @@ Procedure OnFillToDoList(ToDoList) Export
 	For Each Section In Sections Do
 		
 		EditedFilesID = "FilesToEdit" + StrReplace(Section.FullName(), ".", "");
-		ToDoItem = ToDoList.Add();
-		ToDoItem.Id  = EditedFilesID;
-		ToDoItem.HasToDoItems       = LockedFilesCount > 0;
-		ToDoItem.Presentation  = NStr("en = 'Locked files'");
-		ToDoItem.Count     = LockedFilesCount;
-		ToDoItem.Important         = False;
-		ToDoItem.Form          = "DataProcessor.FilesOperations.Form.FilesToEdit";
-		ToDoItem.Owner       = Section;
+		CaseFile = ToDoList.Add();
+		CaseFile.Id  = EditedFilesID;
+		CaseFile.HasToDoItems       = LockedFilesCount > 0;
+		CaseFile.Presentation  = NStr("en = 'Locked files'");
+		CaseFile.Count     = LockedFilesCount;
+		CaseFile.Important         = False;
+		CaseFile.Form          = "DataProcessor.FilesOperations.Form.FilesToEdit";
+		CaseFile.Owner       = Section;
 		
 	EndDo;
 	
@@ -2404,6 +2679,12 @@ Procedure OnDefineScheduledJobSettings(Settings) Export
 	Dependence.ScheduledJob = Metadata.ScheduledJobs.FilesSynchronization;
 	Dependence.FunctionalOption = Metadata.FunctionalOptions.UseFileSync;
 	Dependence.UseExternalResources = True;
+
+	Dependence = Settings.Add();
+	Dependence.ScheduledJob = Metadata.ScheduledJobs.TransferringFilesBetweenOperationalStorageAndFileArchive;
+	Dependence.FunctionalOption = Metadata.FunctionalOptions.UseFileArchive;
+	Dependence.UseExternalResources = True;
+	
 EndProcedure
 
 // See AccessManagementOverridable.OnFillListsWithAccessRestriction.
@@ -3267,14 +3548,21 @@ EndFunction
 Procedure OnWriteAttachedFileServer(FilesOwner, Source) Export
 	
 	SetPrivilegedMode(True);
+	
+	DataLock = New DataLock;
+	DataLockItem = DataLock.Add(Metadata.InformationRegisters.FilesExist.FullName());
+	DataLockItem.SetValue("ObjectWithFiles", FilesOwner);
+	
+	If Not Source.IsFolder Then
+		DataLockItem = DataLock.Add(Metadata.InformationRegisters.FilesInfo.FullName());
+		DataLockItem.SetValue("File", Source.Ref);
+	EndIf;
+
 	BeginTransaction();
 	Try
-	
+		
 		RecordChanged = False;
 		
-		DataLock = New DataLock;
-		DataLockItem = DataLock.Add(Metadata.InformationRegisters.FilesExist.FullName());
-		DataLockItem.SetValue("ObjectWithFiles", FilesOwner);
 		DataLock.Lock();
 		
 		RecordManager = InformationRegisters.FilesExist.CreateRecordManager();
@@ -3306,9 +3594,14 @@ Procedure OnWriteAttachedFileServer(FilesOwner, Source) Export
 		If RecordChanged Then
 			RecordManager.Write();
 		EndIf;
-		
+
 		If Not Source.IsFolder Then
+
 			RecordManager = InformationRegisters.FilesInfo.CreateRecordManager();
+
+			RecordManager.File = Source.Ref;
+			RecordManager.Read();
+
 			FillPropertyValues(RecordManager, Source);
 			RecordManager.File = Source.Ref;
 			If Source.SignedWithDS And Source.Encrypted Then
@@ -3514,8 +3807,6 @@ Procedure WhenReceivingFile(DataElement, ItemReceive, Sender = Undefined)
 	EndIf;
 	
 	BinaryData = DataElement.FileStorage.Get();
-	NewFileStorageType = FileStorageType(DataElement.Size, DataElement.Extension);
-	DataElement.FileStorageType = NewFileStorageType;
 	
 	If Not DataElement.IsNew() Then
 		StorageTypeOfThePreviousVersionOfTheFile = Common.ObjectAttributeValue(DataElement.Ref,
@@ -3537,6 +3828,9 @@ Procedure WhenReceivingFile(DataElement, ItemReceive, Sender = Undefined)
 			SetPrivilegedMode(False);
 		EndIf;
 	EndIf;
+	
+	WorkingWithServerFileArchive.FillInFileStorageParameters(DataElement, BinaryData, DataElement.Size, DataElement.Extension);
+	NewFileStorageType = DataElement.FileStorageType;
 	
 	If NewFileStorageType = Enums.FileStorageTypes.InVolumesOnHardDrive Then
 		
@@ -3560,7 +3854,7 @@ Procedure WhenReceivingFile(DataElement, ItemReceive, Sender = Undefined)
 				EventLogLevel.Error, MetadataType, DataElement.Ref, ErrorText);
 			
 		Else
-			FilesOperationsInVolumesInternal.AppendFile(DataElement, BinaryData, , True);
+			FilesOperationsInVolumesInternal.AppendFile(DataElement, BinaryData, , True, DataElement.Volume);
 		EndIf;
 		
 	Else
@@ -3570,7 +3864,6 @@ Procedure WhenReceivingFile(DataElement, ItemReceive, Sender = Undefined)
 		EndIf;
 		
 		DataElement.FileStorage = New ValueStorage(Undefined);
-		DataElement.Volume = Catalogs.FileStorageVolumes.EmptyRef();
 		DataElement.PathToFile = "";
 		
 	EndIf;
@@ -3582,13 +3875,14 @@ EndProcedure
 // Parameters:
 //  AttachedFile - DefinedType.AttachedFile - a reference to the attached file.
 //  BinaryData     - BinaryData - to be written.
+//  RecordingParametersVIB - See WorkingWithServerFileArchive.ParametersOfEntryInInformationDatabase
 //
-Procedure WriteFileToInfobase(Val AttachedFile, Val BinaryData) Export
-	
+Procedure WriteFileToInfobase(Val AttachedFile, Val BinaryData, RecordingParametersVIB) Export
+
 	SetSafeModeDisabled(True);
 	SetPrivilegedMode(True);
-	
-	InformationRegisters.FileRepository.WriteBinaryData(AttachedFile, BinaryData);
+
+	InformationRegisters.FileRepository.WriteBinaryData(AttachedFile, BinaryData, RecordingParametersVIB);
 	
 EndProcedure
 
@@ -4316,38 +4610,48 @@ EndFunction
 // Returns:
 //   String
 //
-Function ErrorFileNotFoundInFileStorage(FileObject1)
+Function ErrorFileNotFoundInFileStorage(FileObject1, GettingFileFromArchive = False)
 	
 	FileName = CommonClientServer.GetNameWithExtension(FileObject1.Description, FileObject1.Extension);
-	ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Cannot open file:
-			|%1
-			|that is attached to:
-			|%2'"),
-		FileName, Common.SubjectString(FileObject1.FileOwner));
+	If Not GettingFileFromArchive Then
+		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Cannot open file:
+				|%1
+				|that is attached to:
+				|%2'"),
+			FileName, Common.SubjectString(FileObject1.FileOwner));
 
-	If FileObject1.DeletionMark Then
-		ErrorText = ErrorText + Chars.LF + Chars.LF
-			+ NStr("en = 'File is marked for deletion and cleaned up as unused.'");	
-	ElsIf FileObject1.FileStorageType = Enums.FileStorageTypes.InVolumesOnHardDrive Then
-		ErrorText = ErrorText + Chars.LF + Chars.LF
-			+ NStr("en = 'File data is unavailable because the file might have been cleaned up as unused or deleted by the antivirus software.'");
+		If FileObject1.DeletionMark = True Then
+			ErrorText = ErrorText + Chars.LF + Chars.LF
+				+ NStr("en = 'File is marked for deletion and cleaned up as unused.'");	
+		ElsIf FileObject1.FileStorageType = Enums.FileStorageTypes.InVolumesOnHardDrive Then
+			ErrorText = ErrorText + Chars.LF + Chars.LF
+				+ NStr("en = 'File data is unavailable because the file might have been cleaned up as unused or deleted by the antivirus software.'");
+		Else
+			ErrorText = ErrorText + Chars.LF + Chars.LF
+				+ NStr("en = 'File data is unavailable because the file might have been cleaned up as unused.'");
+		EndIf;
 	Else
-		ErrorText = ErrorText + Chars.LF + Chars.LF
-			+ NStr("en = 'File data is unavailable because the file might have been cleaned up as unused.'");
+		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'The file %1 is in the file archive.
+				|Its data is unavailable.
+				|
+				|%2'"),
+			FileName, WorkingWithServerFileArchive.TextInformingUserAboutUnavailabilityOfFileInArchive());			
 	EndIf;
-	
+
 	Return ErrorText;
-	
+
 EndFunction
 
 // Parameters:
 //   FileObject1 - DefinedType.AttachedFileObject
 //   RaiseException1 - Boolean
+//   GettingFileFromArchive - Boolean
 //
-Procedure ReportErrorFileNotFound(FileObject1, RaiseException1) Export
+Procedure ReportErrorFileNotFound(FileObject1, RaiseException1, GettingFileFromArchive = False) Export
 	
-	ErrorMessage = ErrorFileNotFoundInFileStorage(FileObject1);
+	ErrorMessage = ErrorFileNotFoundInFileStorage(FileObject1, GettingFileFromArchive);
 	CriticalityOfTheError = ?(RaiseException1, EventLogLevel.Error, EventLogLevel.Warning);
 	WriteLogEvent(NStr("en = 'Files.Open file'", Common.DefaultLanguageCode()),
 		CriticalityOfTheError, FileObject1.Ref.Metadata(), FileObject1.Ref, ErrorMessage);
@@ -4486,6 +4790,24 @@ Procedure SetFilterByDeletionMark(Area) Export
 		DataCompositionComparisonType.Equal, False, "HideDeletionMarkByDefault", True,
 		DataCompositionSettingsItemViewMode.Inaccessible);
 	
+EndProcedure
+
+Procedure SetModificationUniversalTime(PathToFile, NewTimeOfChange) Export
+	
+	If Not ValueIsFilled(NewTimeOfChange) Then
+		Return;
+	EndIf;
+	
+	File = New File(PathToFile);
+	If File.Exists() Then
+		Try
+			File.SetModificationUniversalTime(NewTimeOfChange);
+		Except
+			EventLog.AddMessageForEventLog(
+				NStr("en = 'File management.Error setting change time'", Common.DefaultLanguageCode()),
+				EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+		EndTry;
+	EndIf;
 EndProcedure
 
 #EndRegion
@@ -4629,14 +4951,15 @@ Procedure BorrowFileToEditServer(Val AttachedFile, User = Undefined) Export
 EndProcedure
 
 Procedure WriteFileDataToRegisterDuringExchange(Source)
-	
+
 	Var FileBinaryData;
-	
+
 	If Source.AdditionalProperties.Property("FileBinaryData", FileBinaryData) Then
-		InformationRegisters.FileRepository.WriteBinaryData(Source.Ref, FileBinaryData);
+		RecordingParametersVIB = WorkingWithServerFileArchive.CompletedParametersOfEntryInInformationDatabase(Source);
+		InformationRegisters.FileRepository.WriteBinaryData(Source.Ref, FileBinaryData, RecordingParametersVIB);
 		Source.AdditionalProperties.Delete("FileBinaryData");
 	EndIf;
-	
+
 EndProcedure
 
 Function GetFileProhibited(DataElement)
@@ -4688,9 +5011,11 @@ Procedure ProcessFileSendingByStorageType(DataElement)
 		DataElement.FileStorage = New ValueStorage(Undefined);
 	EndTry;
 	
-	DataElement.FileStorageType = Enums.FileStorageTypes.InInfobase;
+	DataElement.FileStorageType = WorkingWithServerFileArchive.StorageTypeByFileStorageVolume(DataElement.Volume);
+	If DataElement.FileStorageType = Enums.FileStorageTypes.InInfobase Then
+		DataElement.Volume = Catalogs.FileStorageVolumes.EmptyRef();
+	EndIf;
 	DataElement.PathToFile = "";
-	DataElement.Volume = Catalogs.FileStorageVolumes.EmptyRef();
 	
 EndProcedure
 
@@ -4750,6 +5075,129 @@ Function AttachedFilesToObject(Val FilesOwner, Val ExceptMarkedForDeletion = Fal
 	
 	SetPrivilegedMode(True);
 	Return Query.Execute().Unload().UnloadColumn("Ref");
+	
+EndFunction
+
+// Returns a filtered list of attached files by owner.
+//
+// Parameters:
+//   Files          - Array of DefinedType.AttachedFile - checked files.
+//   FilesOwner - DefinedType.AttachedFilesOwner - reference to the object that owns files (document,
+//                                                                   catalog and so on)
+//
+// Returns:
+//  Array of DefinedType.AttachedFile - files from the Files parameter, 
+//                  whose FileOwner attribute matches the FilesOwner parameter.
+//                  It's an empty array if there are no matching files.
+//
+Function SelectAttachedFilesOfOwner(Files, FilesOwner) Export
+	
+	If Files.Count() = 0 Then
+		Return New Array;
+	EndIf;
+	
+	CatalogNames = FileStorageCatalogNames(FilesOwner, True);
+	If CatalogNames.Count() = 0 Then
+		Return New Array;
+	EndIf;
+	
+	If Files.Count() < 50 Then
+		Query = SelectFilesOfOwnerOfSmallList(Files, FilesOwner, CatalogNames);
+	Else
+		Query = SelectFilesFromOwnerOfLargeList(Files, FilesOwner, CatalogNames);
+	EndIf;
+	
+	Result = Query.Execute();
+	Return Result.Unload().UnloadColumn("Ref");
+	
+EndFunction
+
+Function SelectFilesFromOwnerOfLargeList(Files, FilesOwner, CatalogNames)
+	
+	FilesTypes    = New Array;
+	QueriesSet = New Array;
+	
+	QueryTemplate = "SELECT
+	|    TT_Files.Ref AS Ref
+	|FROM
+	|    TT_Files AS TT_Files
+	|        INNER JOIN &CatalogName AS AttachedFiles
+	|        ON TT_Files.Ref = AttachedFiles.Ref
+	|            AND AttachedFiles.FileOwner = &FilesOwner";
+	
+	YouNeedToAddAllowed = True;
+	For Each KeyAndValue In CatalogNames Do
+		QueryText = StrReplace(QueryTemplate, "&CatalogName", "Catalog." + KeyAndValue.Key);
+		
+		If YouNeedToAddAllowed Then
+			QueryText = StrReplace(QueryText, "SELECT", "SELECT ALLOWED"); // @Query-part-1, @Query-part-2
+			YouNeedToAddAllowed = False;
+		EndIf;
+		
+		QueriesSet.Add(QueryText);
+		FilesTypes.Add(Type("CatalogRef." + KeyAndValue.Key));
+	EndDo;
+	
+	QueriesText = 
+	"SELECT
+	|    Files.Ref AS Ref
+	|INTO TT_Files
+	|FROM
+	|    &TableOfFiles AS Files
+	|;
+	|
+	|////////////////////////////////////////////////////////////////////////////////
+	|
+	|" + StrConcat(QueriesSet, Common.UnionAllText());
+	
+	ColumnType = New TypeDescription(FilesTypes);
+	
+	ListOfFiles = New ValueTable;
+	ListOfFiles.Columns.Add("Ref", ColumnType);
+	
+	For Each AttachedFile In Files Do
+		NewRow = ListOfFiles.Add();
+		NewRow.Ref = AttachedFile;
+	EndDo;
+	
+	Query = New Query(QueriesText);
+	Query.SetParameter("FilesOwner", FilesOwner);
+	Query.SetParameter("TableOfFiles",  ListOfFiles);
+	Return Query;
+	
+EndFunction
+
+Function SelectFilesOfOwnerOfSmallList(Files, FilesOwner, CatalogNames)
+	
+	QueriesSet = New Array;
+	
+	QueryTemplate = "SELECT
+		|    AttachedFiles.Ref AS Ref
+		|FROM
+		|    &CatalogName AS AttachedFiles
+		|WHERE
+		|    AttachedFiles.Ref IN(&Files)
+		|    AND AttachedFiles.FileOwner = &FilesOwner";
+	
+	YouNeedToAddAllowed = True;
+	For Each KeyAndValue In CatalogNames Do
+		QueryText = StrReplace(QueryTemplate, "&CatalogName", "Catalog." + KeyAndValue.Key);
+		
+		If YouNeedToAddAllowed Then
+			QueryText = StrReplace(QueryText, "SELECT", "SELECT ALLOWED"); // @Query-part-1, @Query-part-2
+			YouNeedToAddAllowed = False;
+		EndIf;
+		
+		QueriesSet.Add(QueryText);
+	EndDo;
+	
+	QueriesText = StrConcat(QueriesSet, Common.UnionAllText());
+	
+	Query = New Query(QueriesText);
+	Query.SetParameter("FilesOwner", FilesOwner);
+	Query.SetParameter("Files", Files);
+	
+	Return Query;
 	
 EndFunction
 
@@ -4902,17 +5350,42 @@ Function CreateVersion(FileRef, FileInfo1, Context = Undefined) Export
 	Version.Size             = FileInfo1.Size;
 	Version.Extension         = CommonClientServer.ExtensionWithoutPoint(FileInfo1.ExtensionWithoutPoint);
 	Version.Description       = FileInfo1.BaseName;
-		
-	FilesStorageTyoe = FileStorageType(Version.Size, Version.Extension);
-	Version.FileStorageType = FilesStorageTyoe;
+
+	BinaryDataOrPath	= Undefined;
+
+	If WorkingWithServerFileArchive.BinaryDataStoresAreAvailable() Then
+		If FileInfo1.RefToVersionSource <> Undefined Then // Creating file from template
+
+			TemplateFilesStorageType = FileInfo1.RefToVersionSource.FileStorageType;
+			If TemplateFilesStorageType = Enums.FileStorageTypes.InInfobase Then
+
+				BinaryDataOrPath = FileInfo1.TempFileStorageAddress.Get();
+
+			ElsIf TemplateFilesStorageType = Enums.FileStorageTypes.InVolumesOnHardDrive Then
+				If Not FileInfo1.RefToVersionSource.Volume.IsEmpty() Then
+					BinaryDataOrPath = FilesOperationsInVolumesInternal.FileData(FileInfo1.RefToVersionSource);
+				EndIf;			
+			EndIf;		
+		Else // Create the File object based on the selected file from the computer.
+			If IsTempStorageURL(FileInfo1.TempFileStorageAddress) Then
+				BinaryDataOrPath = GetFromTempStorage(FileInfo1.TempFileStorageAddress);
+			Else
+				BinaryDataOrPath = FileInfo1.TempFileStorageAddress;
+			EndIf;
+		EndIf;
+	EndIf;
+
+	WorkingWithServerFileArchive.FillInFileStorageParameters(Version, BinaryDataOrPath, Version.Size, Version.Extension);
+
+	FilesStorageTyoe = Version.FileStorageType;
 
 	If FileInfo1.RefToVersionSource <> Undefined Then // Creating file from template
 		
 		TemplateFilesStorageType = FileInfo1.RefToVersionSource.FileStorageType;
-		If TemplateFilesStorageType = Enums.FileStorageTypes.InInfobase
-			And FilesStorageTyoe = Enums.FileStorageTypes.InInfobase Then
-			
-			// Both the template and the new file are located in the infobase.
+		If WorkingWithFilesInBinaryDataWarehouseIsService.StorageTypeDoesNotUseDisks(TemplateFilesStorageType)
+			And WorkingWithFilesInBinaryDataWarehouseIsService.StorageTypeDoesNotUseDisks(FilesStorageTyoe) Then
+
+			// The template and the new file are stiored in the infobase or a binary data storage.
 			// When a "File" instance is created, the value is copied directly from the template storage.
 			BinaryDataOrPath = FileInfo1.TempFileStorageAddress.Get();
 			
@@ -4923,20 +5396,20 @@ Function CreateVersion(FileRef, FileInfo1, Context = Undefined) Export
 			If Not FileInfo1.RefToVersionSource.Volume.IsEmpty() Then
 				FullTemplateFilePath = FilesOperationsInVolumesInternal.FullFileNameInVolume(
 					FilesOperationsInVolumesInternal.FilePropertiesInVolume(FileInfo1.RefToVersionSource));
-				FilesOperationsInVolumesInternal.AppendFile(Version, FullTemplateFilePath);
+				FilesOperationsInVolumesInternal.AppendFile(Version, FullTemplateFilePath,,,Version.Volume);
 			EndIf;
 			
-		ElsIf TemplateFilesStorageType = Enums.FileStorageTypes.InInfobase
+		ElsIf WorkingWithFilesInBinaryDataWarehouseIsService.StorageTypeDoesNotUseDisks(TemplateFilesStorageType)
 			And FilesStorageTyoe = Enums.FileStorageTypes.InVolumesOnHardDrive Then
-			
-			// The template is located in the infobase, the new file is located in a volume.
-			// In this case, "TempFileStorageAddress" takes the value from the file's "ValueStorage".
-			FilesOperationsInVolumesInternal.AppendFile(Version, FileInfo1.TempFileStorageAddress.Get());
-			
-		ElsIf TemplateFilesStorageType = Enums.FileStorageTypes.InVolumesOnHardDrive
-			And FilesStorageTyoe = Enums.FileStorageTypes.InInfobase Then
-			
-			// The template is in the volume and the new file is in the infobase.
+
+			// The template and the new file are located in the infobase or a binary data storage.
+			// When a "File" instance is created, the value is copied directly from the template storage.
+			FilesOperationsInVolumesInternal.AppendFile(Version, FileInfo1.TempFileStorageAddress.Get(),,,Version.Volume);
+
+		ElsIf TemplateFilesStorageType = Enums.FileStorageTypes.InVolumesOnHardDrive			
+			And WorkingWithFilesInBinaryDataWarehouseIsService.StorageTypeDoesNotUseDisks(FilesStorageTyoe) Then
+
+			// The template is stored in a volume; the new file is stored in the infobase or a binary data storage.
 			If Not FileInfo1.RefToVersionSource.Volume.IsEmpty() Then
 				BinaryDataOrPath = FilesOperationsInVolumesInternal.FileData(FileInfo1.RefToVersionSource);
 			EndIf;
@@ -4952,16 +5425,15 @@ Function CreateVersion(FileRef, FileInfo1, Context = Undefined) Export
 				Version.Size = BinaryDataOrPath.Size();
 				CheckFileSizeForImport(Version);
 			EndIf;
-			
+
 			If FilesStorageTyoe = Enums.FileStorageTypes.InVolumesOnHardDrive Then
 				If Context <> Undefined Then
 					FillPropertyValues(Version, Context.AttributesToChange);
 				Else
-					FilesOperationsInVolumesInternal.AppendFile(Version, BinaryDataOrPath);
+					FilesOperationsInVolumesInternal.AppendFile(Version, BinaryDataOrPath,,,Version.Volume);
 				EndIf;
-				
 			EndIf;
-			
+
 		Else
 			
 			BinaryDataOrPath = FileInfo1.TempFileStorageAddress;
@@ -4975,9 +5447,10 @@ Function CreateVersion(FileRef, FileInfo1, Context = Undefined) Export
 
 	Version.Fill(Undefined);
 	Version.Write();
-	
-	If FilesStorageTyoe = Enums.FileStorageTypes.InInfobase Then
-		WriteFileToInfobase(Version.Ref, BinaryDataOrPath);
+
+	If WorkingWithFilesInBinaryDataWarehouseIsService.StorageTypeDoesNotUseDisks(Version.FileStorageType) Then
+		RecordingParametersVIB = WorkingWithServerFileArchive.CompletedParametersOfEntryInInformationDatabase(Version);
+		WriteFileToInfobase(Version.Ref, BinaryDataOrPath, RecordingParametersVIB);
 	EndIf;
 	
 	Return Version.Ref;
@@ -5100,12 +5573,12 @@ Function UpdateFileVersion(FileRef,
 	Version.Comment = FileInfo1.Comment;
 	Version.Extension = CommonClientServer.ExtensionWithoutPoint(FileInfo1.ExtensionWithoutPoint);
 	
-	FileStorageType = FileStorageType(FileInfo1.Size, FileInfo1.ExtensionWithoutPoint);
-	Version.FileStorageType = FileStorageType;
-	
 	If BinaryData = Undefined Then
 		BinaryData = BinaryDataFromFileInformation(FileInfo1);
 	EndIf;
+	
+	WorkingWithServerFileArchive.FillInFileStorageParameters(Version, BinaryData, FileInfo1.Size, FileInfo1.ExtensionWithoutPoint);
+	FileStorageType = Version.FileStorageType;
 	
 	If Version.Size = 0 Then
 		Version.Size = BinaryData.Size();
@@ -5238,6 +5711,10 @@ Procedure UpdateVersionInFile(FileRef,
 		
 		CatalogMetadata = Metadata.FindByType(TypeOf(FileRef));
 		
+		If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
+			ModuleAccessManagement = Common.CommonModule("AccessManagement");
+			ModuleAccessManagement.SetLockBeforeWriteToFileIB();
+		EndIf;
 		DataLock = New DataLock;
 		DataLockItem = DataLock.Add(CatalogMetadata.FullName());
 		DataLockItem.SetValue("Ref", FileRef);
@@ -5321,6 +5798,15 @@ Procedure CheckFileSizeForImport(File) Export
 			FilesOperationsInternalClientServer.FileSizePresentation(SizeInMBMax));
 	EndIf;
 	
+EndProcedure
+
+Procedure SetVisibilityOfSendingForSigningCommand(Items, Command, Visible, Title)
+	If Items.Find(Command) <> Undefined Then
+		Items[Command].Visible = Visible;
+		If Visible And ValueIsFilled(Title) Then
+			Items[Command].Title = Title;
+		EndIf;
+	EndIf;
 EndProcedure
 
 #EndRegion
@@ -5657,6 +6143,7 @@ Function DigitalSignaturesList(Source, UUID)
 			ModuleDigitalSignature = Common.CommonModule("DigitalSignature");
 			
 			SignaturesAcquisitionParameters = ModuleDigitalSignature.NewObjectSignaturesAcquisitionParameters();
+			SignaturesAcquisitionParameters.ShouldReturnExpectedSignatures = True;
 			SignaturesAcquisitionParameters.ShouldReturnMachineReadableLOAData = True;
 			SignaturesAcquisitionParameters.ShouldExtractCertificatesFromSignatures = True;
 			DigitalSignatures = ModuleDigitalSignature.ObjectSignatures(Source.Ref, SignaturesAcquisitionParameters);
@@ -5665,7 +6152,11 @@ Function DigitalSignaturesList(Source, UUID)
 			For Each FileDigitalSignature In DigitalSignatures Do
 				
 				FileDigitalSignature.Insert("Object", Source.Ref);
-				SignatureAddress = PutToTempStorage(FileDigitalSignature.Signature, UUID);
+				If ValueIsFilled(FileDigitalSignature.Signature) Then
+					SignatureAddress = PutToTempStorage(FileDigitalSignature.Signature, UUID);
+				Else
+					SignatureAddress = "";
+				EndIf;
 				FileDigitalSignature.Insert("SignatureAddress", SignatureAddress);
 				
 				
@@ -5771,6 +6262,7 @@ Function FilesSettings() Export
 	FilesSettings.Insert("DontOutputToInterface",      New Array);
 	FilesSettings.Insert("DontCreateFilesByTemplate", New Array);
 	FilesSettings.Insert("FilesWithoutFolders",             New Array);
+	FilesSettings.Insert("FileArchiveIsAvailable",     True);
 	
 	SSLSubsystemsIntegration.OnDefineFileSynchronizationExceptionObjects(FilesSettings.NotSynchronizeFiles);
 	FilesOperationsOverridable.OnDefineSettings(FilesSettings);
@@ -6691,10 +7183,10 @@ Function CallGETMethod(FileAddressHRef, EtagID, SynchronizationParameters, FileM
 	FileWithBinaryData = SynchronizationParameters.Response.GetBodyAsBinaryData(); // BinaryData
 	
 	// ACC:216-off External service IDs contain Latin and Cyrillic letters.
-	Var_652_HTTPHeaders = StandardSubsystemsServer.HTTPHeadersInLowercase(SynchronizationParameters.Response.Headers);
-	EtagID = ?(Var_652_HTTPHeaders["etagid"] = Undefined, "", Var_652_HTTPHeaders["etagid"]);
-	FileModificationDate = ?(Var_652_HTTPHeaders["last-modified"] = Undefined, CurrentUniversalDate(), 
-		CommonClientServer.RFC1123Date(Var_652_HTTPHeaders["last-modified"]));
+	Var_701_HTTPHeaders = StandardSubsystemsServer.HTTPHeadersInLowercase(SynchronizationParameters.Response.Headers);
+	EtagID = ?(Var_701_HTTPHeaders["etagid"] = Undefined, "", Var_701_HTTPHeaders["etagid"]);
+	FileModificationDate = ?(Var_701_HTTPHeaders["last-modified"] = Undefined, CurrentUniversalDate(), 
+		CommonClientServer.RFC1123Date(Var_701_HTTPHeaders["last-modified"]));
 	FileLength = FileWithBinaryData.Size();
 	// ACC:216-on
 	
@@ -7593,7 +8085,7 @@ Procedure ImportNewAttachedFiles(FilesTreeRows, TableOfFiles, SynchronizationPar
 				
 				// The directory is found by "Href". Now, find the record in the "FilesSynchronizationWithCloudServiceStatuses" information register by "UID1C".
 // @skip-check query-in-loop - A rare query in a cycle during batch data import.
-				// @skip-check query-in-loop - Редкий запрос в цикле при пакетной загрузке данных.
+				// @skip-check query-in-loop - 
 				CurrentFilesFolder = FileOwnerByUID(PreviousFIlesTableRow.UID1C);	
 				If Not ValueIsFilled(CurrentFilesFolder) Then
 					EventText = NStr("en = 'Cannot synchronize the %1 folder.
@@ -7619,7 +8111,7 @@ Procedure ImportNewAttachedFiles(FilesTreeRows, TableOfFiles, SynchronizationPar
 				PreviousFIlesTableRow.ModifiedAtServer   = Not IsIdenticalURIPaths(PreviousFIlesTableRow.ToHref,PreviousFIlesTableRow.Href);
 			EndIf;
 			
-			// @skip-check query-in-loop - Рекурсивный алгоритм обработки дерева.
+			// @skip-check query-in-loop - 
 			ImportNewAttachedFiles(FilesTreeRow.Rows, TableOfFiles, SynchronizationParameters, Signatures, CurrentFilesFolder.Ref);
 			Continue;
 			
@@ -7924,7 +8416,7 @@ Procedure FillDataFromCloudService(FilesTreeRows, TableOfFiles, SynchronizationP
 					PreviousFIlesTableRow.Href);
 			EndIf; 
 			
-			// @skip-check query-in-loop - Рекурсивный алгоритм обработки дерева.
+			// @skip-check query-in-loop - 
 			FillDataFromCloudService(FilesTreeRow.Rows, TableOfFiles, SynchronizationParameters, 
 				CurrentFilesFolder.Ref);
 			Continue;
@@ -8958,7 +9450,7 @@ Procedure DeleteUnsynchronizedFiles()
 	|	FileSynchronizationAccounts.Ref";
 	SelectionAccount = Query.Execute().Select();
 	While SelectionAccount.Next() Do
-		// @skip-check query-in-loop
+		// @skip-check query-in-loop - Batch processing of a large amount of data.
 		DeleteAccountUnsynchronizedFiles(SelectionAccount.Account);
 	EndDo;
 	
@@ -9326,8 +9818,8 @@ Function FileWithBinaryDataName(ObjectRef)
 	
 	FullFileName = "";
 	
-	If ObjectRef.FileStorageType = Enums.FileStorageTypes.InInfobase Then
-		
+	If WorkingWithFilesInBinaryDataWarehouseIsService.StorageTypeDoesNotUseDisks(ObjectRef.FileStorageType) Then
+
 		FileStorage1 = FilesOperations.FileFromInfobaseStorage(ObjectRef);
 		If FileStorage1 = Undefined Then
 			Return "";
@@ -9426,6 +9918,20 @@ Function ExtractText1(Val TempTextStorageAddress, Val BinaryData = Undefined,
 		Return Result;
 	EndIf;
 	
+	SecureExtension = TextExtractionExtensionIsCorrect(Extension);
+	
+	If Not SecureExtension Then
+		Result.TextExtractionStatus = Enums.FileTextExtractionStatuses.NotExtracted;
+		Result.TextStorage = New ValueStorage("");
+		
+		WriteLogEvent(TextExtractionLogEvent(),
+			EventLogLevel.Warning,,,
+			StringFunctionsClientServer.SubstituteParametersToString
+				(NStr("en = 'You tried to extract text from a file with an invalid extension: %1'"), Extension));
+		
+		Return Result;
+	EndIf;
+		
 	// The text is extracted right away, not in the scheduled job.
 	TempFileName = GetTempFileName(Extension);
 	BinaryData.Write(TempFileName);
@@ -9433,11 +9939,27 @@ Function ExtractText1(Val TempTextStorageAddress, Val BinaryData = Undefined,
 	Try
 		DeleteFiles(TempFileName);
 	Except
-		WriteLogEvent(NStr("en = 'Files.Extract text'",	Common.DefaultLanguageCode()),
+		WriteLogEvent(TextExtractionLogEvent(),
 			EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 	EndTry;
 	
 	Return Result;
+	
+EndFunction
+
+Function TextExtractionExtensionIsCorrect(Extension)
+	
+	If Extension = Undefined Or IsBlankString(Extension) Then
+		Return True;
+	EndIf;
+	
+	InvalidChars = CommonClientServer.FindProhibitedCharsInFileName(Extension);
+	If InvalidChars.Count() > 0 
+	 Or StrLen(Extension) > 20 Then
+		Return False;
+	EndIf;
+	
+	Return True;
 	
 EndFunction
 
@@ -9516,7 +10038,7 @@ Function RowFromTempStorage(TempTextStorageAddress)
 	Try
 		DeleteFiles(TempFileName);
 	Except
-		WriteLogEvent(NStr("en = 'Files.Extract text'",	Common.DefaultLanguageCode()),
+		WriteLogEvent(TextExtractionLogEvent(),
 			EventLogLevel.Error,,,	ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 	EndTry;
 	
@@ -9570,10 +10092,10 @@ Function ExtractTextFromFile(FileWithoutText, FileLocked)
 				TextExtractionResult = ExtractTextFromFileOnHardDrive(FileWithBinaryDataName, FileWithoutText.Encoding);
 				FileObject1.TextExtractionStatus = TextExtractionResult.TextExtractionStatus;
 				FileObject1.TextStorage = TextExtractionResult.TextStorage;
-				
+
 				OnWriteExtractedText(FileObject1, FileLocked);
-				
-				If FileObject1.FileStorageType <> Enums.FileStorageTypes.InInfobase Then
+
+				If Not WorkingWithFilesInBinaryDataWarehouseIsService.StorageTypeDoesNotUseDisks(FileObject1.FileStorageType) Then
 					FileWithBinaryDataName = "";
 				EndIf;
 				
@@ -9589,6 +10111,12 @@ Function ExtractTextFromFile(FileWithoutText, FileLocked)
 	EndTry;
 	
 	Return FileWithBinaryDataName;
+	
+EndFunction
+
+Function TextExtractionLogEvent()
+	
+	Return NStr("en = 'Files.Extract text'", Common.DefaultLanguageCode());
 	
 EndFunction
 
@@ -9705,7 +10233,7 @@ Procedure BeforeDeleteAttachedFileServer(Val Ref,
 		
 	EndIf;
 	
-	If FileStorageType = Enums.FileStorageTypes.InInfobase Then
+	If WorkingWithFilesInBinaryDataWarehouseIsService.StorageTypeDoesNotUseDisks(FileStorageType) Then
 		InformationRegisters.FileRepository.DeleteBinaryData(Ref);
 	EndIf;
 	
@@ -9856,5 +10384,25 @@ Procedure UpdateTextFilesExtensionsList() Export
 EndProcedure
 
 #EndRegion
+
+// See StandardSubsystemsServer.WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode
+Procedure WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode(Methods) Export
+	
+	Methods.Insert("VersionsWithUnextractedTextCount", True);
+	Methods.Insert("InformationAboutFilesToBeCleaned", True);
+	Methods.Insert("CreateServerInitialImageAtServer", True);
+	Methods.Insert("CreateFileInitialImageAtServer", True);
+	Methods.Insert("UnlockLockedFilesBackground", True);
+	Methods.Insert("ExtractTextFromFilesAtServer", True);
+	Methods.Insert("ClearExcessiveFiles", True);
+	Methods.Insert("ScheduledFileSynchronizationWebdav", True);
+	Methods.Insert("FileDataToOpenAsynchronous", True);
+	Methods.Insert("FileDataToSaveAsynchronous", True);
+	Methods.Insert("FileDataEmailManagementAsynchronous", True);
+	Methods.Insert("UpdateDeniedExtensionsList");
+	Methods.Insert("UpdateTextFilesExtensionsList");
+	Methods.Insert("UpdateProhibitedExtensionListInDataArea");
+	
+EndProcedure
 
 #EndRegion

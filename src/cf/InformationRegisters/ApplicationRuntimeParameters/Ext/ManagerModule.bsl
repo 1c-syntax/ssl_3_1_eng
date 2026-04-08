@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -138,6 +137,54 @@ Procedure UpdateApplicationParameter(ParameterName, Value, HasChanges = False, P
 	EndIf;
 	
 	SetApplicationParameter(ParameterName, Value);
+	
+EndProcedure
+
+// See StandardSubsystemsServer.DeleteApplicationOperationParameter.
+Procedure DeleteApplicationOperationParameter(ParameterName, HasChanges) Export
+	
+	UsersInternal.CheckIfSafeModeOff(
+		"InformationRegisters.ApplicationRuntimeParameters.DeleteApplicationOperationParameter");
+	
+	ChangeStorageParameterName = ParameterName + ChangeStorageParameterNameClarification();
+	
+	Query = New Query;
+	Query.SetParameter("ParameterName", ParameterName);
+	Query.SetParameter("ChangeStorageParameterName", ChangeStorageParameterName);
+	Query.Text =
+	"SELECT TOP 1
+	|	TRUE AS TrueValue
+	|FROM
+	|	InformationRegister.ApplicationRuntimeParameters AS ApplicationRuntimeParameters
+	|WHERE
+	|	ApplicationRuntimeParameters.ParameterName = &ParameterName
+	|;
+	|
+	|////////////////////////////////////////////////////////////////////////////////
+	|SELECT TOP 1
+	|	TRUE AS TrueValue
+	|FROM
+	|	InformationRegister.ApplicationRuntimeParameters AS ApplicationRuntimeParameters
+	|WHERE
+	|	ApplicationRuntimeParameters.ParameterName = &ChangeStorageParameterName";
+	
+	QueryResults = Query.ExecuteBatch();
+	
+	Selection = QueryResults[0].Select();
+	If Selection.Next() Then
+		RecordSet = ServiceRecordSet(InformationRegisters.ApplicationRuntimeParameters);
+		RecordSet.Filter.ParameterName.Set(ParameterName);
+		RecordSet.Write();
+		HasChanges = True;
+	EndIf;
+	
+	Selection = QueryResults[1].Select();
+	If Selection.Next() Then
+		RecordSet = ServiceRecordSet(InformationRegisters.ApplicationRuntimeParameters);
+		RecordSet.Filter.ParameterName.Set(ChangeStorageParameterName);
+		RecordSet.Write();
+		HasChanges = True;
+	EndIf;
 	
 EndProcedure
 
@@ -584,7 +631,7 @@ Function ParametersOfUpdate(ShouldUpdate = False) Export
 	ParametersSubsystems.Insert("ParametersIndexSearchReportsConfiguration", NewUpdateParameterProperties(ShouldUpdate));
 	Parameters.Insert("ReportsOptions", ParametersSubsystems);
 	
-	// StandardSubsystems NotificationAtStartup
+	// StandardSubsystems InformationOnStart
 	ParametersSubsystems.Insert("InformationPackagesOnStart", NewUpdateParameterProperties(ShouldUpdate));
 	Parameters.Insert("InformationOnStart", ParametersSubsystems);
 	
@@ -607,8 +654,10 @@ Procedure ExecuteUpdateUnsharedDataInBackground(Parameters, FormIdentifier) Expo
 	OperationParametersList.NoExtensions = True;
 	OperationParametersList.WaitCompletion = Undefined;
 	
-	ProcedureName = "InformationRegisters.ApplicationRuntimeParameters.LongOperationHandlerPerformUpdateUnsharedData";
-	TimeConsumingOperation = TimeConsumingOperations.ExecuteInBackground(ProcedureName, Parameters, OperationParametersList);
+	TimeConsumingOperation = TimeConsumingOperations.ExecuteInBackground(
+		"InformationRegisters.ApplicationRuntimeParameters.LongOperationHandlerPerformUpdateUnsharedData",
+		Parameters,
+		OperationParametersList);
 	
 	If TimeConsumingOperation.Status <> "Completed2" Then
 		If TimeConsumingOperation.Status = "Error" Then
@@ -734,7 +783,7 @@ Procedure LongOperationHandlerPerformUpdateUnsharedData(Parameters, ResultAddres
 		EndIf;
 	EndIf;
 	
-	// StandardSubsystems NotificationAtStartup
+	// StandardSubsystems InformationOnStart
 	If Common.SubsystemExists("StandardSubsystems.InformationOnStart") Then
 		ModuleInformationOnStart = Common.CommonModule("InformationOnStart");
 		If Parameters.InformationOnStart.InformationPackagesOnStart.ShouldUpdate Then
@@ -1388,6 +1437,16 @@ Procedure ClearAPIsCache(HasChanges)
 EndProcedure
 
 #EndRegion
+
+// See StandardSubsystemsServer.WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode
+Procedure WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode(Methods) Export
+	
+	Methods.Insert("ApplicationParametersImportLongRunningOperationHandler", True);
+	Methods.Insert("ApplicationParametersUpdateLongRunningOperationHandler", True);
+	Methods.Insert("ExtensionsVersionsParametersUpdateLongRunningOperationHandler", True);
+	Methods.Insert("LongOperationHandlerPerformUpdateUnsharedData", True);
+	
+EndProcedure
 
 #EndRegion
 

@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Internal
@@ -229,17 +228,39 @@ Procedure UpdateCircuit(ExchangePlanName) Export
 	While Selection.Next() Do
 		
 		If Selection.UpdateBankingDetails Then
-			
-			Record = InformationRegisters.SynchronizationCircuit.CreateRecordManager();
-			FillPropertyValues(Record, Selection);
-			Record.Read();
-			Record.NodeCode = ThisNode.Code;
-			Record.NodeName = ThisNode.Description;
-			Record.CorrespondentNodeCode = Selection.Code;
-			Record.PeerInfobaseNodeName = Selection.Description;
-			Record.LatestUpdate = ToUniversalTime(CurrentSessionDate());
-			Record.Prefix = Prefix;
-			Record.Write();
+			BeginTransaction();
+
+			Try
+				DataLock = New DataLock;
+				DataLockItem = DataLock.Add("InformationRegister.SynchronizationCircuit");
+				DataLockItem.SetValue("InfobaseNode", Selection.InfobaseNode);
+				DataLockItem.SetValue("NodeCode", Selection.NodeCode);
+				DataLockItem.SetValue("CorrespondentNodeCode", Selection.CorrespondentNodeCode);
+				DataLockItem.Mode = DataLockMode.Exclusive;
+				DataLock.Lock();
+
+				Record = InformationRegisters.SynchronizationCircuit.CreateRecordManager();
+				FillPropertyValues(Record, Selection);
+				Record.Read();
+				Record.NodeCode = ThisNode.Code;
+				Record.NodeName = ThisNode.Description;
+				Record.CorrespondentNodeCode = Selection.Code;
+				Record.PeerInfobaseNodeName = Selection.Description;
+				Record.LatestUpdate = ToUniversalTime(CurrentSessionDate());
+				Record.Prefix = Prefix;
+				Record.Write();
+
+				CommitTransaction();
+			Except
+				RollbackTransaction();
+
+				ErrorMessage = ErrorProcessing.DetailErrorDescription(ErrorInfo());
+
+				Event = NStr("en = 'Loop control.Update sync circuit record attributes'", Common.DefaultLanguageCode());
+
+				WriteLogEvent(Event, EventLogLevel.Error,
+					Metadata.InformationRegisters.SynchronizationCircuit, , ErrorMessage);
+			EndTry; 
 			
 		ElsIf Selection.AddNodeToCircuit Then
 			
@@ -251,24 +272,70 @@ Procedure UpdateCircuit(ExchangePlanName) Export
 			Record.PeerInfobaseNodeName = Selection.Description;
 			Record.LatestUpdate = ToUniversalTime(CurrentSessionDate());
 			Record.Prefix = Prefix;
-			Record.Write();
+			Record.Write(); 
 			
 		ElsIf Selection.RemoveNodeFromCircuit Then
 			
-			Record = InformationRegisters.SynchronizationCircuit.CreateRecordManager();
-			FillPropertyValues(Record, Selection);
-			Record.Read();
-			Record.Delete();
-			
-			DeletePeerNode(Selection.NodeCode, Selection.CorrespondentNodeCode);
+			BeginTransaction();
+
+			Try
+				DataLock = New DataLock;
+				DataLockItem = DataLock.Add("InformationRegister.SynchronizationCircuit");
+				DataLockItem.SetValue("InfobaseNode", Selection.InfobaseNode);
+				DataLockItem.SetValue("NodeCode", Selection.NodeCode);
+				DataLockItem.SetValue("CorrespondentNodeCode", Selection.CorrespondentNodeCode);
+				DataLockItem.Mode = DataLockMode.Exclusive;
+				DataLock.Lock();
+
+				Record = InformationRegisters.SynchronizationCircuit.CreateRecordManager();
+				FillPropertyValues(Record, Selection);
+				Record.Read();
+				Record.Delete();
+
+				DeletePeerNode(Selection.NodeCode, Selection.CorrespondentNodeCode);
+
+				CommitTransaction();
+			Except
+				RollbackTransaction();
+
+				ErrorMessage = ErrorProcessing.DetailErrorDescription(ErrorInfo());
+
+				Event = NStr("en = 'Loop control.Remove sync circuit record'", Common.DefaultLanguageCode());
+
+				WriteLogEvent(Event, EventLogLevel.Error,
+					Metadata.InformationRegisters.SynchronizationCircuit, , ErrorMessage);
+			EndTry;
 			
 		ElsIf Selection.InstallNewestUpdate Then
 			
-			Record = InformationRegisters.SynchronizationCircuit.CreateRecordManager();
-			FillPropertyValues(Record, Selection);
-			Record.Read();
-			Record.LatestUpdate = ToUniversalTime(CurrentSessionDate());
-			Record.Write();
+			BeginTransaction();
+
+			Try
+				DataLock = New DataLock;
+				DataLockItem = DataLock.Add("InformationRegister.SynchronizationCircuit");
+				DataLockItem.SetValue("InfobaseNode", Selection.InfobaseNode);
+				DataLockItem.SetValue("NodeCode", Selection.NodeCode);
+				DataLockItem.SetValue("CorrespondentNodeCode", Selection.CorrespondentNodeCode);
+				DataLockItem.Mode = DataLockMode.Exclusive;
+				DataLock.Lock();
+
+				Record = InformationRegisters.SynchronizationCircuit.CreateRecordManager();
+				FillPropertyValues(Record, Selection);
+				Record.Read();
+				Record.LatestUpdate = ToUniversalTime(CurrentSessionDate());
+				Record.Write();
+
+				CommitTransaction();
+			Except
+				RollbackTransaction();
+
+				ErrorMessage = ErrorProcessing.DetailErrorDescription(ErrorInfo());
+
+				Event = NStr("en = 'Loop control.Clear outdated version'", Common.DefaultLanguageCode());
+
+				WriteLogEvent(Event, EventLogLevel.Error,
+					Metadata.InformationRegisters.SynchronizationCircuit, , ErrorMessage);
+			EndTry;
 			
 		EndIf;
 		
@@ -352,43 +419,124 @@ Procedure CheckLooping(ExchangePlanName, Mode = "CircuitImport") Export
 		
 EndProcedure  
 
-Function HasLoop() Export
+Procedure HideShowLoopingWarningFromUser(Direction) Export
 	
-	SetPrivilegedMode(True);
+	SettingsDescription = NStr("en = 'Hide warning about cyclic synchronization.'", Common.DefaultLanguageCode());
 	
-	Query = New Query;
-	Query.Text = 
-		"SELECT
-		|	TRUE AS HasLoop
-		|FROM
-		|	InformationRegister.SynchronizationCircuit AS SynchronizationCircuit
-		|WHERE
-		|	SynchronizationCircuit.Looping";
+	ObjectKey = "HideShowLoopingWarning";
+	SettingsKey = "HideShowLoopingWarning";
+	Common.CommonSettingsStorageSave(ObjectKey, SettingsKey, Direction);
 	
-	Result = Query.Execute();
+EndProcedure
+
+Function LoopingWarningIsHiddenFromUser() Export
 	
-	Return Not Result.IsEmpty();
+	ObjectKey = "HideShowLoopingWarning";
+	SettingsKey = "HideShowLoopingWarning";
+	Return Common.CommonSettingsStorageLoad(ObjectKey, SettingsKey, False);
 	
 EndFunction
 
-Function IsNodeLooped(InfobaseNode) Export
+Function HasLoop(ConsiderDisablingMonitoring = True) Export
 	
-	Query = New Query;
-	Query.Text = 
-		"SELECT
-		|	SynchronizationCircuit.InfobaseNode AS InfobaseNode
-		|FROM
-		|	InformationRegister.SynchronizationCircuit AS SynchronizationCircuit
-		|WHERE
-		|	SynchronizationCircuit.Looping
-		|	AND (SynchronizationCircuit.NodeCode = &NodeCode
-		|			OR SynchronizationCircuit.CorrespondentNodeCode = &NodeCode)";
+	SetPrivilegedMode(True);
 	
-	Query.SetParameter("NodeCode", InfobaseNode.Code);
+	Query = New Query(
+	"SELECT TOP 1
+	|	TRUE AS DisableSynchronizationCircuitMonitoring
+	|INTO ContourMonitoringIsDisabled
+	|FROM
+	|	InformationRegister.CommonInfobasesNodesSettings AS CommonInfobasesNodesSettings
+	|WHERE
+	|	CommonInfobasesNodesSettings.DisableSynchronizationCircuitMonitoring = TRUE
+	|;
+	|
+	|////////////////////////////////////////////////////////////////////////////////
+	|SELECT TOP 1
+	|	TRUE AS HasLoop,
+	|	ContourMonitoringIsDisabled.DisableSynchronizationCircuitMonitoring AS DisableSynchronizationCircuitMonitoring
+	|FROM
+	|	InformationRegister.SynchronizationCircuit AS SynchronizationCircuit
+	|		LEFT JOIN ContourMonitoringIsDisabled AS ContourMonitoringIsDisabled
+	|		ON (ContourMonitoringIsDisabled.DisableSynchronizationCircuitMonitoring = TRUE)
+	|WHERE
+	|	SynchronizationCircuit.Looping");
 	
 	Result = Query.Execute();
+	If Result.IsEmpty() Then
+		
+		Return False;
+		
+	EndIf;
 	
-	Return Not Result.IsEmpty();
+	// Verify if control is disabled
+	If ConsiderDisablingMonitoring Then
+		
+		SelectionOfResult = Result.Select();
+		SelectionOfResult.Next();
+		If SelectionOfResult.DisableSynchronizationCircuitMonitoring = True Then
+			
+			Return False; // Control is disabled
+			
+		EndIf;
+		
+	EndIf;
+	
+	Return True;
+	
+EndFunction
+
+Function IsNodeLooped(InfobaseNode, ConsiderDisablingMonitoring = True) Export
+	
+	Query = New Query;
+	Query.SetParameter("InfobaseNode", InfobaseNode);
+	Query.SetParameter("NodeCode", InfobaseNode.Code);
+	
+	// Allow the OR clause in the left join, as the number of nodes is tens, hundreds at most.
+	Query.Text = 
+	"SELECT TOP 1
+	|	CommonInfobasesNodesSettings.DisableSynchronizationCircuitMonitoring AS DisableSynchronizationCircuitMonitoring,
+	|	CommonInfobasesNodesSettings.InfobaseNode AS InfobaseNode
+	|INTO ContourMonitoringIsDisabled
+	|FROM
+	|	InformationRegister.CommonInfobasesNodesSettings AS CommonInfobasesNodesSettings
+	|WHERE
+	|	CommonInfobasesNodesSettings.InfobaseNode = &InfobaseNode
+	|;
+	|
+	|////////////////////////////////////////////////////////////////////////////////
+	|SELECT TOP 1
+	|	SynchronizationCircuit.InfobaseNode AS InfobaseNode,
+	|	ContourMonitoringIsDisabled.DisableSynchronizationCircuitMonitoring AS DisableSynchronizationCircuitMonitoring
+	|FROM
+	|	InformationRegister.SynchronizationCircuit AS SynchronizationCircuit,
+	|	ContourMonitoringIsDisabled AS ContourMonitoringIsDisabled
+	|WHERE
+	|	SynchronizationCircuit.Looping
+	|	AND (SynchronizationCircuit.NodeCode = &NodeCode
+	|			OR SynchronizationCircuit.CorrespondentNodeCode = &NodeCode)";
+	
+	Result = Query.Execute();
+	If Result.IsEmpty() Then
+		
+		Return False;
+		
+	EndIf;
+	
+	// Verify if control is disabled
+	If ConsiderDisablingMonitoring Then
+		
+		SelectionOfResult = Result.Select();
+		SelectionOfResult.Next();
+		If SelectionOfResult.DisableSynchronizationCircuitMonitoring = True Then
+			
+			Return False; // Control is disabled
+			
+		EndIf;
+		
+	EndIf;
+	
+	Return True;
 	
 EndFunction
 
@@ -459,18 +607,22 @@ Function CheckLoopRecursively(SynchronizationCircuit, InitialNode, CurrentNode =
 	
 	If NodesChain = Undefined Then
 		NodesChain = New ValueList; 
-	Else
-		NodesChain.Add(CurrentNode);
 	EndIf;
 	
-	If CurrentNode = "" Then
-		CurrentNode = InitialNode;
-	EndIf;
-	
-	If NodesChain.FindByValue(InitialNode) <> Undefined Then
+	If NodesChain.FindByValue(CurrentNode) <> Undefined Then // The node has already been analyzed
 		Return NodesChain;
 	EndIf;
-		
+	
+	If NodesChain.FindByValue(InitialNode) <> Undefined Then // Loop detected
+		Return NodesChain;
+	EndIf;
+	
+	If IsBlankString(CurrentNode) Then
+		CurrentNode = InitialNode;
+	Else
+		NodesChain.Add(CurrentNode); // Add all nodes except for the initial node
+	EndIf;
+	
 	Filter = New Structure("NodeCode", CurrentNode);
 	Nodes = SynchronizationCircuit.Rows.FindRows(Filter);
 	
@@ -486,11 +638,11 @@ Function CheckLoopRecursively(SynchronizationCircuit, InitialNode, CurrentNode =
 			If Result <> Undefined Then
 				Return Result;
 			EndIf;
-				
+			
 		EndDo;
 	EndDo;
 	
-EndFunction 
+EndFunction
 
 Procedure UpdateCircuitFromTree(Tree, ExchangePlanName)
 	
@@ -535,12 +687,35 @@ Procedure UpdateCircuitFromTree(Tree, ExchangePlanName)
 			
 			For Each CircuitPeerNode In CircuitNodes[0].Rows Do
 				
-				Record = InformationRegisters.SynchronizationCircuit.CreateRecordManager();
-				Record.InfobaseNode = Undefined;
-				Record.NodeCode = CircuitPeerNode.NodeCode;
-				Record.CorrespondentNodeCode = CircuitPeerNode.CorrespondentNodeCode;
-				Record.Read();
-				Record.Delete();
+				BeginTransaction();
+
+				Try
+					DataLock = New DataLock;
+					DataLockItem = DataLock.Add("InformationRegister.SynchronizationCircuit");
+					DataLockItem.SetValue("InfobaseNode", Undefined);
+					DataLockItem.SetValue("NodeCode", CircuitPeerNode.NodeCode);
+					DataLockItem.SetValue("CorrespondentNodeCode", CircuitPeerNode.CorrespondentNodeCode);
+					DataLockItem.Mode = DataLockMode.Exclusive;
+					DataLock.Lock();
+
+					Record = InformationRegisters.SynchronizationCircuit.CreateRecordManager();
+					Record.InfobaseNode = Undefined;
+					Record.NodeCode = CircuitPeerNode.NodeCode;
+					Record.CorrespondentNodeCode = CircuitPeerNode.CorrespondentNodeCode;
+					Record.Read();
+					Record.Delete();
+
+					CommitTransaction();
+				Except
+					RollbackTransaction();
+
+					ErrorMessage = ErrorProcessing.DetailErrorDescription(ErrorInfo());
+
+					Event = NStr("en = 'Loop control.Update sync circuit'", Common.DefaultLanguageCode());
+
+					WriteLogEvent(Event, EventLogLevel.Error,
+						Metadata.InformationRegisters.SynchronizationCircuit, , ErrorMessage);
+				EndTry;
 				
 			EndDo;
 			
@@ -574,28 +749,50 @@ EndProcedure
 Procedure ReplacePrefixes()
 	
 	Query = New Query;
-	Query.Text = 
-		"SELECT DISTINCT
-		|	Circuit1.InfobaseNode AS InfobaseNode,
-		|	Circuit1.NodeCode AS NodeCode,
-		|	Circuit1.CorrespondentNodeCode AS CorrespondentNodeCode,
-		|	Circuit2.NodeCode AS NewCodeOfPeerNode
-		|FROM
-		|	InformationRegister.SynchronizationCircuit AS Circuit1
-		|		INNER JOIN InformationRegister.SynchronizationCircuit AS Circuit2
-		|		ON Circuit1.CorrespondentNodeCode = Circuit2.Prefix"; 
-	
+	Query.Text =
+	"SELECT DISTINCT
+	|	Circuit1.InfobaseNode AS InfobaseNode,
+	|	Circuit1.NodeCode AS NodeCode,
+	|	Circuit1.CorrespondentNodeCode AS CorrespondentNodeCode,
+	|	Circuit2.NodeCode AS NewCodeOfPeerNode
+	|FROM
+	|	InformationRegister.SynchronizationCircuit AS Circuit1
+	|		INNER JOIN InformationRegister.SynchronizationCircuit AS Circuit2
+	|		ON Circuit1.CorrespondentNodeCode = Circuit2.Prefix";
+
 	Selection = Query.Execute().Select();
-	
+
 	While Selection.Next() Do
-		
-		Record = InformationRegisters.SynchronizationCircuit.CreateRecordManager();
-		FillPropertyValues(Record, Selection);
-		Record.Read();
-		Record.CorrespondentNodeCode = Selection.NewCodeOfPeerNode;
-		Record.LatestUpdate = ToUniversalTime(CurrentSessionDate());
-		Record.Write();
-			
+		BeginTransaction();
+
+		Try
+			DataLock = New DataLock;
+			DataLockItem = DataLock.Add("InformationRegister.SynchronizationCircuit");
+			DataLockItem.SetValue("InfobaseNode", Selection.InfobaseNode);
+			DataLockItem.SetValue("NodeCode", Selection.NodeCode);
+			DataLockItem.SetValue("CorrespondentNodeCode", Selection.CorrespondentNodeCode);
+			DataLockItem.Mode = DataLockMode.Exclusive;
+			DataLock.Lock();
+
+			Record = InformationRegisters.SynchronizationCircuit.CreateRecordManager();
+			FillPropertyValues(Record, Selection);
+			Record.Read();
+			Record.CorrespondentNodeCode = Selection.NewCodeOfPeerNode;
+			Record.LatestUpdate = ToUniversalTime(CurrentSessionDate());
+			Record.Write();
+
+			CommitTransaction();
+		Except
+			RollbackTransaction();
+
+			ErrorMessage = ErrorProcessing.DetailErrorDescription(ErrorInfo());
+
+			Event = NStr("en = 'Loop control.Replace prefixes'", Common.DefaultLanguageCode());
+
+			WriteLogEvent(Event, EventLogLevel.Error,
+				Metadata.InformationRegisters.SynchronizationCircuit, , ErrorMessage);
+		EndTry;
+
 	EndDo;
 	
 EndProcedure
@@ -620,12 +817,35 @@ Procedure SetLoopFlag(NodesList = Undefined)
 	
 	While Selection.Next() Do
 		
-		Record = InformationRegisters.SynchronizationCircuit.CreateRecordManager();
-		FillPropertyValues(Record, Selection);
-		Record.Read();
-		Record.Looping = True;
-		Record.LatestUpdate = ToUniversalTime(CurrentSessionDate());
-		Record.Write();
+		BeginTransaction();
+
+		Try
+			DataLock = New DataLock;
+			DataLockItem = DataLock.Add("InformationRegister.SynchronizationCircuit");
+			DataLockItem.SetValue("InfobaseNode", Selection.InfobaseNode);
+			DataLockItem.SetValue("NodeCode", Selection.NodeCode);
+			DataLockItem.SetValue("CorrespondentNodeCode", Selection.CorrespondentNodeCode);
+			DataLockItem.Mode = DataLockMode.Exclusive;
+			DataLock.Lock();
+
+			Record = InformationRegisters.SynchronizationCircuit.CreateRecordManager();
+			FillPropertyValues(Record, Selection);
+			Record.Read();
+			Record.Looping = True;
+			Record.LatestUpdate = ToUniversalTime(CurrentSessionDate());
+			Record.Write();
+
+			CommitTransaction();
+		Except
+			RollbackTransaction();
+
+			ErrorMessage = ErrorProcessing.DetailErrorDescription(ErrorInfo());
+
+			Event = NStr("en = 'Loop control.Update loop flag'", Common.DefaultLanguageCode());
+
+			WriteLogEvent(Event, EventLogLevel.Error,
+				Metadata.InformationRegisters.SynchronizationCircuit, , ErrorMessage);
+		EndTry;
 		
 		InformationRegisters.CommonInfobasesNodesSettings.SetLoop(Selection.InfobaseNode, True);
 			
@@ -650,12 +870,35 @@ Procedure ClearLoopFlag()
 	
 	While Selection.Next() Do
 		
-		Record = InformationRegisters.SynchronizationCircuit.CreateRecordManager();
-		FillPropertyValues(Record, Selection);
-		Record.Read();
-		Record.Looping = False;
-		Record.LatestUpdate = ToUniversalTime(CurrentSessionDate());
-		Record.Write();
+		BeginTransaction();
+
+		Try
+			DataLock = New DataLock;
+			DataLockItem = DataLock.Add("InformationRegister.SynchronizationCircuit");
+			DataLockItem.SetValue("InfobaseNode", Selection.InfobaseNode);
+			DataLockItem.SetValue("NodeCode", Selection.NodeCode);
+			DataLockItem.SetValue("CorrespondentNodeCode", Selection.CorrespondentNodeCode);
+			DataLockItem.Mode = DataLockMode.Exclusive;
+			DataLock.Lock();
+
+			Record = InformationRegisters.SynchronizationCircuit.CreateRecordManager();
+			FillPropertyValues(Record, Selection);
+			Record.Read();
+			Record.Looping = False;
+			Record.LatestUpdate = ToUniversalTime(CurrentSessionDate());
+			Record.Write();
+
+			CommitTransaction();
+		Except
+			RollbackTransaction();
+
+			ErrorMessage = ErrorProcessing.DetailErrorDescription(ErrorInfo());
+
+			Event = NStr("en = 'Loop control.Update loop flag'", Common.DefaultLanguageCode());
+
+			WriteLogEvent(Event, EventLogLevel.Error,
+				Metadata.InformationRegisters.SynchronizationCircuit, , ErrorMessage);
+		EndTry;
 		
 		InformationRegisters.CommonInfobasesNodesSettings.SetLoop(Selection.InfobaseNode, False, False);
 			
@@ -685,10 +928,35 @@ Procedure DeletePeerNode(NodeCode, CorrespondentNodeCode)
 	Selection = Query.Execute().Select();
 	
 	While Selection.Next() Do
-		Record = InformationRegisters.SynchronizationCircuit.CreateRecordManager();
-		FillPropertyValues(Record, Selection);
-		Record.Read();
-		Record.Delete();
+		
+		BeginTransaction();
+
+		Try
+			DataLock = New DataLock;
+			DataLockItem = DataLock.Add("InformationRegister.SynchronizationCircuit");
+			DataLockItem.SetValue("InfobaseNode", Selection.InfobaseNode);
+			DataLockItem.SetValue("NodeCode", Selection.NodeCode);
+			DataLockItem.SetValue("CorrespondentNodeCode", Selection.CorrespondentNodeCode);
+			DataLockItem.Mode = DataLockMode.Exclusive;
+			DataLock.Lock();
+
+			Record = InformationRegisters.SynchronizationCircuit.CreateRecordManager();
+			FillPropertyValues(Record, Selection);
+			Record.Read();
+			Record.Delete();
+
+			CommitTransaction();
+		Except
+			RollbackTransaction();
+
+			ErrorMessage = ErrorProcessing.DetailErrorDescription(ErrorInfo());
+
+			Event = NStr("en = 'Loop control.Remove record'", Common.DefaultLanguageCode());
+
+			WriteLogEvent(Event, EventLogLevel.Error,
+				Metadata.InformationRegisters.SynchronizationCircuit, , ErrorMessage);
+		EndTry; 
+		
 	EndDo;
 	
 EndProcedure

@@ -92,7 +92,7 @@ Instead, use &lt;link e1cib/list/Guide.Additional reportsreferences&gt;additiona
 									</Title>
 									<ExtendedTooltip name="DenyOpeningExternalReportsAndDataProcessorsExtendedTooltip" id="105"/>
 								</Button>
-								<Button name="Allow" id="64">
+								<Button name="NotDeny" id="64">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.AllowOpeningExternalReportsAndDataProcessors</CommandName>
 									<Title>
@@ -894,7 +894,7 @@ Files from untrusted sources could harm your computer.</v8:content>
 								<Button name="Cancel13" id="258">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.StandardCommand.Cancel</CommandName>
-									<ExtendedTooltip name="Cancel13ExtendedTooltip" id="259"/>
+									<ExtendedTooltip name="Cancellation13ExtendedTooltip" id="259"/>
 								</Button>
 							</ChildItems>
 						</CommandBar>

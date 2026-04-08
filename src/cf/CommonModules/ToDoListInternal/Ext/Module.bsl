@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Internal
@@ -240,62 +239,62 @@ Procedure TransformToDoListTable(ToDoList, ViewSettings)
 	DisabledObjects = ViewSettings.DisabledObjects;
 	InvalidChars = """'`/\-[]{}:;|=?*<>,.()+#№@!%^&~ ";
 	UserTasksToRemove = New Array;
-	For Each ToDoItem In ToDoList Do
+	For Each CaseFile In ToDoList Do
 		
-		If TypeOf(ToDoItem.Owner) = Type("MetadataObject") Then
-			SectionAvailable = Common.MetadataObjectAvailableByFunctionalOptions(ToDoItem.Owner);
+		If TypeOf(CaseFile.Owner) = Type("MetadataObject") Then
+			SectionAvailable = Common.MetadataObjectAvailableByFunctionalOptions(CaseFile.Owner);
 			If Not SectionAvailable Then
-				UserTasksToRemove.Add(ToDoItem);
+				UserTasksToRemove.Add(CaseFile);
 				Continue;
 			EndIf;
 			
-			ToDoItem.OwnerID = StrReplace(ToDoItem.Owner.FullName(), ".", "");
-			ToDoItem.IsSection              = True;
-			ToDoItem.SectionPresentation   = ?(ValueIsFilled(ToDoItem.Owner.Synonym), ToDoItem.Owner.Synonym, ToDoItem.Owner.Name);
+			CaseFile.OwnerID = StrReplace(CaseFile.Owner.FullName(), ".", "");
+			CaseFile.IsSection              = True;
+			CaseFile.SectionPresentation   = ?(ValueIsFilled(CaseFile.Owner.Synonym), CaseFile.Owner.Synonym, CaseFile.Owner.Name);
 		Else
-			SectionPresentation = ToDoItem.Owner;
-			If TypeOf(ToDoItem.Owner) = Type("DataProcessorManager.ToDoList") Then
-				ToDoItem.Owner = ToDoItem.Owner.FullName();
-				SectionPresentation = ToDoItem.Owner;
+			SectionPresentation = CaseFile.Owner;
+			If TypeOf(CaseFile.Owner) = Type("DataProcessorManager.ToDoList") Then
+				CaseFile.Owner = CaseFile.Owner.FullName();
+				SectionPresentation = CaseFile.Owner;
 			EndIf;
-			ToDoItem.Owner      = StrConcat(StrSplit(ToDoItem.Owner, InvalidChars, True));
-			If StartsWithNumber(ToDoItem.Owner) Then
-				ToDoItem.Owner = "_" + ToDoItem.Owner;
+			CaseFile.Owner      = StrConcat(StrSplit(CaseFile.Owner, InvalidChars, True));
+			If StartsWithNumber(CaseFile.Owner) Then
+				CaseFile.Owner = "_" + CaseFile.Owner;
 			EndIf;
-			ToDoItem.Id = StrConcat(StrSplit(ToDoItem.Id, InvalidChars, True));
-			If StartsWithNumber(ToDoItem.Id) Then
-				ToDoItem.Id = "_" + ToDoItem.Id;
+			CaseFile.Id = StrConcat(StrSplit(CaseFile.Id, InvalidChars, True));
+			If StartsWithNumber(CaseFile.Id) Then
+				CaseFile.Id = "_" + CaseFile.Id;
 			EndIf;
 			
-			IsUserTaskID = (ToDoList.Find(ToDoItem.Owner, "Id") <> Undefined);
+			IsUserTaskID = (ToDoList.Find(CaseFile.Owner, "Id") <> Undefined);
 			If Not IsUserTaskID Then
 				IsUserTaskID = (ToDoList.Find(SectionPresentation, "Id") <> Undefined);
 			EndIf;
 			
-			ToDoItem.OwnerID = StrReplace(ToDoItem.Owner, " ", "");
-			ToDoItem.OwnerID = StrConcat(StrSplit(ToDoItem.OwnerID, InvalidChars, True));
-			If StartsWithNumber(ToDoItem.OwnerID) Then
-				ToDoItem.OwnerID = "_" + ToDoItem.OwnerID;
+			CaseFile.OwnerID = StrReplace(CaseFile.Owner, " ", "");
+			CaseFile.OwnerID = StrConcat(StrSplit(CaseFile.OwnerID, InvalidChars, True));
+			If StartsWithNumber(CaseFile.OwnerID) Then
+				CaseFile.OwnerID = "_" + CaseFile.OwnerID;
 			EndIf;
 			If Not IsUserTaskID Then
-				ToDoItem.IsSection              = True;
-				ToDoItem.SectionPresentation   = SectionPresentation;
+				CaseFile.IsSection              = True;
+				CaseFile.SectionPresentation   = SectionPresentation;
 			EndIf;
 		EndIf;
 		
-		If ValueIsFilled(ToDoItem.ToDoOwnerObject) And ToDoItem.IsSection Then
-			If DisabledObjects[ToDoItem.ToDoOwnerObject] = Undefined Then
-				DisabledObjects.Insert(ToDoItem.ToDoOwnerObject, New Array);
-				DisabledObjects[ToDoItem.ToDoOwnerObject].Add(ToDoItem.Id);
+		If ValueIsFilled(CaseFile.ToDoOwnerObject) And CaseFile.IsSection Then
+			If DisabledObjects[CaseFile.ToDoOwnerObject] = Undefined Then
+				DisabledObjects.Insert(CaseFile.ToDoOwnerObject, New Array);
+				DisabledObjects[CaseFile.ToDoOwnerObject].Add(CaseFile.Id);
 			Else
-				DisabledCases = DisabledObjects[ToDoItem.ToDoOwnerObject]; // Array
-				DisabledCases.Add(ToDoItem.Id);
+				DisabledCases = DisabledObjects[CaseFile.ToDoOwnerObject]; // Array
+				DisabledCases.Add(CaseFile.Id);
 			EndIf;
 		EndIf;
 		
 		// Backward compatibility.
-		If TypeOf(ToDoItem.HasUserTasks) = Type("Boolean") Then
-			ToDoItem.HasToDoItems = ToDoItem.HasUserTasks;
+		If TypeOf(CaseFile.HasUserTasks) = Type("Boolean") Then
+			CaseFile.HasToDoItems = CaseFile.HasUserTasks;
 		EndIf;
 		
 	EndDo;
@@ -376,8 +375,8 @@ Function ReceiveToDoItemsByObject(Handler, ViewSettings)
 	ToDoItemsToCheck = ViewSettings.DisabledObjects[ToDoOwnerObject];
 	If TypeOf(ToDoItemsToCheck) = Type("Array") Then
 		ReceiveToDoItems = False;
-		For Each ToDoItemToCheck In ToDoItemsToCheck Do
-			Value = ViewSettings.UserTasksVisible[ToDoItemToCheck];
+		For Each CaseFileToCheck In ToDoItemsToCheck Do
+			Value = ViewSettings.UserTasksVisible[CaseFileToCheck];
 			If Value <> False Then
 				ReceiveToDoItems = True;
 			EndIf;
@@ -390,5 +389,12 @@ Function ReceiveToDoItemsByObject(Handler, ViewSettings)
 	Return ReceiveToDoItems;
 	
 EndFunction
+
+// See StandardSubsystemsServer.WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode
+Procedure WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode(Methods) Export
+	
+	Methods.Insert("GenerateToDoListForUser", True);
+	
+EndProcedure
 
 #EndRegion

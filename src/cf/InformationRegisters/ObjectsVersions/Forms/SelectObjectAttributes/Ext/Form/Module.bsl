@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -169,9 +168,9 @@ EndFunction
 
 // Selects linked check boxes.
 &AtClient
-Procedure OnCheckChange(FormTree, CheckBoxName)
+Procedure OnCheckChange(FormTree_, CheckBoxName)
 	
-	CurrentData = FormTree.CurrentData;
+	CurrentData = FormTree_.CurrentData;
 	
 	If CurrentData[CheckBoxName] = 2 Then
 		CurrentData[CheckBoxName] = 0;

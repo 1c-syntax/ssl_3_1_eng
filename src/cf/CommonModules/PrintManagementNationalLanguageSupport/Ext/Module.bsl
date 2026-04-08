@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Internal
@@ -113,9 +112,9 @@ Function LayoutLanguages(TemplatePath) Export
 	
 	While Selection.Next() Do
 		For Each LanguageCode In PrintFormsLanguages Do
-			LocalizationCode = LanguageCode;
-			If StrEndsWith(Selection.TemplateName, "_" + LocalizationCode) Then
-				FoundLanguages.Insert(LocalizationCode, True);
+			LocaleCode = LanguageCode;
+			If StrEndsWith(Selection.TemplateName, "_" + LocaleCode) Then
+				FoundLanguages.Insert(LocaleCode, True);
 				Continue;
 			EndIf;
 		EndDo;
@@ -272,13 +271,13 @@ Procedure FillInTheLanguageSubmenu(Form, CurrentLanguage = Undefined, Val Filter
 		EndIf;
 	EndIf;
 	
-	For Each LocalizationCode In AvailableLanguages Do
-		LanguageCode = StrSplit(LocalizationCode, "_", True)[0];
+	For Each LocaleCode In AvailableLanguages Do
+		LanguageCode = StrSplit(LocaleCode, "_", True)[0];
 		If Filter.Find(LanguageCode) = Undefined Then
 			Continue;
 		EndIf;
 		
-		LanguagePresentation = LanguagePresentation(LocalizationCode);
+		LanguagePresentation = LanguagePresentation(LocaleCode);
 		If Not ValueIsFilled(Items.Language.Title) And LanguageCode = CurrentLanguage Then
 			Items.Language.Title = LanguagePresentation;
 			If ShouldPlaceInMoreActionsSubmenu Then
@@ -286,7 +285,7 @@ Procedure FillInTheLanguageSubmenu(Form, CurrentLanguage = Undefined, Val Filter
 			EndIf;
 		EndIf;
 		
-		Command = Commands.Add("Language_" + LocalizationCode);
+		Command = Commands.Add("Language_" + LocaleCode);
 		Command.Action = "Attachable_SwitchLanguage";
 		Command.Title = LanguagePresentation;
 		
@@ -312,7 +311,7 @@ Procedure FillInTheLanguageSubmenu(Form, CurrentLanguage = Undefined, Val Filter
 		EndIf;
 		
 		If IsEditorForm Then
-			Command = Commands.Add("AddLanguage_" + LocalizationCode);
+			Command = Commands.Add("AddLanguage_" + LocaleCode);
 			Command.Action = "Attachable_SwitchLanguage";
 			Command.Title = NStr("en = 'Add:'") + " " + LanguagePresentation;
 			

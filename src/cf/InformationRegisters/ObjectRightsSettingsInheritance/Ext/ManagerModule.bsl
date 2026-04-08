@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -29,6 +28,12 @@
 //
 Procedure UpdateRegisterData(Val RightsSettingsOwners = Undefined, HasChanges = Undefined) Export
 	
+	If AccessManagementInternal.IsRecordLevelRestrictionDisabled() Then
+		AccessManagementInternal.ClearInformationRegister(
+			Metadata.InformationRegisters.ObjectRightsSettingsInheritance.FullName(), HasChanges);
+		Return;
+	EndIf;
+	
 	If RightsSettingsOwners = Undefined Then
 		AvailableRights = AccessManagementInternal.RightsForObjectsRightsSettingsAvailable();
 		
@@ -42,11 +47,11 @@ Procedure UpdateRegisterData(Val RightsSettingsOwners = Undefined, HasChanges = 
 		For Each KeyAndValue In AvailableRights.ByFullNames Do
 			
 			Query.Text = StrReplace(QueryText, "&CurrentTable", KeyAndValue.Key);
-			// @skip-check query-in-loop - Малый цикл из одной или двух итераций
+			// @skip-check query-in-loop -  из одной или двух итераций
 			Selection = Query.Execute().Select();
 			
 			While Selection.Next() Do
-				// @skip-check query-in-loop - Обход иерархии элементов с обновлением порциями
+				// @skip-check query-in-loop 
 				UpdateOwnerParents(Selection.Ref, HasChanges);
 			EndDo;
 		EndDo;
@@ -54,7 +59,7 @@ Procedure UpdateRegisterData(Val RightsSettingsOwners = Undefined, HasChanges = 
 	ElsIf TypeOf(RightsSettingsOwners) = Type("Array") Then
 		
 		For Each RightsSettingsOwner In RightsSettingsOwners Do
-			// @skip-check query-in-loop - Обход иерархии элементов с обновлением порциями
+			// @skip-check query-in-loop 
 			UpdateOwnerParents(RightsSettingsOwner, HasChanges);
 		EndDo;
 	Else
@@ -258,7 +263,7 @@ Function ObjectParents(Ref, ObjectRef2 = Undefined, ObjectParentProperties = "",
 			Break;
 		EndIf;
 		
-		// @skip-check query-in-loop - Обход иерархии элементов с обновлением порциями
+		// @skip-check query-in-loop 
 		CurrentParentProperties = ParentProperties(CurrentParentProperties.Ref);
 	EndDo;
 	
@@ -306,7 +311,7 @@ Procedure UpdateOwnerHierarchy(Ref, HasChanges, ObjectsWithChanges)
 	
 	Selection = Query.Execute().Select();
 	While Selection.Next() Do
-		// @skip-check query-in-loop - Обход иерархии элементов с обновлением порциями
+		// @skip-check query-in-loop 
 		NewRecords = ObjectParents(Selection.SubordinateRef, Ref);
 		
 		RecordSet = CreateRecordSet();

@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -176,14 +175,14 @@ Procedure OnFillToDoList(ToDoList) Export
 	
 	// Search setup error.
 	
-	ToDoItem = ToDoList.Add();
-	ToDoItem.Id = "FullTextSearchInDataSearchSettingsError";
-	ToDoItem.HasToDoItems = (State = "SearchSettingsError");
-	ToDoItem.Presentation = NStr("en = 'Full-text search not set up'");
-	ToDoItem.Form = "DataProcessor.FullTextSearchInData.Form.FullTextSearchAndTextExtractionControl";
-	ToDoItem.ToolTip = 
+	CaseFile = ToDoList.Add();
+	CaseFile.Id = "FullTextSearchInDataSearchSettingsError";
+	CaseFile.HasToDoItems = (State = "SearchSettingsError");
+	CaseFile.Presentation = NStr("en = 'Full-text search not set up'");
+	CaseFile.Form = "DataProcessor.FullTextSearchInData.Form.FullTextSearchAndTextExtractionControl";
+	CaseFile.ToolTip = 
 		NStr("en = 'Try toggling the full-text search off and on.'");
-	ToDoItem.Owner = Section;
+	CaseFile.Owner = Section;
 	
 	// Index update is required.
 	
@@ -206,15 +205,15 @@ Procedure OnFillToDoList(ToDoList) Export
 		HasToDoItems = False;
 	EndIf;
 	
-	ToDoItem = ToDoList.Add();
-	ToDoItem.Id = "FullTextSearchInDataIndexUpdateRequired";
-	ToDoItem.HasToDoItems = HasToDoItems;
-	ToDoItem.Presentation = NStr("en = 'Full-text search index is outdated'");
-	ToDoItem.Form = "DataProcessor.FullTextSearchInData.Form.FullTextSearchAndTextExtractionControl";
-	ToDoItem.ToolTip = StringFunctionsClientServer.SubstituteParametersToString(
+	CaseFile = ToDoList.Add();
+	CaseFile.Id = "FullTextSearchInDataIndexUpdateRequired";
+	CaseFile.HasToDoItems = HasToDoItems;
+	CaseFile.Presentation = NStr("en = 'Full-text search index is outdated'");
+	CaseFile.Form = "DataProcessor.FullTextSearchInData.Form.FullTextSearchAndTextExtractionControl";
+	CaseFile.ToolTip = StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'Last update: %1.'"),
 		Interval);
-	ToDoItem.Owner = Section;
+	CaseFile.Owner = Section;
 	
 EndProcedure
 
@@ -598,5 +597,14 @@ EndProcedure
 #EndRegion
 
 #EndRegion
+
+// See StandardSubsystemsServer.WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode
+Procedure WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode(Methods) Export
+	
+	Methods.Insert("InitializeFullTextSearchFunctionalOption");
+	Methods.Insert("FullTextSearchUpdateIndexOnSchedule", True);
+	Methods.Insert("FullTextSearchMergeIndexOnSchedule", True);
+	
+EndProcedure
 
 #EndRegion

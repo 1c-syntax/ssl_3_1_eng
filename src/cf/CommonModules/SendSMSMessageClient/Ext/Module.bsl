@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -38,8 +37,8 @@ Procedure SendSMS(RecipientsNumbers, Text, AdditionalParameters) Export
 			FillPropertyValues(SendOptions, AdditionalParameters);
 		EndIf;
 		
-		NotifyDescription = New CallbackDescription("CreateNewSMSMessageSettingsCheckCompleted", ThisObject, SendOptions);
-		CheckForSMSMessageSendingSettings(NotifyDescription);
+		CallbackDescription = New CallbackDescription("CreateNewSMSMessageSettingsCheckCompleted", ThisObject, SendOptions);
+		CheckForSMSMessageSendingSettings(CallbackDescription);
 		
 	EndIf;
 	
@@ -73,8 +72,8 @@ Procedure CheckForSMSMessageSendingSettings(ResultHandler)
 		RunCallback(ResultHandler, True);
 	Else
 		If UsersClient.IsFullUser() Then
-			NotifyDescription = New CallbackDescription("AfterSetUpSMSMessage", ThisObject, ResultHandler);
-			OpenSettingsForm(NotifyDescription);
+			CallbackDescription = New CallbackDescription("AfterSetUpSMSMessage", ThisObject, ResultHandler);
+			OpenSettingsForm(CallbackDescription);
 		Else
 			MessageText = NStr("en = 'SMS settings are not configured.
 				|Please contact the administrator.'");
@@ -104,7 +103,7 @@ Procedure CreateNewSMSMessageSettingsCheckCompleted(SMSMessageSendingIsSetUp, Se
 		
 		ModuleInteractionsClient = CommonClient.CommonModule("InteractionsClient");
 		FormParameters = ModuleInteractionsClient.SMSMessageSendingFormParameters();
-		FormParameters.SMSMessageRecipients = SendOptions.RecipientsNumbers;
+		FormParameters.Recipients = SendOptions.RecipientsNumbers;
 		FillPropertyValues(FormParameters, SendOptions);
 		ModuleInteractionsClient.OpenSMSMessageSendingForm(FormParameters);
 	Else

@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Variables
@@ -254,9 +253,9 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 		Return;
 	EndIf;
 	
-	NotifyDescription = New CallbackDescription("ConfirmAndClose", ThisObject);
+	CallbackDescription = New CallbackDescription("ConfirmAndClose", ThisObject);
 	QueryText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Do you want to save the changes to %1?'"), DocumentName);
-	CommonClient.ShowFormClosingConfirmation(NotifyDescription, Cancel, Exit, QueryText);
+	CommonClient.ShowFormClosingConfirmation(CallbackDescription, Cancel, Exit, QueryText);
 	
 	If Modified Or Exit Then
 		Return;
@@ -274,8 +273,8 @@ EndProcedure
 
 &AtClient
 Procedure ConfirmAndClose(Result = Undefined, AdditionalParameters = Undefined) Export
-	NotifyDescription = New CallbackDescription("CloseFormAfterWriteSpreadsheetDocument", ThisObject);
-	WriteSpreadsheetDocument(NotifyDescription);
+	CallbackDescription = New CallbackDescription("CloseFormAfterWriteSpreadsheetDocument", ThisObject);
+	WriteSpreadsheetDocument(CallbackDescription);
 EndProcedure
 
 &AtClient
@@ -319,8 +318,8 @@ Procedure TemplateOwnersClick(Item)
 	PickingParameters.Title = NStr("en = 'Template assignment'");
 	PickingParameters.FilterByMetadataObjects = ObjectsWithPrintCommands();
 	
-	NotifyDescription = New CallbackDescription("OnChooseTemplateOwners", ThisObject);
-	StandardSubsystemsClient.ChooseMetadataObjects(PickingParameters, NotifyDescription);
+	CallbackDescription = New CallbackDescription("OnChooseTemplateOwners", ThisObject);
+	StandardSubsystemsClient.ChooseMetadataObjects(PickingParameters, CallbackDescription);
 
 EndProcedure
 
@@ -352,8 +351,8 @@ EndProcedure
 
 &AtClient
 Procedure WriteAndClose(Command)
-	NotifyDescription = New CallbackDescription("CloseFormAfterWriteSpreadsheetDocument", ThisObject);
-	WriteSpreadsheetDocument(NotifyDescription, True);
+	CallbackDescription = New CallbackDescription("CloseFormAfterWriteSpreadsheetDocument", ThisObject);
+	WriteSpreadsheetDocument(CallbackDescription, True);
 EndProcedure
 
 &AtClient
@@ -377,9 +376,9 @@ Procedure EditInExternalApplication(Command)
 		OpeningParameters.Insert("TemplateMetadataObjectName", IdentifierOfTemplate);
 		OpeningParameters.Insert("IdentifierOfTemplate", IdentifierOfTemplate);
 		OpeningParameters.Insert("TemplateType", "MXL");
-		NotifyDescription = New CallbackDescription("EditInExternalApplicationCompletion", ThisObject);
+		CallbackDescription = New CallbackDescription("EditInExternalApplicationCompletion", ThisObject);
 		ModulePrintManagerClient = CommonClient.CommonModule("PrintManagementClient");
-		ModulePrintManagerClient.EditTemplateInExternalApplication(NotifyDescription, OpeningParameters, ThisObject);
+		ModulePrintManagerClient.EditTemplateInExternalApplication(CallbackDescription, OpeningParameters, ThisObject);
 	EndIf;
 EndProcedure
 
@@ -392,8 +391,8 @@ Procedure SaveToFile(Command)
 	FileDialog.FullFileName = CommonClientServer.ReplaceProhibitedCharsInFileName(DocumentName);
 	FileDialog.Filter = NStr("en = 'Spreadsheet document'") + " (*.mxl)|*.mxl";
 	
-	NotifyDescription = New CallbackDescription("ContinueSavingToFile", ThisObject);
-	FileSystemClient.ShowSelectionDialog(NotifyDescription, FileDialog);	
+	CallbackDescription = New CallbackDescription("ContinueSavingToFile", ThisObject);
+	FileSystemClient.ShowSelectionDialog(CallbackDescription, FileDialog);	
 	
 EndProcedure
 
@@ -404,8 +403,8 @@ Procedure LoadFromFile(Command)
 	FileDialog.Filter = NStr("en = 'Spreadsheet document'") + " (*.mxl)|*.mxl";
 	FileDialog.Multiselect = False;
 	
-	NotifyDescription = New CallbackDescription("ContinueDownloadFromFile", ThisObject);
-	FileSystemClient.ShowSelectionDialog(NotifyDescription, FileDialog);	
+	CallbackDescription = New CallbackDescription("ContinueDownloadFromFile", ThisObject);
+	FileSystemClient.ShowSelectionDialog(CallbackDescription, FileDialog);	
 	
 EndProcedure
 
@@ -416,8 +415,8 @@ Procedure ChangeFont(Command)
 		Return;
 	EndIf;
 	
-	NotifyDescription = New CallbackDescription("ChangeFontCompletion", ThisObject);
-	OpenForm("CommonForm.FontChoiceForm",, ThisObject,,,, NotifyDescription);
+	CallbackDescription = New CallbackDescription("ChangeFontCompletion", ThisObject);
+	OpenForm("CommonForm.FontChoiceForm",, ThisObject,,,, CallbackDescription);
 	
 EndProcedure
 
@@ -472,8 +471,8 @@ Procedure Translate(Command)
 	Buttons.Add(DialogReturnCode.Yes, NStr("en = 'Translate'"));
 	Buttons.Add(DialogReturnCode.No, NStr("en = 'Do not translate'"));
 	
-	NotifyDescription = New CallbackDescription("WhenAnsweringAQuestionAboutTranslatingALayout", ThisObject);
-	ShowQueryBox(NotifyDescription, QueryText, Buttons);
+	CallbackDescription = New CallbackDescription("WhenAnsweringAQuestionAboutTranslatingALayout", ThisObject);
+	ShowQueryBox(CallbackDescription, QueryText, Buttons);
 	
 EndProcedure
 
@@ -586,24 +585,24 @@ EndProcedure
 &AtClient
 Procedure ChangeBorderColor(Command)
 	
-	NotifyDescription = New CallbackDescription("ChangeBorderColorCompletion", ThisObject);
-	OpenForm("CommonForm.ColorChoiceForm",, ThisObject,,,, NotifyDescription);
+	CallbackDescription = New CallbackDescription("ChangeBorderColorCompletion", ThisObject);
+	OpenForm("CommonForm.ColorChoiceForm",, ThisObject,,,, CallbackDescription);
 	
 EndProcedure
 
 &AtClient
 Procedure ChangeTextColor(Command)
 	
-	NotifyDescription = New CallbackDescription("ChangeTextColorCompletion", ThisObject);
-	OpenForm("CommonForm.ColorChoiceForm",, ThisObject,,,, NotifyDescription);
+	CallbackDescription = New CallbackDescription("ChangeTextColorCompletion", ThisObject);
+	OpenForm("CommonForm.ColorChoiceForm",, ThisObject,,,, CallbackDescription);
 	
 EndProcedure
 
 &AtClient
 Procedure ChangeBackgroundColor(Command)
 	
-	NotifyDescription = New CallbackDescription("ChangeBackgroundColorCompletion", ThisObject);
-	OpenForm("CommonForm.ColorChoiceForm",, ThisObject,,,, NotifyDescription);
+	CallbackDescription = New CallbackDescription("ChangeBackgroundColorCompletion", ThisObject);
+	OpenForm("CommonForm.ColorChoiceForm",, ThisObject,,,, CallbackDescription);
 
 EndProcedure
 
@@ -912,13 +911,13 @@ Procedure WriteSpreadsheetDocumentFileNameSelected(Val CompletionHandler, Unlock
 			
 			If Not TemplateForObjectExport Then
 				
-				NotifyDescription = New CallbackDescription(
+				CallbackDescription = New CallbackDescription(
 					"ContinueWritingTabularDocument",
 					ThisObject,
 					AdditionalParameters);
 				QueryText = NStr("en = 'Some entries are invalid. Save the template anyway?'");
 				ShowQueryBox(
-					NotifyDescription,
+					CallbackDescription,
 					QueryText,
 					QuestionDialogMode.YesNo,
 					,
@@ -988,7 +987,7 @@ EndProcedure
 &AtClient
 Procedure StartFileSavingDialog(Val CompletionHandler, UnlockFile)
 	
-	Var SaveFileDialog, NotifyDescription;
+	Var SaveFileDialog, CallbackDescription;
 	
 	SaveFileDialog = New FileDialog(FileDialogMode.Save);
 	SaveFileDialog.FullFileName = CommonClientServer.ReplaceProhibitedCharsInFileName(DocumentName);
@@ -998,8 +997,8 @@ Procedure StartFileSavingDialog(Val CompletionHandler, UnlockFile)
 	AdditionalParameters.Insert("CompletionHandler", CompletionHandler);
 	AdditionalParameters.Insert("UnlockFile", UnlockFile);
 		
-	NotifyDescription = New CallbackDescription("OnCompleteFileSelectionDialog", ThisObject, AdditionalParameters);
-	FileSystemClient.ShowSelectionDialog(NotifyDescription, SaveFileDialog);
+	CallbackDescription = New CallbackDescription("OnCompleteFileSelectionDialog", ThisObject, AdditionalParameters);
+	FileSystemClient.ShowSelectionDialog(CallbackDescription, SaveFileDialog);
 	
 EndProcedure
 
@@ -1139,7 +1138,7 @@ Procedure FillSpreadsheetDocument(SpreadsheetDocument, Val ImportedSpreadsheetDo
 	SpreadsheetDocument.Footer.CenterText = ImportedSpreadsheetDocument.Footer.CenterText;
 	SpreadsheetDocument.Footer.RightText = ImportedSpreadsheetDocument.Footer.RightText;
 	
-	TableOfAreas = TableOfAreas(ImportedSpreadsheetDocument);
+	TableOfAreas = TableOfAreas(ImportedSpreadsheetDocument, True);
 	For Each CurrentArea In TableOfAreas Do
 		
 		Area = SpreadsheetDocument.Areas.Find(CurrentArea.Name);
@@ -1254,8 +1253,8 @@ Procedure Attachable_WhenSwitchingTheLanguage(LanguageCode, AdditionalParameters
 		Buttons.Add(DialogReturnCode.Yes, NStr("en = 'Translate'"));
 		Buttons.Add(DialogReturnCode.No, NStr("en = 'Do not translate'"));
 		
-		NotifyDescription = New CallbackDescription("WhenAnsweringAQuestionAboutTranslatingALayout", ThisObject);
-		ShowQueryBox(NotifyDescription, QueryText, Buttons);
+		CallbackDescription = New CallbackDescription("WhenAnsweringAQuestionAboutTranslatingALayout", ThisObject);
+		ShowQueryBox(CallbackDescription, QueryText, Buttons);
 	EndIf;
 	
 EndProcedure
@@ -1268,10 +1267,10 @@ Procedure WhenAnsweringAQuestionAboutTranslatingALayout(Response, AdditionalPara
 	EndIf;
 	
 	If CommonClient.SubsystemExists("StandardSubsystems.NationalLanguageSupport.TextTranslation") Then
-		NotifyDescription = New CallbackDescription("OnCompleteTranslation", ThisObject);
+		CallbackDescription = New CallbackDescription("OnCompleteTranslation", ThisObject);
 		ModuleTranslationOfTextIntoOtherLanguagesClient = CommonClient.CommonModule("TextTranslationToolClient");
 		ModuleTranslationOfTextIntoOtherLanguagesClient.TranslateSpreadsheetTexts(
-			SpreadsheetDocument, CurrentLanguage, CommonClient.DefaultLanguageCode(), ThisObject, NotifyDescription);
+			SpreadsheetDocument, CurrentLanguage, CommonClient.DefaultLanguageCode(), ThisObject, CallbackDescription);
 	EndIf;
 	
 	Modified = True;
@@ -1364,9 +1363,9 @@ Procedure ChangeFontCompletion(Result, Var_Parameters) Export
 		Return;
 	ElsIf Result = -1 Then 
 		FontChooseDialog = New FontChooseDialog;
-		NotifyDescription = New CallbackDescription("CompletionChangeFont", ThisObject);
+		CallbackDescription = New CallbackDescription("CompletionChangeFont", ThisObject);
 		FontChooseDialog.Font = CurrentArea.Font;
-		FontChooseDialog.Show(NotifyDescription);
+		FontChooseDialog.Show(CallbackDescription);
 	Else 
 		CurrentArea.Font = New Font(CurrentArea.Font, Result);
 		Modified = True;
@@ -1417,8 +1416,8 @@ Procedure SpecifyColor(FieldName, Color)
 		Modified = True;
 	ElsIf Color = "OtherColors" Then
 		ColorChooseDialog = New ColorChooseDialog();
-		NotifyDescription = New CallbackDescription("AfterColorSelected", ThisObject, FieldName);
-		ColorChooseDialog.Show(NotifyDescription);
+		CallbackDescription = New CallbackDescription("AfterColorSelected", ThisObject, FieldName);
+		ColorChooseDialog.Show(CallbackDescription);
 	EndIf;
 EndProcedure
 
@@ -1464,6 +1463,9 @@ Procedure SpreadsheetDocumentDrag(Item, DragParameters, StandardProcessing, Area
 	If CommonClient.SubsystemExists("StandardSubsystems.FormulasConstructor") Then
 		ModuleConstructorFormulaClient = CommonClient.CommonModule("FormulasConstructorClient");
 	
+		EditAreaName = Area.Name;
+		CurrentValue = Area.Text;
+		
 		If TypeOf(DragParameters.Value) <> Type("String") Then 
 			Return;
 		EndIf;
@@ -1955,6 +1957,7 @@ EndProcedure
 &AtClient
 Procedure UpdateAreaSettingsSelectedCells()
 	UpdateInputFieldCurrentCellValue();
+	EditAreaName = "";
 EndProcedure
 
 &AtClient
@@ -2209,7 +2212,17 @@ Procedure Attachable_ListOfFieldsSelection(Item, RowSelected, Field, StandardPro
 		If Item.Name = NameOfTheFieldList() Then
 			CurrentValue = CurrentValue + "[" + SelectedField.RepresentationOfTheDataPath + "]";
 		Else
-			CurrentValue = CurrentValue + ModuleConstructorFormulaClient.ExpressionToInsert(SelectedField);
+			
+			DragValue = ModuleConstructorFormulaClient.ExpressionToInsert(SelectedField);
+			AddBrackets(
+				SelectedField,
+				RecipientOfDraggedValue,
+				DragValue,
+				True);
+			
+			CurrentValue = CurrentValue + DragValue;
+			EditAreaName = "";
+			
 		EndIf;
 		
 		UpdateTextInCellsArea();
@@ -2219,8 +2232,8 @@ Procedure Attachable_ListOfFieldsSelection(Item, RowSelected, Field, StandardPro
 		StandardProcessing = False;
 		Designer = New FormatStringWizard(Items[NameOfTheFieldList()].CurrentData.Format);
 		Designer.AvailableTypes = Items[NameOfTheFieldList()].CurrentData.Type;
-		NotifyDescription = New CallbackDescription("WhenFormatFieldSelection", ThisObject);
-		Designer.Show(NotifyDescription);
+		CallbackDescription = New CallbackDescription("WhenFormatFieldSelection", ThisObject);
+		Designer.Show(CallbackDescription);
 	EndIf;	
 	
 EndProcedure
@@ -2251,13 +2264,25 @@ Procedure Attachable_OperatorsDragEnd(Item, DragParameters, StandardProcessing)
 		Context = New Structure("DataPath, Title");
 		FillPropertyValues(Context, SelectedField);
 		
+		DragValue = DragParameters.Value;
+		AddBrackets(SelectedField, RecipientOfDraggedValue, DragValue);
+		
+		If DragParameters.Value <> DragValue Then
+			
+			DragParameters.Value = DragValue;
+			
+		EndIf;
+		
 		If Context.DataPath = "Format" Then
 			RowFormat = New FormatStringWizard;
 			Context.Insert("RowFormat", RowFormat);
+			Context.Insert("EditAreaName", EditAreaName);
 			NotificationOfDraggingEndCompletion = New CallbackDescription("OperatorsDragEndCompletion", ThisObject, Context);
 			RowFormat.Show(NotificationOfDraggingEndCompletion);
 		EndIf;
 	EndIf;
+	
+	EditAreaName = "";
 	
 EndProcedure
 
@@ -2275,6 +2300,7 @@ Procedure OperatorsDragEndCompletion(Text, Context) Export
 		If ValueIsFilled(RowFormat.Text) Then
 			TextsToReplace.ForReplacement = Context.Title + "( , """ + RowFormat.Text + """)";
 			TextsToReplace.ForSearch = Context.Title + "(,,)";
+			TextsToReplace.Insert("EditAreaName", Context.EditAreaName);
 		EndIf;
 	EndIf;
 	
@@ -2292,7 +2318,10 @@ Procedure SetValAfterDragging()
 	TextsToReplace = GetFromTempStorage(WaitHanderParametersAddress);
 	
 	If RecipientOfDraggedValue = Items.CurrentValue Or RecipientOfDraggedValue = Undefined Then
-		Items.CurrentValue.SelectedText = TextsToReplace.ForReplacement;
+		
+		CurrentValue = StrReplace(CurrentValue, TextsToReplace.ForSearch, TextsToReplace.ForReplacement);
+		UpdateTextInCellsArea();
+		
 	Else
 		CurrentAttribute = ThisObject[RecipientOfDraggedValue.Name];
 		If TypeOf(CurrentAttribute) = Type("FormattedDocument") Then
@@ -2301,7 +2330,16 @@ Procedure SetValAfterDragging()
 			CurrentAttribute.Delete();
 			CurrentAttribute.SetFormattedString(FormattedText);
 		ElsIf TypeOf(CurrentAttribute) = Type("SpreadsheetDocument") Then
-			CurrentAttribute.CurrentArea.Text = StrReplace(CurrentAttribute.CurrentArea.Text, TextsToReplace.ForSearch, TextsToReplace.ForReplacement);
+			
+			If TextsToReplace.Property("EditAreaName")
+			   And TextsToReplace.EditAreaName <> "" Then
+				CurrentArea = SpreadsheetDocument.Area(TextsToReplace.EditAreaName);
+			Else
+				CurrentArea = CurrentAttribute.CurrentArea;
+			EndIf;
+			CurrentArea.Text = StrReplace(CurrentArea.Text, TextsToReplace.ForSearch, TextsToReplace.ForReplacement);
+			CurrentValue = CurrentAttribute.CurrentArea.Text;
+			
 		Else
 			CurrentAttribute = StrReplace(CurrentAttribute, TextsToReplace.ForSearch, TextsToReplace.ForReplacement);
 		EndIf;
@@ -2409,19 +2447,7 @@ Function PrepareLayoutForRecording(SetLanguageCode = True, Cancel = False)
 	ReplaceViewParameters(Template.Footer.CenterText, "BottomCenterText", Cancel, NStr("en = 'footer in the center'"));
 	ReplaceViewParameters(Template.Footer.RightText, "BottomRightText", Cancel, NStr("en = 'footer on the right'"));
 	
-	For Each Area In Template.Areas Do
-		If TypeOf(Area) = Type("SpreadsheetDocumentRange")
-		   And Area.AreaType = SpreadsheetDocumentCellAreaType.Rows Then
-			
-			If TemplateForObjectExport
-			   And Not ValueIsFilled(Area.DetailsParameter) Then
-				Continue;
-			EndIf;
-			
-			Area.DetailsParameter = TheFormulaFromTheView(Area.DetailsParameter);
-		EndIf;
-	EndDo;
-	
+	FillDrilldownParameters(Template);
 	RenameConditionalAreas(Template, ConditionalAreaPrefix(), TemplateForObjectExport);
 	
 	If TemplateForObjectExport Then
@@ -2530,9 +2556,9 @@ Procedure CheckExportFieldsDBF(Val DataToCheck, ArrayOfColumnNames, Cancel)
 			
 			If ArrayOfColumnNames.Find(CellText) <> Undefined Then
 				
-				Var_229_Template = NStr("en = 'Column name is not unique (row %1, column %2)'");
+				Var_232_Template = NStr("en = 'Column name is not unique (row %1, column %2)'");
 				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-					Var_229_Template,
+					Var_232_Template,
 					LineNumber,
 					ColumnNumber);
 				Common.MessageToUser(ErrorText,,,, Cancel);
@@ -2551,9 +2577,9 @@ Procedure CheckExportFieldsDBF(Val DataToCheck, ArrayOfColumnNames, Cancel)
 				
 			If LineNumber > FieldNamesRowNumber + 1 Then
 				
-				Var_229_Template = NStr("en = 'Row %1 must contain export data (row %2, column %3)'");
+				Var_232_Template = NStr("en = 'Row %1 must contain export data (row %2, column %3)'");
 				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-					Var_229_Template,
+					Var_232_Template,
 					FieldNamesRowNumber + 1,
 					LineNumber, 
 					ColumnNumber);
@@ -2563,9 +2589,9 @@ Procedure CheckExportFieldsDBF(Val DataToCheck, ArrayOfColumnNames, Cancel)
 				
 			If IsBlankString(NamesCellText) Then
 				
-				Var_229_Template = NStr("en = 'Column name is required (column %1)'");
+				Var_232_Template = NStr("en = 'Column name is required (column %1)'");
 				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-					Var_229_Template,
+					Var_232_Template,
 					ColumnNumber);
 				Common.MessageToUser(ErrorText,,,, Cancel);
 				
@@ -2594,9 +2620,9 @@ Procedure CheckExportFieldsXML_JSON(Val DataToCheck, IsXML, Cancel)
 	If ColumnNumber > ValuesColumnNumber
 	   And Not IsBlankString(CellText) Then
 		
-		Var_240_Template = NStr("en = 'Field names and values must be placed in the columns %1 and %2, respectively (row %3, column %4)'");
+		Var_243_Template = NStr("en = 'Field names and values must be placed in the columns %1 and %2, respectively (row %3, column %4)'");
 		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-			Var_240_Template,
+			Var_243_Template,
 			FieldNamesColumnNumber,
 			ValuesColumnNumber,
 			LineNumber,
@@ -2618,10 +2644,10 @@ Procedure CheckExportFieldsXML_JSON(Val DataToCheck, IsXML, Cancel)
 		
 		If IsBlankString(CellText) <> IsBlankString(ValueText) Then
 			
-			Var_240_Template = NStr("en = 'Field name is not mapped to field value (row %1)'");
+			Var_243_Template = NStr("en = 'Field name is not mapped to field value (row %1)'");
 			
 			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-				Var_240_Template,
+				Var_243_Template,
 				LineNumber);
 			Common.MessageToUser(ErrorText,,,, Cancel);
 			
@@ -2798,6 +2824,85 @@ Function TableOfAreas(Val Template, AllAreas = False)
 	Return TableOfAreas;
 	
 EndFunction
+
+&AtServer
+Procedure FillDrilldownParameters(Template, ReadingTemplate = False)
+	
+	If TemplateForObjectExport
+	   And (ExportSaveFormat = Enums.ObjectsExportFormats.JSON
+	      Or ExportSaveFormat = Enums.ObjectsExportFormats.XML) Then
+		
+		FillInDecryptionParametersAccordingToAreaTable(Template, ReadingTemplate);
+		
+	Else
+		
+		FillInDecryptionParametersByTemplateAreas(Template, ReadingTemplate);
+		
+	EndIf;
+	
+EndProcedure
+
+&AtServer
+Procedure FillInDecryptionParametersAccordingToAreaTable(Template, ReadingTemplate)
+	
+	TableOfAreas = TableOfAreas(Template, True);
+	
+	For Each CurrentArea In TableOfAreas Do
+		
+		Area = Template.Areas.Find(CurrentArea.Name);
+		
+		If TypeOf(Area) = Type("SpreadsheetDocumentRange")
+		   And Area.AreaType = SpreadsheetDocumentCellAreaType.Rows Then
+			
+			If TemplateForObjectExport
+			   And Not ValueIsFilled(CurrentArea.DetailsParameter) Then
+				Continue;
+			EndIf;
+			
+			If ReadingTemplate Then
+				
+				Area.DetailsParameter = FormulaPresentation(CurrentArea.DetailsParameter);
+				
+			Else
+				
+				Area.DetailsParameter = TheFormulaFromTheView(CurrentArea.DetailsParameter);
+				
+			EndIf;
+			
+		EndIf;
+		
+	EndDo;
+	
+EndProcedure
+
+&AtServer
+Procedure FillInDecryptionParametersByTemplateAreas(Template, ReadingTemplate)
+	
+	For Each Area In Template.Areas Do
+		
+		If TypeOf(Area) = Type("SpreadsheetDocumentRange")
+		   And Area.AreaType = SpreadsheetDocumentCellAreaType.Rows Then
+			
+			If TemplateForObjectExport
+			   And Not ValueIsFilled(Area.DetailsParameter) Then
+				Continue;
+			EndIf;
+			
+			If ReadingTemplate Then
+				
+				Area.DetailsParameter = FormulaPresentation(Area.DetailsParameter);
+				
+			Else
+				
+				Area.DetailsParameter = TheFormulaFromTheView(Area.DetailsParameter);
+				
+			EndIf;
+			
+		EndIf;
+		
+	EndDo;
+	
+EndProcedure
 
 &AtClient
 Procedure CheckForUnusedProperties(CompletionHandler, UnlockFile)
@@ -3606,19 +3711,7 @@ Function ReadLayout(Val BinaryData = Undefined)
 	ReplaceParametersWithViews(Template.Footer.CenterText);
 	ReplaceParametersWithViews(Template.Footer.RightText);
 	
-	For Each Area In Template.Areas Do
-		If TypeOf(Area) = Type("SpreadsheetDocumentRange")
-		   And Area.AreaType = SpreadsheetDocumentCellAreaType.Rows Then
-				
-				If TemplateForObjectExport
-				   And Not ValueIsFilled(Area.DetailsParameter) Then
-					Continue;
-				EndIf;
-				
-			Area.DetailsParameter = FormulaPresentation(Area.DetailsParameter);
-		EndIf;
-	EndDo;
-	
+	FillDrilldownParameters(Template, True);
 	RenameConditionalAreas(Template, LocalizedPrefixOfConditionalArea(), TemplateForObjectExport);
 	
 	Return Template;
@@ -3695,7 +3788,7 @@ Function CopySpreadsheetDocument(SpreadsheetDocument, LanguageCode)
 	Result.Footer.CenterText = SpreadsheetDocument.Footer.CenterText;
 	Result.Footer.RightText = SpreadsheetDocument.Footer.RightText;
 	
-	TableOfAreas = TableOfAreas(SpreadsheetDocument);
+	TableOfAreas = TableOfAreas(SpreadsheetDocument, True);
 	For Each CurrentArea In TableOfAreas Do
 		
 		Area = Result.Areas.Find(CurrentArea.Name);
@@ -3806,7 +3899,10 @@ Function WriteTemplate(AbortRecordingIfThereAreErrorsInLayout = False, TemplateA
 		WriteTemplatesInAdditionalLangs();
 		
 		If Not Items.Language.Enabled Then
+			
 			Items.Language.Enabled  = True;
+			FillPropertyValues(Parameters, TemplateDetails);
+			
 		EndIf;
 	EndIf;
 	
@@ -4007,18 +4103,18 @@ EndProcedure
 &AtClientAtServerNoContext
 Procedure RenameConditionalAreas(Template, Prefix, TemplateForExport)
 	
+	If TemplateForExport Then
+		Return;
+	EndIf;
+	
 	Areas = New Array;
 	
 	For Each Area In Template.Areas Do
 		If TypeOf(Area) = Type("SpreadsheetDocumentRange")
 		   And Area.AreaType = SpreadsheetDocumentCellAreaType.Rows Then
 			
-			If TemplateForExport
-			   And Not ValueIsFilled(Area.DetailsParameter) Then
-				Continue;
-			EndIf;
-			
 			Areas.Add(Area);
+			
 		EndIf;
 	EndDo;
 
@@ -4281,8 +4377,8 @@ Procedure ContinueDownloadFromFile(SelectedFiles, AdditionalParameters) Export
 	
 	FullFileName = SelectedFiles[0];
 	
-	NotifyDescription = New CallbackDescription("ResumeImportFromFileAfterDataObtained", ThisObject);
-	BeginCreateBinaryDataFromFile(NotifyDescription, FullFileName);
+	CallbackDescription = New CallbackDescription("ResumeImportFromFileAfterDataObtained", ThisObject);
+	BeginCreateBinaryDataFromFile(CallbackDescription, FullFileName);
 EndProcedure
 
 &AtClient
@@ -4317,21 +4413,84 @@ Procedure UpdateTextInCellsArea()
 	If CurrentArea.AreaType = SpreadsheetDocumentCellAreaType.Rectangle Then
 		CurrentArea.Text = CurrentValue;
 	ElsIf CurrentArea.AreaType = SpreadsheetDocumentCellAreaType.Rows Then
-		CurrentArea.Name = "";
 		
-		Area = SpreadsheetDocument.Area(CurrentArea.Top, 1, CurrentArea.Top, 1);
-		If Area.Text = "" Then
-			Area.Text = "";
+		If Not TemplateForObjectExport Then
+			
+			CurrentArea.Name = "";
+			
+			InitializeFirstCellOfRow(CurrentArea);
+			
+			CurrentArea.DetailsParameter = CurrentValue;
+			
+			If ValueIsFilled(CurrentValue) Then
+				PickupRegionName(SpreadsheetDocument, LocalizedPrefixOfConditionalArea(), CurrentArea);
+			EndIf;
+			
+		Else
+			
+			UpdateUploadConditionsArea(CurrentArea);
+			
 		EndIf;
 		
-		CurrentArea.DetailsParameter = CurrentValue;
-		
-		If ValueIsFilled(CurrentValue) Then
-			PickupRegionName(SpreadsheetDocument, LocalizedPrefixOfConditionalArea(), CurrentArea);
-		EndIf;
 	EndIf;
 	
 EndProcedure
+
+&AtClient
+Procedure UpdateUploadConditionsArea(CurrentArea)
+	
+	AreaName = CurrentArea.Name;
+	AreaID = NameOfDefaultStringArea(CurrentArea);
+	
+	InitializeFirstCellOfRow(CurrentArea);
+	
+	CurrentArea.DetailsParameter = CurrentValue;
+	
+	If ValueIsFilled(CurrentValue)
+	   And AreaName = AreaID Then
+		
+		PickupRegionName(SpreadsheetDocument, LocalizedPrefixOfConditionalArea(), CurrentArea);
+		
+	ElsIf Not ValueIsFilled(CurrentValue) Then
+		
+		CurrentArea.Name = "";
+		
+	EndIf;
+	
+EndProcedure
+
+&AtClient
+Procedure InitializeFirstCellOfRow(CurrentArea)
+	
+	Area = SpreadsheetDocument.Area(CurrentArea.Top, 1, CurrentArea.Top, 1);
+	If Area.Text = "" Then
+		Area.Text = "";
+	EndIf;
+	
+EndProcedure
+
+// Name of default row area.
+// 
+// Parameters:
+//  CurrentArea - SpreadsheetDocumentRange - current area
+// 
+// Returns:
+//  String
+//
+&AtClientAtServerNoContext
+Function NameOfDefaultStringArea(CurrentArea)
+	
+	If CurrentArea = Undefined Then
+		AreaName = "";
+	ElsIf CurrentArea.Top = CurrentArea.Bottom Then
+		AreaName = "R" + Format(CurrentArea.Top, "NG=0;");
+	Else
+		AreaName = "R" + Format(CurrentArea.Top, "NG=0;") + ":R" + Format(CurrentArea.Bottom, "NG=0;");
+	EndIf;
+	
+	Return AreaName;
+	
+EndFunction
 
 &AtServerNoContext
 Function ConditionalAreaPrefix()
@@ -4445,6 +4604,7 @@ Procedure SetUpFieldSample()
 				IndexOf = FieldsCollection.IndexOf(FieldDetails);
 				FieldsCollection.Move(IndexOf, Offset);
 			EndIf;
+			FieldDetails.GetItems().Clear();
 			Break;
 		EndIf;
 		Offset = Offset - 1;
@@ -4539,14 +4699,14 @@ Procedure OnChangeTemplateSettings(ParametersStructure)
 	If CommonClient.SubsystemExists("StandardSubsystems.Print")
 	   And Not TemplateForObjectExport Then
 		
-		NotifyDescription = New CallbackDescription(
+		CallbackDescription = New CallbackDescription(
 			"CompleteOpeningTemplateSettings", ThisObject, New Structure("Form", ThisObject));
 			
 		ModulePrintManagerClient = CommonClient.CommonModule("PrintManagementClient");
-		ModulePrintManagerClient.OnChangeTemplateSettings(ParametersStructure, NotifyDescription);
+		ModulePrintManagerClient.OnChangeTemplateSettings(ParametersStructure, CallbackDescription);
 	Else
-		NotifyDescription = New CallbackDescription("OnSelectingLayoutName", ThisObject);
-		ShowInputString(NotifyDescription, DocumentName, NStr("en = 'Enter a template description'"), 100, False);
+		CallbackDescription = New CallbackDescription("OnSelectingLayoutName", ThisObject);
+		ShowInputString(CallbackDescription, DocumentName, NStr("en = 'Enter a template description'"), 100, False);
 	EndIf;
 	
 EndProcedure
@@ -4716,7 +4876,7 @@ Procedure TextControlButtonVisibility(Form)
 	Items.SpreadsheetDocumentThickBottomBorder.Visible = ItemVisibility;
 	Items.SpreadsheetDocumentNoBorder.Visible = ItemVisibility;
 	
-	Items.Table.Visible = ItemVisibility;
+	Items.Table.Visible = ItemVisibility; // ACC:351 - Standard "Table" spreadsheet submenu.
 	
 	Items.AlignmentAuto.Visible = ItemVisibility;
 	Items.AlignmentWrap.Visible = ItemVisibility;
@@ -4745,6 +4905,135 @@ Procedure TextControlButtonAvailability(CurrentArea)
 	Items.TextAlignmentMore.Enabled = ElementAvailability;
 	Items.SetName.Enabled = ElementAvailability;
 	Items.RemoveName.Enabled = ElementAvailability;
+	
+EndProcedure
+
+&AtClient
+Function ThereAreOpenBrackets(Text)
+	
+	NumberOfOpenBrackets = StrOccurrenceCount(Text, "[");
+	NumberOfClosedBrackets = StrOccurrenceCount(Text, "]");
+	
+	Return (NumberOfOpenBrackets > NumberOfClosedBrackets);
+	
+EndFunction
+
+&AtClient
+Function CurrentDocumentArea()
+	
+	If EditAreaName <> "" Then
+		Area = SpreadsheetDocument.Area(EditAreaName);
+	Else
+		Area = SpreadsheetDocument.CurrentArea;
+	EndIf;
+	
+	If TypeOf(Area) = Type("SpreadsheetDocumentRange")
+	   And Area.AreaType = SpreadsheetDocumentCellAreaType.Rows Then
+		Area = Undefined;
+	EndIf;
+	
+	Return Area;
+	
+EndFunction
+
+&AtClient
+Procedure FillInSelectedTextData(SelectedTextData)
+	
+	Text = "";
+	InitialSelectionLine = 0;
+	InitialSelectionColumn = 0;
+	FinalSelectionLine = 0;
+	FinalSelectionColumn = 0;
+	Items.CurrentValue.GetTextSelectionBounds(
+		InitialSelectionLine,
+		InitialSelectionColumn,
+		FinalSelectionLine,
+		FinalSelectionColumn);
+	
+	TextDocument = New TextDocument;
+	TextDocument.AddLine(CurrentValue);
+	For Cnt = 0 To InitialSelectionLine - 1 Do
+		Text = Text + TextDocument.GetLine(Cnt);
+	EndDo;
+	RowToAnalyze = TextDocument.GetLine(InitialSelectionLine);
+	RowToAnalyze = Left(RowToAnalyze, InitialSelectionColumn - 1);
+	Text = Text + RowToAnalyze;
+	
+	SelectedTextData.Text = Text;
+	SelectedTextData.InitialSelectionLine = InitialSelectionLine;
+	SelectedTextData.InitialSelectionColumn = InitialSelectionColumn;
+	SelectedTextData.FinalSelectionLine = FinalSelectionLine;
+	SelectedTextData.FinalSelectionColumn = FinalSelectionColumn;
+	
+EndProcedure
+
+&AtClient
+Procedure AddBrackets(Operator, RecipientOfDraggedValue, DragValue, SelectingFromList = False)
+	
+	IsFunction = False;
+	If ValueIsFilled(Operator.Parent)
+	   And Not ValueIsFilled(Operator.ExpressionToInsert) Then
+		
+		OperatorsGroup = Operator.Parent; // see TheSelectedFieldInTheFieldList
+		OperatorGroupName = OperatorsGroup.Name;
+		IsFunction = Not (OperatorGroupName = "LogicalOperatorsAndConstants");
+		
+	EndIf;
+	
+	Area = CurrentDocumentArea();
+	
+	If Not IsFunction
+	 Or Area = Undefined Then
+		Return;
+	EndIf;
+	
+	If EditAreaName = ""
+	   And Not SelectingFromList Then
+		
+		SelectedTextData = New Structure;
+		SelectedTextData.Insert("Text", "");
+		SelectedTextData.Insert("InitialSelectionLine", 0);
+		SelectedTextData.Insert("InitialSelectionColumn", 0);
+		SelectedTextData.Insert("FinalSelectionLine", 0);
+		SelectedTextData.Insert("FinalSelectionColumn", 0);
+		
+		RecipientOfDraggedValue = Items.CurrentValue;
+		FillInSelectedTextData(SelectedTextData);
+		Text = SelectedTextData.Text;
+		AddBrackets_ = Not ThereAreOpenBrackets(Text);
+		
+		If AddBrackets_ Then
+			
+			PreviousValue2 = DragValue;
+			DragValue = "[" + DragValue + "]";
+			
+			SelectedText = Items.CurrentValue.SelectedText;
+			If StrFind(SelectedText, PreviousValue2) > 0 Then
+				SelectedText = StrReplace(SelectedText, PreviousValue2, DragValue);
+			Else
+				SelectedText = DragValue;
+			EndIf;
+			
+			Items.CurrentValue.SelectedText = SelectedText;
+			Move = 2;
+			Items.CurrentValue.SetTextSelectionBounds(
+				SelectedTextData.InitialSelectionLine,
+				SelectedTextData.InitialSelectionColumn,
+				SelectedTextData.FinalSelectionLine,
+				SelectedTextData.FinalSelectionColumn + Move);
+			
+		Else
+			
+			Items.CurrentValue.SelectedText = DragValue;
+			
+		EndIf;
+		
+	Else
+		
+		DragValue = "[" + DragValue + "]";
+		Area.Text = DragValue;
+		
+	EndIf;
 	
 EndProcedure
 

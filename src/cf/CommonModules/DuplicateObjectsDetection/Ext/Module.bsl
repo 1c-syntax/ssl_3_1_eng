@@ -1,5 +1,5 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
@@ -105,9 +105,9 @@ Procedure SupplementDuplicatesWithLinkedSubordinateObjects(ReplacementPairs, Rep
 	EndDo;
 	
 	ReplacementTables = New Map;
-	For Each OriginalDuplicate In ReplacementPairs Do
-		SelectUsedLinks(OriginalDuplicate.Value, SubordinateObjectsLinks);
-		AddToReplacementTables(OriginalDuplicate, ReplacementTables, SubordinateObjectsLinks);
+	For Each DuplicateOriginal In ReplacementPairs Do
+		SelectUsedLinks(DuplicateOriginal.Key, SubordinateObjectsLinks);
+		AddToReplacementTables(DuplicateOriginal, ReplacementTables, SubordinateObjectsLinks);
 	EndDo;
 
 	Filter = New Structure("Used", True);
@@ -750,7 +750,7 @@ Function ObjectsForReplacementQueryText(SubordinateObjectDetails, Links)
 							|WHERE
 							|	&KeyAttribute IN 
 							|	(SELECT
-							|		Tab.Original
+							|		Tab.Duplicate1
 							|	FROM
 							|		ReplacementTable AS Tab)", "&KeyAttribute","Tab." + KeyAttribute); //  @query-part-1
 		KeysValue = KeysValue + Value;
@@ -763,11 +763,11 @@ Function ObjectsForReplacementQueryText(SubordinateObjectDetails, Links)
 			Value = StringFunctionsClientServer.SubstituteParametersToString("Tab.%1 AS %1", KeyAttribute);
 			AttributesToChange = AttributesToChange + ?(IsBlankString(AttributesToChange),Value, ","+Value);
 			
-			Value = StringFunctionsClientServer.SubstituteParametersToString("CASE WHEN Replacement%1.Original IS NULL THEN Tab.%1 ELSE Replacement%1.Duplicate1 END AS %1", KeyAttribute);
+			Value = StringFunctionsClientServer.SubstituteParametersToString("CASE WHEN Replacement%1.Duplicate1 IS NULL THEN Tab.%1 ELSE Replacement%1.Original END AS %1", KeyAttribute);
 			ValueAttributesToChange = ValueAttributesToChange + ?(IsBlankString(ValueAttributesToChange),Value, ","+Value);
 		
 			Value = StringFunctionsClientServer.SubstituteParametersToString(" LEFT JOIN ReplacementTable AS Replacement%1
-								|ON Tab.%1 = Replacement%1.Original", KeyAttribute);
+								|ON Tab.%1 = Replacement%1.Duplicate1", KeyAttribute);
 			ConnectionValueOfAttributesToReplace = ConnectionValueOfAttributesToReplace + Value;
 			
 		Else
@@ -780,6 +780,7 @@ Function ObjectsForReplacementQueryText(SubordinateObjectDetails, Links)
 	EndDo;
 
 	AddToQueryText(QueryText, "#KeysValue", KeysValue);
+	AddToQueryText(QueryText, "&ValueAttributesToChange", ?(IsBlankString(ValueAttributesToChange), "UNDEFINED", ValueAttributesToChange));
 	AddToQueryText(QueryText, "LEFT JOIN #ConnectionValueOfAttributesToReplace ON TRUE", ConnectionValueOfAttributesToReplace);
 	AddToQueryText(QueryText, "&LinksByKey", LinksByKey);
 	AddToQueryText(QueryText, "&NotAttributesToChange", ?(IsBlankString(NotAttributesToChange), "UNDEFINED", NotAttributesToChange));
@@ -811,7 +812,7 @@ Function QueryTemplate()
 	|SELECT
 	|	Tab.Ref AS Ref,
 	|	&NotAttributesToChange,
-	|	&AttributesToChange
+	|	&ValueAttributesToChange
 	|INTO #KeyNameTheValueOfTheDetailsAfterReplacement
 	|FROM
 	|	#KeyNameSourceData AS Tab
@@ -838,9 +839,9 @@ Procedure AddToQueryText(QueryText, ParameterName, Text)
 
 EndProcedure
 
-Procedure AddToReplacementTables(OriginalDuplicate, ReplacementTables, SubordinateObjectsLinks) 
+Procedure AddToReplacementTables(DuplicateOriginal, ReplacementTables, SubordinateObjectsLinks) 
 
-	KeyAttributeMetadata = OriginalDuplicate.Key.Metadata();
+	KeyAttributeMetadata = DuplicateOriginal.Key.Metadata();
 	KeyAttributeTableName = KeyAttributeMetadata.FullName();
 	SearchKey = StrReplace(KeyAttributeTableName,".",""); 
 	If SubordinateObjectsLinks.Find(KeyAttributeMetadata, "Metadata") = Undefined Then
@@ -850,7 +851,7 @@ Procedure AddToReplacementTables(OriginalDuplicate, ReplacementTables, Subordina
 	ReplacementTable = ReplacementTables[SearchKey];
 	If ReplacementTable = Undefined Then
 		Types = New Array;
-		Types.Add(TypeOf(OriginalDuplicate.Key));
+		Types.Add(TypeOf(DuplicateOriginal.Value));
 		OriginalRefType = New TypeDescription(Types);
 
 		ReplacementTable = New ValueTable;
@@ -861,8 +862,8 @@ Procedure AddToReplacementTables(OriginalDuplicate, ReplacementTables, Subordina
 	EndIf;
 	
 	ReplacementString = ReplacementTable.Add();
-	ReplacementString.Original = OriginalDuplicate.Key;
-	ReplacementString.Duplicate1 = OriginalDuplicate.Value;
+	ReplacementString.Original = DuplicateOriginal.Value;
+	ReplacementString.Duplicate1 = DuplicateOriginal.Key;
 
 EndProcedure
 
@@ -920,12 +921,8 @@ Procedure ExecuteSearchByAppliedRules(Val UsedLinks, Val NotPickedReplacements, 
 			SubordinateObjectDetails, UsedLinks);	
 	EndDo;
 	
-	SearchMethodParameters = New Array;
-	SearchMethodParameters.Add(ReplacementPairs);
-	SearchMethodParameters.Add(NotPickedReplacements);
-	Common.ExecuteConfigurationMethod(
-		SubordinateObjectDetails.SearchMethodModuleName + ".OnSearchForReferenceReplacement",
-		SearchMethodParameters);
+	Module = Common.CommonModule(SubordinateObjectDetails.SearchMethodModuleName);
+	Module.OnSearchForReferenceReplacement(ReplacementPairs, NotPickedReplacements);
 
 EndProcedure
 
@@ -938,5 +935,13 @@ Function ObjectsWithDuplicatesMergeCommands()
 EndFunction
 
 #EndRegion
+
+// See StandardSubsystemsServer.WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode
+Procedure WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode(Methods) Export
+	
+	Methods.Insert("ReplaceReferences", True);
+	Methods.Insert("DefineUsageInstances", True);
+	
+EndProcedure
 
 #EndRegion

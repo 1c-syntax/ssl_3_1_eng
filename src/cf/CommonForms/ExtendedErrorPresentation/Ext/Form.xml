@@ -77,7 +77,7 @@
 					<Behavior>Usual</Behavior>
 					<Representation>None</Representation>
 					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="PossibleReasonsAndSolutionsClientExtendedTooltip" id="54"/>
+					<ExtendedTooltip name="PossibleReasonsAndDecisionsClientExtendedTooltip" id="54"/>
 					<ChildItems>
 						<UsualGroup name="PossibleSolutionsClient" id="17">
 							<Title>
@@ -88,7 +88,7 @@
 							</Title>
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
-							<ExtendedTooltip name="PossibleSolutionsClientExtendedTooltip" id="18"/>
+							<ExtendedTooltip name="PossibleDecisionsClientExtendedTooltip" id="18"/>
 							<ChildItems>
 								<LabelDecoration name="DecisionsClientText" id="19">
 									<AutoMaxWidth>false</AutoMaxWidth>
@@ -256,7 +256,7 @@
 					<Behavior>Usual</Behavior>
 					<Representation>None</Representation>
 					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="PossibleReasonsAndSolutionsServerExtendedTooltip" id="56"/>
+					<ExtendedTooltip name="PossibleReasonsAndDecisionsServerExtendedTooltip" id="56"/>
 					<ChildItems>
 						<UsualGroup name="PossibleSolutionsServer" id="45">
 							<Title>
@@ -267,7 +267,7 @@
 							</Title>
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
-							<ExtendedTooltip name="PossibleSolutionsServerExtendedTooltip" id="46"/>
+							<ExtendedTooltip name="PossibleDecisionsServerExtendedTooltip" id="46"/>
 							<ChildItems>
 								<LabelDecoration name="DecisionsServerText" id="47">
 									<AutoMaxWidth>false</AutoMaxWidth>
@@ -527,24 +527,36 @@
 			<ExtendedTooltip name="FooterGroupExtendedTooltip" id="61"/>
 			<ChildItems>
 				<UsualGroup name="AssistanceRequiredGroup" id="130">
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Need help?</v8:content>
+						</v8:item>
+					</Title>
 					<GroupVerticalAlign>Center</GroupVerticalAlign>
 					<Group>Vertical</Group>
 					<Behavior>PopUp</Behavior>
 					<ExtendedTooltip name="AssistanceRequiredGroupExtendedTooltip" id="131"/>
 					<ChildItems>
-						<UsualGroup name="TechnicalSupportGroup" id="132">
+						<UsualGroup name="GroupSupportRequests" id="132">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Support requests</v8:content>
+								</v8:item>
+							</Title>
 							<Group>Vertical</Group>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="TechnicalSupportGroupExtendedTooltip" id="133"/>
+							<ExtendedTooltip name="GroupSupportRequestsExtendedTooltip" id="133"/>
 							<ChildItems>
-								<LabelDecoration name="DescriptionOfSupportRequest" id="134">
-									<ContextMenu name="DescriptionOfSupportRequestContextMenu" id="135"/>
-									<ExtendedTooltip name="DescriptionOfSupportRequestExtendedTooltip" id="136"/>
+								<LabelDecoration name="SupportRequestDetails" id="134">
+									<ContextMenu name="SupportRequestDetailsContextMenu" id="135"/>
+									<ExtendedTooltip name="SupportRequestDetailsExtendedTooltip" id="136"/>
 								</LabelDecoration>
-								<Button name="QuestionInSupport" id="137">
+								<Button name="SupportTicket" id="137">
 									<Type>Hyperlink</Type>
-									<CommandName>Form.Command.QuestionInSupport</CommandName>
+									<CommandName>Form.Command.SupportTicket</CommandName>
 									<Picture>
 										<xr:Ref>CommonPicture.SendEmail</xr:Ref>
 										<xr:LoadTransparent>false</xr:LoadTransparent>
@@ -555,16 +567,22 @@
 											<v8:content>Contact support</v8:content>
 										</v8:item>
 									</Title>
-									<ExtendedTooltip name="QuestionInSupportExtendedTooltip" id="138"/>
+									<ExtendedTooltip name="SupportTicketExtendedTooltip" id="138"/>
 								</Button>
-								<Button name="InformationToSendToSupport" id="139">
+								<Button name="InfoForSupport" id="139">
 									<Type>Hyperlink</Type>
-									<CommandName>Form.Command.InformationToSendToSupport</CommandName>
+									<CommandName>Form.Command.InfoForSupport</CommandName>
 									<Picture>
 										<xr:Ref>CommonPicture.Download</xr:Ref>
 										<xr:LoadTransparent>false</xr:LoadTransparent>
 									</Picture>
-									<ExtendedTooltip name="InformationToSendToSupportExtendedTooltip" id="140"/>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Information to send to support</v8:content>
+										</v8:item>
+									</Title>
+									<ExtendedTooltip name="InfoForSupportExtendedTooltip" id="140"/>
 								</Button>
 							</ChildItems>
 						</UsualGroup>
@@ -754,31 +772,31 @@
 			<Action>InstallExtension</Action>
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
-		<Command name="InformationToSendToSupport" id="3">
+		<Command name="InfoForSupport" id="3">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Information to send to support</v8:content>
+				</v8:item>
+			</Title>
 			<Picture>
 				<xr:Ref>CommonPicture.Download</xr:Ref>
 				<xr:LoadTransparent>false</xr:LoadTransparent>
 			</Picture>
-			<Action>InformationToSendToSupport</Action>
+			<Action>InfoForSupport</Action>
 		</Command>
-		<Command name="QuestionInSupport" id="4">
+		<Command name="SupportTicket" id="4">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
 					<v8:content>Contact support</v8:content>
 				</v8:item>
 			</Title>
-			<ToolTip>
-				<v8:item>
-					<v8:lang>en</v8:lang>
-					<v8:content>Contact support</v8:content>
-				</v8:item>
-			</ToolTip>
 			<Picture>
 				<xr:Ref>CommonPicture.SendEmail</xr:Ref>
 				<xr:LoadTransparent>false</xr:LoadTransparent>
 			</Picture>
-			<Action>QuestionInSupport</Action>
+			<Action>SupportTicket</Action>
 		</Command>
 	</Commands>
 	<Parameters>

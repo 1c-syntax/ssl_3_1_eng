@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Internal
@@ -293,7 +292,7 @@ Function DIBNodes(FilterByPurpose = "") Export
 		|	NOT ExchangePlan.ThisNode
 		|	AND NOT ExchangePlan.DeletionMark";
 		Query.Text = StrReplace(Query.Text, "&ExchangePlanName", "ExchangePlan" + "." + ExchangePlanName);
-		// @skip-check query-in-loop - выборка ссылок из разных таблиц.
+		// @skip-check query-in-loop - 
 		NodesSelection = Query.Execute().Select();
 		While NodesSelection.Next() Do
 			NodesList.Add(NodesSelection.Ref);
@@ -875,6 +874,8 @@ Function RecordSetAdditionMode() Export
 		Return Undefined;
 	EndIf;
 	
+	SetSafeMode(True);
+	
 	// ACC:488-off - Support of new 1C:Enterprise types (the executable code is safe)
 	Return Eval("ReplacementMode.Append");
 	// ACC:488-on
@@ -886,6 +887,8 @@ Function RecordSetReplacementMode() Export
 	If Not AreReplacementModesAvailable() Then
 		Return Undefined;
 	EndIf;
+	
+	SetSafeMode(True);
 	
 	// ACC:488-off - Support of new 1C:Enterprise types (the executable code is safe)
 	Return Eval("ReplacementMode.Replace");
@@ -899,6 +902,8 @@ Function RecordSetUpdateMode() Export
 		Return Undefined;
 	EndIf;
 	
+	SetSafeMode(True);
+	
 	// ACC:488-off - Support of new 1C:Enterprise types (the executable code is safe)
 	Return Eval("ReplacementMode.Update");
 	// ACC:488-on
@@ -911,6 +916,8 @@ Function RecordSetMergeMode() Export
 		Return Undefined;
 	EndIf;
 	
+	SetSafeMode(True);
+	
 	// ACC:488-off - Support of new 1C:Enterprise types (the executable code is safe)
 	Return Eval("ReplacementMode.Merge");
 	// ACC:488-on
@@ -922,6 +929,8 @@ Function RecordSetDeletionMode() Export
 	If Not AreReplacementModesAvailable() Then
 		Return Undefined;
 	EndIf;
+	
+	SetSafeMode(True);
 	
 	// ACC:488-off - Support of new 1C:Enterprise types (the executable code is safe)
 	Return Eval("ReplacementMode.Delete");
@@ -942,14 +951,23 @@ Function AreReplacementModesAvailable(IsIncludingUpdate = False)
 		Return True;
 	EndIf;
 	
-	If CommonClientServer.CompareVersions(Version, "8.3.26.0") > 0
-	   And CommonClientServer.CompareVersions(Version, "8.3.26.1540") < 0
-	 Or CommonClientServer.CompareVersions(Version, "8.3.27.0") > 0
-	   And CommonClientServer.CompareVersions(Version, "8.3.27.1483") < 0 Then
+	If CommonClientServer.CompareVersions(Version, "8.3.27.1719") < 0
+	 Or CommonClientServer.CompareVersions(Version, "8.5.1.0") > 0
+	   And CommonClientServer.CompareVersions(Version, "8.5.1.980") < 0 Then
 		Return False;
 	EndIf;
 	
 	Return True;
+	
+EndFunction
+
+Function TypeSubstitutionMode() Export
+	
+	SetSafeMode(True);
+	
+	// ACC:488-off - Support of new 1C:Enterprise methods (the executable code is safe)
+	Return Eval("Type(""ReplacementMode"")");
+	// ACC:488-on
 	
 EndFunction
 
@@ -1023,7 +1041,7 @@ Function RefsByPredefinedItemsNames(FullMetadataObjectName) Export
 		Return Undefined;
 	EndIf;
 	
-	// If inappropriate type of metadata .
+	// If inappropriate type of metadata.
 	If Not Metadata.Catalogs.Contains(ObjectMetadata)
 		And Not Metadata.ChartsOfCharacteristicTypes.Contains(ObjectMetadata)
 		And Not Metadata.ChartsOfAccounts.Contains(ObjectMetadata)
@@ -1142,5 +1160,19 @@ Procedure InsertSubordinateSubsystemNames(Names, ParentSubsystem, DisabledSubsys
 EndProcedure
 
 #EndRegion
+
+// Parameters:
+//  ModuleName - String
+//
+// Returns:
+//  FixedMap, Undefined
+//
+Function MethodsAllowedToBeCalledAsArbitraryCode(ModuleName) Export
+	
+	Module = Common.CommonModule(ModuleName);
+	
+	Return StandardSubsystemsServer.MethodsAllowedToBeCalledAsArbitraryCode(Module);
+	
+EndFunction
 
 #EndRegion

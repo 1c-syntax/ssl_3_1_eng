@@ -30,10 +30,10 @@
 				<CommandName>Form.StandardCommand.Cancel</CommandName>
 				<ExtendedTooltip name="FormCancelExtendedTooltip" id="51"/>
 			</Button>
-			<Button name="FormHelp" id="49">
+			<Button name="FormHelp_SSLyf" id="49">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.StandardCommand.Help</CommandName>
-				<ExtendedTooltip name="FormHelpExtendedTooltip" id="52"/>
+				<ExtendedTooltip name="FormHelp_SSLyfExtendedTooltip" id="52"/>
 			</Button>
 		</ChildItems>
 	</AutoCommandBar>
@@ -72,7 +72,7 @@
 						<Title formatted="false">
 							<v8:item>
 								<v8:lang>en</v8:lang>
-								<v8:content>If edit in transaction fails, all changes are discarded.</v8:content>
+								<v8:content>If editing in transaction is impossible, all changes are discarded.</v8:content>
 							</v8:item>
 						</Title>
 					</ExtendedTooltip>
@@ -186,7 +186,7 @@
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Show service attributes</v8:content>
+							<v8:content>Show internal attributes</v8:content>
 						</v8:item>
 					</Title>
 					<Group>Vertical</Group>
@@ -200,7 +200,7 @@
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Show service attributes</v8:content>
+									<v8:content>Show internal attributes</v8:content>
 								</v8:item>
 							</Title>
 							<TitleLocation>Right</TitleLocation>
@@ -354,7 +354,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Show service attributes</v8:content>
+					<v8:content>Show internal attributes</v8:content>
 				</v8:item>
 			</Title>
 			<Type>

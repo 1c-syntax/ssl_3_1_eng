@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -82,15 +81,30 @@ Procedure UpdateRegisterData(AccessGroups = Undefined,
 	
 	BlankRecordsQuery = New Query;
 	BlankRecordsQuery.Text =
-	"SELECT
-	|	AccessGroupsTables.Table AS Table
+	"SELECT TOP 1
+	|	TRUE AS TrueValue
 	|FROM
 	|	InformationRegister.AccessGroupsTables AS AccessGroupsTables
 	|WHERE
-	|	AccessGroupsTables.Table IN (
-	|		VALUE(Catalog.MetadataObjectIDs.EmptyRef),
-	|		VALUE(Catalog.ExtensionObjectIDs.EmptyRef),
-	|		UNDEFINED)
+	|	AccessGroupsTables.Table = VALUE(Catalog.MetadataObjectIDs.EmptyRef)
+	|;
+	|
+	|////////////////////////////////////////////////////////////////////////////////
+	|SELECT TOP 1
+	|	TRUE AS TrueValue
+	|FROM
+	|	InformationRegister.AccessGroupsTables AS AccessGroupsTables
+	|WHERE
+	|	AccessGroupsTables.Table = VALUE(Catalog.ExtensionObjectIDs.EmptyRef)
+	|;
+	|
+	|////////////////////////////////////////////////////////////////////////////////
+	|SELECT TOP 1
+	|	TRUE AS TrueValue
+	|FROM
+	|	InformationRegister.AccessGroupsTables AS AccessGroupsTables
+	|WHERE
+	|	AccessGroupsTables.Table = UNDEFINED
 	|;
 	|
 	|////////////////////////////////////////////////////////////////////////////////
@@ -292,15 +306,24 @@ Procedure UpdateRegisterData(AccessGroups = Undefined,
 		Block.Lock();
 		Results = BlankRecordsQuery.ExecuteBatch();
 		If Not Results[0].IsEmpty() Then
-			Selection = Results[0].Select();
-			While Selection.Next() Do
-				RecordSet = CreateRecordSet();
-				RecordSet.Filter.Table.Set(Selection.Table);
-				InfobaseUpdate.WriteRecordSet(RecordSet);
-			EndDo;
+			RecordSet = CreateRecordSet();
+			RecordSet.Filter.Table.Set(Catalogs.MetadataObjectIDs.EmptyRef());
+			InfobaseUpdate.WriteRecordSet(RecordSet);
 			HasChanges = True;
 		EndIf;
 		If Not Results[1].IsEmpty() Then
+			RecordSet = CreateRecordSet();
+			RecordSet.Filter.Table.Set(Catalogs.ExtensionObjectIDs.EmptyRef());
+			InfobaseUpdate.WriteRecordSet(RecordSet);
+			HasChanges = True;
+		EndIf;
+		If Not Results[2].IsEmpty() Then
+			RecordSet = CreateRecordSet();
+			RecordSet.Filter.Table.Set(Undefined);
+			InfobaseUpdate.WriteRecordSet(RecordSet);
+			HasChanges = True;
+		EndIf;
+		If Not Results[3].IsEmpty() Then
 			RecordSet = CreateRecordSet();
 			RecordSet.Filter.AccessGroup.Set(Catalogs.AccessGroups.EmptyRef());
 			InfobaseUpdate.WriteRecordSet(RecordSet);
@@ -342,6 +365,13 @@ Procedure UpdateRegisterData(AccessGroups = Undefined,
 		RollbackTransaction();
 		Raise;
 	EndTry;
+	
+EndProcedure
+
+// See StandardSubsystemsServer.WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode
+Procedure WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode(Methods) Export
+	
+	Methods.Insert("UpdateRegisterData");
 	
 EndProcedure
 

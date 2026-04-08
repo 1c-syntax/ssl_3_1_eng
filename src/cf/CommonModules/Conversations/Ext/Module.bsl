@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -24,14 +23,19 @@
 //   Message - See MessageDetails
 //   ConversationContext - AnyRef - the message will be sent to a context conversation.
 //                      - CollaborationSystemConversationID - the message will be sent to the specified conversation.
-//                      - Undefined - the message will be sent to the conversation between the author and the recipient.
+//                      - Undefined - The message will be sent to a non-group discussion between the author and the recipient,
+//                         if there is only one recipient and no Title is specified, otherwise a group discussion will be created.
+//                      - String - A group discussion key will be generated if not found. If found,
+//                           missing recipients will be added to the chat. It is recommended to use a GUID when generating the key. 
+//                         
+//   Title - String - Group discussion title on creation.
 //
 // Example:
 // Message = Conversations.MessageDetails("Hello, world!");
 // Recipient = CommonClientServer.ValueInArray(Administrator);
 // Conversations.SendMessage1(Users.CurrentUser(), Recipient, Message);
 //
-Procedure SendMessage(Val Author, Val Recipients, Message, ConversationContext = Undefined) Export
+Procedure SendMessage(Val Author, Val Recipients, Message, ConversationContext = Undefined, Title = Undefined) Export
 	
 	If TypeOf(Author) <> Type("CollaborationSystemUser") Then
 		Author = CollaborationSystemUser(Author);
@@ -40,12 +44,8 @@ Procedure SendMessage(Val Author, Val Recipients, Message, ConversationContext =
 	If Author = Undefined Then
 		Raise NStr("en = 'Message author is not specified'");
 	EndIf;
-	
-	If Recipients.Count() = 0 Then
-		Raise NStr("en = 'Message recipients are not specified'");
-	EndIf;
-	
-	If TypeOf(Recipients[0]) = Type("CatalogRef.Users") Then
+		
+	If Recipients.Count() > 0 And TypeOf(Recipients[0]) = Type("CatalogRef.Users") Then
 		AddresseesByRef = CollaborationSystemUsers(Recipients);
 		Recipients = New Array; // Array Of CollaborationSystemUser
 		For Each KeyAndValue In AddresseesByRef Do
@@ -57,7 +57,8 @@ Procedure SendMessage(Val Author, Val Recipients, Message, ConversationContext =
 	EndIf;
 	
 	If ConversationContext <> Undefined 
-			And TypeOf(ConversationContext) <> Type("CollaborationSystemConversationID") Then
+			And TypeOf(ConversationContext) <> Type("CollaborationSystemConversationID")
+			And TypeOf(ConversationContext) <> Type("String") Then
 			
 		If Not ValueIsFilled(ConversationContext) Then
 			Raise NStr("en = 'Empty conversation context is passed.'");
@@ -82,19 +83,15 @@ Procedure SendMessage(Val Author, Val Recipients, Message, ConversationContext =
 
 		ConversationID = Conversation.ID;
 		
-	ElsIf ConversationContext = Undefined Then
+	ElsIf ConversationContext = Undefined Or TypeOf(ConversationContext) = Type("String") Then
 		
-		If Recipients.Count() = 1 Then
+		If Recipients.Count() = 1 
+			And Not ValueIsFilled(Title)
+			And Not ValueIsFilled(ConversationContext) Then
 			Member = Recipients[0];
-			Conversation = NotAGroupDiscussionBetweenUsers(Author.ID, Member.ID);
-		Else	
-			Conversation = CollaborationSystem.CreateConversation();
-			Conversation.Title = Message.Text;
-			Conversation.Displayed = True;
-			Conversation.Group = True;
-			Conversation.Members.Add(Author.ID);
- 			AddRecipients(Conversation.Members, Recipients);
-			Conversation.Write();
+			Conversation = NotGroupDiscussionBetweenUsers(Author.ID, Member.ID);
+		Else
+			Conversation = GroupDiscussionBetweenUsers(Author.ID, Recipients, Title, Message.Text, ConversationContext);
 		EndIf;
 		
 		ConversationID = Conversation.ID;
@@ -166,7 +163,7 @@ Procedure SendNotification(Val Author, Message, ConversationContext) Export
 	ElsIf ConversationContext = Undefined Then
 		
 		Raise NStr("en = 'Conversation ID or context is not specified.'");
-		
+	
 	Else
 		
 		ConversationID = ConversationContext;
@@ -494,7 +491,14 @@ EndProcedure
 //   * Text - FormattedString
 //   * Attachments - Array of See AttachmentDetails
 //   * Data - Undefined - See Syntax Assistant for "CollaborationSystemMessage".
-//   * Actions - ValueList - See Syntax Assistant for "CollaborationSystemMessage".
+//   * ButtonPanel - Structure - See Syntax Assistant for "CollaborationSystemMessage".:
+//     ** ButtonsType - Undefined, CollaborationSystemMessageButtonPanelButtonType - Undefined on a platform
+//           version earlier than 8.3.25.
+//     ** ButtonRows - Array из Массив Из See DescriptionOfButton
+//   * Actions - ValueList - obsolete, use ButtonsPanel instead.
+//                                 @skip-check doc-comment-type
+//
+//@skip-check doc-comment-type
 //
 Function MessageDetails(Val Text) Export
 	LongDesc = New Structure;
@@ -506,8 +510,51 @@ Function MessageDetails(Val Text) Export
 	LongDesc.Insert("Text", Text);
 	LongDesc.Insert("Attachments", New Array);
 	LongDesc.Insert("Data", Undefined);
+	LongDesc.Insert("ButtonPanel", New Structure("ButtonsType, ButtonRows",
+		CollaborationSystemMessageButtonPanelButtonType(), 
+		New Array));
 	LongDesc.Insert("Actions", New ValueList);
+	
 	Return LongDesc;
+EndFunction
+
+// Generates details of a button from the panel for sending messages via the Conversations subsystem procedures
+// and functions.
+//
+// Parameters:
+//   Action - CollaborationSystemMessageButtonPanelButtonAction - Button action.
+//   Text - String - Contains a label on the button.
+// 
+// Returns:
+//   Structure:
+//   * Data - Arbitrary
+//   * Action - CollaborationSystemMessageButtonPanelButtonAction 
+//   * Enabled - Boolean
+//   * ActionName - String
+//   * Picture - Undefined, Picture
+//   * URL - String
+//   * Text - String
+//   * MessageText - String
+//
+//@skip-check doc-comment-type
+//
+Function DescriptionOfButton(Action, Text) Export
+	If TypeOf(Text) = Type("String") Then
+		Text = New FormattedString(Text);
+	EndIf;
+	
+	LongDesc = New Structure;
+	LongDesc.Insert("Data", Undefined);
+	LongDesc.Insert("Action", Action);
+	LongDesc.Insert("Enabled", True);
+	LongDesc.Insert("ActionName", "");
+	LongDesc.Insert("Picture", Undefined);
+	LongDesc.Insert("URL", "");
+	LongDesc.Insert("Text", Text);
+	LongDesc.Insert("MessageText", "");
+	
+	Return LongDesc;
+
 EndFunction
 
 // Generates attachment details for sending messages via the Conversations subsystem procedures
@@ -637,6 +684,16 @@ EndFunction
 
 #Region Private
 
+Function CollaborationSystemMessageButtonPanelButtonType()
+	
+	If PanelOfButtonsIsAvailable() Then
+		Return Common.CalculateInSafeMode("CollaborationSystemMessageButtonPanelButtonType.UsualButton");
+	Else
+		Return Undefined;
+	EndIf;
+	
+EndFunction
+
 Procedure UpdateUserDetailsInCollaborationSystem(CollaborationSystemUser, UserDetails)
 	
 	Photo = UserDetails.Photo;
@@ -712,7 +769,7 @@ EndProcedure
 // Returns:
 //    CollaborationSystemConversation
 //
-Function NotAGroupDiscussionBetweenUsers(Author, Member)
+Function NotGroupDiscussionBetweenUsers(Author, Member)
 	Conversation = Undefined;
 	
 	Filter = New CollaborationSystemConversationsFilter;
@@ -741,13 +798,71 @@ Function NotAGroupDiscussionBetweenUsers(Author, Member)
 	Return Conversation;
 EndFunction
 
+// Parameters:
+//  Author	 - CollaborationSystemUserID
+//  Member - CollaborationSystemUserID
+//  Title - String
+//  MessageText - String
+//  DiscussionKey - String
+// 
+// Returns:
+//    CollaborationSystemConversation
+//
+Function GroupDiscussionBetweenUsers(Author, Recipients, Title, MessageText, DiscussionKey = Undefined)
+	Conversation = Undefined;
+	
+	If ValueIsFilled(DiscussionKey) Then
+		Filter = New CollaborationSystemConversationsFilter;
+		Filter.ContextConversation = False;
+		Filter.Group = True;
+		Filter.Key = DiscussionKey;
+		FoundDiscussions = CollaborationSystem.GetConversations(Filter);
+		If FoundDiscussions.Count() > 0 Then
+			Conversation = FoundDiscussions[0];
+			RecipientsToAdd = New Array;
+			If Not Conversation.Members.Contains(Author) Then
+				RecipientsToAdd.Add(Author);
+			EndIf;
+			For Each Recipient In Recipients Do
+				If TypeOf(Recipient) = Type("CollaborationSystemUserID")
+					And Not Conversation.Members.Contains(Recipient) Then
+					RecipientsToAdd.Add(Recipient);
+				ElsIf TypeOf(Recipient) = Type("CollaborationSystemUser")
+					And Not Conversation.Members.Contains(Recipient.ID) Then
+					RecipientsToAdd.Add(Recipient.ID);
+				EndIf;
+			EndDo;
+			If RecipientsToAdd.Count() > 0 Then
+				AddRecipients(Conversation.Members, RecipientsToAdd);
+			EndIf;
+		EndIf;
+	EndIf;
+	
+	If Conversation = Undefined Then
+		Conversation = CollaborationSystem.CreateConversation();
+		Conversation.Displayed = True;
+		Conversation.Group = True;
+		If ValueIsFilled(DiscussionKey) Then
+			Conversation.Key = DiscussionKey;
+		EndIf;
+		Conversation.Title = ?(ValueIsFilled(Title), Title, MessageText);
+		Conversation.Members.Add(Author);
+		AddRecipients(Conversation.Members, Recipients);
+		Conversation.Write();
+	EndIf;
+	
+	Return Conversation;
+EndFunction
+
 Function MessageFromTheDescription(Author, ConversationID, Recipients, Message)
 	
 	CollaborationSystemMessage = CollaborationSystem.CreateMessage(ConversationID);
 	CollaborationSystemMessage.Author = Author.ID;
 	CollaborationSystemMessage.Text = Message.Text;
 	CollaborationSystemMessage.Data = Message.Data;
+	
 	For Each Action In Message.Actions Do
+		//@skip-check bsl-legacy-check-dynamic-feature-access - для совместимости
 		CollaborationSystemMessage.Actions.Add(Action.Value, Action.Presentation);
 	EndDo;
 	
@@ -757,8 +872,37 @@ Function MessageFromTheDescription(Author, ConversationID, Recipients, Message)
 		CollaborationSystemMessage.Attachments.Add(Attachment.Stream, Attachment.Description, Attachment.MIMEType, 
 			Attachment.Displayed);
 	EndDo;
+	
+	If Message.ButtonPanel.ButtonsType <> Undefined
+		And PanelOfButtonsIsAvailable() And Message.ButtonPanel.ButtonRows.Count() > 0 Then
 		
+		CollaborationSystemMessage.ButtonPanel.ButtonsType = Message.ButtonPanel.ButtonsType;
+
+		For Each ButtonRow In Message.ButtonPanel.ButtonRows Do
+			CurCURRENTSeries = CollaborationSystemMessage.ButtonPanel.ButtonRows.Add();
+			For Each Button In ButtonRow Do
+				CurCurrentButton = CurCURRENTSeries.Add(Button.Action, Button.Text);
+				CurCurrentButton.Data = Button.Data;
+				CurCurrentButton.Enabled = Button.Enabled;
+				CurCurrentButton.ActionName = Button.ActionName;
+				If TypeOf(Button.Picture) = Type("Picture") Then
+					CurCurrentButton.Picture = Button.Picture;
+				EndIf;
+				CurCurrentButton.URL = Button.URL;
+				CurCurrentButton.MessageText = Button.MessageText;
+			EndDo;
+		EndDo;
+	EndIf;
+			
 	Return CollaborationSystemMessage;
+
+EndFunction
+
+Function PanelOfButtonsIsAvailable()
+	
+	SystemInfo = New SystemInfo();
+	Version = CommonClientServer.ConfigurationVersionWithoutBuildNumber(SystemInfo.AppVersion);
+	Return CommonClientServer.CompareVersionsWithoutBuildNumber(Version, "8.3.25") >= 0;
 
 EndFunction
 

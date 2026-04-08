@@ -111,7 +111,6 @@
 									<v8:content>Password</v8:content>
 								</v8:item>
 							</Title>
-							<Group>AlwaysHorizontal</Group>
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
@@ -305,10 +304,10 @@
 							</Title>
 							<ExtendedTooltip name="FormCloseExtendedTooltip" id="468"/>
 						</Button>
-						<Button name="FormHelp" id="469">
+						<Button name="FormHelp_SSLyf" id="469">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.StandardCommand.Help</CommandName>
-							<ExtendedTooltip name="FormHelpExtendedTooltip" id="470"/>
+							<ExtendedTooltip name="FormHelp_SSLyfExtendedTooltip" id="470"/>
 						</Button>
 					</ChildItems>
 				</CommandBar>

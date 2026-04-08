@@ -508,14 +508,14 @@
 											<DataPath>Object.NumericalQuestionHintsRange.ValueUpTo</DataPath>
 											<EditMode>EnterOnInput</EditMode>
 											<Width>10</Width>
-											<ContextMenu name="HintsRangeValueBeforeContextMenu" id="207"/>
-											<ExtendedTooltip name="HintsRangeValueBeforeExtendedTooltip" id="208"/>
+											<ContextMenu name="HintsRangeValueUpToContextMenu" id="207"/>
+											<ExtendedTooltip name="HintsRangeValueUpToExtendedTooltip" id="208"/>
 										</InputField>
 										<InputField name="HintsRangeToolTip" id="209">
 											<DataPath>Object.NumericalQuestionHintsRange.ToolTip</DataPath>
 											<EditMode>EnterOnInput</EditMode>
-											<ContextMenu name="HintRangeHintContextMenu" id="210"/>
-											<ExtendedTooltip name="HintRangeHintExtendedTooltip" id="211"/>
+											<ContextMenu name="HintsRangeToolTipContextMenu" id="210"/>
+											<ExtendedTooltip name="HintsRangeToolTipExtendedTooltip" id="211"/>
 										</InputField>
 									</ChildItems>
 								</Table>

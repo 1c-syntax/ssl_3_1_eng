@@ -1,5 +1,5 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
@@ -7,29 +7,46 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
+#Region Internal
+
+// See StandardSubsystemsClient.OnReceiptServerNotification
+Procedure OnReceiptServerNotification(NameOfAlert, Result) Export
+	
+	If NameOfAlert <> EmailOperationsInternalClientServer.ServerNotificationName() Then
+		Return;
+	EndIf;
+	
+	If Result.EventName = "OpenAuthorizationOfMailService" Then
+		Notify("OpenAuthorizationOfMailService", Result.Context);
+	EndIf;
+	
+EndProcedure
+
+#EndRegion
+
 #Region Private
 
-Function SubjectOfSupportRequest(Val TechnicalInformation) Export
+Function SupportRequestTopic(Val TechnicalInformation) Export
 	
 	MainReason = StrReplace(TechnicalInformation, Chars.LF, " ");
 	
 	LengthLimitation = 500;
 	MainReason = Left(MainReason, LengthLimitation);
 	
-	Template = NStr("en = 'Настройка почтового ящика: %1'");
+	Template = NStr("en = 'Configure email: %1'");
 	Result = StringFunctionsClientServer.SubstituteParametersToString(Template, MainReason);
 	
 	Return Result;
 	
 EndFunction
 
-Function TextOfSupportRequest(Val Email, Val TechnicalInformation) Export
+Function SupportRequestText(Val Email, Val TechnicalInformation) Export
 	
 	MainReason = StrReplace(TechnicalInformation, Chars.LF, " ");
 	
-	Template = NStr("en = 'Проблема при настройке почтового ящика %1: %2.
+	Template = NStr("en = 'Issue when configuring email %1: %2.
 		|
-		|<Опишите возникшую проблему и приложите скриншоты ошибки.>'");
+		|<Describe the issue and attach screenshots>'");
 	
 	Result = StringFunctionsClientServer.SubstituteParametersToString(
 		Template,

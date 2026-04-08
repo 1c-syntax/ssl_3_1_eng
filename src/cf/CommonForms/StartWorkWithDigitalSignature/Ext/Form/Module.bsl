@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -17,7 +16,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	ShouldCheckCryptoProvider = Metadata.DataProcessors.Find("DigitalSignatureAndEncryptionApplications") <> Undefined;
 	
 	RequiredAddInName = Parameters.RequiredAddInName;
-	If Parameters.Property("Components") Then
+	If Parameters.Components <> Undefined Then
 		FillPropertyValues(Parameters, Parameters.Components);
 	EndIf;
 	
@@ -138,7 +137,7 @@ EndProcedure
 &AtClient
 Procedure ContinueWork(Command)
 	
-	If RequiredAddInName = "ExpansionOfWorkWith1CEnterprise" Then
+	If RequiredAddInName = "ExtensionFor1CEnterprise" Then
 		If InstallationStateOf1CEnterpriseExtension = 2 Then
 			Close(True);
 		Else

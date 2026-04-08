@@ -97,7 +97,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Delete files after committing</v8:content>
+					<v8:content>Delete files after editing</v8:content>
 				</v8:item>
 			</Title>
 			<TitleLocation>Right</TitleLocation>
@@ -236,7 +236,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Delete files after committing</v8:content>
+					<v8:content>Delete files after editing</v8:content>
 				</v8:item>
 			</Title>
 			<Type>

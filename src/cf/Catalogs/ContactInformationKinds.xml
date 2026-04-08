@@ -407,7 +407,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Address presentation includes country</v8:content>
+							<v8:content>Display country</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>

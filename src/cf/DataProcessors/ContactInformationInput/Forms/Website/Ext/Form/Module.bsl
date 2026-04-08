@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -48,14 +47,14 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Else
 			Data = ContactsManager.NewContactInformationDetails(ContactInformationType);
 			Data.value = FieldValues;
-			Data.comment = Parameters.Comment;
+			Data.Comment = Parameters.Comment;
 		EndIf;
 		
 	EndIf;
 	
-	Address        = Data.value;
+	Address        = Data.Value;
 	Description = TrimAll(Parameters.Presentation);
-	Comment  = Data.comment;
+	Comment  = Data.Comment;
 	
 EndProcedure
 
@@ -106,7 +105,7 @@ Function SelectionResult(Address, Description, Comment)
 	Result.Insert("ContactInformation", ContactsManager.ContactInformationToXML(ChoiceData, Description, ContactInformationType));
 	Result.Insert("Value",             ChoiceData);
 	Result.Insert("Presentation",        WebsiteDescription);
-	Result.Insert("Comment",          ContactInformation.comment);
+	Result.Insert("Comment",          ContactInformation.Comment);
 	
 	Return Result
 	

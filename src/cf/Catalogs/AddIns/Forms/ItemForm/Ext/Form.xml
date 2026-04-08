@@ -77,10 +77,10 @@
 				<CommandSource>Form</CommandSource>
 				<ExtendedTooltip name="FormStandardCommandsExtendedTooltip" id="152"/>
 			</ButtonGroup>
-			<Button name="FormHelp" id="153">
+			<Button name="FormHelp_SSLyf" id="153">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.StandardCommand.Help</CommandName>
-				<ExtendedTooltip name="FormHelpExtendedTooltip" id="154"/>
+				<ExtendedTooltip name="FormHelp_SSLyfExtendedTooltip" id="154"/>
 			</Button>
 		</ChildItems>
 	</AutoCommandBar>
@@ -259,7 +259,7 @@
 									<xr:CheckState>0</xr:CheckState>
 									<xr:Value xsi:type="FormChoiceListDesTimeValue">
 										<Presentation/>
-										<Value xsi:type="xr:DesignTimeRef">Enum.AddInUsageOptions.EnumValue.isDisabled</Value>
+										<Value xsi:type="xr:DesignTimeRef">Enum.AddInUsageOptions.EnumValue.TurnedOff</Value>
 									</xr:Value>
 								</xr:Item>
 							</ChoiceList>

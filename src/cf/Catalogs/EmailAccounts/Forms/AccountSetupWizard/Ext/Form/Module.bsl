@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -13,7 +12,11 @@
 &AtServer
 Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
+	Title = NStr("en = 'Account setup'");
+	AuthenticationOption = "OAuth";
+	
 	Items.GoToSettingsButton.Visible = False;
+	Items.BackButton.Visible = False;
 	
 	If Common.SubsystemExists("StandardSubsystems.SecurityProfiles") Then
 		ModuleSafeModeManager = Common.CommonModule("SafeModeManager");
@@ -23,9 +26,9 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	
 	If UseSecurityProfiles Then
-		SetupMethod = "Manually";
+		SetupMethod = ManualSetting();
 	Else
-		SetupMethod = "Automatically";
+		SetupMethod = AutomaticSetting();
 	EndIf;
 	
 	CanReceiveEmails = EmailOperationsInternal.SubsystemSettings().CanReceiveEmails;
@@ -37,83 +40,66 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	ContextMode = Parameters.ContextMode;
 	Reconfigure = Parameters.Reconfigure;
-	Items.UseAccount.Visible = Not ContextMode And CanReceiveEmails;
-	Items.Protocol.Enabled = CanReceiveEmails;
-	Items.Protocol.Visible = ShouldUsePOP3Protocol;
-	Items.KeepMessagesOnServer.Visible = CanReceiveEmails;
-	
-	Items.AccountSettingsTitle.Title = ?(ContextMode,
-		NStr("en = 'To send messages, set up the email account.'"),
-		NStr("en = 'Enter email settings'"));
-		
-	Items.AccountSettingsTitle.Visible = ContextMode;
-	Title = NStr("en = 'Account setup'");
 	
 	UseForReceiving = Not ContextMode And CanReceiveEmails;
 	UseForSending = True;
-	Items.Pages.CurrentPage = Items.UserAccountSetup;
+	AuthorizationRequiredOnSendMail = True;
+	
+	Items.EmailSenderName.Visible = Not ContextMode;
+	Items.UseForReceiving.Visible = Not ContextMode And CanReceiveEmails;
+	Items.Pages.CurrentPage = Items.EnteringEmailMailAddress;
 	
 	WindowOptionsKey = ?(ContextMode, "ContextMode", "NoContextMode");
 	
-	AuthenticationOption = "Password";
-	
 	If ValueIsFilled(Parameters.Key) Then
 		AccountRef = Parameters.Key;
+		AuthenticationOption = "Password";
 		PopulateUserAccountProperties();
 	Else
 		NewAccountRef = Catalogs.EmailAccounts.GetRef();
 		
 		If Common.SubsystemExists("StandardSubsystems.ContactInformation") Then
+			
 			ModuleContactsManager = Common.CommonModule("ContactsManager");
 			TypeEmail = ModuleContactsManager.TypeEmail();
 			ObjectContactInformation = ModuleContactsManager.ObjectContactInformation(
 				Users.CurrentUser(), TypeEmail, , False);
-				
+			
 			For Each Contact In ObjectContactInformation Do
 				Address = Contact.Presentation;
 				If Catalogs.EmailAccounts.FindByAttribute("Email", Address).IsEmpty() Then
 					Email = Address;
-					CurrentItem = Items.Password;
 					EmailSenderName = String(Users.CurrentUser());
 					Break;
 				EndIf;
 			EndDo;
+			
 		EndIf;
 	EndIf;
 	
-	Items.CannotConnectPictureAndLabel.Visible = False;
-	Items.BackButton.Visible = False;
-	
 	IsFullUser = Users.IsFullUser();
-	Items.AccountAvailability.Visible = IsFullUser And Not ContextMode;
+	Items.UserAccountKind.Visible = IsFullUser And Not ContextMode;
 	UserAccountKind = ?(IsFullUser, "Shared3", "Personal1");
-	Items.SenderName.Visible = Not ContextMode;
-	
-	AuthorizationRequiredOnSendMail = True;
 	
 	If Common.IsMobileClient() Then
 		Items.Password.HorizontalStretch = True;
-		Items.AuthenticationMethod.Visible = True;
-		Items.AuthenticationPassword.Visible = False;
-		Items.AuthenticationMethodMailService.Visible = False;
-		Items.GroupAuthenticationMethodPassword.Group = ChildFormItemsGroup.Vertical;
 		Items.Password.TitleLocation = FormItemTitleLocation.Auto;
 	EndIf;
 	
 	Items.AssistanceRequiredGroup.Visible = False;
 	
-	// 
-	If Common.SubsystemExists("StandardSubsystems.ContactingTechnicalSupport") Then
+	// StandardSubsystems.SupportRequests
+	If Common.SubsystemExists("StandardSubsystems.SupportRequests") Then
 		
-		ModuleForContactingTechnicalSupportService = Common.CommonModule(
-			"ContactingTechnicalSupportInternal");
+		ModuleSupportRequestsInternal = Common.CommonModule(
+			"SupportRequestsInternal");
 		
-		ModuleForContactingTechnicalSupportService.OnCreateAtServer(ThisObject);
+		ModuleSupportRequestsInternal.OnCreateAtServer(ThisObject);
 		
 	Else
 		Items.AssistanceRequiredGroup.Visible = False;
 	EndIf;
-	// End StandardSubsystems.ContactingTechnicalSupport
+	// End StandardSubsystems.SupportRequests
 	
 EndProcedure
 
@@ -121,6 +107,7 @@ EndProcedure
 Procedure OnOpen(Cancel)
 	
 	AttachIdleHandler("AdjustCurrentPageElementsOnOpening", 0.1, True);
+	AttachIdleHandler("CheckAvailabilityOfOpenAuthorizationService", 0.1, True);
 	
 EndProcedure
 
@@ -132,11 +119,37 @@ Procedure BeforeClose(Cancel, Exit, WarningText, StandardProcessing)
 	EndIf;
 	
 	Cancel = True;
+	
 	If Exit Then
 		Return;
 	EndIf;
 	
 	AttachIdleHandler("ShowQueryBoxBeforeCloseForm", 0.1, True);
+	
+EndProcedure
+
+&AtClient
+Procedure NotificationProcessing(EventName, Parameter, Source)
+	
+	If EventName <> "OpenAuthorizationOfMailService" Then
+		Return;
+	EndIf;
+	
+	AuthorizationSettings = SettingsAuthorizationOnMailServer; // See SettingsAuthorizationOnMailServer
+	KeyReceiptAddress = AuthorizationSettings.KeyReceiptAddress;
+	
+	If QueryID <> String(Parameter.QueryID) Then
+		ErrorsMessages = NStr("en = 'Cannot authorize on the mail server. Incorrect response ID.'");
+		ValidationCompletedWithErrors = True;
+	ElsIf Not GetAccessKeysToMailServer(Parameter.AuthorizationCode, KeyReceiptAddress) Then
+		ValidationCompletedWithErrors = True;
+	EndIf;
+	
+	If ValidationCompletedWithErrors Then
+		FillinExplanations();
+	EndIf;
+	
+	GotoNextPage();
 	
 EndProcedure
 
@@ -146,68 +159,39 @@ EndProcedure
 
 &AtClient
 Procedure PasswordOnChange(Item)
+	
 	PasswordForSendingEmails = PasswordForReceivingEmails;
+	
 EndProcedure
 
 &AtClient
-Procedure KeepEmailCopiesOnServerOnChange(Item)
-	RefreshDaysBeforeDeleteEnabled();
-EndProcedure
-
-&AtClient
-Procedure DeleteMailFromServerOnChange(Item)
-	RefreshDaysBeforeDeleteEnabled();
+Procedure PasswordStartChoice(Item, ChoiceData, StandardProcessing)
+	
+	EmailOperationsClient.PasswordFieldStartChoice(Item, PasswordForReceivingEmails, StandardProcessing);
+	
 EndProcedure
 
 &AtClient
 Procedure EmailOnChange(Item)
+	
 	SettingsFilled = False;
 	FormClosingConfirmationRequired = True;
+	
 EndProcedure
 
 &AtClient
 Procedure EmailSenderNameOnChange(Item)
+	
 	FormClosingConfirmationRequired = True;
-EndProcedure
-
-&AtClient
-Procedure ProtocolOnChange(Item)
-	SetItemsVisibility();
-	Items.IncomingMailServer.Title = StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = '%1 server'"), Protocol);
-EndProcedure
-
-&AtClient
-Procedure EncryptOnSendMailOnChange(Item)
-	UseSecureConnectionForOutgoingMail = EncryptOnSendMail = "SSL";
-EndProcedure
-
-&AtClient
-Procedure EncryptOnReceiveMailOnChange(Item)
-	UseSecureConnectionForIncomingMail = EncryptOnReceiveMail = "SSL";
-EndProcedure
-
-&AtClient
-Procedure ErrorsMessagesOpening(Item, StandardProcessing)
-	
-	StandardProcessing = False;
-	Items.Pages.CurrentPage = Items.TechnicalDetailsOfError;
-	SetCurrentPageItems();
 	
 EndProcedure
 
 &AtClient
-Procedure TextTechnicalDetailsOfErrorOpening(Item, StandardProcessing)
-
-	StandardProcessing = False;
-	Items.Pages.CurrentPage = Items.UserAccountSetup;
-	SetCurrentPageItems();
+Procedure DecorationTechnicalDetailsClick(Item)
 	
-EndProcedure
-
-&AtClient
-Procedure AuthenticationModeOnChange(Item)
-	Items.Password.Enabled = AuthenticationOption = "Password";
+	Items.Pages.CurrentPage = Items.TechnicalDetails;
+	Items.BackButton.Visible = True;
+	
 EndProcedure
 
 #EndRegion
@@ -215,7 +199,6 @@ EndProcedure
 #Region FormCommandsEventHandlers
 
 &AtClient
-
 Procedure Next(Command)
 	
 	GotoNextPage(Command);
@@ -228,19 +211,34 @@ Procedure Back(Command)
 	CurrentPage = Items.Pages.CurrentPage;
 	
 	PreviousPage = Undefined;
-	If CurrentPage = Items.OutgoingMailServerSetup Then
-		PreviousPage = Items.UserAccountSetup;
-	ElsIf CurrentPage = Items.ValidatingAccountSettings Or CurrentPage = Items.TechnicalDetailsOfError Then
-		PreviousPage = Items.UserAccountSetup;
+	
+	If CurrentPage = Items.AccountSettings1 Then
+		PreviousPage = Items.EnteringEmailMailAddress;
+	ElsIf CurrentPage = Items.Authorization Or CurrentPage = Items.EnteringAccountPassword Then
+		
+		If Not ContextMode Then
+			PreviousPage = Items.AccountSettings1;
+		Else
+			PreviousPage = Items.EnteringEmailMailAddress;
+		EndIf;
+		
 	ElsIf CurrentPage = Items.ErrorsFoundOnCheck Then
-		PreviousPage = Items.ApplicationAuthorizationSettings;
-		ValidationCompletedWithErrors = False;
+		
+		If ValueIsFilled(AppID) Then
+			PreviousPage = Items.AccountSettings1;
+		Else
+			PreviousPage = Items.EnteringAccountPassword;
+			ValidationCompletedWithErrors = False;
+		EndIf;
+		
+	ElsIf CurrentPage = Items.TechnicalDetails Then
+		PreviousPage = Items.ErrorsFoundOnCheck;
 	EndIf;
 	
 	If PreviousPage <> Undefined Then
 		Items.Pages.CurrentPage = PreviousPage;
 	Else
-		Items.Pages.CurrentPage = Items.UserAccountSetup;
+		Items.Pages.CurrentPage = Items.EnteringEmailMailAddress;
 	EndIf;
 	
 	SetCurrentPageItems();
@@ -249,64 +247,80 @@ EndProcedure
 
 &AtClient
 Procedure Cancel(Command)
+	
 	CancelJobExecution(JobID);
 	Close(False);
+	
 EndProcedure
 
 &AtClient
-Procedure QuestionInSupport(Command)
+Procedure GoToSettings(Command)
 	
-	// 
-	If CommonClient.SubsystemExists("StandardSubsystems.ContactingTechnicalSupport") Then
+	CurrentPage = Items.Pages.CurrentPage;
+	
+	If Not ContextMode And CurrentPage = Items.AccountConfigured Then
+		ShowValue(,AccountRef);
+		Close(True);
+	Else
+		OpenManualSettings();
+	EndIf;
+	
+EndProcedure
+
+&AtClient
+Procedure SupportTicket(Command)
+	
+	// StandardSubsystems.SupportRequests
+	If CommonClient.SubsystemExists("StandardSubsystems.SupportRequests") Then
 		
-		ModuleForContactingTechnicalSupportServiceClient = CommonClient.CommonModule(
-			"ContactingTechnicalSupportInternalClient");
+		ModuleSupportRequestsInternalClient = CommonClient.CommonModule(
+			"SupportRequestsInternalClient");
 		
 		If ValueIsFilled(BriefErrorDetails) Then
-			DescriptionForSubjectOfAppeal = BriefErrorDetails;
+			DetailsForRequestTopic = BriefErrorDetails;
 		Else
-			DescriptionForSubjectOfAppeal = ErrorsMessages;
+			DetailsForRequestTopic = ErrorsMessages;
 		EndIf;
 		
-		RequestParameters_ = ModuleForContactingTechnicalSupportServiceClient.RequestParameters_();
+		RequestParameters_ = ModuleSupportRequestsInternalClient.RequestParameters_();
 		RequestParameters_.TechnologicalInfo = ErrorsMessages;
 		RequestParameters_.EventLogFilter.Insert("StartDate", ErrorRegistrationTime);
 		
-		RequestParameters_.Subject = EmailOperationsInternalClient.SubjectOfSupportRequest(
-			DescriptionForSubjectOfAppeal);
+		RequestParameters_.Subject = EmailOperationsInternalClient.SupportRequestTopic(
+			DetailsForRequestTopic);
 		
-		RequestParameters_.Message = EmailOperationsInternalClient.TextOfSupportRequest(
+		RequestParameters_.Message = EmailOperationsInternalClient.SupportRequestText(
 			Email,
-			DescriptionForSubjectOfAppeal);
+			DetailsForRequestTopic);
 		
-		ModuleForContactingTechnicalSupportServiceClient.SendQuestionToSupport(
+		ModuleSupportRequestsInternalClient.SubmitSupportTicket(
 			ThisObject,
 			RequestParameters_);
 		
 	EndIf;
-	// End StandardSubsystems.ContactingTechnicalSupport
+	// End StandardSubsystems.SupportRequests
 	
 EndProcedure
 
 &AtClient
-Procedure InformationToSendToSupport(Command)
+Procedure InfoForSupport(Command)
 	
-	// 
-	If CommonClient.SubsystemExists("StandardSubsystems.ContactingTechnicalSupport") Then
+	// StandardSubsystems.SupportRequests
+	If CommonClient.SubsystemExists("StandardSubsystems.SupportRequests") Then
 		
-		ModuleForContactingTechnicalSupportServiceClient = CommonClient.CommonModule(
-			"ContactingTechnicalSupportInternalClient");
+		ModuleSupportRequestsInternalClient = CommonClient.CommonModule(
+			"SupportRequestsInternalClient");
 		
-		RequestParameters_ = ModuleForContactingTechnicalSupportServiceClient.RequestParameters_();
+		RequestParameters_ = ModuleSupportRequestsInternalClient.RequestParameters_();
 		RequestParameters_.TechnologicalInfo = ErrorsMessages;
 		RequestParameters_.EventLogFilter.Insert("StartDate", ErrorRegistrationTime);
 		
-		ModuleForContactingTechnicalSupportServiceClient.DownloadInformationToSendToSupport(
+		ModuleSupportRequestsInternalClient.DownloadInfoForSupport(
 			ThisObject,
 			RequestParameters_);
 		
 	EndIf;
-	// End StandardSubsystems.ContactingTechnicalSupport
+	// End StandardSubsystems.SupportRequests
 	
 EndProcedure
 
@@ -314,8 +328,20 @@ EndProcedure
 
 #Region Private
 
+&AtClient
+Procedure OpenManualSettings()
+	
+	AccountParameters1 = AccountParameters1();
+	CompletionHandler = New CallbackDescription("AfterManuallySettingUpAccount", ThisObject);
+	
+	OpenForm("Catalog.EmailAccounts.Form.ItemForm", AccountParameters1, , , , ,
+		CompletionHandler, FormWindowOpeningMode.LockOwnerWindow);
+	
+EndProcedure
+
 &AtServer
 Procedure PopulateUserAccountProperties()
+	
 	QueryText =
 	"SELECT
 	|	EmailAccounts.Email AS Email,
@@ -326,58 +352,65 @@ Procedure PopulateUserAccountProperties()
 	|	Catalog.EmailAccounts AS EmailAccounts
 	|WHERE
 	|	EmailAccounts.Ref = &Ref";
+	
 	Query = New Query(QueryText);
 	Query.SetParameter("Ref", AccountRef);
+	
 	Selection = Query.Execute().Select();
+	
 	If Not Selection.Next() Then
 		Return;
 	EndIf;
-
+	
 	FillPropertyValues(ThisObject, Selection);
 	OnlyAuthorization = Parameters.OnlyAuthorization;
+	
 	If Selection.EmailServiceAuthorization Or OnlyAuthorization Then
+		
 		AuthenticationOption = "OAuth";
-		Items.Password.Enabled = False;
+		
 		If OnlyAuthorization Then
+			
 			SettingsAuthorizationOnMailServer = SettingsAuthorizationOnMailServer();
 			AuthorizationSettings = SettingsAuthorizationOnMailServer; // See SettingsAuthorizationOnMailServer
 			
 			If ValueIsFilled(AuthorizationSettings) And ValueIsFilled(AuthorizationSettings.AppID) Then
+				
 				AppID = AuthorizationSettings.AppID;
 				RedirectAddress = AuthorizationSettings.RedirectAddress;
-				If IsWebClient() Then
+				
+				If IsWebClient() And Not OpenAuthorizationOfMailServiceHasBeenPublished Then
 					RedirectAddress = AuthorizationSettings.RedirectionAddressWebClient;
 				EndIf;
 				
 				ApplicationPassword = AuthorizationSettings.ApplicationPassword;
 				Items.Pages.CurrentPage = Items.Authorization;
 				
-				If IsWebClient() Then
+				If IsWebClient() And Not OpenAuthorizationOfMailServiceHasBeenPublished Then
 					Items.AuthorizationOptions.CurrentPage = Items.OperatingSystemBrowser;
 					CurrentItem = Items.WebPage;
 				Else
 					Items.AuthorizationOptions.CurrentPage = Items.EmbeddedBrowser;
 				EndIf;
-			Else
-				Items.Pages.CurrentPage = Items.ApplicationAuthorizationSettings;
+				
 			EndIf;
+			
 		EndIf;
+		
 	EndIf;
 	
-	Items.Email.ToolTipRepresentation = 
-		?(AccountRef = EmailOperations.SystemAccount(),
-			ToolTipRepresentation.ShowBottom, ToolTipRepresentation.None);
-		
 EndProcedure
 
 &AtClient
 Procedure ShowQueryBoxBeforeCloseForm()
+	
 	QueryText = NStr("en = 'Changes are not saved. Close the form?'");
-	NotifyDescription = New CallbackDescription("CloseFormConfirmed", ThisObject);
+	CallbackDescription = New CallbackDescription("CloseFormConfirmed", ThisObject);
 	Buttons = New ValueList;
 	Buttons.Add("Close", NStr("en = 'Close'"));
 	Buttons.Add(DialogReturnCode.Cancel, NStr("en = 'Do not close'"));
-	ShowQueryBox(NotifyDescription, QueryText, Buttons, , DialogReturnCode.Cancel, NStr("en = 'Account setup'"));
+	ShowQueryBox(CallbackDescription, QueryText, Buttons, , DialogReturnCode.Cancel, NStr("en = 'Account setup'"));
+	
 EndProcedure
 
 &AtClient
@@ -396,105 +429,82 @@ EndProcedure
 Procedure GotoNextPage(Command = Undefined)
 	
 	AuthorizationSettings = SettingsAuthorizationOnMailServer; // See SettingsAuthorizationOnMailServer
-	Cancel = False;
-	CurrentPage = Items.Pages.CurrentPage;
 	
+	CurrentPage = Items.Pages.CurrentPage;
 	NextPage = Undefined;
-	If CurrentPage = Items.UserAccountSetup Or CurrentPage = Items.TechnicalDetailsOfError Then
-		CheckFillingOnAccountSettingsPage(Cancel);
+	Cancel = False;
+	
+	If CurrentPage = Items.EnteringEmailMailAddress Then
+		
+		ValidationCompletedWithErrors = False;
+		CheckCompletionOfMailAddress(Cancel);
+		
 		If Not Cancel And Not SettingsFilled Then
 			FillAccountSettings();
 		EndIf;
 		
-		If Not Cancel And AuthenticationOption = "OAuth" Then
-			ValidationCompletedWithErrors = False;
-			NextPage = Items.ApplicationAuthorizationSettings;
+		If Not Cancel Then
 			
 			SettingsAuthorizationOnMailServer = SettingsAuthorizationOnMailServer();
 			AuthorizationSettings = SettingsAuthorizationOnMailServer; // See SettingsAuthorizationOnMailServer
 			
-			If ValueIsFilled(AuthorizationSettings) Then
-				If ValueIsFilled(AuthorizationSettings.AuthorizationAddress) Then
-					SetTextsExplanationsByRegistrationApplication();
-				EndIf;
-				AppID = AuthorizationSettings.AppID;
-				ApplicationPassword = AuthorizationSettings.ApplicationPassword;
+			FillInTitleOfAssistant();
+			
+			If Not ContextMode Then
+				NextPage = Items.AccountSettings1;
+			Else
+				DefineAuthenticationOption(NextPage, AuthorizationSettings);
 			EndIf;
 			
-			If Not ValueIsFilled(RedirectAddress) 
-				Or ValueIsFilled(AuthorizationSettings) And Not ValueIsFilled(AuthorizationSettings.AuthorizationAddress)
-				Or IsWebClient() And Not AvailableAuthorizationByCode() Then
-				ErrorsMessages = NStr("en = 'Email service authorization settings are not found. Use password authorization.'");
-				ValidationCompletedWithErrors = True;
-				AuthenticationOption = "Password";
-				NextPage = Items.UserAccountSetup;
-			ElsIf ValueIsFilled(AppID) Then
-				NextPage = Items.Authorization;
-				AttachIdleHandler("LoginAtMailServer", 0.1, True);
-			EndIf;
+		EndIf;
 		
-		ElsIf ValidationCompletedWithErrors Then
-			NextPage = Items.ValidatingAccountSettings;
-		ElsIf Not Cancel Then
-			If SetupMethod = "Automatically" Then
-				NextPage = Items.ValidatingAccountSettings;
-			Else
-				If UseForSending Or UseForReceiving Then
-					NextPage = Items.OutgoingMailServerSetup;
-				Else
-					NextPage = Items.ValidatingAccountSettings;
-				EndIf;
-			EndIf;
-		EndIf;
-	ElsIf CurrentPage = Items.ApplicationAuthorizationSettings Then
-		CheckFillingOnPageSettingsAuthorizationApplication(Cancel);
-		If Not Cancel Then
-			If ValidationCompletedWithErrors Then
-				NextPage = Items.UserAccountSetup;
-			Else
-				NextPage = Items.Authorization;
-				AttachIdleHandler("LoginAtMailServer", 0.1, True);
-			EndIf;
-		EndIf;
+	ElsIf CurrentPage = Items.AccountSettings1 Then
+		
+		DefineAuthenticationOption(NextPage, AuthorizationSettings);
+		
 	ElsIf CurrentPage = Items.Authorization Then
-		If IsWebClient() And Not ValueIsFilled(AuthorizationSettings.DeviceRegistrationAddress) Then
+		
+		If IsWebClient() And Not OpenAuthorizationOfMailServiceHasBeenPublished
+			And Not ValueIsFilled(AuthorizationSettings.DeviceRegistrationAddress) Then
+			
 			If Not GetAccessKeysToMailServer(ConfirmationCode, AuthorizationSettings.KeyReceiptAddress, ClientApplication.GetShortCaption()) Then
 				ValidationCompletedWithErrors = True;
 			EndIf;
+			
 		EndIf;
 		
 		If OnlyAuthorization Then
 			FormClosingConfirmationRequired = False;
-			If ValidationCompletedWithErrors Then
-				Close(False);
-			Else
+			If Not ValidationCompletedWithErrors Then
 				Close(WriteAuthorizationSettings());
+				Return;
 			EndIf;
-			Return;
 		EndIf;
 		
 		If ValidationCompletedWithErrors Then
 			NextPage = Items.ErrorsFoundOnCheck;
 		Else
-			If SetupMethod = "Automatically" Then
-				NextPage = Items.ValidatingAccountSettings;
-			Else
-				If UseForSending Or UseForReceiving Then
-					NextPage = Items.OutgoingMailServerSetup;
-				Else
-					NextPage = Items.ValidatingAccountSettings;
-				EndIf;
-			EndIf;
+			NextPage = Items.ValidatingAccountSettings;
 		EndIf;
-	ElsIf CurrentPage = Items.OutgoingMailServerSetup Then
+		
+	ElsIf CurrentPage = Items.EnteringAccountPassword Then
+		
+		If IsBlankString(PasswordForReceivingEmails) Then
+			CommonClient.MessageToUser(NStr("en = 'Enter the account password'"), , "Password");
+			Return;
+		EndIf;
+		
 		NextPage = Items.ValidatingAccountSettings;
+		
 	ElsIf CurrentPage = Items.ValidatingAccountSettings Then
+		
 		If Command = Undefined Then
 			If ValidationCompletedWithErrors Then
-				NextPage = Items.UserAccountSetup;
-			ElsIf CheckMissed And SetupMethod = "Automatically" Then
-				SetupMethod = "Manually";
-				NextPage = Items.OutgoingMailServerSetup;
+				NextPage = Items.ErrorsFoundOnCheck;
+				FillinExplanations();
+			ElsIf CheckMissed And SetupMethod = AutomaticSetting() Then
+				OpenManualSettings();
+				Return;
 			Else
 				NextPage = Items.AccountConfigured;
 			EndIf;
@@ -503,9 +513,12 @@ Procedure GotoNextPage(Command = Undefined)
 			CancelJobExecution(JobID);
 			JobID = "";
 			CheckMissed = True;
-			SetCurrentPageItems();
+			GotoNextPage();
 			Return;
 		EndIf;
+		
+	ElsIf CurrentPage = Items.ErrorsFoundOnCheck Then
+		NextPage = Items.ValidatingAccountSettings;
 	EndIf;
 	
 	If Cancel Then
@@ -520,7 +533,7 @@ Procedure GotoNextPage(Command = Undefined)
 	EndIf;
 	
 	If Items.Pages.CurrentPage = Items.ValidatingAccountSettings Then
-		If SetupMethod = "Automatically" Then
+		If SetupMethod = AutomaticSetting() Then
 			AttachIdleHandler("SetUpConnectionParametersAutomatically", 0.1, True);
 		Else
 			AttachIdleHandler("ExecuteSettingsCheck", 0.1, True);
@@ -530,7 +543,43 @@ Procedure GotoNextPage(Command = Undefined)
 EndProcedure
 
 &AtClient
-Procedure SetTextsExplanationsByRegistrationApplication()
+Procedure DefineAuthenticationOption(NextPage, AuthorizationSettings)
+	
+	AppID = AuthorizationSettings.AppID;
+	ApplicationPassword = AuthorizationSettings.ApplicationPassword;
+	
+	If AuthenticationOption = "OAuth" And ValueIsFilled(AppID) Then
+		
+		If IsWebClient() And Not OpenAuthorizationOfMailServiceHasBeenPublished And Not AvailableAuthorizationByCode() Then
+			AuthenticationOption = "Password";
+			NextPage = Items.EnteringAccountPassword;
+			FillInPasswordPrompt();
+		Else
+			
+			NextPage = Items.Authorization;
+			RedirectAddress = AuthorizationSettings.RedirectAddress;
+			
+			If IsWebClient() And Not OpenAuthorizationOfMailServiceHasBeenPublished Then
+				RedirectAddress = AuthorizationSettings.RedirectionAddressWebClient;
+			EndIf;
+			
+			If Not ValueIsFilled(RedirectAddress) Then
+				RedirectAddress = AuthorizationSettings.RedirectAddressDefault;
+			EndIf;
+			
+			AttachIdleHandler("LoginAtMailServer", 0.1, True);
+			
+		EndIf
+	Else
+		AuthenticationOption = "Password";
+		NextPage = Items.EnteringAccountPassword;
+		FillInPasswordPrompt();
+	EndIf;
+	
+EndProcedure
+
+&AtClient
+Procedure FillInPasswordPrompt();
 	
 	AuthorizationSettings = SettingsAuthorizationOnMailServer; // See SettingsAuthorizationOnMailServer
 	
@@ -538,48 +587,9 @@ Procedure SetTextsExplanationsByRegistrationApplication()
 		Return;
 	EndIf;
 	
-	If IsWebClient() Then
-		RedirectAddress = AuthorizationSettings.RedirectionAddressWebClient;
-	Else
-		RedirectAddress = AuthorizationSettings.RedirectAddress;
-	EndIf;
-	
-	If Not ValueIsFilled(RedirectAddress) Then
-		RedirectAddress = AuthorizationSettings.RedirectAddressDefault;
-	EndIf;
-	
-	If Not ValueIsFilled(AuthorizationSettings.ExplanationByRedirectAddress)
-		And Not ValueIsFilled(AuthorizationSettings.ExplanationByApplicationID)
-		And Not ValueIsFilled(AuthorizationSettings.ExplanationApplicationPassword) Then
-		Return;
-	EndIf;
-	
-	ExplanationByRedirectAddress = AuthorizationSettings.ExplanationByRedirectAddress;
-	ExplanationByApplicationID = AuthorizationSettings.ExplanationByApplicationID;
-	ExplanationApplicationPassword = AuthorizationSettings.ExplanationApplicationPassword;
-	AdditionalNote = AuthorizationSettings.AdditionalNote;
-	
-	AliasRedirectAddresses = AuthorizationSettings.AliasRedirectAddresses;
-	ApplicationIDAlias = AuthorizationSettings.ApplicationIDAlias;
-	ApplicationPasswordAlias = AuthorizationSettings.ApplicationPasswordAlias;
-	
-	Items.ExplanationByRedirectAddress.Title = ExplanationByRedirectAddress;
-	Items.ExplanationByApplicationID.Title = ExplanationByApplicationID;
-	Items.ExplanationApplicationPassword.Title = ExplanationApplicationPassword;
-	Items.AdditionalNote.Title = AdditionalNote;
-	
-	Items.RedirectAddress.Title = AliasRedirectAddresses;
-	Items.AppID.Title = ApplicationIDAlias;
-	Items.ApplicationPassword.Title = ApplicationPasswordAlias;
-	
-	Items.ExplanationApplicationPassword.Visible = AuthorizationSettings.UseApplicationPassword;
-	Items.ApplicationPassword.Visible = AuthorizationSettings.UseApplicationPassword;
-	
-	Items.ExplanationByRedirectAddress.Visible = ValueIsFilled(ExplanationByRedirectAddress);
-	Items.ExplanationByApplicationID.Visible = ValueIsFilled(ExplanationByApplicationID);
-	Items.ExplanationApplicationPassword.Visible = ValueIsFilled(ExplanationApplicationPassword);
-	
-	Items.RedirectAddress.Visible = ValueIsFilled(AliasRedirectAddresses);
+	If ValueIsFilled(AuthorizationSettings.PasswordInputHint) Then
+		Items.Password.ExtendedTooltip.Title = AuthorizationSettings.PasswordInputHint;
+	EndIf
 	
 EndProcedure
 
@@ -587,12 +597,15 @@ EndProcedure
 Procedure ExecuteSettingsCheck()
 	
 	ClosingNotification1 = New CallbackDescription("CheckSettingsPermissionRequestExecuted", ThisObject);
+	
 	If CommonClient.SubsystemExists("StandardSubsystems.SecurityProfiles") Then
+		
 		Query = CreateRequestToUseExternalResources();
 		
 		ModuleSafeModeManagerClient = CommonClient.CommonModule("SafeModeManagerClient");
 		ModuleSafeModeManagerClient.ApplyExternalResourceRequests(
 			CommonClientServer.ValueInArray(Query), ThisObject, ClosingNotification1);
+		
 	Else
 		RunCallback(ClosingNotification1, DialogReturnCode.OK);
 	EndIf;
@@ -601,15 +614,19 @@ EndProcedure
 
 &AtClient
 Procedure CheckSettingsPermissionRequestExecuted(QueryResult, AdditionalParameters) Export
+	
 	If Not QueryResult = DialogReturnCode.OK Then
 		Return;
 	EndIf;
 	
 	ValidateAccountSettings();
+	
 	If ValueIsFilled(AccountRef) Then 
 		CommonClient.NotifyObjectChanged(AccountRef);
 	EndIf;
+	
 	GotoNextPage();
+	
 EndProcedure
 
 &AtServer
@@ -652,7 +669,7 @@ Function Permissions()
 EndFunction
 
 &AtClient
-Procedure CheckFillingOnAccountSettingsPage(Cancel)
+Procedure CheckCompletionOfMailAddress(Cancel)
 	
 	ClearMessages();
 	
@@ -669,63 +686,43 @@ Procedure SetCurrentPageItems()
 	
 	CurrentPage = Items.Pages.CurrentPage;
 	
-	// NextButton
 	If CurrentPage = Items.AccountConfigured Then
 		If ContextMode Then
-			ButtonNextTitle = NStr("en = 'Continue'");
+			ButtonNextTitle = NStr("en = 'Next >'");
 		Else
 			ButtonNextTitle = NStr("en = 'Close'");
 		EndIf;
 	Else
-		If CurrentPage = Items.UserAccountSetup
-			And ValidationCompletedWithErrors Or CurrentPage = Items.TechnicalDetailsOfError Then
-				ButtonNextTitle = NStr("en = 'Retry'");
-		ElsIf CurrentPage = Items.UserAccountSetup
-			And SetupMethod = "Automatically" Then
-			If ContextMode Or Reconfigure Then
-				ButtonNextTitle = NStr("en = 'Setup'");
-			Else
-				ButtonNextTitle = NStr("en = 'Create'");
-			EndIf;
-		ElsIf CurrentPage = Items.ValidatingAccountSettings Then
+		If CurrentPage = Items.ValidatingAccountSettings Then
 			ButtonNextTitle = NStr("en = 'Skip test'");
 		Else
 			ButtonNextTitle = NStr("en = 'Next >'");
 		EndIf;
 	EndIf;
 	
-	Items.NextButton.Title = ButtonNextTitle;
-	Items.NextButton.DefaultButton = CurrentPage <> Items.ValidatingAccountSettings; 
-	Items.NextButton.Enabled = Not (CurrentPage = Items.ValidatingAccountSettings And CheckMissed);
-	Items.NextButton.Visible = Not (CurrentPage = Items.ValidatingAccountSettings And SetupMethod = "Manually")
-		And Not (CurrentPage = Items.Authorization And Not IsWebClient())
-		And Not CurrentPage = Items.ErrorsFoundOnCheck;
-	
-	Items.BackButton.Visible = CurrentPage <> Items.UserAccountSetup
-		And CurrentPage <> Items.AccountConfigured
-		And CurrentPage <> Items.ValidatingAccountSettings
-		And Not OnlyAuthorization;
-	
-	Items.CancelButton.Visible = CurrentPage <> Items.AccountConfigured;
-	
-	Items.GoToSettingsButton.Visible = Not UseSecurityProfiles And (CurrentPage = Items.UserAccountSetup
-		And ValidationCompletedWithErrors Or Not ContextMode And Not Reconfigure And CurrentPage = Items.AccountConfigured);
-		
 	If Not ContextMode And CurrentPage = Items.AccountConfigured Then
 		Items.GoToSettingsButton.Title = NStr("en = 'Settings'");
 	Else
 		Items.GoToSettingsButton.Title = NStr("en = 'Manual setup'");
 	EndIf;
 	
-	If CurrentPage = Items.UserAccountSetup Then
-		Items.CannotConnectPictureAndLabel.Visible = ValidationCompletedWithErrors;
-		Items.Password.Enabled = AuthenticationOption = "Password";
-	EndIf;
+	Items.NextButton.Title = ButtonNextTitle;
+	Items.NextButton.DefaultButton = CurrentPage <> Items.ValidatingAccountSettings;
+	Items.NextButton.Enabled = Not (CurrentPage = Items.ValidatingAccountSettings And CheckMissed);
+	Items.NextButton.Visible = Not (CurrentPage = Items.ValidatingAccountSettings And SetupMethod = ManualSetting())
+		And Not (CurrentPage = Items.Authorization And Not IsWebClient())
+		And Not CurrentPage = Items.ErrorsFoundOnCheck;
 	
-	If CurrentPage = Items.OutgoingMailServerSetup Then
-		RefreshDaysBeforeDeleteEnabled();
-		SetItemsVisibility();
-	EndIf;
+	Items.BackButton.Visible = CurrentPage <> Items.EnteringEmailMailAddress
+		And CurrentPage <> Items.AccountConfigured
+		And CurrentPage <> Items.ValidatingAccountSettings
+		And Not OnlyAuthorization;
+	
+	Items.CancelButton.Visible = CurrentPage <> Items.AccountConfigured;
+	Items.GoToSettingsButton.Visible = Not UseSecurityProfiles
+		And (CurrentPage = Items.ErrorsFoundOnCheck And ValidationCompletedWithErrors
+			Or Not ContextMode And Not Reconfigure And CurrentPage = Items.AccountConfigured)
+		And Not OnlyAuthorization;
 	
 	If CurrentPage = Items.AccountConfigured Then
 		Items.AccountConfiguredLabel.Title = StringFunctionsClientServer.SubstituteParametersToString(
@@ -733,51 +730,50 @@ Procedure SetCurrentPageItems()
 				|%1 is set up successfully.'"), Email);
 	EndIf;
 	
-	If CurrentPage = Items.Authorization 
-		And Items.AuthorizationOptions.CurrentPage = Items.EmbeddedBrowser Then
+	If CurrentPage = Items.Authorization And Items.AuthorizationOptions.CurrentPage = Items.EmbeddedBrowser Then
 		Activate();
 		AttachIdleHandler("CheckAuthenticationResult", 5, True );
 	EndIf;
 	
-EndProcedure
-
-&AtClient
-Procedure RefreshDaysBeforeDeleteEnabled()
-	Items.DeleteMailFromServer.Enabled = KeepEmailCopiesOnServer;
-	Items.KeepMailAtServerPeriod.Enabled = DeleteMailFromServer;
-EndProcedure
-
-&AtClient
-Procedure SetItemsVisibility()
-	Items.KeepMessagesOnServer.Visible = Protocol = "POP";
-EndProcedure
-
-&AtClient
-Procedure GoToSettings(Command)
-	CurrentPage = Items.Pages.CurrentPage;
-	If Not ContextMode And CurrentPage = Items.AccountConfigured Then
-		ShowValue(,AccountRef);
-		Close(True);
-	Else
-		If SetupMethod = "Automatically" Then
-			SetupMethod = "Manually";
-		EndIf;
-		Items.Pages.CurrentPage = Items.OutgoingMailServerSetup;
-		SetCurrentPageItems();
+	If CurrentPage <> Items.ErrorsFoundOnCheck Then
+		HideNeedHelpSection();
 	EndIf;
+	
+EndProcedure
+
+&AtServer
+Procedure HideNeedHelpSection()
+	
+	// StandardSubsystems.SupportRequests
+	If Common.SubsystemExists("StandardSubsystems.SupportRequests") Then
+		
+		ModuleSupportRequestsInternal = Common.CommonModule(
+		"SupportRequestsInternal");
+		
+		ModuleSupportRequestsInternal.HideNeedHelpSection(Items);
+		
+	EndIf;
+	// End StandardSubsystems.SupportRequests
+	
 EndProcedure
 
 &AtClient
 Procedure FillAccountSettings()
-	FillPropertyValues(ThisObject, DefaultSettings(Email, PasswordForReceivingEmails));
+	
+	DefaultSettings = DefaultSettings(Email, PasswordForReceivingEmails);
+	FillPropertyValues(ThisObject, DefaultSettings);
+	
 	If IsBlankString(AccountName) Then
 		AccountName = Email;
 	EndIf;
-
+	
 	SettingsFilled = True;
 	
 	EncryptOnSendMail = ?(UseSecureConnectionForOutgoingMail, "SSL", "Auto");
 	EncryptOnReceiveMail = ?(UseSecureConnectionForIncomingMail, "SSL", "Auto");
+	
+	FillInDescriptionOfDefaultSettings(DefaultSettings);
+	
 EndProcedure
 
 &AtServerNoContext
@@ -803,7 +799,7 @@ Function DefaultSettings(Email, Password)
 	Settings.Insert("OutgoingMailServerPort", 587);
 	Settings.Insert("UseSecureConnectionForOutgoingMail", False);
 	
-	Settings.Insert("ServerTimeout", 30);
+	Settings.Insert("ServerTimeout", 10);
 	Settings.Insert("KeepEmailCopiesOnServer", True);
 	Settings.Insert("KeepMailAtServerPeriod", 10);
 	
@@ -814,7 +810,36 @@ Function DefaultSettings(Email, Password)
 	FillPropertyValues(Settings, SMTPDefaultSettings);
 	
 	Return Settings;
+	
 EndFunction
+
+&AtClient
+Procedure FillInDescriptionOfDefaultSettings(DefaultSettings)
+	
+	DefaultSettingsDescriptionTemplate = NStr("en = 'Default settings are used.
+		|Protocol: %1
+		|
+		|Incoming mail server: %2
+		|Port of the incoming mail server: %3
+		|Use SSL-connection for incoming mail: %4
+		|
+		|Outgoing mail server: %5
+		|Port of outgoing mail server: %6
+		|Use SSL-connection for outgoing mail: %7'");
+	
+	DescriptionOfDefaultSettings = StringFunctionsClientServer.SubstituteParametersToString(
+		DefaultSettingsDescriptionTemplate,
+		DefaultSettings.Protocol,
+		DefaultSettings.IncomingMailServer,
+		DefaultSettings.IncomingMailServerPort,
+		DefaultSettings.UseSecureConnectionForIncomingMail,
+		DefaultSettings.OutgoingMailServer,
+		DefaultSettings.OutgoingMailServerPort,
+		DefaultSettings.UseSecureConnectionForOutgoingMail);
+	
+	Items.DescriptionOfDefaultSettings.Title = DescriptionOfDefaultSettings;
+	
+EndProcedure
 
 &AtServer
 Procedure ValidateAccountSettings()
@@ -823,20 +848,19 @@ Procedure ValidateAccountSettings()
 	If UseForSending Then
 		OutgoingMailProfile = InternetMailProfile(False);
 	EndIf;
-
+	
 	IncomingMailProfile = Undefined;
 	If UseForReceiving Then
 		IncomingMailProfile = InternetMailProfile(True);
 	EndIf;
-
+	
 	CheckResult = Catalogs.EmailAccounts.CheckProfilesSettings(
 		OutgoingMailProfile, IncomingMailProfile, Email);
 	
-	BriefErrorDetails = StrConcat(CheckResult.ErrorsTexts, Chars.LF);
 	ErrorsMessages = CheckResult.ConnectionErrors;
 	ValidationCompletedWithErrors = ValueIsFilled(ErrorsMessages);
 	
-	If Not ValidationCompletedWithErrors Then
+	If Not ValidationCompletedWithErrors And Not CheckMissed Then
 		Try
 			NewAccount1();
 		Except
@@ -848,17 +872,18 @@ Procedure ValidateAccountSettings()
 	If ValidationCompletedWithErrors Then
 		
 		ErrorRegistrationTime = CurrentSessionDate();
+		FillinExplanations();
 		
-		// 
-		If Common.SubsystemExists("StandardSubsystems.ContactingTechnicalSupport") Then
+		// StandardSubsystems.SupportRequests
+		If Common.SubsystemExists("StandardSubsystems.SupportRequests") Then
 			
-			ModuleForContactingTechnicalSupportService = Common.CommonModule(
-				"ContactingTechnicalSupportInternal");
+			ModuleSupportRequestsInternal = Common.CommonModule(
+				"SupportRequestsInternal");
 			
-			ModuleForContactingTechnicalSupportService.ShowHelpNeededSection(Items);
+			ModuleSupportRequestsInternal.ShowNeedHelpSection(Items);
 			
 		EndIf;
-		// End StandardSubsystems.ContactingTechnicalSupport
+		// End StandardSubsystems.SupportRequests
 		
 	EndIf;
 	
@@ -886,7 +911,9 @@ Procedure NewAccount1()
 	EndIf;
 	
 	BeginTransaction();
+	
 	Try
+		
 		Block.Lock();
 		
 		If AccountRef.IsEmpty() Then
@@ -906,24 +933,28 @@ Procedure NewAccount1()
 		Account.ProtocolForIncomingMail = Protocol;
 		Account.Description = AccountName;
 		Account.AuthorizationRequiredOnSendEmails = ValueIsFilled(Account.SMTPUser);
+		
 		If UserAccountKind = "Personal1" Then
 			Account.AccountOwner = Users.CurrentUser();
 		Else
 			Account.AccountOwner = Catalogs.Users.EmptyRef();
 		EndIf;
-		Account.AdditionalProperties.Insert("DoNotCheckSettingsForChanges");
+		
 		If AuthenticationOption = "OAuth" Then
 			Account.EmailServiceAuthorization = True;
 			Account.EmailServiceName = AuthorizationSettings.InternetServiceName;
 		EndIf;
 		
+		Account.AdditionalProperties.Insert("DoNotCheckSettingsForChanges");
 		Account.Write();
+		
 		AccountRef = Account.Ref;
 		FormClosingConfirmationRequired = False;
 		
 		SetPrivilegedMode(True);
 		
 		Common.DeleteDataFromSecureStorage(AccountRef);
+		
 		If AuthenticationOption = "OAuth" Then
 			WriteAuthorizationSettings();
 		Else
@@ -932,31 +963,28 @@ Procedure NewAccount1()
 		EndIf;
 		
 		SetPrivilegedMode(False);
-			
+		
 		CommitTransaction();
+		
 	Except
+		
 		RollbackTransaction();
 		WriteLogEvent(NStr("en = 'Email management'", Common.DefaultLanguageCode()),
 			EventLogLevel.Error, , AccountRef, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 		Raise;
+		
 	EndTry;
 	
 EndProcedure
 
 &AtServer
 Function WriteAuthorizationSettings()
-
+	
 	SetPrivilegedMode(True);
-
+	
 	Common.WriteDataToSecureStorage(AccountRef, AccessToken, "AccessToken");
 	Common.WriteDataToSecureStorage(AccountRef, AccessTokenValidity, "AccessTokenValidity");
 	Common.WriteDataToSecureStorage(AccountRef, UpdateToken, "UpdateToken");
-	
-	AuthorizationSettings = SettingsAuthorizationOnMailServer; // See SettingsAuthorizationOnMailServer
-	AuthorizationSettings.ApplicationPassword = ApplicationPassword;
-	AuthorizationSettings.AppID = AppID;
-	AuthorizationSettings.RedirectAddress = RedirectAddress;
-	Catalogs.InternetServicesAuthorizationSettings.WriteAuthorizationSettings(AuthorizationSettings);
 	
 	SetPrivilegedMode(False);
 	
@@ -968,6 +996,7 @@ EndFunction
 Function InternetMailProfile(ForReceiving = False)
 	
 	Profile = New InternetMailProfile;
+	
 	If ForReceiving Or SignInBeforeSendingRequired Then
 		If Protocol = "IMAP" Then
 			Profile.IMAPServerAddress = IncomingMailServer;
@@ -1008,7 +1037,7 @@ EndFunction
 Procedure SetUpConnectionParametersAutomatically()
 	
 	ErrorsMessages = NStr("en = 'Couldn''t configure email server settings.
-	|Please provide settings manually.'");
+		|Please provide settings manually.'");
 	
 	ValidationCompletedWithErrors = False;
 	
@@ -1018,8 +1047,8 @@ Procedure SetUpConnectionParametersAutomatically()
 	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	IdleParameters.OutputIdleWindow = False;
 	
-	NotifyDescription = New CallbackDescription("OnCompleteSettingsSearch", ThisObject);
-	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, NotifyDescription, IdleParameters);
+	CallbackDescription = New CallbackDescription("OnCompleteSettingsSearch", ThisObject);
+	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CallbackDescription, IdleParameters);
 	
 EndProcedure
 
@@ -1042,7 +1071,7 @@ EndFunction
 Procedure OnCompleteSettingsSearch(Result, AdditionalParameters) Export
 	
 	If Result = Undefined Then
-		If CheckMissed And IsOpen() Then
+		If Not CheckMissed And IsOpen() Then
 			GotoNextPage();
 		EndIf;
 		Return;
@@ -1070,8 +1099,8 @@ Procedure OnCompleteSettingsSearch(Result, AdditionalParameters) Export
 		AttachIdleHandler("ExecuteSettingsCheck", 0.1, True);
 		Return;
 	EndIf;
-
-	If Not ValidationCompletedWithErrors Then
+	
+	If Not ValidationCompletedWithErrors And Not CheckMissed Then
 		Try
 			NewAccount1();
 		Except
@@ -1087,24 +1116,20 @@ Procedure OnCompleteSettingsSearch(Result, AdditionalParameters) Export
 	
 EndProcedure
 
-&AtClient
-Procedure PasswordStartChoice(Item, ChoiceData, StandardProcessing)
-	
-	EmailOperationsClient.PasswordFieldStartChoice(Item, PasswordForReceivingEmails, StandardProcessing);
-	
-EndProcedure
-
 &AtServerNoContext
 Procedure CancelJobExecution(JobID)
+	
 	If ValueIsFilled(JobID) Then 
 		TimeConsumingOperations.CancelJobExecution(JobID);
 	EndIf;
+	
 EndProcedure
 
 &AtClient
 Procedure ExecuteNavigationByAddress(Val JumpAddr)
 	
 	AddressStructure1 = CommonClientServer.URIStructure(JumpAddr);
+	
 	If Not ValueIsFilled(AddressStructure1.Schema) Then
 		JumpAddr = "http://" + JumpAddr;
 	EndIf;
@@ -1113,7 +1138,7 @@ Procedure ExecuteNavigationByAddress(Val JumpAddr)
 		FileSystemClient.OpenURL(JumpAddr);
 		Return;
 	EndIf;
-
+	
 	WebPage = 
 	"<!DOCTYPE html>
 	|<html>
@@ -1133,7 +1158,8 @@ Procedure LoginAtMailServer()
 	AuthorizationSettings = SettingsAuthorizationOnMailServer; // See SettingsAuthorizationOnMailServer
 	QueryAuthorizationString = QueryAuthorizationString();
 	
-	If IsWebClient() Then
+	If IsWebClient() And Not OpenAuthorizationOfMailServiceHasBeenPublished Then
+		
 		If ValueIsFilled(AuthorizationSettings.DeviceRegistrationAddress) Then
 			If GetAuthorizationParametersInWebClient(AuthorizationSettings.DeviceRegistrationAddress) Then
 				QueryAuthorizationString = UserAuthorizationAddress;
@@ -1151,8 +1177,9 @@ Procedure LoginAtMailServer()
 		Items.ExplanationByConfirmationCode.Title = StringFunctionsClient.FormattedString(NStr(
 			"en = 'Authorize on the <a href=""%1"">email service page</a> and enter the received code in the field below:'"),
 			QueryAuthorizationString);
+		
 		Items.AuthorizationOptions.CurrentPage = Items.OperatingSystemBrowser;
-
+		
 	Else
 		Items.AuthorizationOptions.CurrentPage = Items.EmbeddedBrowser;
 		ExecuteNavigationByAddress(QueryAuthorizationString);
@@ -1162,20 +1189,21 @@ EndProcedure
 
 &AtServer
 Function QueryAuthorizationString()
-
+	
 	AuthorizationSettings = SettingsAuthorizationOnMailServer; // See SettingsAuthorizationOnMailServer
+	
 	URIStructure = CommonClientServer.URIStructure(AuthorizationSettings.AuthorizationAddress);
 	ServerAddress = URIStructure.Host;
 	ResourceAddress = "/" + URIStructure.PathAtServer;
 	
 	QueryID = String(New UUID());
 	VerificationCode = EmailOperationsInternal.GenerateVerificationCode();
-
+	
 	If IsWebClient() Then
 		If Not ValueIsFilled(AuthorizationSettings.DeviceRegistrationAddress) Then
 			DeviceID = String(New UUID());
 		EndIf;
-	EndIf;	
+	EndIf;
 	
 	QueryOptions = ParametersAuthorizationRequest();
 	HTTPRequest = EmailOperationsInternal.PrepareHTTPRequest(ResourceAddress, QueryOptions, False);
@@ -1199,7 +1227,12 @@ Function ParametersAuthorizationRequest()
 		QueryOptions.Insert("scope", AuthorizationSettings["PermissionsToRequest"]);
 	EndIf;
 	
-	QueryOptions.Insert("state", QueryID);
+	If OpenAuthorizationOfMailServiceHasBeenPublished Then
+		QueryOptions.Insert("state", NestedRedirectionAddress());
+	Else
+		QueryOptions.Insert("state", QueryID);
+	EndIf;
+	
 	QueryOptions.Insert("login_hint", Email);
 	
 	If AuthorizationSettings.UsePKCEAuthenticationKey Then
@@ -1218,7 +1251,7 @@ Function ParametersAuthorizationRequest()
 			QueryOptions.Insert(ParameterName, ParameterValue);
 		EndDo;
 	EndIf;
-
+	
 	If IsWebClient() Then
 		If Not ValueIsFilled(AuthorizationSettings.DeviceRegistrationAddress) Then
 			QueryOptions.Insert("device_name", NStr("en = '1C:Enterprise'"));
@@ -1230,18 +1263,52 @@ Function ParametersAuthorizationRequest()
 	
 EndFunction
 
+&AtServer
+Function NestedRedirectionAddress()
+	
+	TemplateForNestedRedirectAddress = "%1/hs/oauth2_mail/callback/?zone=%2&session=%3&request_id=%4&user_id=%5";
+	NestedRedirectionAddress = StringFunctionsClientServer.SubstituteParametersToString(
+		TemplateForNestedRedirectAddress,
+		Common.InfobasePublicationURL(),
+		XMLString(SessionSeparatorValue()),
+		XMLString(InfoBaseSessionNumber()),
+		QueryID,
+		String(InfoBaseUsers.CurrentUser().UUID));
+	
+	Return NestedRedirectionAddress;
+	
+EndFunction
+
+&AtServerNoContext
+Function SessionSeparatorValue()
+	
+	SessionSeparatorValue = 0;
+	
+	If Common.SubsystemExists("CloudTechnology.Core") Then
+		ModuleSaaSOperations = Common.CommonModule("SaaSOperations");
+		SessionSeparatorValue = ModuleSaaSOperations.SessionSeparatorValue();
+	EndIf;
+	
+	Return SessionSeparatorValue;
+	
+EndFunction
+
 &AtClient
 Procedure WebPageDocumentComplete(Item)
-
+	
 	CheckAuthenticationResult();
-
+	
 EndProcedure
 
 &AtClient
 Procedure CheckAuthenticationResult()
 	
-#If Not WebClient Then
+	If OpenAuthorizationOfMailServiceHasBeenPublished Then
+		ServerNotificationsClient.AttachServerNotificationReceiptCheckHandler(1, True);
+		Return;
+	EndIf;
 	
+#If Not WebClient Then
 	DetachIdleHandler("CheckAuthenticationResult");
 	
 	AuthorizationSettings = SettingsAuthorizationOnMailServer; // See SettingsAuthorizationOnMailServer
@@ -1274,7 +1341,7 @@ Procedure CheckAuthenticationResult()
 	OnReceiveMailServerResponse(ServerResponse1, KeyReceiptAddress);
 	GotoNextPage();
 #EndIf
-
+	
 EndProcedure
 
 &AtServer
@@ -1305,7 +1372,21 @@ Procedure OnReceiveMailServerResponse(ParametersString1, KeyReceiptAddress)
 	EndIf;
 	
 	If ValidationCompletedWithErrors Then
+		
+		ErrorRegistrationTime = CurrentSessionDate();
 		FillinExplanations();
+		
+		// StandardSubsystems.SupportRequests
+		If Common.SubsystemExists("StandardSubsystems.SupportRequests") Then
+			
+			ModuleSupportRequestsInternal = Common.CommonModule(
+				"SupportRequestsInternal");
+			
+			ModuleSupportRequestsInternal.ShowNeedHelpSection(Items);
+			
+		EndIf;
+		// End StandardSubsystems.SupportRequests
+		
 	EndIf;
 	
 EndProcedure
@@ -1325,7 +1406,7 @@ Function GetAccessKeysToMailServer(AuthorizationCode, KeyReceiptAddress, Applica
 	If ValueIsFilled(AuthorizationSettings["PermissionsToRequest"]) Then
 		QueryOptions.Insert("scope", AuthorizationSettings["PermissionsToRequest"]);
 	EndIf;
-
+	
 	QueryOptions.Insert("code", AuthorizationCode);
 	QueryOptions.Insert("redirect_uri", RedirectAddress);
 	QueryOptions.Insert("grant_type", "authorization_code");
@@ -1337,14 +1418,13 @@ Function GetAccessKeysToMailServer(AuthorizationCode, KeyReceiptAddress, Applica
 	If ValueIsFilled(ApplicationPassword) Then
 		QueryOptions.Insert("client_secret", ApplicationPassword);
 	EndIf;
-
+	
 	If IsWebClient() Then
 		QueryOptions.Insert("device_id", DeviceID);
 		QueryOptions.Insert("device_name", ApplicationCaption);
 	EndIf;
 	
 	RequestTime = CurrentSessionDate();
-	
 	QueryResult = EmailOperationsInternal.ExecuteQuery(ServerAddress, ResourceAddress, QueryOptions);
 	
 	Try
@@ -1397,9 +1477,10 @@ EndFunction
 
 &AtServer
 Function ParametersFromStringURI(URIString1)
-
+	
 	ParameterValues = New Map;
 	URIStructure = CommonClientServer.URIStructure(URIString1);
+	
 	For Each RowPart In StrSplit(URIStructure.PathAtServer, "?&") Do
 		ParameterFValue = StrSplit(RowPart, "=", True);
 		ParameterName = ParameterFValue[0];
@@ -1436,7 +1517,7 @@ Function ConnectionSettingsByEmailAddress()
 	SetPrivilegedMode(True);
 	Return Catalogs.EmailAccounts.ConnectionSettingsByEmailAddress(Email, PasswordForReceivingEmails);
 	
-EndFunction	
+EndFunction
 
 // Returns:
 //   See Catalogs.InternetServicesAuthorizationSettings.SettingsAuthorizationInternetService
@@ -1478,7 +1559,7 @@ Function GetAuthorizationParametersInWebClient(KeyReceiptAddress)
 	If ValueIsFilled(AuthorizationSettings["PermissionsToRequest"]) Then
 		QueryOptions.Insert("scope", AuthorizationSettings["PermissionsToRequest"]);
 	EndIf;
-
+	
 	RequestTime = CurrentSessionDate();
 	QueryResult = EmailOperationsInternal.ExecuteQuery(ServerAddress, ResourceAddress, QueryOptions);
 	
@@ -1618,34 +1699,9 @@ Function GetDeviceAccessKey()
 		AccessTokenValidity = RequestTime + AccessTokenValidity;
 	EndIf;
 	
-	Return True;	
+	Return True;
 	
 EndFunction
-
-&AtClient
-Procedure CheckFillingOnPageSettingsAuthorizationApplication(Cancel)
-	
-	ClearMessages();
-	
-	CheckTheFillingOfTheBankingDetails(Items.RedirectAddress, Cancel);
-	CheckTheFillingOfTheBankingDetails(Items.AppID, Cancel);
-	
-EndProcedure
-
-&AtClient
-Procedure CheckTheFillingOfTheBankingDetails(Item, Cancel)
-	
-	AttributeName = Item.Name;
-	
-	If Item.Visible And Not ValueIsFilled(ThisObject[AttributeName]) Then
-		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Enter %1'"), Item.Title);
-			
-		CommonClient.MessageToUser(
-			MessageText, , AttributeName, , Cancel);
-	EndIf;
-	
-EndProcedure
 
 &AtClient
 Function AvailableAuthorizationByCode()
@@ -1664,15 +1720,17 @@ Procedure AdjustCurrentPageElementsOnOpening()
 	AuthorizationSettings = SettingsAuthorizationOnMailServer; // See SettingsAuthorizationOnMailServer
 	
 	If OnlyAuthorization Then
+		
 		If Not ValueIsFilled(AuthorizationSettings) Then
 			Close(NStr("en = 'Cannot find authorization settings for the specified email address.
-			|Use username and password authorization.'"));
+				|Use username and password authorization.'"));
 			Return;
 		EndIf;
-		SetTextsExplanationsByRegistrationApplication();
+		
 		If Items.Pages.CurrentPage = Items.Authorization Then
 			LoginAtMailServer();
 		EndIf;
+		
 	EndIf;
 	
 	SetCurrentPageItems();
@@ -1682,15 +1740,68 @@ EndProcedure
 &AtServer
 Procedure FillinExplanations()
 	
-	ExplanationOnError = EmailOperationsInternal.ExplanationOnError(ErrorsMessages, , True);
+	ExplanationOnError = ExplanationOnError();
 	
 	PossibleReasons = EmailOperationsInternal.FormattedList(ExplanationOnError.PossibleReasons);
 	MethodsToFixError = EmailOperationsInternal.FormattedList(ExplanationOnError.MethodsToFixError);
 	
-	Items.DecorationRecommendations.Title = MethodsToFixError;
-	Items.DecorationPossibleReasons.Title = PossibleReasons;
+	Items.DecorationRecommendations.Title = String(MethodsToFixError);
+	Items.DecorationPossibleReasons.Title = String(PossibleReasons);
+	
+	FillInBriefDescriptionOfError();
 	
 EndProcedure
+
+&AtServer
+Function ExplanationOnError()
+	
+	ExplanationParameters = EmailOperationsInternal.ExplanationParameters();
+	ExplanationParameters.ErrorText = ErrorsMessages;
+	ExplanationParameters.Context = SetupMethod;
+	ExplanationParameters.ServerNames = EmailOperationsInternal.ServerNamesForClarification(IncomingMailServer, OutgoingMailServer);
+	
+	Return EmailOperationsInternal.ExplanationOnError(ExplanationParameters);
+	
+EndFunction
+
+&AtServer
+Procedure FillInBriefDescriptionOfError()
+	
+	LengthLimitation = 150;
+	
+	If StrLen(ErrorsMessages) = LengthLimitation Then
+		ErrorDescriptionBeginning = StrFind(ErrorsMessages, Chars.LF);
+		BriefErrorDetails = Left(ErrorsMessages, ErrorDescriptionBeginning);
+	Else
+		BriefErrorDetails = ErrorsMessages;
+	EndIf;
+	
+	If Not ValueIsFilled(BriefErrorDetails) Then
+		BriefErrorDetails = NStr("en = 'Authorization in the email server failed.'");
+	EndIf;
+	
+EndProcedure
+
+&AtClient
+Procedure FillInTitleOfAssistant()
+	
+	Title = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 setting'"), Email);
+	
+EndProcedure
+
+&AtServerNoContext
+Function AutomaticSetting()
+	
+	Return EmailOperationsInternal.ContextForClarification().AutomaticSetting;
+	
+EndFunction
+
+&AtServerNoContext
+Function ManualSetting()
+	
+	Return EmailOperationsInternal.ContextForClarification().ManualSetting;
+	
+EndFunction
 
 &AtServer
 Procedure ConvertSettingsFromPunycode()
@@ -1701,5 +1812,79 @@ Procedure ConvertSettingsFromPunycode()
 	UsernameForReceivingEmails = EmailOperationsInternal.PunycodeIntoString(UsernameForReceivingEmails);
 	
 EndProcedure
+
+&AtClient
+Procedure AfterManuallySettingUpAccount(Result, AdditionalParameters) Export
+	
+	If Result = Undefined Then
+		Return;
+	EndIf;
+	
+	FillPropertyValues(ThisObject, Result);
+	FillInTitleOfAssistant();
+	
+	PasswordForReceivingEmails = Result.Password;
+	PasswordForSendingEmails = PasswordForReceivingEmails;
+	
+	CheckMissed = False;
+	SetupMethod = ManualSetting();
+	
+	Items.Pages.CurrentPage = Items.EnteringAccountPassword;
+	GotoNextPage();
+	
+EndProcedure
+
+&AtClient
+Procedure CheckAvailabilityOfOpenAuthorizationService()
+	
+	OpenAuthorizationOfMailServiceHasBeenPublished = OpenAuthorizationOfMailServiceHasBeenPublished();
+	
+EndProcedure
+
+&AtServerNoContext
+Function OpenAuthorizationOfMailServiceHasBeenPublished()
+	
+	Return EmailOperationsInternal.OpenAuthorizationOfMailServiceHasBeenPublished();
+	
+EndFunction
+
+&AtServer
+Function AccountParameters1()
+	
+	AccountParameters1 = Catalogs.EmailAccounts.AccountParameters1();
+	FillPropertyValues(AccountParameters1, ThisObject);
+	
+	AccountParameters1.Description = AccountName;
+	AccountParameters1.Timeout =  ServerTimeout;
+	AccountParameters1.UserName = EmailSenderName;
+	AccountParameters1.KeepMessageCopiesAtServer = KeepEmailCopiesOnServer;
+	
+	StoragePeriod = ?(KeepEmailCopiesOnServer And DeleteMailFromServer And Protocol = "POP", KeepMailAtServerPeriod, 0);
+	AccountParameters1.KeepMailAtServerPeriod = StoragePeriod;
+	
+	AccountParameters1.User = UsernameForReceivingEmails;
+	AccountParameters1.SMTPUser = UsernameToSendMail;
+	AccountParameters1.ProtocolForIncomingMail = Protocol;
+	AccountParameters1.AuthorizationRequiredOnSendEmails = ValueIsFilled(UsernameToSendMail);
+	
+	If UserAccountKind = "Personal1" Then
+		AccountParameters1.AccountOwner = Users.CurrentUser();
+	Else
+		AccountParameters1.AccountOwner = Catalogs.Users.EmptyRef();
+	EndIf;
+	
+	If AuthenticationOption = "OAuth" Then
+		AccountParameters1.EmailServiceAuthorization = True;
+		AccountParameters1.EmailServiceName = SettingsAuthorizationOnMailServer.InternetServiceName;
+	Else
+		AccountParameters1.Password = PasswordForReceivingEmails;
+	EndIf;
+	
+	AccountParameters1.AuthenticationOption = AuthenticationOption;
+	AccountParameters1.CreatingAccountThroughAssistant = True;
+	
+	Return AccountParameters1;
+	
+EndFunction
 
 #EndRegion

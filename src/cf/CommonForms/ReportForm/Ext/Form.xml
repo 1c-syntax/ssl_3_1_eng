@@ -400,7 +400,7 @@
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Send</v8:content>
+											<v8:content>Export</v8:content>
 										</v8:item>
 									</Title>
 									<Picture>
@@ -438,7 +438,7 @@
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Send</v8:content>
+													<v8:content>Export</v8:content>
 												</v8:item>
 											</Title>
 											<ToolTip>
@@ -560,7 +560,7 @@
 							<InputHint>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Type a word for the filter (product name, customer name, and so on)</v8:content>
+									<v8:content>Type an expression filter (product name, customer name, and so on)</v8:content>
 								</v8:item>
 							</InputHint>
 							<ContextMenu name="FactorContextMenu" id="722"/>
@@ -568,7 +568,7 @@
 								<Title formatted="true">
 									<v8:item>
 										<v8:lang>en</v8:lang>
-										<v8:content>Type a word for the filter (product name, customer name, and so on).
+										<v8:content>Type an expression filter (product name, customer name, and so on).
 Use:
 &lt;b&gt;-&lt;/&gt;, &lt;b&gt;&lt;&lt;&gt;&gt;&lt;/&gt; if you need to exclude the value
 &lt;b&gt;&gt;&gt;&lt;/&gt;, &lt;b&gt;&gt;&gt;=&lt;/&gt;, &lt;b&gt;&lt;&lt;&lt;/&gt;, &lt;b&gt;&lt;&lt;=&lt;/&gt; for filters by numbers and dates
@@ -751,7 +751,7 @@ Use:
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Generate on open</v8:content>
+											<v8:content>Generate on opening</v8:content>
 										</v8:item>
 									</Title>
 									<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
@@ -927,7 +927,7 @@ Use:
 													<Title>
 														<v8:item>
 															<v8:lang>en</v8:lang>
-															<v8:content>Save to file…</v8:content>
+															<v8:content>Save to file...</v8:content>
 														</v8:item>
 													</Title>
 													<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
@@ -950,7 +950,7 @@ Use:
 													<Title>
 														<v8:item>
 															<v8:lang>en</v8:lang>
-															<v8:content>Import scheme</v8:content>
+															<v8:content>Import schema</v8:content>
 														</v8:item>
 													</Title>
 													<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
@@ -962,7 +962,7 @@ Use:
 													<Title>
 														<v8:item>
 															<v8:lang>en</v8:lang>
-															<v8:content>Edit scheme</v8:content>
+															<v8:content>Edit schema</v8:content>
 														</v8:item>
 													</Title>
 													<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
@@ -1159,7 +1159,7 @@ Use:
 									<Title>
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Send</v8:content>
+											<v8:content>Export</v8:content>
 										</v8:item>
 									</Title>
 									<Picture>
@@ -1196,7 +1196,7 @@ Use:
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Send</v8:content>
+													<v8:content>Export</v8:content>
 												</v8:item>
 											</Title>
 											<ToolTip>
@@ -2240,7 +2240,7 @@ Use:
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="GroupSelectPeriod_1ExtendedTooltip" id="1021"/>
+							<ExtendedTooltip name="GroupSelectPeriod1ExtendedTooltip" id="1021"/>
 							<ChildItems>
 								<Button name="SelectPeriod1" id="789">
 									<Type>UsualButton</Type>
@@ -2353,7 +2353,7 @@ Use:
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="GroupSelectPeriod_2ExtendedTooltip" id="1023"/>
+							<ExtendedTooltip name="GroupSelectPeriod2ExtendedTooltip" id="1023"/>
 							<ChildItems>
 								<Button name="SelectPeriod2" id="804">
 									<Type>UsualButton</Type>
@@ -2389,7 +2389,7 @@ Use:
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>CheckBox</v8:content>
+							<v8:content>Checkbox</v8:content>
 						</v8:item>
 					</Title>
 					<CheckBoxType>Auto</CheckBoxType>
@@ -3166,7 +3166,7 @@ Use:
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Generate on open</v8:content>
+					<v8:content>Generate on opening</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
@@ -3312,7 +3312,7 @@ Use:
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Import scheme</v8:content>
+					<v8:content>Import schema</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
@@ -3332,7 +3332,7 @@ Use:
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Edit scheme</v8:content>
+					<v8:content>Edit schema</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>

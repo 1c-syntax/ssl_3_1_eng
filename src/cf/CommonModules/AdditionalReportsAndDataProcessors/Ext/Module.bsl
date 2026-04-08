@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -775,7 +774,7 @@ Function AdditionalCommands(Val DataProcessorsKind, Val Location, Val IsObjectFo
 	Query.SetParameter("Kind", DataProcessorsKind);
 	If AccessRight("Update", Metadata.Catalogs.AdditionalReportsAndDataProcessors) Then
 		QueryText = StrReplace(QueryText, "Publication = &Publication", "Publication <> &Publication");
-		Query.SetParameter("Publication", Enums.AdditionalReportsAndDataProcessorsPublicationOptions.isDisabled);
+		Query.SetParameter("Publication", Enums.AdditionalReportsAndDataProcessorsPublicationOptions.TurnedOff);
 	Else
 		Query.SetParameter("Publication", Enums.AdditionalReportsAndDataProcessorsPublicationOptions.Used);
 	EndIf;
@@ -1036,13 +1035,13 @@ Procedure OnFillToDoList(ToDoList) Export
 		Sections.Add(Subsystem);
 	EndIf;
 	
-	OutputToDoItem = True;
+	OutputCaseFile = True;
 	VersionChecked = CommonSettingsStorage.Load("ToDoList", "AdditionalReportsAndDataProcessors");
 	If VersionChecked <> Undefined Then
 		ArrayVersion  = StrSplit(Metadata.Version, ".", True);
 		CurrentVersion = ArrayVersion[0] + ArrayVersion[1] + ArrayVersion[2];
 		If VersionChecked = CurrentVersion Then
-			OutputToDoItem = False; // Additional reports and data processors were checked on the current version.
+			OutputCaseFile = False; // Additional reports and data processors were checked on the current version.
 		EndIf;
 	EndIf;
 	
@@ -1061,32 +1060,32 @@ Procedure OnFillToDoList(ToDoList) Export
 	For Each Section In Sections Do
 		SectionID = "CheckCompatibilityWithCurrentVersion" + StrReplace(Section.FullName(), ".", "");
 		
-		ToDoItem = ToDoList.Add();
-		ToDoItem.Id = "AdditionalReportsAndDataProcessors";
-		ToDoItem.HasToDoItems      = OutputToDoItem And Count > 0;
-		ToDoItem.Presentation = NStr("en = 'Additional reports and data processors'");
-		ToDoItem.Count    = Count;
-		ToDoItem.Form         = "Catalog.AdditionalReportsAndDataProcessors.Form.AdditionalReportsAndDataProcessorsCheck";
-		ToDoItem.Owner      = SectionID;
+		CaseFile = ToDoList.Add();
+		CaseFile.Id = "AdditionalReportsAndDataProcessors";
+		CaseFile.HasToDoItems      = OutputCaseFile And Count > 0;
+		CaseFile.Presentation = NStr("en = 'Additional reports and data processors'");
+		CaseFile.Count    = Count;
+		CaseFile.Form         = "Catalog.AdditionalReportsAndDataProcessors.Form.AdditionalReportsAndDataProcessorsCheck";
+		CaseFile.Owner      = SectionID;
 		
 		// Check for the to-do's group. If the group is missing, add it.
 		ToDoGroup = ToDoList.Find(SectionID, "Id");
 		If ToDoGroup = Undefined Then
 			ToDoGroup = ToDoList.Add();
 			ToDoGroup.Id = SectionID;
-			ToDoGroup.HasToDoItems      = ToDoItem.HasToDoItems;
+			ToDoGroup.HasToDoItems      = CaseFile.HasToDoItems;
 			ToDoGroup.Presentation = NStr("en = 'Check compatibility'");
-			If ToDoItem.HasToDoItems Then
-				ToDoGroup.Count = ToDoItem.Count;
+			If CaseFile.HasToDoItems Then
+				ToDoGroup.Count = CaseFile.Count;
 			EndIf;
 			ToDoGroup.Owner = Section;
 		Else
 			If Not ToDoGroup.HasToDoItems Then
-				ToDoGroup.HasToDoItems = ToDoItem.HasToDoItems;
+				ToDoGroup.HasToDoItems = CaseFile.HasToDoItems;
 			EndIf;
 			
-			If ToDoItem.HasToDoItems Then
-				ToDoGroup.Count = ToDoGroup.Count + ToDoItem.Count;
+			If CaseFile.HasToDoItems Then
+				ToDoGroup.Count = ToDoGroup.Count + CaseFile.Count;
 			EndIf;
 		EndIf;
 	EndDo;
@@ -1832,6 +1831,15 @@ Procedure OnDefineScheduledJobSettings(Settings) Export
 	
 EndProcedure
 
+// See CommonOverridable.WhenSettingUpVerificationOfMethodsCalledAsArbitraryCode.
+Procedure WhenSettingUpVerificationOfMethodsCalledAsArbitraryCode(Settings) Export
+	
+	Methods = New Map;
+	Methods.Insert("HandlerFillingCommands");
+	Settings.ExceptionsWhenSpecifiedMethodIsNotCalled.Insert("CommonModule.AdditionalReportsAndDataProcessors", Methods);
+	
+EndProcedure
+
 Function AdditionalReportsAndProcessingAreUpdated(Queue) Export
 	Return InfobaseUpdate.HasDataLockedByPreviousQueues(Queue, "Catalog.AdditionalReportsAndDataProcessors");
 EndFunction
@@ -2517,7 +2525,7 @@ Procedure ExportReportsAndDataProcessorsToFiles(ReportsAndDataProcessors)
 		ErrorText = TrimAll(
 			NStr("en = 'Failed to export reports and configuration data processors to external files:'")
 			+ Chars.LF + Upload0.Brief1
-			+ Chars.LF + Upload0.More);
+			+ Chars.LF + Upload0.ShowMoreDetails);
 		WriteWarning(Undefined, ErrorText);
 		ReportsAndDataProcessors.Clear();
 	EndIf;
@@ -2596,7 +2604,7 @@ Procedure ExportReportsAndDataProcessorsToFiles(ReportsAndDataProcessors)
 					|%3
 					|%4'"),
 				TableRow.FullName, FullObjectSchemaName, 
-				CreateDataProcessor.Brief1, CreateDataProcessor.More);
+				CreateDataProcessor.Brief1, CreateDataProcessor.ShowMoreDetails);
 			WriteWarning(Undefined, ErrorText);
 			ReportsAndDataProcessors.Delete(ReverseIndex);
 			Continue;
@@ -2612,7 +2620,7 @@ Procedure ExportReportsAndDataProcessorsToFiles(ReportsAndDataProcessors)
 EndProcedure
 
 Function DesignerBatchRun(Parameters, PassedStartupCommands)
-	Result = New Structure("Success, Brief1, More", False, "", "");
+	Result = New Structure("Success, Brief1, ShowMoreDetails", False, "", "");
 	ParametersSample = New Structure("WorkingDirectory, User, Password, BINDirectory, ConfigurationPath, OneCDCopyDirectory");
 	CommonClientServer.SupplementStructure(Parameters, ParametersSample, False);
 	If Not ValueIsFilled(Parameters.User) Then
@@ -2677,7 +2685,7 @@ Function DesignerBatchRun(Parameters, PassedStartupCommands)
 		Messages = TrimAll(TextReader.Read());
 		TextReader.Close();
 		If Messages <> "" Then
-			Result.More = StrReplace(Chars.LF + Messages, Chars.LF, Chars.LF + Chars.Tab);
+			Result.ShowMoreDetails = StrReplace(Chars.LF + Messages, Chars.LF, Chars.LF + Chars.Tab);
 		EndIf;
 	EndIf;
 	Return Result;
@@ -2909,7 +2917,7 @@ Procedure DisableConflictingDataProcessor(DataProcessorObject)
 	If AvailableKinds.Find(KindDebugMode) Then
 		DataProcessorObject.Publication = KindDebugMode;
 	Else
-		DataProcessorObject.Publication = Enums.AdditionalReportsAndDataProcessorsPublicationOptions.isDisabled;
+		DataProcessorObject.Publication = Enums.AdditionalReportsAndDataProcessorsPublicationOptions.TurnedOff;
 	EndIf;
 EndProcedure
 
@@ -3374,14 +3382,14 @@ Function ReportsAndDataProcessorsTable(Val ObjectsIDs)
 	|	AND Table.Kind = &Kind
 	|	AND Table.UseForObjectForm = TRUE
 	|	AND Table.Publication = VALUE(Enum.AdditionalReportsAndDataProcessorsPublicationOptions.Used)
-	|	AND Table.Publication <> VALUE(Enum.AdditionalReportsAndDataProcessorsPublicationOptions.isDisabled)
+	|	AND Table.Publication <> VALUE(Enum.AdditionalReportsAndDataProcessorsPublicationOptions.TurnedOff)
 	|	AND Table.DeletionMark = FALSE";
 	Query.SetParameter("MOIDs", ObjectsIDs);
 	Query.SetParameter("Kind", Enums.AdditionalReportsAndDataProcessorsKinds.ObjectFilling);
 	If AccessRight("Update", Metadata.Catalogs.AdditionalReportsAndDataProcessors) Then
 		Query.Text = StrReplace(Query.Text, "AND Table.Publication = VALUE(Enum.AdditionalReportsAndDataProcessorsPublicationOptions.Used)", "");
 	Else
-		Query.Text = StrReplace(Query.Text, "AND Table.Publication <> VALUE(Enum.AdditionalReportsAndDataProcessorsPublicationOptions.isDisabled)", "");
+		Query.Text = StrReplace(Query.Text, "AND Table.Publication <> VALUE(Enum.AdditionalReportsAndDataProcessorsPublicationOptions.TurnedOff)", "");
 	EndIf;
 	Table = Query.Execute().Unload();
 	Return Table
@@ -3424,5 +3432,15 @@ Function VersionAsNumber(VersionAsString)
 EndFunction
 
 #EndRegion
+
+// See StandardSubsystemsServer.WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode
+Procedure WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode(Methods) Export
+	
+	Methods.Insert("SessionParametersSetting");
+	Methods.Insert("HandlerFillingCommands");
+	Methods.Insert("ExecuteCommand", True);
+	Methods.Insert("ExecuteDataProcessorByScheduledJob", True);
+	
+EndProcedure
 
 #EndRegion

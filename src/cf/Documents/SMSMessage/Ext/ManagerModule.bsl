@@ -1,18 +1,17 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Public
 
-#Region ForCallsFromOtherSubsystems
+#Region InterfaceImplementation
 
 // StandardSubsystems.Interactions
 
@@ -51,9 +50,9 @@ Function AttributesToEditInBatchProcessing() Export
 	Result.Add("EmployeeResponsible");
 	Result.Add("InteractionBasis");
 	Result.Add("Comment");
-	Result.Add("SMSMessageRecipients.Contact");
-	Result.Add("SMSMessageRecipients.ContactPresentation");
-	Result.Add("SMSMessageRecipients.HowToContact");
+	Result.Add("Recipients.Contact");
+	Result.Add("Recipients.ContactPresentation");
+	Result.Add("Recipients.HowToContact");
 	Return Result;
 	
 EndFunction

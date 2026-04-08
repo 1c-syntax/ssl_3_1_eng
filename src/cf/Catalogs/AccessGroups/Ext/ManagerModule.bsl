@@ -1,18 +1,17 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Public
 
-#Region ForCallsFromOtherSubsystems
+#Region InterfaceImplementation
 
 // StandardSubsystems.BatchEditObjects
 
@@ -37,7 +36,7 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// 
+// StandardSubsystems.AccessManagement
 
 // Parameters:
 //   Restriction - See AccessManagementOverridable.OnFillAccessRestriction.Restriction.
@@ -55,7 +54,7 @@ EndProcedure
 
 // End StandardSubsystems.AccessManagement
 
-// 
+// CloudTechnology.ExportImportData
 
 // Attached in ExportImportDataOverridable.OnRegisterDataExportHandlers.
 //
@@ -368,7 +367,7 @@ Procedure MarkForDeletionSelectedProfilesAccessGroups(HasChanges = Undefined) Ex
 			InfobaseUpdate.WriteObject(AccessGroupObject);
 			InformationRegisters.AccessGroupsTables.UpdateRegisterData(Selection.Ref);
 			InformationRegisters.AccessGroupsValues.UpdateRegisterData(Selection.Ref);
-			// @skip-check query-in-loop  в транзакции
+			// @skip-check query-in-loop - Batch-wise data processing within a transaction
 			UsersForUpdate = UsersForRolesUpdate(Undefined, AccessGroupObject);
 			AccessManagement.UpdateUserRoles(UsersForUpdate);
 			HasChanges = True;
@@ -1105,6 +1104,10 @@ EndFunction
 //                 - Undefined - Applicable if the object is Structure.
 //
 Procedure RegisterChangeInAllowedValues(Object, PreviousValues1) Export
+	
+	If AccessManagementInternal.IsRecordLevelRestrictionDisabled() Then
+		Return;
+	EndIf;
 	
 	If TypeOf(Object) = Type("Structure") Then
 		Source = New Array;
@@ -2989,6 +2992,13 @@ Procedure UpdateAuxiliaryAccessGroupsData(Parameters) Export
 EndProcedure
 
 #EndRegion
+
+// See StandardSubsystemsServer.WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode
+Procedure WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode(Methods) Export
+	
+	Methods.Insert("FillAdministratorsAccessGroupProfile");
+	
+EndProcedure
 
 #EndRegion
 

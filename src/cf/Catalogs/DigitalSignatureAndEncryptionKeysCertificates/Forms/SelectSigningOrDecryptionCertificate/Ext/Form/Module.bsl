@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Variables
@@ -95,15 +94,30 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Else
 		Title = NStr("en = 'Add a certificate to sign data'");
 	EndIf;
+		
+	CertificatesAreUsedATServer = DigitalSignature.GenerateDigitalSignaturesAtServer() 
+		And ExecuteAtServer <> False Or HasCloudSignature;
 	
-	If DigitalSignature.GenerateDigitalSignaturesAtServer() And ExecuteAtServer <> False Or HasCloudSignature Then
-		If ExecuteAtServer = True Then
-			Items.CertificatesGroup.Title = NStr("en = 'Personal certificates on the server'");
+	If Common.IsMobileClient() Then
+		If CertificatesAreUsedATServer Then
+			If ExecuteAtServer = True Then
+				Items.CertificatesGroup.Title = NStr("en = 'Personal certificates on the server'");
+			Else
+				Items.CertificatesGroup.Title = NStr("en = 'Personal certificates on device and on server'");
+			EndIf;
 		Else
-			Items.CertificatesGroup.Title = NStr("en = 'Personal certificates on computer and on server'");
+			Items.CertificatesGroup.Title = NStr("en = 'Personal certificates on device'");
+		EndIf;
+	Else
+		If CertificatesAreUsedATServer Then
+			If ExecuteAtServer = True Then
+				Items.CertificatesGroup.Title = NStr("en = 'Personal certificates on the server'");
+			Else
+				Items.CertificatesGroup.Title = NStr("en = 'Personal certificates on computer and on server'");
+			EndIf;
 		EndIf;
 	EndIf;
-	
+
 	CertificateAddress = Parameters.CertificateAddress;
 	If IsTempStorageURL(CertificateAddress) Then
 		Items.Back.Visible = False;
@@ -151,8 +165,19 @@ Procedure OnOpen(Cancel)
 	
 	If InternalData = Undefined Then
 		Cancel = True;
+		Return;
 	EndIf;
 	
+	If Certificates.Count() = 0
+		And Not Items.CertificatesUnavailableAtClientGroup.Visible
+		And Not Items.CertificatesUnavailableAtServerGroup.Visible
+		And Not Items.CloudSignatureAuthorizationGroup.Visible Then
+		WarningTextOnOpen = ?(CanAddToList,
+			NStr("en = 'No certificates are available. You may have insufficient permission to add certificates; contact your administrator.'"),
+			NStr("en = 'No certificates are available. You may have insufficient permission to select certificates; contact your administrator.'"));
+		Cancel = True;
+	EndIf;
+		
 EndProcedure
 
 &AtClient
@@ -801,6 +826,7 @@ Procedure UpdateCertificatesListAtServer(Val CertificatesPropertiesAtClient)
 	AdditionalParameters = New Structure;
 	AdditionalParameters.Insert("FilterByCompany", FilterByCompany);
 	AdditionalParameters.Insert("ExecuteAtServer", ExecuteAtServer);
+	AdditionalParameters.Insert("AvailableOnlyWithKey", Not ShowAll);
 	
 	DigitalSignatureInternal.UpdateCertificatesList(Certificates, CertificatesPropertiesAtClient,
 		CanAddToList, True, ErrorGettingCertificatesAtServer, ShowAll, AdditionalParameters);
@@ -810,6 +836,12 @@ Procedure UpdateCertificatesListAtServer(Val CertificatesPropertiesAtClient)
 		ModuleApplicationForIssuingANewQualifiedCertificate = Common.CommonModule("DataProcessors.ApplicationForNewQualifiedCertificateIssue");
 		ModuleApplicationForIssuingANewQualifiedCertificate.ДополнитьТаблицуСертификатовЗаявлениями(Certificates);
 		
+	EndIf;
+	
+	If HaveRightToAddInDirectory Then
+		Certificates.Sort("IsRequest Asc, Presentation Asc");
+	Else
+		Certificates.Sort("Isinthedirectory Desc, IsRequest Asc, Presentation Asc");
 	EndIf;
 	
 	If ValueIsFilled(SelectedCertificateThumbprint)
@@ -824,8 +856,12 @@ Procedure UpdateCertificatesListAtServer(Val CertificatesPropertiesAtClient)
 		EndIf;
 	EndIf;
 	
-	Items.CertificatesUnavailableAtClientGroup.Visible =
-		ValueIsFilled(ErrorOnGetCertificatesAtClient);
+	If Common.IsMobileClient() Then
+		Items.CertificatesUnavailableAtClientGroup.Visible = False;
+	Else
+		Items.CertificatesUnavailableAtClientGroup.Visible =
+			ValueIsFilled(ErrorOnGetCertificatesAtClient);
+	EndIf;
 	
 	Items.CertificatesUnavailableAtServerGroup.Visible =
 		ValueIsFilled(ErrorGettingCertificatesAtServer);
@@ -893,7 +929,7 @@ Procedure GoToCurrentCertificateChoice(Notification)
 	If Not HaveRightToAddInDirectory And Not CurrentData.Isinthedirectory Then
 		Result.UpdateCertificatesList = True;
 		Result.ErrorDescription =
-			NStr("en = 'Insufficient rights to use certificates that are not in the catalog.'");
+			NStr("en = 'Insufficient permission to add certificates; contact your administrator.'");
 		RunCallback(Notification, Result);
 		Return;
 	EndIf;
@@ -1079,7 +1115,10 @@ Procedure GoToCurrentCertificateChoiceAfterFillCertificateProperties(Context)
 			EndIf;
 		EndIf;
 	EndIf;
-	
+
+#If MobileAppClient Or MobileClient Then
+	Items.CertificateEnterPasswordInElectronicSignatureProgram.Visible = False;
+#Else
 	If CertificateAttributeParameters.Property("EnterPasswordInDigitalSignatureApplication") Then
 		If Not CertificateAttributeParameters.EnterPasswordInDigitalSignatureApplication.Visible Then
 			Items.CertificateEnterPasswordInElectronicSignatureProgram.Visible = False;
@@ -1087,6 +1126,7 @@ Procedure GoToCurrentCertificateChoiceAfterFillCertificateProperties(Context)
 			Items.CertificateEnterPasswordInElectronicSignatureProgram.ReadOnly = True;
 		EndIf;
 	EndIf;
+#EndIf
 	
 	CertificateUser1 = UsersClient.CurrentUser();
 	If Not IsFullUser Then
@@ -1164,8 +1204,8 @@ EndProcedure
 &AtServer
 Procedure SetVisibilityForCertificateAdditionCommands()
 	
-	If Not AccessRight("Insert", Metadata.Catalogs.DigitalSignatureAndEncryptionKeysCertificates)
-		Or Not Parameters.ShouldDisplayAddCommands Then
+	If Not DigitalSignatureInternal.YouHaveRightToAddCertificatesToCatalog()
+		Or Not Parameters.ShouldDisplayAddCommands Or Common.IsMobileClient() Then
 		
 		Items.AddForSigningAndEncryptionFromFiles.Visible = False;
 		Items.AddCertificateIssueRequest.Visible = False;

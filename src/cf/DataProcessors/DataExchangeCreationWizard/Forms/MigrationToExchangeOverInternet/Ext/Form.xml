@@ -1054,7 +1054,7 @@ Please wait...</v8:content>
 				</Column>
 			</Columns>
 		</Attribute>
-		<Attribute name="CurrentStep" id="14">
+		<Attribute name="CurrentStep_SSLyf" id="14">
 			<Type>
 				<v8:Type>xs:decimal</v8:Type>
 				<v8:NumberQualifiers>

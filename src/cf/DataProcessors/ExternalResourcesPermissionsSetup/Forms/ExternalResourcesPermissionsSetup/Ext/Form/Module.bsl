@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Variables
@@ -249,7 +248,7 @@ Function GetIBAdministrator()
 EndFunction
 
 &AtServerNoContext
-Function InfobaseUserName(Val User)
+Function InfoBaseUserName(Val User)
 	
 	If Not ValueIsFilled(User) Then
 		Return "";
@@ -309,7 +308,7 @@ Procedure SaveAdministrationParameters()
 	
 	// Infobase administration parameters.
 	AdministrationParametersToSave.Insert("NameInCluster", NameInCluster);
-	AdministrationParametersToSave.Insert("InfobaseAdministratorName", InfobaseUserName(IBAdministrator));
+	AdministrationParametersToSave.Insert("InfobaseAdministratorName", InfoBaseUserName(IBAdministrator));
 	AdministrationParametersToSave.Insert("InfobaseAdministratorPassword", "");
 	
 	StandardSubsystemsServer.SetAdministrationParameters(AdministrationParametersToSave);
@@ -345,7 +344,7 @@ Procedure ApplyPermissionsAtServer(StorageAddress)
 	If IBAdministrationParametersRequired Then
 		IBAdministrationParameters = ClusterAdministration.ClusterInfobaseAdministrationParameters();
 		IBAdministrationParameters.NameInCluster = NameInCluster;
-		IBAdministrationParameters.InfobaseAdministratorName = InfobaseUserName(IBAdministrator);
+		IBAdministrationParameters.InfobaseAdministratorName = InfoBaseUserName(IBAdministrator);
 		IBAdministrationParameters.InfobaseAdministratorPassword = IBAdministratorPassword;
 	Else
 		IBAdministrationParameters = Undefined;

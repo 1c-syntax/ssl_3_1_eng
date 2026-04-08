@@ -23,7 +23,7 @@
 					<v8:content>File storage method</v8:content>
 				</v8:item>
 			</Synonym>
-			<Comment>Storage methods: "Informatsionnoye", "Womanlike", "Informationobtained"</Comment>
+			<Comment>Способы хранения: "ВИнформационнойБазе", "ВТомахНаДиске", "ВИнформационнойБазеИТомахНаДиске", "ВоВстроенномХранилищеДвоичныхДанных", "ВоВнешнемХранилищеДвоичныхДанных"</Comment>
 			<Type>
 				<v8:Type>xs:string</v8:Type>
 				<v8:StringQualifiers>

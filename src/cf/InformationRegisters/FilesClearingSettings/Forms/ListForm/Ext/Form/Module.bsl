@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -170,8 +169,8 @@ Procedure MetadataObjectsTreeBeforeDeleteRow(Item, Cancel)
 			
 			QueryText = NStr("en = 'If you delete the setting, you will not be able
 				|to clean up files according to the rules defined in it. Continue?'");
-			NotifyDescription = New CallbackDescription("DeleteSettingItemCompletion", ThisObject);
-			ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.YesNo, , DialogReturnCode.No, NStr("en = 'Warning'"));
+			CallbackDescription = New CallbackDescription("DeleteSettingItemCompletion", ThisObject);
+			ShowQueryBox(CallbackDescription, QueryText, QuestionDialogMode.YesNo, , DialogReturnCode.No, NStr("en = 'Warning'"));
 			Return;
 			
 		EndIf;
@@ -214,8 +213,8 @@ EndProcedure
 &AtClient
 Procedure SetUpSchedule(Command)
 	ScheduleDialog1 = New ScheduledJobDialog(CurrentSchedule());
-	NotifyDescription = New CallbackDescription("SetUpScheduleCompletion", ThisObject);
-	ScheduleDialog1.Show(NotifyDescription);
+	CallbackDescription = New CallbackDescription("SetUpScheduleCompletion", ThisObject);
+	ScheduleDialog1.Show(CallbackDescription);
 EndProcedure
 
 &AtClient
@@ -814,8 +813,7 @@ Procedure RunScheduledJob()
 	ScheduledJobMetadata1 = Metadata.ScheduledJobs.CleanUpUnusedFiles;
 	
 	Filter = New Structure;
-	MethodName = ScheduledJobMetadata1.MethodName;
-	Filter.Insert("MethodName", MethodName);
+	Filter.Insert("MethodName", ScheduledJobMetadata1.MethodName);
 	Filter.Insert("State", BackgroundJobState.Active);
 	CleanupBackgroundJobs = BackgroundJobs.GetBackgroundJobs(Filter);
 	If CleanupBackgroundJobs.Count() > 0 Then
@@ -824,8 +822,10 @@ Procedure RunScheduledJob()
 		JobParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
 		JobParameters.BackgroundJobDescription = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Manual start: %1'"), ScheduledJobMetadata1.Synonym);
-		JobResult = TimeConsumingOperations.ExecuteInBackground(ScheduledJobMetadata1.MethodName, 
-			New Structure("ManualStart1", True), JobParameters);
+		JobResult = TimeConsumingOperations.ExecuteInBackground(
+			Metadata.ScheduledJobs.CleanUpUnusedFiles.MethodName,
+			New Structure("ManualStart1", True),
+			JobParameters);
 		If ValueIsFilled(BackgroundJobIdentifier) Then
 			BackgroundJobIdentifier = JobResult.JobID;
 		EndIf;

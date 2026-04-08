@@ -15,10 +15,10 @@
 				<CommandName>Form.Item.List.StandardCommand.Change</CommandName>
 				<ExtendedTooltip name="FormChangeExtendedTooltip" id="10"/>
 			</Button>
-			<Button name="FormHelp" id="8">
+			<Button name="FormHelp_SSLyf" id="8">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.StandardCommand.Help</CommandName>
-				<ExtendedTooltip name="FormHelpExtendedTooltip" id="11"/>
+				<ExtendedTooltip name="FormHelp_SSLyfExtendedTooltip" id="11"/>
 			</Button>
 			<SearchStringAddition name="SearchString" id="32">
 				<AdditionSource>

@@ -951,6 +951,15 @@ the purpose description is used instead of the certificate presentation, for exa
 				<v8:TypeSet>cfg:DefinedType.Individual</v8:TypeSet>
 			</Type>
 		</Attribute>
+		<Attribute name="WarningTextOnOpen" id="15">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
 	</Attributes>
 	<Commands>
 		<Command name="Next" id="1">

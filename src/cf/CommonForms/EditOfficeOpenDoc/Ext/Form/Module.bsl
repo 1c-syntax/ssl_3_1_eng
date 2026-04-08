@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Variables
@@ -278,8 +277,8 @@ EndProcedure
 &AtClient
 Procedure Rename(Command)
 	
-	NotifyDescription = New CallbackDescription("OnSelectingLayoutName", ThisObject);
-	ShowInputString(NotifyDescription, DocumentName, NStr("en = 'Enter a template description'"), 100, False);
+	CallbackDescription = New CallbackDescription("OnSelectingLayoutName", ThisObject);
+	ShowInputString(CallbackDescription, DocumentName, NStr("en = 'Enter a template description'"), 100, False);
 	
 EndProcedure
 
@@ -291,8 +290,8 @@ Procedure Translate(Command)
 	Buttons.Add(DialogReturnCode.Yes, NStr("en = 'Translate'"));
 	Buttons.Add(DialogReturnCode.No, NStr("en = 'Do not translate'"));
 	
-	NotifyDescription = New CallbackDescription("WhenAnsweringAQuestionAboutTranslatingALayout", ThisObject);
-	ShowQueryBox(NotifyDescription, QueryText, Buttons);
+	CallbackDescription = New CallbackDescription("WhenAnsweringAQuestionAboutTranslatingALayout", ThisObject);
+	ShowQueryBox(CallbackDescription, QueryText, Buttons);
 EndProcedure
 
 &AtClient
@@ -323,8 +322,8 @@ Procedure LoadFromFile(Command)
 	ImportParameters.Dialog.Title = NStr("en = 'Select an office document'");
 	ImportParameters.Dialog.Filter = NStr("en = 'Office document'") + " (*.docx)|*.docx";
 
-	NotifyDescription = New CallbackDescription("ContinueDownloadFromFile", ThisObject);
-	FileSystemClient.ImportFile_(NotifyDescription, ImportParameters,, TemplateFileAddress);
+	CallbackDescription = New CallbackDescription("ContinueDownloadFromFile", ThisObject);
+	FileSystemClient.ImportFile_(CallbackDescription, ImportParameters,, TemplateFileAddress);
 EndProcedure
 
 &AtClient
@@ -406,14 +405,14 @@ Procedure ReadTemplateEditableFile(ContinueNotification, ErrorAlert)
 	NotificationParameters.ContinueNotification = ContinueNotification;
 	NotificationParameters.ErrorAlert = ErrorAlert;
 	
-	NotifyDescription = New CallbackDescription("OnImportFileToStorage", ThisObject, NotificationParameters);
+	CallbackDescription = New CallbackDescription("OnImportFileToStorage", ThisObject, NotificationParameters);
 #If WebClient Then
-	RequestCheckPermissionsAndImportFile(NotifyDescription);
+	RequestCheckPermissionsAndImportFile(CallbackDescription);
 #Else
 	ImportParameters = FileSystemClient.FileImportParameters();
 	ImportParameters.FormIdentifier = UUID;
 	ImportParameters.Interactively = False;
-	FileSystemClient.ImportFile_(NotifyDescription, ImportParameters, PathToTemplateFile, TemplateFileAddress);
+	FileSystemClient.ImportFile_(CallbackDescription, ImportParameters, PathToTemplateFile, TemplateFileAddress);
 #EndIf
 	
 EndProcedure
@@ -451,11 +450,11 @@ Procedure AfterRequestedPermissionsToCheckFile(PermissionsGranted, DetailsOfNoti
 	If Not PermissionsGranted Then
 		Return;
 	EndIf;
-	NotifyDescription = New CallbackDescription("OnImportFileToStorageCheckReading", ThisObject, DetailsOfNotificationFollowUp);
+	CallbackDescription = New CallbackDescription("OnImportFileToStorageCheckReading", ThisObject, DetailsOfNotificationFollowUp);
 	ImportParameters = FileSystemClient.FileImportParameters();
 	ImportParameters.FormIdentifier = UUID;
 	ImportParameters.Interactively = False;
-	FileSystemClient.ImportFile_(NotifyDescription, ImportParameters, PathToTemplateFile, TemplateFileAddress);
+	FileSystemClient.ImportFile_(CallbackDescription, ImportParameters, PathToTemplateFile, TemplateFileAddress);
 EndProcedure
 
 //
@@ -469,9 +468,9 @@ EndProcedure
 Procedure OnImportFileToStorageCheckReading(FileThatWasPut, DetailsOfNotificationFollowUp) Export
 	Context = New Structure("DetailsOfNotificationCompletion", DetailsOfNotificationFollowUp);
 	Context.Insert("FilesToUpload", FileThatWasPut);
-	NotifyDescription = New CallbackDescription("AfterCheckingExistence", ThisObject, Context);
+	CallbackDescription = New CallbackDescription("AfterCheckingExistence", ThisObject, Context);
 	File = New File(FileThatWasPut.Name);
-	File.BeginCheckingExistence(NotifyDescription);
+	File.BeginCheckingExistence(CallbackDescription);
 EndProcedure
 
 
@@ -540,11 +539,11 @@ EndProcedure
 
 &AtClient
 Procedure ExitAppUpdateCompletion(Result, AdditionalParameters) Export
-	NotifyDescription = New CallbackDescription("OnImportFile", ThisObject);
+	CallbackDescription = New CallbackDescription("OnImportFile", ThisObject);
 	ImportParameters = FileSystemClient.FileImportParameters();
 	ImportParameters.FormIdentifier = UUID;
 	ImportParameters.Interactively = Not ValueIsFilled(PathToTemplateFile);
-	FileSystemClient.ImportFile_(NotifyDescription, ImportParameters, PathToTemplateFile);
+	FileSystemClient.ImportFile_(CallbackDescription, ImportParameters, PathToTemplateFile);
 EndProcedure
 
 &AtClient
@@ -668,11 +667,11 @@ Procedure BeforeCloseEnd(Result, AdditionalParameters) Export
 	EndIf;
 	ReClosing = True;
 	
-	NotifyDescription = New CallbackDescription("BeforeCloseCompletion", ThisObject);
+	CallbackDescription = New CallbackDescription("BeforeCloseCompletion", ThisObject);
 	LanguageDetails = ?(ValueIsFilled(CurrentLanguage), " (" + CurrentLanguage + ")", "");
 	QueryText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Do you want to save the changes to %1%2?'"), 
 		DocumentName, LanguageDetails);
-	CommonClient.ShowFormClosingConfirmation(NotifyDescription, Cancel, False, QueryText);
+	CommonClient.ShowFormClosingConfirmation(CallbackDescription, Cancel, False, QueryText);
 	
 	If Modified Then
 		Return;
@@ -1465,8 +1464,8 @@ Procedure Attachable_WhenSwitchingTheLanguage(LanguageCode, AdditionalParameters
 		Buttons.Add(DialogReturnCode.Yes, NStr("en = 'Translate'"));
 		Buttons.Add(DialogReturnCode.No, NStr("en = 'Do not translate'"));
 		
-		NotifyDescription = New CallbackDescription("WhenAnsweringAQuestionAboutTranslatingALayout", ThisObject);
-		ShowQueryBox(NotifyDescription, QueryText, Buttons);
+		CallbackDescription = New CallbackDescription("WhenAnsweringAQuestionAboutTranslatingALayout", ThisObject);
+		ShowQueryBox(CallbackDescription, QueryText, Buttons);
 	Else
 		TemplateOpenParameters = GetTemplateOpeningParameters(TemplateFileAddress);
 		TemplateOpenParameters.ShouldReadHash = True;
@@ -1482,15 +1481,15 @@ Procedure SwitchLangAfterImportFileFollowUp(Result, AdditionalParameters) Export
 	Modified = Modified Or TemplateChanged();
 	
 	ParametersForResuming = New Structure("Command", AdditionalParameters.Command);
-	NotifyDescription = New CallbackDescription("SwitchLangFollowUp", ThisObject, ParametersForResuming);
+	CallbackDescription = New CallbackDescription("SwitchLangFollowUp", ThisObject, ParametersForResuming);
 	
 	If Modified Then
 		LanguageDetails = ?(ValueIsFilled(CurrentLanguage), " (" + CurrentLanguage + ")", "");
 		QueryText = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Do you want to save the changes to %1%2?'"), DocumentName, LanguageDetails);
-		ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.YesNoCancel, ,
+		ShowQueryBox(CallbackDescription, QueryText, QuestionDialogMode.YesNoCancel, ,
 			DialogReturnCode.Yes);
 	Else
-		RunCallback(NotifyDescription, DialogReturnCode.No);
+		RunCallback(CallbackDescription, DialogReturnCode.No);
 	EndIf;
 			
 EndProcedure
@@ -1526,8 +1525,8 @@ Procedure DeleteLayoutLanguage(Command)
 		Return;
 	EndIf;
 	
-	NotifyDescription = New CallbackDescription("DeleteTemplateLanguageFollowUp", ThisObject, , "ErrorMovingDeletingFile", ThisObject);
-	BeginDeletingFiles(NotifyDescription, PathToTemplateFile);
+	CallbackDescription = New CallbackDescription("DeleteTemplateLanguageFollowUp", ThisObject, , "ErrorMovingDeletingFile", ThisObject);
+	BeginDeletingFiles(CallbackDescription, PathToTemplateFile);
 	
 EndProcedure
 
@@ -1539,8 +1538,8 @@ EndProcedure
 
 &AtClient
 Procedure WarnAboutLockAndOpenApp()
-	NotifyDescription = New CallbackDescription("OpenFileCompletion", ThisObject, PathToTemplateFile);
-	ShowMessageBox(NotifyDescription, NStr("en = 'Complete the operation with the file in another application.'"), , NStr("en = 'The file is opened in another application'"));
+	CallbackDescription = New CallbackDescription("OpenFileCompletion", ThisObject, PathToTemplateFile);
+	ShowMessageBox(CallbackDescription, NStr("en = 'Complete the operation with the file in another application.'"), , NStr("en = 'The file is opened in another application'"));
 EndProcedure
 
 &AtServer
@@ -1637,9 +1636,9 @@ Procedure WhenAnsweringAQuestionAboutTranslatingALayout(Response, AdditionalPara
 	EndIf;
 	
 	If CommonClient.SubsystemExists("StandardSubsystems.NationalLanguageSupport.TextTranslation") Then
-		NotifyDescription = New CallbackDescription("OnCompleteTranslationSettingsCheck", ThisObject, TemplateOpenParameters);
+		CallbackDescription = New CallbackDescription("OnCompleteTranslationSettingsCheck", ThisObject, TemplateOpenParameters);
 		ModuleTranslationOfTextIntoOtherLanguagesClient = CommonClient.CommonModule("TextTranslationToolClient");
-		ModuleTranslationOfTextIntoOtherLanguagesClient.CheckSettings(ThisObject, NotifyDescription);
+		ModuleTranslationOfTextIntoOtherLanguagesClient.CheckSettings(ThisObject, CallbackDescription);
 	EndIf;
 	
 EndProcedure
@@ -2198,8 +2197,8 @@ Procedure Attachable_ListOfFieldsSelection(Item, RowSelected, Field, StandardPro
 		StandardProcessing = False;
 		Designer = New FormatStringWizard(Items[NameOfTheFieldList()].CurrentData.Format);
 		Designer.AvailableTypes = Items[NameOfTheFieldList()].CurrentData.Type;
-		NotifyDescription = New CallbackDescription("WhenFormatFieldSelection", ThisObject);
-		Designer.Show(NotifyDescription);
+		CallbackDescription = New CallbackDescription("WhenFormatFieldSelection", ThisObject);
+		Designer.Show(CallbackDescription);
 	EndIf;	
 	
 EndProcedure
@@ -2252,6 +2251,20 @@ Procedure Attachable_OperatorsDragStart(Item, DragParameters, Perform)
 		CurrentTablePresentation = CurrentTablePresentation();
 		Perform = CurrentTablePresentation <> Undefined;
 		DragParameters.Value = StrReplace(DragParameters.Value, "()", "(["+CurrentTablePresentation+"])");
+	EndIf;
+	
+	If ValueIsFilled(Operator.Parent)
+	   And Not IsBlankString(DragParameters.Value)
+	   And Not ValueIsFilled(Operator.ExpressionToInsert) Then
+		
+		OperatorsGroup = Operator.Parent; // See TheSelectedFieldInTheFieldList
+		OperatorGroupName = OperatorsGroup.Name;
+		If Not OperatorGroupName = "LogicalOperatorsAndConstants" Then
+			
+			DragParameters.Value = "[" + DragParameters.Value + "]";
+			
+		EndIf;
+		
 	EndIf;
 	
 EndProcedure
@@ -2347,8 +2360,8 @@ Procedure TemplateAssignmentClick(Item)
 	PickingParameters.Title = NStr("en = 'Template assignment'");
 	PickingParameters.FilterByMetadataObjects = ObjectsWithPrintCommands();
 	
-	NotifyDescription = New CallbackDescription("OnChooseTemplateOwners", ThisObject);
-	StandardSubsystemsClient.ChooseMetadataObjects(PickingParameters, NotifyDescription);
+	CallbackDescription = New CallbackDescription("OnChooseTemplateOwners", ThisObject);
+	StandardSubsystemsClient.ChooseMetadataObjects(PickingParameters, CallbackDescription);
 
 EndProcedure
 

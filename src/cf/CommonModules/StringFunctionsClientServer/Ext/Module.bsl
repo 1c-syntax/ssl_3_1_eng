@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -128,7 +127,7 @@ Function IsWordSeparator(CharCode, WordSeparators = Undefined) Export
 	Ranges.Add(New Structure("Min,Max", 48, 57)); 	// Digits.
 	Ranges.Add(New Structure("Min,Max", 65, 90)); 	// Uppercase Latin characters.
 	Ranges.Add(New Structure("Min,Max", 97, 122)); 	// Lowercase Latin characters.
-	Ranges.Add(New Structure("Min,Max", 95, 95)); 	// Underline ( _ ) character.
+	Ranges.Add(New Structure("Min,Max", 95, 95)); 	// Underscore ( _ ) character.
 	
 	For Each Span In Ranges Do
 		If CharCode >= Span.Min And CharCode <= Span.Max Then
@@ -445,7 +444,7 @@ Function IsStringContainsOnlyNationalAlphabetChars(Val RowToValidate, Val Additi
 	StringFunctionsClientServerLocalization.OnDefineNationalAlphabetChars(NationalAlphabetChars, AdditionalValidChars);
 	
 	If AdditionalValidChars = Undefined Then
-		AllowedChars = " " + Chars.Tab + Chars.LF + Chars.CR + Chars.VTab + Chars.NBSp + Chars.FF;
+		AdditionalValidChars = " " + Chars.Tab + Chars.LF + Chars.CR + Chars.VTab + Chars.NBSp + Chars.FF;
 	EndIf;
 	
 	Return StrSplit(Lower(RowToValidate), NationalAlphabetChars + AdditionalValidChars, False).Count() = 0;
@@ -496,25 +495,16 @@ EndProcedure
 // Returns:
 //  Boolean - True if the passed string is a UUID.
 //
-Function IsUUID(Val Value) Export
+Function IsUUID(Value) Export
 	
-	Template = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX";
+	Return StrLen(Value) = 36
+		And StrOccurrenceCount(Value, "-") = 4
+		And Mid(Value, 9, 1) = "-"
+		And Mid(Value, 14, 1) = "-"
+		And Mid(Value, 19, 1) = "-"
+		And Mid(Value, 24, 1) = "-"
+		And StrSplit(Value, "-0123456789abcdefABCDEF", False).Count() = 0;
 	
-	If StrLen(Template) <> StrLen(Value) Then
-		Return False;
-	EndIf;
-	For Position = 1 To StrLen(Value) Do
-		If CharCode(Template, Position) = 88 // X
-			And ((CharCode(Value, Position) < 48 Or CharCode(Value, Position) > 57) // 0..9
-			And (CharCode(Value, Position) < 97 Or CharCode(Value, Position) > 102) // a..f
-			And (CharCode(Value, Position) < 65 Or CharCode(Value, Position) > 70)) // a..f
-			Or CharCode(Template, Position) = 45 And CharCode(Value, Position) <> 45 Then // -
-				Return False;
-		EndIf;
-	EndDo;
-	
-	Return True;
-
 EndFunction
 
 // Generates a string of the specified length filled with the specified character.
@@ -643,7 +633,7 @@ EndFunction
 // Example:
 //  StringFunctionsClientServer.ConvertNumberIntoRomanNotation("XVII") = 17.
 //
-Function ConvertNumberIntoRomanNotation(ArabicNumber, UseLatinChars = True) Export
+Function ConvertNumberIntoRomanNotation(Val ArabicNumber, UseLatinChars = True) Export
 	
 	RomanNumber = "";
 	ArabicNumber = SupplementString(ArabicNumber, 3);
@@ -680,7 +670,7 @@ EndFunction
 // Example:
 //  StringFunctionsClientServer.ConvertNumberIntoArabicNotation("XVII") = 17.
 //
-Function ConvertNumberIntoArabicNotation(RomanNumber, UseLatinChars = True) Export
+Function ConvertNumberIntoArabicNotation(Val RomanNumber, UseLatinChars = True) Export
 	
 	ArabicNumber = 0;
 	
@@ -761,7 +751,7 @@ Function ExtractTextFromHTML(Val SourceText) Export
 	// Remove scripts.
 	Position = StrFind(Text, "<script");
 	While Position > 0 Do
-		ClosingTagPosition = StrFind(Text, "</script>");
+		ClosingTagPosition = StrFind(Text, "</script>", , Position);
 		If ClosingTagPosition = 0 Then
 			// The closing tag is not found, cut out the remaining text.
 			ClosingTagPosition = StrLen(Text);
@@ -774,7 +764,7 @@ Function ExtractTextFromHTML(Val SourceText) Export
 	// Remove styles.
 	Position = StrFind(Text, "<style");
 	While Position > 0 Do
-		ClosingTagPosition = StrFind(Text, "</style>");
+		ClosingTagPosition = StrFind(Text, "</style>", , Position);
 		If ClosingTagPosition = 0 Then
 			// The closing tag is not found, cut out the remaining text.
 			ClosingTagPosition = StrLen(Text);

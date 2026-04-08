@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -119,7 +118,7 @@ EndFunction
 //
 Function IsBaseConfigurationVersion() Export
 	
-	IsBaseConfigurationVersion = StrFind(Upper(Metadata.Name), NStr("en = 'BASE'")) > 0;
+	IsBaseConfigurationVersion = StrFind(Upper(Metadata.Name), "BASIC") > 0;
 	CommonOverridable.WhenDefiningAFeatureThisIsTheBasicVersionOfTheConfiguration(IsBaseConfigurationVersion);
 	
 	Return IsBaseConfigurationVersion;
@@ -201,6 +200,69 @@ Function InfoBaseID() Export
 	EndIf;
 	
 	Return InfoBaseID;
+	
+EndFunction
+
+// Returns the name of the security profile that should be set before executing
+// the "Execute" or "Evaluate" methods, while preserving the current privileged mode
+// and allowing privileged mode to be enabled in configuration code if necessary.
+// If the executing code does not require privileged mode,
+// it is recommended to use either Common.ExecuteInSafeMode or Common.CalculateInSafeMode, or
+// to enable safe mode using the 1C:Enterprise method SetSafeMode(True).
+// This is required to support security profile functionality (in CORP solutions).
+//
+// 
+//
+// Returns:
+//  String - If empty, don't set the safe mode.
+//
+// Example:
+//
+//  Option 1. In the body of a routine.
+//	…
+//	
+//	
+//		InfobaseSecurityProfile = StandardSubsystemsServer.SecurityProfileForExecuteEvaluate();
+//	If ValueIsFilled(InfobaseSecurityProfile) Then
+//	SetSafeMode(InfobaseSecurityProfile);
+//	EndIf;
+//		Evaluate(
+//	…)
+//	If ValueIsFilled(InfobaseSecurityProfile) Then
+//
+//  SetSafeMode(False);
+//	EndIf;
+//	...
+//	Option 2. Following the body of a routine.
+//		...
+//	InfobaseSecurityProfile = StandardSubsystemsServer.SecurityProfileForExecuteEvaluate();
+//	If ValueIsFilled(InfobaseSecurityProfile) Тогда
+//	SetSafeMode(InfobaseSecurityProfile);
+//  EndIf;
+//  Evaluate(...)
+//  EndProcedure
+//
+Function SecurityProfileForRunCalculate() Export
+	
+	If Not Common.SubsystemExists("StandardSubsystems.SecurityProfiles") Then
+		Return "";
+	EndIf;
+	
+	ModuleSafeModeManager = Common.CommonModule("SafeModeManager");
+	If Not ModuleSafeModeManager.UseSecurityProfiles()
+	 Or ModuleSafeModeManager.SafeModeSet() Then
+		Return "";
+	EndIf;
+	
+	InfobaseProfile = ModuleSafeModeManager.InfobaseSecurityProfile();
+	If ValueIsFilled(InfobaseProfile) Then
+		SetSafeMode(InfobaseProfile);
+		If SafeMode() = True Then
+			Return "";
+		EndIf;
+	EndIf;
+	
+	Return InfobaseProfile;
 	
 EndFunction
 
@@ -550,10 +612,93 @@ Function ShowInstalledApplicationUpdatesWarning() Export
 	
 EndFunction
 
-#Region ForCallsFromOtherSubsystems
+#Region InterfaceImplementation
 
-// Adds a performance indicator to the handlers of the events
-// "OnAddClientParametersOnStart", "OnAddClientWorkingParameters".
+// Returns settings used during the static search for procedure and function names
+// that are passed as parameters to procedures and functions described in the comments
+// to the procedure OnDefineMethodsAllowedToBeCalledAsArbitraryCode.
+// Used in the SSLImplementationsCheck.erf report to cover cases when
+// subsystems allow passing full handler names as parameters,
+// for example, session parameter setting handlers,
+// infobase update handlers and others
+// See also: OnSetUpValidationOfMethodsCalledAsArbitraryCode.
+//
+// Returns:
+//  See CommonOverridable.WhenSettingUpVerificationOfMethodsCalledAsArbitraryCode.Settings
+//
+Function SettingsForCheckingMethodsCalledAsArbitraryCode() Export
+	
+	HandlersDetails = New ValueTable;
+	HandlersDetails.Columns.Add("ProcedureNames",   New TypeDescription("Map"));
+	HandlersDetails.Columns.Add("ErrorTitle", New TypeDescription("String"));
+	
+	CheckExceptions = New ValueTable;
+	CheckExceptions.Columns.Add("FullObjectName",   New TypeDescription("String"));
+	CheckExceptions.Columns.Add("ProcedureName",       New TypeDescription("String"));
+	CheckExceptions.Columns.Add("FragmentOfContent", New TypeDescription("String"));
+	
+	Settings = New Structure;
+	Settings.Insert("HandlersDetails", HandlersDetails);
+	Settings.Insert("CheckExceptions",   CheckExceptions);
+	Settings.Insert("ErrorWhenSpecifiedMethodIsNotCalled", True);
+	Settings.Insert("ExceptionsWhenSpecifiedMethodIsNotCalled", New Map);
+	
+	SSLSubsystemsIntegration.WhenSettingUpVerificationOfMethodsCalledAsArbitraryCode(Settings);
+	Try
+		CommonOverridable.WhenSettingUpVerificationOfMethodsCalledAsArbitraryCode(Settings);
+	Except
+		ErrorInfo = ErrorInfo();
+		ProcedureIsSpecified = StrFind(ErrorProcessing.BriefErrorDescription(ErrorInfo),
+			"(" + "WhenSettingUpVerificationOfMethodsCalledAsArbitraryCode" + ")") = 0;
+		If ProcedureIsSpecified Then
+			Raise;
+		EndIf;
+	EndTry;
+	
+	Return Settings;
+	
+EndFunction
+
+// Populates the names of module procedures and functions that can be called by name
+// as arbitrary code, or run in the background.
+// Procedures and functions can be called by name as arbitrary code from:
+// • Common.ExecuteConfigurationMethod,
+// • Common.ExecuteObjectMethod.
+// Procedures and functions can be run in the background from:
+// • TimeConsumingOperations.ExecuteInBackground,
+// • TimeConsumingOperations.ExecuteFunction,
+// • TimeConsumingOperations.ExecuteProcedure,
+// • TimeConsumingOperations.ExecuteFunctionInMultipleThreads,
+// • TimeConsumingOperations.ExecuteProcedureInMultipleThreads
+// • BackgroundJobs.Execute,
+// • ConfigurationExtensions.ExecuteBackgroundJobWithDatabaseExtensions,
+// • ConfigurationExtensions.ExecuteBackgroundJobWithoutExtensions.
+//
+// Parameters:
+//  Methods - Map of KeyAndValue:
+//   * Key - String - The name of a procedure or function in the module.
+//   * Value - Undefined, Boolean - if True, can be started in the background.
+//
+Procedure WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode(Methods) Export
+	
+	Methods.Insert("EnableConstantToDeliverServerAlertsWithoutInteractionSystem");
+	Methods.Insert("MarkVersionCacheRecordsObsolete");
+	Methods.Insert("SetScheduleForLaunchingIntegrationServices");
+	Methods.Insert("EnableConstantAllowAccessToInternetServices");
+	Methods.Insert("SetConstantDoNotUseSeparationByDataAreas");
+	Methods.Insert("CompareTables", True);
+	Methods.Insert("UpdateExtensionsVersionLastUsedDate", True);
+	Methods.Insert("AddNewExtensionVersion", True);
+	Methods.Insert("InstallLatestExtensionVersions", True);
+	Methods.Insert("FillAllExtensionParametersBackgroundJob", True);
+	Methods.Insert("FillExtensionsOperationParameters", True);
+	Methods.Insert("DeleteObsoleteExtensionsVersionsParametersJobHandler", True);
+	Methods.Insert("IntegrationServicesProcessing", True);
+	
+EndProcedure
+
+// Adds a performance indicator to the handlers of the
+// OnAddClientParametersOnStart and OnAddClientParameters events.
 //
 // Parameters:
 //  Parameters - See CommonOverridable.OnAddClientParametersOnStart.Parameters
@@ -563,12 +708,12 @@ EndFunction
 //
 // Example:
 //	StartMoment = CurrentUniversalDateInMilliseconds();
-//	If Common.SubsystemExists("StandardSubsystems.NotificationAtStartup") Then
-//		ModuleNotificationAtStartup = Common.CommonModule("NotificationAtStartup");
-//		ModuleNotificationAtStartup.OnAddClientParametersOnStart(Parameters);
+//	If Common.SubsystemExists("StandardSubsystems.InformationOnStart") Then
+//		ModuleInformationOnStart = Common.CommonModule("InformationOnStart");
+//		ModuleInformationOnStart.OnAddClientParametersOnStart(Parameters);
 //	EndIf;
 //	StandardSubsystemsClient.AddIndicator(Results, StartMoment,
-//		"NotificationAtStartup.OnAddClientParametersOnStart");
+//		"InformationOnStart.OnAddClientParametersOnStart");
 //
 Procedure AddIndicator(Parameters, StartMoment, ProcedureName) Export
 	
@@ -595,7 +740,7 @@ EndProcedure
 //  NameOfAlert - String - See ServerNotifications.NewServerNotification.Name
 //  ParametersVariants - Array of Structure:
 //   * Parameters - Arbitrary - See ServerNotifications.NewServerNotification.Parameters
-//   * SMSMessageRecipients - Map of KeyAndValue:
+//   * Recipients - Map of KeyAndValue:
 //      ** Key - UUID - Infobase user ID
 //      ** Value - Array of See ServerNotifications.SessionKey
 //
@@ -657,7 +802,7 @@ EndProcedure
 // Returns:
 //  Array of String - List of versions.
 //
-Function SupportedVersionsOfSoftwareInterface(InterfaceName) Export
+Function SupportedVersionsOfAPI(InterfaceName) Export
 	
 	InterfaceVersions = Undefined;
 	
@@ -702,7 +847,7 @@ EndFunction
 //
 Function SupportInformation() Export
 	
-	SupportInformation = StandardSubsystemsClientServer.NewInformationForSupport();
+	SupportInformation = StandardSubsystemsClientServer.NewInfoForSupport();
 	
 	SystemInfo = New SystemInfo;
 	FillPropertyValues(SupportInformation, SystemInfo);
@@ -711,12 +856,12 @@ Function SupportInformation() Export
 	SupportInformation.ApplicationVersion = Metadata.Version;
 	SupportInformation.SSLVersion = LibraryVersion();
 	SupportInformation.COMConnectorName = CommonClientServer.COMConnectorName();
-	SupportInformation.ThisIsBasicConfiguration = IsBaseConfigurationVersion();
+	SupportInformation.IsBaseConfiguration = IsBaseConfigurationVersion();
 	SupportInformation.IsFullUser = Users.IsFullUser();
 	SupportInformation.IsTrainingPlatform = IsTrainingPlatform();
 	SupportInformation.ConfigurationChanged = ConfigurationChanged();
 	
-	Return StandardSubsystemsClientServer.TextOfInformationForSupport(SupportInformation);
+	Return StandardSubsystemsClientServer.SupportInformationText(SupportInformation);
 	
 EndFunction
 
@@ -1015,6 +1160,22 @@ Procedure UpdateApplicationParameter(ParameterName, Value, HasChanges = False, P
 	
 	InformationRegisters.ApplicationRuntimeParameters.UpdateApplicationParameter(ParameterName,
 		Value, HasChanges, PreviousValue2);
+	
+EndProcedure
+
+// Deletes the row containing the parameter.
+// Set the privileged mode before the procedure call.
+//
+// Parameters:
+//  ParameterName - String - must not exceed 128 characters. For example,
+//                 StandardSubsystems.ReportsOptions.ReportsWithSettings.
+//
+//  HasChanges  - Boolean - a return value. It is set to True
+//                   if a previous and a new parameter values do not match.
+//
+Procedure DeleteApplicationOperationParameter(ParameterName, HasChanges = False) Export
+	
+	InformationRegisters.ApplicationRuntimeParameters.DeleteApplicationOperationParameter(ParameterName, HasChanges);
 	
 EndProcedure
 
@@ -1322,7 +1483,28 @@ EndFunction
 //
 Procedure SetExtensionParameter(ParameterName, Value, IgnoreExtensionsVersion = False) Export
 	
-	InformationRegisters.ExtensionVersionParameters.SetExtensionParameter(ParameterName, Value, IgnoreExtensionsVersion);
+	InformationRegisters.ExtensionVersionParameters.SetExtensionParameter(ParameterName,
+		Value, IgnoreExtensionsVersion);
+	
+EndProcedure
+
+// Deletes the row containing the parameter for the current extension version.
+// Set the privileged mode before the procedure call.
+//
+// Parameters:
+//  ParameterName - String - must not exceed 128 characters. For example,
+//                 StandardSubsystems.ReportsOptions.ReportsWithSettings.
+//
+//  IgnoreExtensionsVersion - Boolean
+//                           - Undefined - Delete all rows containing the parameter name.
+//
+//  HasChanges  - Boolean - a return value. It is set to True
+//                   if a previous and a new parameter values do not match.
+//
+Procedure DeleteExtensionParameter(ParameterName, IgnoreExtensionsVersion = False, HasChanges = False) Export
+	
+	InformationRegisters.ExtensionVersionParameters.DeleteExtensionParameter(ParameterName,
+		IgnoreExtensionsVersion, HasChanges);
 	
 EndProcedure
 
@@ -1679,10 +1861,10 @@ EndProcedure
 
 #Region AdditionalFunctionsForTypeManagement
 
-// Returns the reference type or the record key type of the specified metadata object .
+// Returns the reference type or the record key type of the specified metadata object.
 //
 // Parameters:
-//  MetadataObject - MetadataObject - a register or a reference object.
+//  MetadataObject - MetadataObject - A register or reference object.
 //
 //  Returns:
 //   Type
@@ -1716,7 +1898,7 @@ EndFunction
 // Returns the object type or the record set type of the specified metadata object.
 //
 // Parameters:
-//  MetadataObject - MetadataObject - a register or a reference object.
+//  MetadataObject - MetadataObject - A register or reference object.
 //
 //  Returns:
 //   Type
@@ -1968,12 +2150,12 @@ EndFunction
 //
 Function TransformStringToValidColumnDescription(String) Export
 	
-	InvalidChars = ":;!@#$%^&-~`'.,?{}[]+=*/|\ ()_""";
+	InvalidChars = "№:;!@#$%^&-~`'.,?{}[]+=*/|\ ()_""";
 	Result = "";
 	For IndexOf = 1 To StrLen(String) Do
 		Char =  Mid(String, IndexOf, 1);
 		If StrFind(InvalidChars, Char) > 0 Or (CharCode(Char) > 126 And CharCode(Char) < 256) Then
-			Result = Result + "_" + CharCode(Char) + "_";
+			Result = Result + "_" + Format(CharCode(Char), "NG=;" ) + "_";
 		Else
 			Result = Result + Char;
 		EndIf;
@@ -2323,14 +2505,14 @@ EndProcedure
 Procedure OnFillToDoList(ToDoList) Export
 	
 	Id = "DynamicApplicationUpdateControl";
-	ToDoItem = ToDoList.Add();
-	ToDoItem.Id = Id;
-	ToDoItem.HasToDoItems      = DataBaseConfigurationChangedDynamically()
+	CaseFile = ToDoList.Add();
+	CaseFile.Id = Id;
+	CaseFile.HasToDoItems      = DataBaseConfigurationChangedDynamically()
 	                     Or Catalogs.ExtensionsVersions.ExtensionsChangedDynamically();
-	ToDoItem.Important        = False;
-	ToDoItem.Presentation = NStr("en = 'Application update installed'");
-	ToDoItem.Form         = "CommonForm.DynamicUpdateControl";
-	ToDoItem.Owner      = NStr("en = 'Application performance'");
+	CaseFile.Important        = False;
+	CaseFile.Presentation = NStr("en = 'Application update installed'");
+	CaseFile.Form         = "CommonForm.DynamicUpdateControl";
+	CaseFile.Owner      = NStr("en = 'Application performance'");
 	
 	ModuleToDoListServer = Common.CommonModule("ToDoListServer");
 	If ModuleToDoListServer.UserTaskDisabled("SpeedupRecommendation") Then
@@ -2338,13 +2520,13 @@ Procedure OnFillToDoList(ToDoList) Export
 	EndIf;
 	
 	Id = "SpeedupRecommendation";
-	ToDoItem = ToDoList.Add();
-	ToDoItem.Id = Id;
-	ToDoItem.HasToDoItems      = MustShowRAMSizeRecommendations();
-	ToDoItem.Important        = True;
-	ToDoItem.Presentation = NStr("en = 'Application performance degraded'");
-	ToDoItem.Form         = "DataProcessor.SpeedupRecommendation.Form";
-	ToDoItem.Owner      = NStr("en = 'Application performance'");
+	CaseFile = ToDoList.Add();
+	CaseFile.Id = Id;
+	CaseFile.HasToDoItems      = MustShowRAMSizeRecommendations();
+	CaseFile.Important        = True;
+	CaseFile.Presentation = NStr("en = 'Application performance degraded'");
+	CaseFile.Form         = "DataProcessor.SpeedupRecommendation.Form";
+	CaseFile.Owner      = NStr("en = 'Application performance'");
 	
 EndProcedure
 
@@ -2462,6 +2644,13 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 		Handler.ExecutionMode = "Seamless";
 	EndIf;
 	
+	If Not Common.DataSeparationEnabled() Then
+		Handler = Handlers.Add();
+		Handler.Version = "3.1.12.95";
+		Handler.Procedure = "StandardSubsystemsServer.SetScheduleForLaunchingIntegrationServices";
+		Handler.ExecutionMode = "Seamless";
+	EndIf;
+	
 EndProcedure
 
 // See ScheduledJobsOverridable.OnDefineScheduledJobSettings
@@ -2503,7 +2692,7 @@ Procedure OnGetOtherSettings(UserInfo, Settings) Export
 	
 	CurrentSchedule = Common.SystemSettingsStorageLoad("DynamicUpdateControl",
 		"PatchCheckSchedule",,,
-		UserInfo.InfobaseUserName);
+		UserInfo.InfoBaseUserName);
 	If CurrentSchedule <> Undefined Then
 		SettingProperties = New Structure;
 		SettingProperties.Insert("SettingName1", NStr("en = 'Schedule to check for new patches'"));
@@ -2524,7 +2713,7 @@ Procedure OnSaveOtherSetings(UserInfo, Settings) Export
 			
 			Common.SystemSettingsStorageSave("DynamicUpdateControl", "PatchCheckSchedule",
 				Schedule,,
-				UserInfo.InfobaseUserName);
+				UserInfo.InfoBaseUserName);
 		EndIf;
 	EndIf;
 	
@@ -2536,8 +2725,58 @@ Procedure OnDeleteOtherSettings(UserInfo, Settings) Export
 	If Settings.SettingID = "PatchCheckSchedule" Then
 		Common.SystemSettingsStorageDelete("DynamicUpdateControl",
 			"PatchCheckSchedule",
-			UserInfo.InfobaseUserName);
+			UserInfo.InfoBaseUserName);
 	EndIf;
+	
+EndProcedure
+
+// See CommonOverridable.WhenSettingUpVerificationOfMethodsCalledAsArbitraryCode.
+Procedure WhenSettingUpVerificationOfMethodsCalledAsArbitraryCode(Settings) Export
+	
+	// Session parameter setting handlers.
+	ProcedureNames = New Map;
+	
+	Handlers = New Map;
+	SSLSubsystemsIntegration.OnAddSessionParameterSettingHandlers(Handlers);
+	For Each KeyAndValue In Handlers Do
+		ProcedureNames.Insert(KeyAndValue.Value);
+	EndDo;
+	
+	Handlers = New Map;
+	CommonOverridable.OnAddSessionParameterSettingHandlers(Handlers);
+	For Each KeyAndValue In Handlers Do
+		ProcedureNames.Insert(KeyAndValue.Value);
+	EndDo;
+	
+	HandlerDetails = Settings.HandlersDetails.Add();
+	HandlerDetails.ProcedureNames = ProcedureNames;
+	HandlerDetails.ErrorTitle = NStr("en = 'Session parameter setting handler ""%1"".'");
+	
+	// Scheduled job handlers.
+	ProcedureNames = New Map;
+	For Each ScheduledJob In Metadata.ScheduledJobs Do
+		ProcedureNames.Insert(ScheduledJob.MethodName, True);
+	EndDo;
+	
+	HandlerDetails = Settings.HandlersDetails.Add();
+	HandlerDetails.ProcedureNames = ProcedureNames;
+	HandlerDetails.ErrorTitle = NStr("en = 'Scheduled job handler (manual launch) ""%1"".'");
+	
+	// Exceptions.
+	CheckException = Settings.CheckExceptions.Add();
+	CheckException.FullObjectName   = "CommonModule.Common";
+	CheckException.ProcedureName       = "CallConfigurationFunction";
+	CheckException.FragmentOfContent = "Return ExecuteConfigurationMethod(MethodName, Parameters, True)";
+	
+	CheckException = Settings.CheckExceptions.Add();
+	CheckException.FullObjectName   = "CommonModule.Common";
+	CheckException.ProcedureName       = "CallObjectFunction";
+	CheckException.FragmentOfContent = "Return ExecuteObjectMethod(Object, MethodName, Parameters, True)";
+	
+	CheckException = Settings.CheckExceptions.Add();
+	CheckException.FullObjectName   = "CommonModule.StandardSubsystemsServer";
+	CheckException.ProcedureName       = "ExecuteSessionParameterSettingHandlers";
+	CheckException.FragmentOfContent = "Common.ExecuteConfigurationMethod(Handler, HandlerParameters)";
 	
 EndProcedure
 
@@ -3401,11 +3640,11 @@ EndProcedure
 //   InterfaceName - See "SupportedAPIVersions.InterfaceName"
 //
 // Returns:
-//  String - "ValueToXMLString" from the outcome of the function "APISupportedVersions".
+//  String - "ValueToXMLString" from the outcome of the SupportedAPIVersions function.
 //
 Function SupportedVersions(InterfaceName) Export
 	
-	VersionsArray = SupportedVersionsOfSoftwareInterface(InterfaceName);
+	VersionsArray = SupportedVersionsOfAPI(InterfaceName);
 	Return Common.ValueToXMLString(VersionsArray);
 	
 EndFunction
@@ -3726,6 +3965,21 @@ Procedure MoveSafeDataAreaDataStorage() Export
 	
 EndProcedure
 
+Procedure SetScheduleForLaunchingIntegrationServices() Export
+	
+	Schedule = New JobSchedule;
+	Schedule.DaysRepeatPeriod = 1;
+	Schedule.WeeksPeriod = 1;
+	Schedule.RepeatPeriodInDay = 60;
+	
+	JobParameters = New Structure;
+	JobParameters.Insert("Schedule", Schedule);
+	
+	ScheduledJobsServer.SetScheduledJobParameters(
+		Metadata.ScheduledJobs.IntegrationServicesProcessing, JobParameters);
+	
+EndProcedure
+
 #EndRegion
 
 #Region EventsSubscriptionsHandlers
@@ -4028,7 +4282,7 @@ Procedure CreateMissingPredefinedData(MetadataObjects)
 		
 		// ACC:1328-off - No.648.1.1. An exclusive lock is set in the calling procedure.
 // @skip-check query-in-loop - Batch-wise data processing
-		// @skip-check query-in-loop 
+		// @skip-check query-in-loop - Batch-wise data processing
 		NameTable = Query.Execute().Unload();
 		// ACC:1328-on.
 		NameTable.Indexes.Add("Name");
@@ -4046,7 +4300,7 @@ Procedure CreateMissingPredefinedData(MetadataObjects)
 		Query.Text = SavedItemsDescription.QueryText;
 		// ACC:1328-off - No.648.1.1. An exclusive lock is set in the calling procedure.
 // @skip-check query-in-loop - Batch-wise data processing
-		// @skip-check query-in-loop 
+		// @skip-check query-in-loop - Batch-wise data processing
 		NameTable = Query.Execute().Unload();
 		// ACC:1328-on.
 		NameTable.Indexes.Add("Name");
@@ -4360,7 +4614,7 @@ EndProcedure
 //
 Function Min1CEnterpriseVersionForStart() Export
 	
-	Return "8.3.24.1342"; // Must not be modified by patches.
+	Return "8.3.24.1477"; // Must not be modified by patches.
 	
 EndFunction
 
@@ -4382,7 +4636,7 @@ Function Min1CEnterpriseVersionForUse() Export
 	Versions.Add("8.3.24", "8.3.24.1548; 8.3.25.1286; 8.3.26.1498; 8.3.27.1244");
 	Versions.Add("8.3.25", "8.3.25.1286; 8.3.26.1498; 8.3.27.1244");
 	Versions.Add("8.3.26", "8.3.26.1498; 8.3.27.1244");
-	Versions.Add("8.3.27", "8.3.27.1244");
+	Versions.Add("8.3.27", "8.3.27.1688");
 	
 	Return Versions;
 	
@@ -4744,6 +4998,8 @@ Procedure CheckIfCanStart()
 		InfobaseProfile = "";
 	EndIf;
 	
+	Recommendation = NStr("en = 'To fix the issue, clear the ""Security profile"" property using the 1C:Enterprise server cluster console. Then, reconfigure the security profiles in Administration > General settings > Server infobase parameters > Security profiles.'");
+	
 	If ValueIsFilled(InfobaseProfile) Then
 		
 		// The infobase is configured so that the security profile
@@ -4761,33 +5017,35 @@ Procedure CheckIfCanStart()
 			Except
 				PrivilegedModeAvailable = False;
 			EndTry;
-				
+			
 			If Not PrivilegedModeAvailable Then
-				Raise StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Cannot set session parameters. Reason: Security profile %1 is not found in the 1C:Enterprise server cluster or it cannot be applied in safe mode.
-						|
-						|To restore the application functionality, disable the security profile using the cluster console and reconfigure the security profiles using the configuration interface (see the commands in the application settings section).'"),
+				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+					NStr("en = 'The infobase specifies the security profile ""%1"" (Administration > General settings > Server infobase parameters > Security profiles > Infobase security profile).
+					           |
+					           |However, session parameters cannot be set because the profile ""%1"" is either missing from
+					           |the 1C:Enterprise server cluster or its ""Use in safe mode"" option is disabled.
+					           |
+					           |Perhaps, the profile was modified via the 1C:Enterprise server cluster console.'"),
 					InfobaseProfile);
+				
+				Raise(ErrorText + Chars.LF + Chars.LF + Recommendation);
 			EndIf;
 			
 		EndIf;
 		
-		PrivilegedModeAvailable = SwichingToPrivilegedModeAvailable();
-		
-		If SafeMode() <> False Then
-			SetSafeMode(False);
-		EndIf;
-		
-		If Not PrivilegedModeAvailable Then
+		If Not SwichingToPrivilegedModeAvailable() Then
 			
 			// Infobase profile allows the handler execution but the privileged mode cannot be set.
 			
-			Raise StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Cannot set session parameters. Reason: Security profile %1 does not contain the permission to set the privileged mode. Probably it was edited using the cluster console.
-					|
-					|To restore the application functionality, disable the security profile using the cluster console and reconfigure the security profiles using the configuration interface (see the commands in the application settings section).'"),
+			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+				NStr("en = 'The infobase specifies the security profile ""%1"" (Administration > General settings > Server infobase parameters > Security profiles > Infobase security profile).
+				           |
+				           |However, session parameters cannot be set because the ""Full access to privileged mode"" option is disabled for the profile ""%1"".
+				           |
+				           |Perhaps, the profile was modified via the 1C:Enterprise server cluster console.'"),
 				InfobaseProfile);
 			
+			Raise(ErrorText + Chars.LF + Chars.LF + Recommendation);
 		EndIf;
 		
 	Else
@@ -4798,13 +5056,30 @@ Procedure CheckIfCanStart()
 		Try
 			PrivilegedModeAvailable = CanExecuteHandlersWithoutSafeMode();
 		Except
-			
-			Raise StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'Cannot set session parameters. Reason: %1.
-					|
-					|Probably a security profile that does not allow execution of external modules in unsafe mode was set using the cluster console. If this is the case, to restore the application functionality, disable the security profile using the cluster console and reconfigure the security profiles using the configuration interface (see the commands in the application settings section). The application will be automatically configured to use the enabled security profiles.'"),
-				ErrorProcessing.BriefErrorDescription(ErrorInfo()));
-			
+			If ModuleSafeModeManager <> Undefined Then
+				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+					NStr("en = 'The infobase does not specify a security profile (Administration > General settings > Server infobase parameters > Security profiles > Infobase security profile).
+					           |
+					           |However, session parameters cannot be set due to:
+					           |%1.
+					           |
+					           |Perhaps, the server cluster configuration specifies a security profile for the infobase, but this profile is not set in the infobase.'"),
+					ErrorProcessing.BriefErrorDescription(ErrorInfo()));
+				
+				Raise(ErrorText + Chars.LF + Chars.LF + Recommendation);
+			Else
+				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+					NStr("en = 'Cannot set session parameters due to:
+					           |%1.
+					           |
+					           |Perhaps, the server cluster configuration specifies a security profile for the infobase, but this profile is not set in the infobase.
+					           |This option is required because the the ""Security profiles"" subsystem is not integrated into the application.
+					           |
+					           |To fix the issue, either clear the ""Security profile"" property for the infobase via the 1C:Enterprise server cluster console, or enable the ""Full access to external modules"" option for the assigned profile.'"),
+					ErrorProcessing.BriefErrorDescription(ErrorInfo()));
+				
+				Raise(ErrorText);
+			EndIf;
 		EndTry;
 		
 	EndIf;
@@ -4865,7 +5140,7 @@ Procedure RegisterPredefinedItemChanges(DIBExchangePlansNodes, MetadataCollectio
 		|WHERE
 		|	CurrentTable.Predefined";
 		Query.Text = StrReplace(Query.Text, "&CurrentTable", MetadataObject.FullName());
-		// @skip-check query-in-loop 
+		// @skip-check query-in-loop - Batch-wise data processing
 		Selection = Query.Execute().Select();
 		
 		While Selection.Next() Do
@@ -5119,23 +5394,23 @@ Procedure OnSendServerNotificationFunctionalOptionsModified(NameOfAlert, Paramet
 			AddFunctionalOptionObjects(Objects, FunctionalOption);
 		EndDo;
 		
-		SMSMessageRecipients = New Map;
+		Recipients = New Map;
 		For Each ParametersVariant In ParametersVariants Do
-			For Each Addressee In ParametersVariant.SMSMessageRecipients Do
+			For Each Addressee In ParametersVariant.Recipients Do
 				IBUser = InfoBaseUsers.FindByUUID(Addressee.Key);
 				If IBUser = Undefined Then
 					Continue;
 				EndIf;
 				For Each KeyAndValue In Objects Do
 					If AccessRight(KeyAndValue.Value, KeyAndValue.Key, IBUser) Then
-						SMSMessageRecipients.Insert(Addressee.Key, Addressee.Value);
+						Recipients.Insert(Addressee.Key, Addressee.Value);
 						Break;
 					EndIf;
 				EndDo;
 			EndDo;
 		EndDo;
-		If ValueIsFilled(SMSMessageRecipients) Then
-			ServerNotifications.SendServerNotification(NameOfAlert, "", SMSMessageRecipients);
+		If ValueIsFilled(Recipients) Then
+			ServerNotifications.SendServerNotification(NameOfAlert, "", Recipients);
 		EndIf;
 	EndIf;
 	
@@ -5385,17 +5660,17 @@ Function IsOwnerMarkedForDeletion(RemovableObject)
 	
 EndFunction
 
-#Region TableComparison
+#Region TablesComparison
 
 Function CompareTables(Table1, Table2) Export
 	
 	Result = New Structure;
 	
 	// Comparing the spreadsheet documents by lines and selecting the matching lines.
-	Result.Insert("StringMatches", GenerateMatches(Table1, Table2, True));
+	Result.Insert("RowMappings", GenerateMatches(Table1, Table2, True));
 	
 	// Comparing the spreadsheet documents by columns and selecting the matching columns.
-	Result.Insert("ColumnMatches", GenerateMatches(Table1, Table2, False));
+	Result.Insert("ColumnMappings", GenerateMatches(Table1, Table2, False));
 	
 	Return Result; 
 	
@@ -5871,6 +6146,179 @@ Procedure DeleteTemporaryTables(Query, Tables)
 EndProcedure
 
 #EndRegion
+
+// Parameters:
+//  FullMethodName - String
+//  InBackground - Boolean
+//  Object - Arbitrary
+//  Text - Arbitrary - if not Null, set error text and don't call an exception.
+//
+Procedure CheckMethodToCallAsArbitraryCode(FullMethodName, InBackground = False, Object = Undefined, Text = Null) Export
+	
+	If Not CheckMethodCallsAsArbitraryCode_() And Text = Null Then
+		Return;
+	EndIf;
+	
+	If Object <> Undefined Then
+		Result = MethodsAllowedToBeCalledAsArbitraryCode(Object);
+		MethodName = FullMethodName;
+	Else
+		NameParts = StrSplit(FullMethodName, ".", True);
+		
+		If NameParts.Count() = 3 Then
+			ModuleName = NameParts[0] + "." + NameParts[1];
+			MethodName = NameParts[2];
+		Else
+			ModuleName = NameParts[0];
+			MethodName = NameParts[1];
+		EndIf;
+		
+		Try
+			Result = StandardSubsystemsCached.MethodsAllowedToBeCalledAsArbitraryCode(ModuleName);
+		Except
+			If Text <> Null And CommonClientServer.IsExceptionWithErrorCode(ErrorInfo(),
+					"StandardSubsystems.Core.ThisIsErrorOfGettingGenericModuleByName
+					|StandardSubsystems.Core.ThisIsErrorGettingManagerModuleByName") Then
+				Return;
+			EndIf;
+			Raise;
+		EndTry;
+	EndIf;
+	
+	If TypeOf(Result) = Type("FixedMap") Then
+		UsingMethod = Result.Get(MethodName);
+		If InBackground And UsingMethod = True
+		 Or Not InBackground And UsingMethod <> Undefined Then
+			Return;
+		EndIf;
+		ProcedureIsDefined = True;
+	Else
+		ProcedureIsDefined = False;
+	EndIf;
+	
+	CallIsForbidden = Text <> Null Or ItIsForbiddenToCallAnyMethodsAsArbitraryCode(ProcedureIsDefined);
+	
+	If Not CallIsForbidden And Not ProcedureIsDefined Then
+		LogLevel = LevelOfRegistrationOfCallsToUnspecifiedMethodsAsArbitraryCode();
+		If LogLevel = Undefined Then
+			Return;
+		EndIf;
+	Else
+		LogLevel = EventLogLevel.Error;
+	EndIf;
+	
+	If Object <> Undefined Then
+		ModuleName = Object.Metadata().FullName() + "." + "ObjectModule";
+	EndIf;
+	
+	If InBackground And ProcedureIsDefined Then
+		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'The ""%1"" method cannot run in the background in the ""%2""  procedure of the ""%3"" module.'"),
+			MethodName, "WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode", ModuleName);
+	ElsIf Not InBackground And ProcedureIsDefined Then
+		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'The ""%1"" method cannot be called as arbitrary code in the ""%2""  procedure of the ""%3"" module.'"),
+			MethodName, "WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode", ModuleName);
+	ElsIf InBackground And Not ProcedureIsDefined Then
+		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'The ""%1"" method cannot run in the background in the ""%2""  procedure of the ""%3"" module (the procedure is not defined).'"),
+			MethodName, "WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode", ModuleName);
+	Else
+		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'The ""%1"" method cannot be called as arbitrary code in the ""%2""  procedure of the ""%3"" module (the procedure is not defined).'"),
+			MethodName, "WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode", ModuleName);
+	EndIf;
+	
+	If Text <> Null Then
+		Text = ErrorText;
+		Return;
+	EndIf;
+	
+	If CallIsForbidden Then
+		Raise(ErrorText, ErrorCategory.ConfigurationError);
+	EndIf;
+	
+	Try
+		Raise(ErrorText, ErrorCategory.ConfigurationError);
+	Except
+		ErrorInfo = ErrorInfo();
+	EndTry;
+	
+	EventName = NStr("en = 'Security.The method cannot be called as arbitrary code'",
+		Common.DefaultLanguageCode());
+	
+	WriteLogEvent(EventName, LogLevel,, ModuleName + "." + MethodName,
+		ErrorProcessing.DetailErrorDescription(ErrorInfo));
+	
+EndProcedure
+
+// Parameters:
+//  Module - Arbitrary - reference to a common module, manager module, or object.
+//
+// Returns:
+//  FixedMap, Undefined
+//
+Function MethodsAllowedToBeCalledAsArbitraryCode(Module) Export
+	
+	Methods = New Map;
+	Try
+		Module.WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode(Methods);
+	Except
+		ErrorInfo = ErrorInfo();
+		ProcedureIsNotSpecified = StrFind(ErrorProcessing.BriefErrorDescription(ErrorInfo),
+			"(" + "WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode" + ")") > 0;
+		If ProcedureIsNotSpecified Then
+			Return Undefined;
+		EndIf;
+		Raise;
+	EndTry;
+	
+	Result = New Map;
+	For Each KeyAndValue In Methods Do
+		Result.Insert(KeyAndValue.Key, KeyAndValue.Value = True);
+	EndDo;
+	
+	Return New FixedMap(Result);
+	
+EndFunction
+
+// Enables validation of method calls in 1C:Enterprise mode and in the SSLImplementationCheck report.
+// Can be overridden using an extension to identify locations that require customization.
+//
+// Returns:
+//  Boolean
+//
+Function CheckMethodCallsAsArbitraryCode_() Export
+	Return False;
+EndFunction
+
+// Allows blocking of method calls that are not permitted to be executed as arbitrary code.
+// Pass True to the CheckMethodCallsAsArbitraryCode function.
+//
+// Parameters:
+//  ProcedureIsDefined - Boolean - if False, then the OnDefineMethodsAllowedToBeCalledAsArbitraryCode
+//    procedure is not defined, which allows enabling a restriction
+//    only when the procedure is defined in the module, and not unconditionally.
+//
+// Returns:
+//  Boolean
+//
+Function ItIsForbiddenToCallAnyMethodsAsArbitraryCode(ProcedureIsDefined)
+	Return False;
+EndFunction
+
+// Returns the event log level if the registration of called methods is required,
+// when the OnDefineMethodsAllowedToBeCalledAsArbitraryCode procedure is not defined.
+// Can be overridden using an extension to detect cases (through automated
+// testing) that cannot be identified by static code analysis using
+// the SSLImplementationCheck.erf report (see CheckMethodCallsAsArbitraryCode).
+//
+// Returns:
+//  EventLogLevel, Undefined
+//
+Function LevelOfRegistrationOfCallsToUnspecifiedMethodsAsArbitraryCode()
+	Return EventLogLevel.Error;
+EndFunction
 
 #EndRegion
 

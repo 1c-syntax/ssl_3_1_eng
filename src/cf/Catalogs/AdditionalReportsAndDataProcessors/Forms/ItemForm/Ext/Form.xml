@@ -94,10 +94,10 @@
 					</Button>
 				</ChildItems>
 			</ButtonGroup>
-			<Button name="FormHelp" id="257">
+			<Button name="FormHelp_SSLyf" id="257">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.StandardCommand.Help</CommandName>
-				<ExtendedTooltip name="FormHelpExtendedTooltip" id="258"/>
+				<ExtendedTooltip name="FormHelp_SSLyfExtendedTooltip" id="258"/>
 			</Button>
 		</ChildItems>
 	</AutoCommandBar>
@@ -224,7 +224,7 @@ For more information about attachment modes, see the form help.</v8:content>
 							<xr:CheckState>0</xr:CheckState>
 							<xr:Value xsi:type="FormChoiceListDesTimeValue">
 								<Presentation/>
-								<Value xsi:type="xr:DesignTimeRef">Enum.AdditionalReportsAndDataProcessorsPublicationOptions.EnumValue.isDisabled</Value>
+								<Value xsi:type="xr:DesignTimeRef">Enum.AdditionalReportsAndDataProcessorsPublicationOptions.EnumValue.TurnedOff</Value>
 							</xr:Value>
 						</xr:Item>
 					</ChoiceList>

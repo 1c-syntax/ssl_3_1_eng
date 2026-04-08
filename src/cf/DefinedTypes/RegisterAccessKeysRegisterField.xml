@@ -23,6 +23,7 @@
 				<v8:Type>cfg:CatalogRef.UserGroups</v8:Type>
 				<v8:Type>cfg:EnumRef.AdditionalAccessValues</v8:Type>
 				<v8:Type>cfg:ChartOfCharacteristicTypesRef.AdditionalAttributesAndInfo</v8:Type>
+				<v8:Type>cfg:CatalogRef.DigitalSignatureAndEncryptionKeysCertificates</v8:Type>
 				<v8:Type>cfg:CatalogRef.ReportsOptions</v8:Type>
 				<v8:Type>cfg:CatalogRef.Users</v8:Type>
 				<v8:Type>cfg:EnumRef.PeriodClosingDatesPurposeTypes</v8:Type>

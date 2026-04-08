@@ -532,7 +532,7 @@
 			</Attribute>
 			<Attribute uuid="bf3e3395-3e41-49c2-b59e-fdcdc3ef956f">
 				<Properties>
-					<Name>SMSMessageRecipients</Name>
+					<Name>Recipients</Name>
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>

@@ -53,10 +53,10 @@
 				<CommandName>Form.StandardCommand.CustomizeForm</CommandName>
 				<ExtendedTooltip name="FormCustomizeFormExtendedTooltip" id="133"/>
 			</Button>
-			<Button name="FormHelp" id="128">
+			<Button name="FormHelp_SSLyf" id="128">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.StandardCommand.Help</CommandName>
-				<ExtendedTooltip name="FormHelpExtendedTooltip" id="134"/>
+				<ExtendedTooltip name="FormHelp_SSLyfExtendedTooltip" id="134"/>
 			</Button>
 		</ChildItems>
 	</AutoCommandBar>
@@ -407,7 +407,7 @@ To perform the task, go to special task form.</v8:content>
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Date</v8:content>
+									<v8:content>Completion date</v8:content>
 								</v8:item>
 							</Title>
 							<HorizontalStretch>false</HorizontalStretch>

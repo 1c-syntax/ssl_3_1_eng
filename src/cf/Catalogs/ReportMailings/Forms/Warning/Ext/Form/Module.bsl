@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -49,7 +48,7 @@ Procedure SetDescription()
 	
 	Items.GoToDocumentation.Visible =
 		Common.SubsystemExists("StandardSubsystems.EmailOperations")
-		And ValueIsFilled(Parameters.More)
+		And ValueIsFilled(Parameters.ShowMoreDetails)
 		And CommonClientServer.StructureProperty(Parameters, "UseEmail", False);
 	
 	If Not ValueIsFilled(Parameters.Text) Then 
@@ -58,10 +57,10 @@ Procedure SetDescription()
 	
 	Text.Add(Parameters.Text, Type("FormattedDocumentText"));
 
-	If ValueIsFilled(Parameters.More) Then 
+	If ValueIsFilled(Parameters.ShowMoreDetails) Then 
 		Text.Add(, Type("FormattedDocumentLinefeed"));
 		Text.Add(, Type("FormattedDocumentLinefeed"));
-		Text.Add(Parameters.More, Type("FormattedDocumentText"));
+		Text.Add(Parameters.ShowMoreDetails, Type("FormattedDocumentText"));
 		Items.Indicator.Picture = PictureLib.DialogExclamation;
 	EndIf;
 	
@@ -72,7 +71,7 @@ EndProcedure
 &AtServer
 Procedure SetAuthenticationErrorDescription(LongDesc)
 	
-	If StrFind(Upper(LongDesc.More), "USERNAME AND PASSWORD NOT ACCEPTED") = 0 Then 
+	If StrFind(Upper(LongDesc.ShowMoreDetails), "USERNAME AND PASSWORD NOT ACCEPTED") = 0 Then 
 		Return;
 	EndIf;
 	

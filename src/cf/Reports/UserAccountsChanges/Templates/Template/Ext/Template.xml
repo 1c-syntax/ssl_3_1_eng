@@ -74,8 +74,8 @@
 			</valueType>
 		</field>
 		<field xsi:type="DataSetFieldField">
-			<dataPath>Package</dataPath>
-			<field>Package</field>
+			<dataPath>Application</dataPath>
+			<field>Application</field>
 			<title xsi:type="v8:LocalStringType">
 				<v8:item>
 					<v8:lang>en</v8:lang>
@@ -1141,7 +1141,7 @@
 			<title xsi:type="v8:LocalStringType">
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Password change required</v8:content>
+					<v8:content>Require password change on next login</v8:content>
 				</v8:item>
 			</title>
 			<valueType>
@@ -1154,7 +1154,7 @@
 			<title xsi:type="v8:LocalStringType">
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Password change required (changed)</v8:content>
+					<v8:content>Require password change on next login (changed)</v8:content>
 				</v8:item>
 			</title>
 			<valueType>
@@ -1199,7 +1199,7 @@
 			<title xsi:type="v8:LocalStringType">
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Never expires</v8:content>
+					<v8:content>Access never expires</v8:content>
 				</v8:item>
 			</title>
 			<valueType>
@@ -1212,7 +1212,7 @@
 			<title xsi:type="v8:LocalStringType">
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Never expires (changed)</v8:content>
+					<v8:content>Access never expires (changed)</v8:content>
 				</v8:item>
 			</title>
 			<valueType>
@@ -1257,7 +1257,7 @@
 			<title xsi:type="v8:LocalStringType">
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Valid till</v8:content>
+					<v8:content>Access expires on</v8:content>
 				</v8:item>
 			</title>
 			<valueType>
@@ -1273,7 +1273,7 @@
 			<title xsi:type="v8:LocalStringType">
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Valid till (changed)</v8:content>
+					<v8:content>Access expires on (changed)</v8:content>
 				</v8:item>
 			</title>
 			<valueType>
@@ -2188,7 +2188,7 @@
 				</dcsset:item>
 				<dcsset:item xsi:type="dcsset:FilterItemComparison">
 					<dcsset:use>false</dcsset:use>
-					<dcsset:left xsi:type="dcscor:Field">Package</dcsset:left>
+					<dcsset:left xsi:type="dcscor:Field">Application</dcsset:left>
 					<dcsset:comparisonType>Contains</dcsset:comparisonType>
 					<dcsset:right xsi:type="xs:string"/>
 					<dcsset:viewMode>Normal</dcsset:viewMode>
@@ -4290,7 +4290,7 @@
 							<dcsset:periodAdditionEnd xsi:type="xs:dateTime">0001-01-01T00:00:00</dcsset:periodAdditionEnd>
 						</dcsset:item>
 						<dcsset:item xsi:type="dcsset:GroupItemField">
-							<dcsset:field>Package</dcsset:field>
+							<dcsset:field>Application</dcsset:field>
 							<dcsset:groupType>Items</dcsset:groupType>
 							<dcsset:periodAdditionType>None</dcsset:periodAdditionType>
 							<dcsset:periodAdditionBegin xsi:type="xs:dateTime">0001-01-01T00:00:00</dcsset:periodAdditionBegin>
@@ -4340,7 +4340,7 @@
 								<dcsset:field>AuthorID</dcsset:field>
 							</dcsset:item>
 							<dcsset:item xsi:type="dcsset:SelectedItemField">
-								<dcsset:field>Package</dcsset:field>
+								<dcsset:field>Application</dcsset:field>
 							</dcsset:item>
 							<dcsset:item xsi:type="dcsset:SelectedItemField">
 								<dcsset:field>Computer</dcsset:field>
@@ -4411,7 +4411,7 @@
 						<dcsset:periodAdditionEnd xsi:type="xs:dateTime">0001-01-01T00:00:00</dcsset:periodAdditionEnd>
 					</dcsset:item>
 					<dcsset:item xsi:type="dcsset:GroupItemField">
-						<dcsset:field>Package</dcsset:field>
+						<dcsset:field>Application</dcsset:field>
 						<dcsset:groupType>Items</dcsset:groupType>
 						<dcsset:periodAdditionType>None</dcsset:periodAdditionType>
 						<dcsset:periodAdditionBegin xsi:type="xs:dateTime">0001-01-01T00:00:00</dcsset:periodAdditionBegin>
@@ -4461,7 +4461,7 @@
 							<dcsset:field>AuthorID</dcsset:field>
 						</dcsset:item>
 						<dcsset:item xsi:type="dcsset:SelectedItemField">
-							<dcsset:field>Package</dcsset:field>
+							<dcsset:field>Application</dcsset:field>
 						</dcsset:item>
 						<dcsset:item xsi:type="dcsset:SelectedItemField">
 							<dcsset:field>Computer</dcsset:field>

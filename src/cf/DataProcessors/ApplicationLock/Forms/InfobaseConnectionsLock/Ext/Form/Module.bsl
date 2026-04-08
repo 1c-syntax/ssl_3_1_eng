@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Variables
@@ -211,11 +210,11 @@ Procedure ApplyCompletion(Response, Variant) Export
 	
 	If Not IsFileInfobase And Not CorrectAdministrationParametersEntered And SessionWithoutSeparators Then
 		
-		NotifyDescription = New CallbackDescription("AfterGetAdministrationParametersOnLock", ThisObject);
+		CallbackDescription = New CallbackDescription("AfterGetAdministrationParametersOnLock", ThisObject);
 		FormCaption = NStr("en = 'User sessions'");
 		NoteLabel = NStr("en = 'To manage user sessions, enter
 			|the infobase and server cluster administration parameters'");
-		IBConnectionsClient.ShowAdministrationParameters(NotifyDescription, True,
+		IBConnectionsClient.ShowAdministrationParameters(CallbackDescription, True,
 			True, AdministrationParameters, FormCaption, NoteLabel);
 		
 	Else
@@ -231,11 +230,11 @@ Procedure Stop(Command)
 	
 	If Not IsFileInfobase And Not CorrectAdministrationParametersEntered And SessionWithoutSeparators Then
 		
-		NotifyDescription = New CallbackDescription("AfterGetAdministrationParametersOnUnlock", ThisObject);
+		CallbackDescription = New CallbackDescription("AfterGetAdministrationParametersOnUnlock", ThisObject);
 		FormCaption = NStr("en = 'User sessions'");
 		NoteLabel = NStr("en = 'To manage user sessions, enter
 			|the infobase and server cluster administration parameters'");
-		IBConnectionsClient.ShowAdministrationParameters(NotifyDescription, True,
+		IBConnectionsClient.ShowAdministrationParameters(CallbackDescription, True,
 			True, AdministrationParameters, FormCaption, NoteLabel);
 		
 	Else
@@ -249,11 +248,11 @@ EndProcedure
 &AtClient
 Procedure AdministrationParameters(Command)
 	
-	NotifyDescription = New CallbackDescription("AfterGetAdministrationParameters", ThisObject);
+	CallbackDescription = New CallbackDescription("AfterGetAdministrationParameters", ThisObject);
 	FormCaption = NStr("en = 'Scheduled job locks'");
 	NoteLabel = NStr("en = 'To manage scheduled job locks, enter
 		|the infobase and server cluster administration parameters'");
-	IBConnectionsClient.ShowAdministrationParameters(NotifyDescription, True,
+	IBConnectionsClient.ShowAdministrationParameters(CallbackDescription, True,
 		True, AdministrationParameters, FormCaption, NoteLabel);
 	
 EndProcedure

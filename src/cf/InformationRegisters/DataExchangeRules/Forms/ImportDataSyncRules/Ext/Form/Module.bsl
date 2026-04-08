@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Variables
@@ -76,7 +75,7 @@ Procedure OnOpen(Cancel)
 		
 		SuggestionText = NStr("en = 'To open the directory, install 1C:Enterprise Extension.'");
 		Notification = New CallbackDescription("AfterCheckFileSystemExtension", ThisObject, AdditionalParameters);
-		FileSystemClient.Attach1CEnterpriseExtension(Notification, SuggestionText);
+		FileSystemClient.AttachFileOperationsExtension(Notification, SuggestionText);
 	Else
 		SetInformationTitleOnReceive(AdditionalParameters);
 	EndIf;
@@ -297,7 +296,7 @@ Procedure ExchangeProtocolFileStartChoice(Item, ChoiceData, StandardProcessing)
 	DebuggingSettingsChanged = True;
 	DialogSettings = New Structure;
 	DialogSettings.Insert("Filter", NStr("en = 'Text document (*.txt)'")+ "|*.txt" );
-	DialogSettings.Insert("CheckFileExistence", False);
+	DialogSettings.Insert("CheckFileExist", False);
 	
 	DataExchangeClient.FileSelectionHandler(ThisObject, "ExchangeProtocolFileName", StandardProcessing, DialogSettings);
 	
@@ -868,8 +867,8 @@ Function AppDataDirectory()
 #If MobileClient Then
 	Return "";
 #Else
-	Package = New COMObject("Shell.Application");
-	Directory = Package.Namespace(26);
+	Application = New COMObject("Shell.Application");
+	Directory = Application.Namespace(26);
 	Result = Directory.Self.Path;
 	Return CommonClientServer.AddLastPathSeparator(Result);
 #EndIf

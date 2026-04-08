@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -483,6 +482,42 @@ EndProcedure
 &AtClient
 Procedure AuthorOnChange(Item)
 	Object.AuthorOnly = ValueIsFilled(Object.Author);
+EndProcedure
+
+&AtClient
+Procedure InputOnBasisParameterTypeFullNameChoiceProcessing(Item, ValueSelected, AdditionalData,
+	ChoiceByAdding, StandardProcessing)
+	
+	If StrCompare(ValueSelected, MessageTemplatesClientServer.SharedPresentation()) = 0 Then
+		Return;
+	EndIf;
+	
+	TypeOfSelection = GetTypeByFullName(ValueSelected);
+	
+	If TypeOfSelection = Undefined Then
+		Return;
+	EndIf;
+	
+	For Each String In Attributes.GetItems() Do
+	
+		If String.ArbitraryParameter And String.Type.ContainsType(TypeOfSelection) Then
+	
+			StandardProcessing = False;
+			SelectedOption =  Item.ChoiceList.FindByValue(ValueSelected);
+			If SelectedOption <> Undefined Then
+				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+					NStr("en = '%1 is already selected as an arbitrary parameter and cannot be an assignment.'"),
+					SelectedOption.Presentation);
+			Else
+				ErrorText = NStr("en = 'The object is already selected as an arbitrary parameter and cannot be an assignment.'");
+			EndIf;
+			CommonClient.MessageToUser(ErrorText);
+			Return;
+	
+		EndIf;
+	
+	EndDo;
+
 EndProcedure
 
 #EndRegion
@@ -2533,5 +2568,12 @@ Procedure SetParentMarks(CurRow, CheckBoxName)
 	EndIf;
 	
 EndProcedure
+
+&AtServerNoContext
+Function GetTypeByFullName(Val FullName)
+	ObjectManager = Common.ObjectManagerByFullName(FullName); 
+	Return ?(ObjectManager = Undefined, Undefined, TypeOf(ObjectManager.EmptyRef()));
+EndFunction
+
 
 #EndRegion

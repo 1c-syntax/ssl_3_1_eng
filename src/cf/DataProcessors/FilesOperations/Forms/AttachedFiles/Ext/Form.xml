@@ -9,7 +9,9 @@
 	<AutoTitle>false</AutoTitle>
 	<AutoURL>false</AutoURL>
 	<CommandSet>
+		<ExcludedCommand>Delete</ExcludedCommand>
 		<ExcludedCommand>Refresh</ExcludedCommand>
+		<ExcludedCommand>SetDeletionMark</ExcludedCommand>
 	</CommandSet>
 	<AutoCommandBar name="FormCommandBar" id="-1">
 		<Autofill>false</Autofill>
@@ -190,7 +192,7 @@
 						<Title>
 							<v8:item>
 								<v8:lang>en</v8:lang>
-								<v8:content>Commit</v8:content>
+								<v8:content>Finish editing</v8:content>
 							</v8:item>
 						</Title>
 						<ExtendedTooltip name="FormEndEditExtendedTooltip" id="108"/>
@@ -297,6 +299,17 @@
 									</v8:item>
 								</Title>
 								<ExtendedTooltip name="FormSignExtendedTooltip" id="111"/>
+							</Button>
+							<Button name="FormSendForSigning" id="380">
+								<Type>CommandBarButton</Type>
+								<CommandName>Form.Command.SendForSigning</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Send for signing…</v8:content>
+									</v8:item>
+								</Title>
+								<ExtendedTooltip name="FormSendForSigningExtendedTooltip" id="381"/>
 							</Button>
 							<Button name="FormAddSignatureFromFile" id="74">
 								<Type>CommandBarButton</Type>
@@ -729,10 +742,10 @@
 				<ContextMenu name="FormListSearchStringsContextMenu" id="375"/>
 				<ExtendedTooltip name="FormListSearchStringsExtendedTooltip" id="376"/>
 			</SearchStringAddition>
-			<Button name="FormHelp" id="9">
+			<Button name="FormHelp_SSLyf" id="9">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.StandardCommand.Help</CommandName>
-				<ExtendedTooltip name="FormHelpExtendedTooltip" id="131"/>
+				<ExtendedTooltip name="FormHelp_SSLyfExtendedTooltip" id="131"/>
 			</Button>
 		</ChildItems>
 	</AutoCommandBar>
@@ -938,6 +951,7 @@
 						<ExcludedCommand>Refresh</ExcludedCommand>
 						<ExcludedCommand>SaveDynamicListSettings</ExcludedCommand>
 						<ExcludedCommand>SearchHistory</ExcludedCommand>
+						<ExcludedCommand>SetDeletionMark</ExcludedCommand>
 						<ExcludedCommand>ShowMultipleSelection</ExcludedCommand>
 					</CommandSet>
 					<SearchStringLocation>None</SearchStringLocation>
@@ -1080,7 +1094,7 @@
 										<Title>
 											<v8:item>
 												<v8:lang>en</v8:lang>
-												<v8:content>Commit</v8:content>
+												<v8:content>Finish editing</v8:content>
 											</v8:item>
 										</Title>
 										<ExtendedTooltip name="ListContextMenuEndEditExtendedTooltip" id="137"/>
@@ -1119,6 +1133,17 @@
 													</v8:item>
 												</Title>
 												<ExtendedTooltip name="ListContextMenuSignExtendedTooltip" id="150"/>
+											</Button>
+											<Button name="ListContextMenuSendForSigning" id="382">
+												<Type>CommandBarButton</Type>
+												<CommandName>Form.Command.SendForSigning</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>en</v8:lang>
+														<v8:content>Send for signing…</v8:content>
+													</v8:item>
+												</Title>
+												<ExtendedTooltip name="ListContextMenuSendForSigningExtendedTooltip" id="383"/>
 											</Button>
 											<Button name="ListContextMenuAddSignatureFromFile" id="81">
 												<Type>CommandBarButton</Type>
@@ -1328,6 +1353,7 @@
 						<Event name="BeforeAddRow">ListBeforeAddRow</Event>
 						<Event name="OnActivateRow">ListOnActivateRow</Event>
 						<Event name="Drag">ListDrag</Event>
+						<Event name="OnGetDataAtServer">ListOnGetDataAtServer</Event>
 						<Event name="BeforeRowChange">ListBeforeRowChange</Event>
 						<Event name="OnChange">ListOnChange</Event>
 					</Events>
@@ -1338,7 +1364,7 @@
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Picture index</v8:content>
+									<v8:content>Encrypted</v8:content>
 								</v8:item>
 							</Title>
 							<TitleLocation>None</TitleLocation>
@@ -1360,6 +1386,34 @@
 							<FileDragMode>AsFile</FileDragMode>
 							<ContextMenu name="ListSignedEncryptedPictureNumberContextMenu" id="207"/>
 							<ExtendedTooltip name="ListSignedEncryptedPictureNumberExtendedTooltip" id="208"/>
+						</PictureField>
+						<PictureField name="ListImageNumberIsArchive" id="384">
+							<DataPath>List.ImageNumberIsArchive</DataPath>
+							<ReadOnly>true</ReadOnly>
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Archived</v8:content>
+								</v8:item>
+							</Title>
+							<TitleLocation>None</TitleLocation>
+							<ToolTip>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Archived</v8:content>
+								</v8:item>
+							</ToolTip>
+							<HeaderPicture>
+								<xr:Ref>CommonPicture.FileArchive</xr:Ref>
+								<xr:LoadTransparent>false</xr:LoadTransparent>
+							</HeaderPicture>
+							<Width>2</Width>
+							<ValuesPicture>
+								<xr:Ref>CommonPicture.FileArchive</xr:Ref>
+								<xr:LoadTransparent>false</xr:LoadTransparent>
+							</ValuesPicture>
+							<ContextMenu name="ListImageNumberIsArchiveContextMenu" id="385"/>
+							<ExtendedTooltip name="ListImageNumberIsArchiveExtendedTooltip" id="386"/>
 						</PictureField>
 						<ColumnGroup name="ListNameDetailsGroup" id="204">
 							<Title>
@@ -1616,6 +1670,7 @@
 				<Field>List.Extension</Field>
 				<Field>List.FileBeingEdited</Field>
 				<Field>List.FileOwner</Field>
+				<Field>List.ImageNumberIsArchive</Field>
 				<Field>List.IsFolder</Field>
 				<Field>List.Ref</Field>
 				<Field>List.SignedWithDS</Field>
@@ -1649,9 +1704,344 @@
 	FALSE AS IsInternal,
 	&amp;FileOwner AS FileOwner,
 	UNDEFINED AS BeingEditedBy,
-	UNDEFINED AS EditedByUser
+	UNDEFINED AS EditedByUser,
+	0 AS ImageNumberIsArchive
 FROM
 	Catalog.MetadataObjectIDs AS MetadataObjectIDsOverridable</QueryText>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>DeletionMark1</dcssch:dataPath>
+					<dcssch:field>DeletionMark1</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Deletion mark1</v8:content>
+						</v8:item>
+					</dcssch:title>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>FullSynonym</dcssch:dataPath>
+					<dcssch:field>FullSynonym</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Author</dcssch:dataPath>
+					<dcssch:field>Author</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Author</v8:content>
+						</v8:item>
+					</dcssch:title>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Description1</dcssch:dataPath>
+					<dcssch:field>Description1</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Description1</v8:content>
+						</v8:item>
+					</dcssch:title>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>FullName</dcssch:dataPath>
+					<dcssch:field>FullName</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Ref1</dcssch:dataPath>
+					<dcssch:field>Ref1</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Reference1</v8:content>
+						</v8:item>
+					</dcssch:title>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Name</dcssch:dataPath>
+					<dcssch:field>Name</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>CollectionOrder</dcssch:dataPath>
+					<dcssch:field>CollectionOrder</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Synonym</dcssch:dataPath>
+					<dcssch:field>Synonym</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>NoData</dcssch:dataPath>
+					<dcssch:field>NoData</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>LongDesc</dcssch:dataPath>
+					<dcssch:field>LongDesc</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Details</v8:content>
+						</v8:item>
+					</dcssch:title>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>EmptyRefValue</dcssch:dataPath>
+					<dcssch:field>EmptyRefValue</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>MetadataObjectKey</dcssch:dataPath>
+					<dcssch:field>MetadataObjectKey</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>NewRef</dcssch:dataPath>
+					<dcssch:field>NewRef</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Predefined</dcssch:dataPath>
+					<dcssch:field>Predefined</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Ref</dcssch:dataPath>
+					<dcssch:field>Ref</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Reference</v8:content>
+						</v8:item>
+					</dcssch:title>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>PredefinedDataName</dcssch:dataPath>
+					<dcssch:field>PredefinedDataName</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>DeletionMark</dcssch:dataPath>
+					<dcssch:field>DeletionMark</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Deletion mark</v8:content>
+						</v8:item>
+					</dcssch:title>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>PictureIndex</dcssch:dataPath>
+					<dcssch:field>PictureIndex</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Picture index</v8:content>
+						</v8:item>
+					</dcssch:title>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Description</dcssch:dataPath>
+					<dcssch:field>Description</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Description</v8:content>
+						</v8:item>
+					</dcssch:title>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>IsInternal</dcssch:dataPath>
+					<dcssch:field>IsInternal</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Internal</v8:content>
+						</v8:item>
+					</dcssch:title>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Extension</dcssch:dataPath>
+					<dcssch:field>Extension</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Extension</v8:content>
+						</v8:item>
+					</dcssch:title>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Encrypted</dcssch:dataPath>
+					<dcssch:field>Encrypted</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Encrypted</v8:content>
+						</v8:item>
+					</dcssch:title>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>CreationDate</dcssch:dataPath>
+					<dcssch:field>CreationDate</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Date created</v8:content>
+						</v8:item>
+					</dcssch:title>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>WasEditedBy</dcssch:dataPath>
+					<dcssch:field>WasEditedBy</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Edited by</v8:content>
+						</v8:item>
+					</dcssch:title>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>EditDate</dcssch:dataPath>
+					<dcssch:field>EditDate</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Date edited</v8:content>
+						</v8:item>
+					</dcssch:title>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>ChangeDate</dcssch:dataPath>
+					<dcssch:field>ChangeDate</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Date modified</v8:content>
+						</v8:item>
+					</dcssch:title>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Size</dcssch:dataPath>
+					<dcssch:field>Size</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Size</v8:content>
+						</v8:item>
+					</dcssch:title>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Parent</dcssch:dataPath>
+					<dcssch:field>Parent</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>SignedWithDS</dcssch:dataPath>
+					<dcssch:field>SignedWithDS</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Digitally signed</v8:content>
+						</v8:item>
+					</dcssch:title>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>SignedEncryptedPictureNumber</dcssch:dataPath>
+					<dcssch:field>SignedEncryptedPictureNumber</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Signed-and-encrypted picture number</v8:content>
+						</v8:item>
+					</dcssch:title>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>FileBeingEdited</dcssch:dataPath>
+					<dcssch:field>FileBeingEdited</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>File locked</v8:content>
+						</v8:item>
+					</dcssch:title>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>CurrentUserEditsFile</dcssch:dataPath>
+					<dcssch:field>CurrentUserEditsFile</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Locked by another user</v8:content>
+						</v8:item>
+					</dcssch:title>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>AnotherUserEditsFile</dcssch:dataPath>
+					<dcssch:field>AnotherUserEditsFile</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Locked by another user</v8:content>
+						</v8:item>
+					</dcssch:title>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>StoreVersions</dcssch:dataPath>
+					<dcssch:field>StoreVersions</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Track versions</v8:content>
+						</v8:item>
+					</dcssch:title>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>IsFolder</dcssch:dataPath>
+					<dcssch:field>IsFolder</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>This is a group</v8:content>
+						</v8:item>
+					</dcssch:title>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>EditedByUser</dcssch:dataPath>
+					<dcssch:field>EditedByUser</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Locked by</v8:content>
+						</v8:item>
+					</dcssch:title>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>FileOwner</dcssch:dataPath>
+					<dcssch:field>FileOwner</dcssch:field>
+					<dcssch:title xsi:type="xs:string">Владелец</dcssch:title>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>BeingEditedBy</dcssch:dataPath>
+					<dcssch:field>BeingEditedBy</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Locked by</v8:content>
+						</v8:item>
+					</dcssch:title>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>ImageNumberIsArchive</dcssch:dataPath>
+					<dcssch:field>ImageNumberIsArchive</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>"This is archive" picture index</v8:content>
+						</v8:item>
+					</dcssch:title>
+				</Field>
+				<Parameter>
+					<dcssch:name>FileOwner</dcssch:name>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>File owner</v8:content>
+						</v8:item>
+					</dcssch:title>
+					<dcssch:value xsi:nil="true"/>
+					<dcssch:useRestriction>true</dcssch:useRestriction>
+				</Parameter>
 				<MainTable>Catalog.MetadataObjectIDs</MainTable>
 				<ListSettings>
 					<dcsset:filter>
@@ -1901,13 +2291,13 @@ FROM
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Commit</v8:content>
+					<v8:content>Finish editing</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Save the file and release it in the infobase.</v8:content>
+					<v8:content>Finalize changes and make the file available for editing.</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Picture>
@@ -2445,6 +2835,22 @@ FROM
 			<Action>Delete</Action>
 			<CurrentRowUse>Use</CurrentRowUse>
 			<AssociatedTableElementId xsi:type="xs:string">List</AssociatedTableElementId>
+		</Command>
+		<Command name="SendForSigning" id="35">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Send for signing…</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Send for signing</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Action>SendForSigning</Action>
+			<CurrentRowUse>Use</CurrentRowUse>
 		</Command>
 	</Commands>
 	<Parameters>

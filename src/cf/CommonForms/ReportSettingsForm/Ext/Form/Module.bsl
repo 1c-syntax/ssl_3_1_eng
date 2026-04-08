@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Variables
@@ -67,7 +66,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		EndIf;
 		
 		Title = StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = '%1 report settings'"), DescriptionOption);
+			NStr("en = 'The ""%1"" report settings'"), DescriptionOption);
 	EndIf;
 	
 	GlobalSettings = ReportsOptions.GlobalSettings();
@@ -381,7 +380,7 @@ Procedure Attachable_List_ChoiceProcessing(Item, SelectionResult, StandardProces
 	Selected_ = ReportsClientServer.ValuesByList(SelectionResult);
 	Selected_.FillChecks(True);
 	
-	AddOn = CommonClientServer.SupplementList(List, Selected_, False, True);
+	Supplement = CommonClientServer.SupplementList(List, Selected_, False, True);
 	
 	TheValueOfTheSettingElement = CommonClient.CopyRecursive(List);
 	IndexOf = TheValueOfTheSettingElement.Count() - 1;
@@ -408,8 +407,8 @@ Procedure Attachable_List_ChoiceProcessing(Item, SelectionResult, StandardProces
 	
 	RegisterList(Item, SettingItem);
 	
-	If AddOn.Total > 0 Then
-		If AddOn.Total = 1 Then
+	If Supplement.Total > 0 Then
+		If Supplement.Total = 1 Then
 			NotificationTitle = NStr("en = 'Item added to list'");
 		Else
 			NotificationTitle = NStr("en = 'Items added to list'");
@@ -782,7 +781,7 @@ EndProcedure
 &AtClient
 Procedure SelectedFieldsDragCheck(Item, DragParameters, StandardProcessing, CurrentRow, Field)
 	
-	If DragSourceAtClient <> Item.Name Then
+	If DragSourceAtClient <> Item.Name Or CurrentRow = Undefined Then
 		Return;
 	EndIf;
 	
@@ -1284,7 +1283,7 @@ EndProcedure
 &AtClient
 Procedure FiltersDragCheck(Item, DragParameters, StandardProcessing, CurrentRow, Field)
 	
-	If CurrentRow = Undefined Then
+	If CurrentRow = Undefined Or TypeOf(DragParameters.Value) <> Type("Array") Then
 		DragParameters.Action = DragAction.Cancel;
 		Return;
 	EndIf;
@@ -1387,8 +1386,8 @@ Procedure ChangeFormula(Command)
 	Formula = ReportsOptionsInternalClientServer.TheFormulaOnTheDataPath(Report.SettingsComposer.Settings, String(String.Field));
 	
 	If TypeOf(Formula) <> Type("DataCompositionUserFieldExpression") Then
-		NotifyDescription = New CallbackDescription("WhenClosingSettingsFormForTechnician", ThisObject);
-		OpenSettingsFormForTechnician("UserFieldsPage", NotifyDescription);
+		CallbackDescription = New CallbackDescription("WhenClosingSettingsFormForTechnician", ThisObject);
+		OpenSettingsFormForTechnician("UserFieldsPage", CallbackDescription);
 		Return;
 	EndIf;
 		
@@ -1545,7 +1544,7 @@ EndProcedure
 &AtClient
 Procedure OptionStructureDragCheck(Item, DragParameters, StandardProcessing, DestinationID, Field)
 	// Check general conditions.
-	If DestinationID = Undefined Then
+	If DestinationID = Undefined Or TypeOf(DragParameters.Value) <> Type("Number") Then
 		DragParameters.Action = DragAction.Cancel;
 		Return;
 	EndIf;
@@ -2629,10 +2628,14 @@ Procedure SetFilterElementEditOptions()
 	List = ValueField.ChoiceList;
 	List.Clear();
 	
-	If String.AvailableValues <> Undefined Then 
+	If String.AvailableValues <> Undefined Then
 		
 		For Each AvailableValue In String.AvailableValues Do 
-			FillPropertyValues(List.Add(), AvailableValue);
+			List.Add(
+				AvailableValue.Value,
+				AvailableValue.Presentation,
+				AvailableValue.Check,
+				AvailableValue.Picture);
 		EndDo;
 		
 	EndIf;
@@ -3763,7 +3766,7 @@ Procedure ShowChoiceList(String, StandardProcessing, Item)
 	RestrictSelectionBySpecifiedValues = String.AvailableValues <> Undefined;
 	
 	OpeningParameters = New Structure;
-	OpeningParameters.Insert("Marked", ReportsClientServer.ValuesByList(CurrentValue));
+	OpeningParameters.Insert("Marked_SSLyf", ReportsClientServer.ValuesByList(CurrentValue));
 	OpeningParameters.Insert("TypeDescription", String.ValueType);
 	OpeningParameters.Insert("ValuesForSelection", ValuesForSelection);
 	OpeningParameters.Insert("ValuesForSelectionFilled", ValuesForSelection.Count() > 0);
@@ -5521,18 +5524,18 @@ Procedure PasteFromClipboard1Completion(FoundObjects, ListPath_) Export
 			SettingItem.RightValue = New ValueList;
 		EndIf;
 		
-		Marked = SettingItem.RightValue;
+		Marked_SSLyf = SettingItem.RightValue;
 	Else
 		If SettingItem.Value = Undefined Then
 			SettingItem.Value = New ValueList;
 		EndIf;
 		
-		Marked = SettingItem.Value;
+		Marked_SSLyf = SettingItem.Value;
 	EndIf;
 	
 	For Each Value In FoundObjects Do
 		ReportsClientServer.AddUniqueValueToList(List, Value, Undefined, True);
-		ReportsClientServer.AddUniqueValueToList(Marked, Value, Undefined, True);
+		ReportsClientServer.AddUniqueValueToList(Marked_SSLyf, Value, Undefined, True);
 	EndDo;
 	
 	SettingItem.Use = True;
@@ -6906,7 +6909,7 @@ Procedure UpdateFormItemsProperties()
 	EndIf;
 	
 	CountOfAvailableSettings = ReportsServer.CountOfAvailableSettings(Report.SettingsComposer);
-	Items.GenerateAndClose.Visible = CountOfAvailableSettings.Total > 0 Or DisplayPages;
+	Items.GenerateAndClose.Visible = CountOfAvailableSettings.Total > 0 Or Items.More.Visible Or DisplayPages;
 	If IsMobileClient Then
 		Items.ExtendedMode.Visible = False;
 		Items.SetupGroup.Visible = False;

@@ -1,18 +1,17 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Public
 
-#Region ForCallsFromOtherSubsystems
+#Region InterfaceImplementation
 
 // StandardSubsystems.BatchEditObjects
 
@@ -166,7 +165,7 @@ Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 	While Not AllFilesProcessed Do
 		
 		Query.SetParameter("Ref", Ref);
-		// @skip-check query-in-loop
+		// @skip-check query-in-loop - Batch processing of a large amount of data.
 		ReferencesArrray = Query.Execute().Unload().UnloadColumn("Ref");
 		
 		InfobaseUpdate.MarkForProcessing(Parameters, ReferencesArrray);
@@ -228,7 +227,7 @@ Function ProcessFile(Ref)
 		
 		FileToUpdate = Undefined;
 		ItIsRequiredToRecord = False;
-		// @skip-check query-in-loop
+		// @skip-check query-in-loop - Batch processing of a large amount of data.
 		FileAttributes = Common.ObjectAttributesValues(Ref, 
 			"UniversalModificationDate,CurrentVersion,FileStorageType");
 			
@@ -243,7 +242,7 @@ Function ProcessFile(Ref)
 				Return Result;
 			EndIf;
 
-			// @skip-check query-in-loop
+			// @skip-check query-in-loop - Batch processing of a large amount of data.
 			CurrentVersionAttributes = Common.ObjectAttributesValues(FileAttributes.CurrentVersion, 
 				"UniversalModificationDate,FileStorageType");
 			FileToUpdate.UniversalModificationDate = CurrentVersionAttributes.UniversalModificationDate;

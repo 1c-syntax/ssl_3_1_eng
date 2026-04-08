@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #If Not MobileStandaloneServer Then
@@ -14,7 +13,7 @@
 
 #Region Public
 
-#Region ForCallsFromOtherSubsystems
+#Region InterfaceImplementation
 
 // StandardSubsystems.BatchEditObjects
 
@@ -1333,6 +1332,7 @@ EndFunction
 //
 Procedure BeforeWriteObject(Object) Export
 	
+	// ACC:75-off - The DataExchange.Load check must follow the mandatory actions.
 	ExtensionsObjects = IsExtensionsObject(Object);
 	StandardSubsystemsCached.MetadataObjectIDsUsageCheck(, ExtensionsObjects);
 	
@@ -1355,18 +1355,16 @@ Procedure BeforeWriteObject(Object) Export
 	EndIf;
 	SessionParameters.UpdateIDCatalogs = New FixedStructure(UpdateIsCompleted);
 	
-	SetPrivilegedMode(False);
-	SetSafeModeDisabled(False);
-	
-	// ACC:75-off - The DataExchange.Load check must follow the logging of changes.
-	If Common.SeparatedDataUsageAvailable()
-	   And UsersInternalCached.ShouldRegisterChangesInAccessRights()
-	   And Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
-		
+	AdditionalProperties = New Structure("StandardSubsystemsOldValues");
+	FillPropertyValues(AdditionalProperties, Object.AdditionalProperties);
+	If AdditionalProperties.StandardSubsystemsOldValues = Undefined Then
 		Object.AdditionalProperties.Insert("StandardSubsystemsOldValues",
 			Common.ObjectAttributesValues(Object.Ref,
-				"DeletionMark, Name, Synonym"));
+				New FixedStructure(PreviousValuesNewStructure())));
 	EndIf;
+	
+	SetPrivilegedMode(False);
+	SetSafeModeDisabled(False);
 	// ACC:75-on
 	
 	If Object.DataExchange.Load Then
@@ -1383,21 +1381,50 @@ EndProcedure
 //
 Procedure AtObjectWriting(Object) Export
 	
-	// ACC:75-off - The DataExchange.Load check must follow the logging of changes.
-	If Common.SeparatedDataUsageAvailable()
-	   And UsersInternalCached.ShouldRegisterChangesInAccessRights()
-	   And Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
+	// ACC:75-off - The DataExchange.Load check must follow the mandatory actions.
+	SetSafeModeDisabled(True);
+	SetPrivilegedMode(True);
+	
+	AdditionalProperties = New Structure("StandardSubsystemsMetadataObject", "");
+	FillPropertyValues(AdditionalProperties, Object.AdditionalProperties);
+	If AdditionalProperties.StandardSubsystemsMetadataObject = "" Then
+		IDs = CommonClientServer.ValueInArray(Object.Ref);
+		If TypeOf(Object.Ref) = Type("CatalogRef.MetadataObjectIDs") Then
+			ConfigurationIDs = CommonClientServer.ValueInArray(Object.Ref);
+			ExtensionsIDs = New Array;
+		Else
+			ConfigurationIDs = New Array;
+			ExtensionsIDs = CommonClientServer.ValueInArray(Object.Ref);
+		EndIf;
+		Try
+			MetadataObjects = MetadataObjectsByIDsWithoutRetryAttempt(IDs,
+				ConfigurationIDs, ExtensionsIDs, False);
+			MetadataObjectDetails = MetadataObjects.Get(Object.Ref);
+		Except
+			MetadataObjectDetails = Null;
+		EndTry;
 		
-		SetSafeModeDisabled(True);
-		SetPrivilegedMode(True);
+		Object.AdditionalProperties.Insert("StandardSubsystemsMetadataObject",
+			?(TypeOf(MetadataObjectDetails) = Type("Structure"),
+				MetadataObjectDetails.Object, MetadataObjectDetails));
+	EndIf;
+	
+	PreviousValues1 = Object.AdditionalProperties.StandardSubsystemsOldValues;
+	
+	If Common.SeparatedDataUsageAvailable()
+	   And UsersInternal.ShouldRegisterChangesInAccessRights()
+	   And Common.SubsystemExists("StandardSubsystems.AccessManagement")
+	   And (IsRoleKey(Object.MetadataObjectKey.Get())
+	      Or TypeOf(PreviousValues1.MetadataObjectKey) = Type("ValueStorage")
+	        And IsRoleKey(PreviousValues1.MetadataObjectKey.Get())) Then
 		
 		ModuleAccessGroupsProfiles = Common.CommonModule("Catalogs.AccessGroupProfiles");
 		ModuleAccessGroupsProfiles.RegisterChangeInProfilesRoles(Object,
-			Object.AdditionalProperties.StandardSubsystemsOldValues);
-		
-		SetPrivilegedMode(False);
-		SetSafeModeDisabled(False);
+			PreviousValues1, Object.AdditionalProperties.StandardSubsystemsMetadataObject);
 	EndIf;
+	
+	SetPrivilegedMode(False);
+	SetSafeModeDisabled(False);
 	// ACC:75-on
 	
 	If Object.DataExchange.Load Then
@@ -1993,18 +2020,18 @@ Procedure AddNewMetadataObjectsIDs(Upload0, MetadataObjectProperties1, Extension
 	
 	ObjectProperties = MetadataObjectProperties1.FindRows(New Structure("Found", False));
 	
-	For Each Var_156_ObjectProperties In ObjectProperties Do
+	For Each Var_164_ObjectProperties In ObjectProperties Do
 		Properties = Upload0.Add();
-		FillPropertyValues(Properties, Var_156_ObjectProperties);
+		FillPropertyValues(Properties, Var_164_ObjectProperties);
 		Properties.IsNew = True;
 		Properties.Ref = NewCatalogRef(ExtensionsObjects);
 		Properties.DeletionMark  = False;
-		Properties.MetadataObject = Var_156_ObjectProperties.MetadataObject;
+		Properties.MetadataObject = Var_164_ObjectProperties.MetadataObject;
 		Properties.MetadataObjectKey = MetadataObjectKey(Properties.FullName);
 		HasCriticalChanges = True;
 		NewMetadataObjectsList = NewMetadataObjectsList
 			+ ?(ValueIsFilled(NewMetadataObjectsList), "," + Chars.LF, "")
-			+ Var_156_ObjectProperties.FullName;
+			+ Var_164_ObjectProperties.FullName;
 	EndDo;
 	
 EndProcedure
@@ -2071,13 +2098,7 @@ Procedure UpdateMetadataObjectIDs(Upload0, MetadataObjectProperties1, Extensions
 		EndIf;
 		
 		// Updating the metadata object IDs.
-		If Properties.IsNew Then
-			TableObject = CreateCatalogItem(ExtensionsObjects);
-			TableObject.SetNewObjectRef(Properties.Ref);
-			
-		ElsIf Properties.Updated Then
-			TableObject = Properties.Ref.GetObject();
-		Else
+		If Not Properties.IsNew And Not Properties.Updated Then
 			Continue;
 		EndIf;
 		
@@ -2086,11 +2107,23 @@ Procedure UpdateMetadataObjectIDs(Upload0, MetadataObjectProperties1, Extensions
 			Return;
 		EndIf;
 		
+		PreviousValues1 = PreviousValuesNewStructure();
+		If Properties.IsNew Then
+			TableObject = CreateCatalogItem(ExtensionsObjects);
+			TableObject.SetNewObjectRef(Properties.Ref);
+		Else
+			TableObject = Properties.Ref.GetObject();
+			FillPropertyValues(PreviousValues1, TableObject);
+		EndIf;
+		
 		FillPropertyValues(TableObject, Properties);
 		TableObject.MetadataObjectKey = New ValueStorage(Properties.MetadataObjectKey);
 		TableObject.DataExchange.Load = True;
-		// @skip-check query-in-loop - В вызываемом варианте ветка с запросом не используется
+		// @skip-check query-in-loop - 
 		CheckObjectBeforeWrite(TableObject, True);
+		TableObject.AdditionalProperties.Insert("StandardSubsystemsOldValues", PreviousValues1);
+		TableObject.AdditionalProperties.Insert("StandardSubsystemsMetadataObject",
+			?(TypeOf(Properties.MetadataObject) = Type("MetadataObject"), Properties.MetadataObject, Null));
 		TableObject.Write();
 	EndDo;
 	
@@ -2436,6 +2469,11 @@ Function RolesByKeysMetadataObjects() Export
 	
 	Return RolesByKeys;
 	
+EndFunction
+
+Function IsRoleKey(MetadataObjectKey)
+	Return TypeOf(MetadataObjectKey) = Type("String")
+		And StringFunctionsClientServer.IsUUID(MetadataObjectKey);
 EndFunction
 
 Function KeyRole(MetadataObjectRole, RaiseException1 = True)
@@ -2929,6 +2967,12 @@ Function CollectionName(FullName)
 	
 EndFunction
 
+Function PreviousValuesNewStructure()
+	
+	Return New Structure("DeletionMark, Name, Synonym, MetadataObjectKey");
+	
+EndFunction
+
 // For the RunDataUpdate and BeforeWriteObject procedures.
 Procedure CheckObjectBeforeWrite(Object, AutoUpdate = False)
 	
@@ -3211,7 +3255,7 @@ Function MetadataObjectIDsWithoutRetryAttempt(FullMetadataObjectsNames,
 	Errors = New Array;
 	AddApplicationDeveloperParametersErrorClarification = False;
 	
-	DataBaseConfigurationChangedDynamically = DataBaseConfigurationChangedDynamically();
+	Context = New Structure("DataBaseConfigurationChangedDynamically");
 	IDsFromKeys = Undefined;
 	
 	Result = New Map;
@@ -3278,9 +3322,9 @@ Function MetadataObjectIDsWithoutRetryAttempt(FullMetadataObjectsNames,
 				Continue;
 			EndIf;
 			
-			If DataBaseConfigurationChangedDynamically Then
+			If DataBaseConfigurationChangedDynamicallyFromContext(Context) Then
 				If IDsFromKeys = Undefined Then
-					// @skip-check query-in-loop - Вызывается не более одного раза
+					// @skip-check query-in-loop - 
 					IDsFromKeys = IDsFromKeys();
 				EndIf;
 				Id = IDsFromKeys.Get(FullMetadataObjectName);
@@ -3391,6 +3435,19 @@ Function MetadataObjectIDsWithoutRetryAttempt(FullMetadataObjectsNames,
 	EndIf;
 	
 	Return Result;
+	
+EndFunction
+
+// Intended for functions MetadataObjectIDsWithoutRetryAttempt,
+// MetadataObjectsByIDsWithoutRetryAttempt.
+//
+Function DataBaseConfigurationChangedDynamicallyFromContext(Context)
+	
+	If Context.DataBaseConfigurationChangedDynamically = Undefined Then
+		Context.DataBaseConfigurationChangedDynamically = DataBaseConfigurationChangedDynamically();
+	EndIf;
+	
+	Return Context.DataBaseConfigurationChangedDynamically;
 	
 EndFunction
 
@@ -3642,7 +3699,7 @@ Function MetadataObjectsByIDsWithoutRetryAttempt(IDs,
 		EndIf;
 	EndIf;
 	
-	DataBaseConfigurationChangedDynamically = DataBaseConfigurationChangedDynamically();
+	Context = New Structure("DataBaseConfigurationChangedDynamically");
 	
 	// Checking whether the metadata object key matches the metadata object full name.
 	For Each Properties In Upload0 Do
@@ -3698,7 +3755,8 @@ Function MetadataObjectsByIDsWithoutRetryAttempt(IDs,
 					      Or DetachedExtensions.Count() = 0 And ActiveExtensions.Count() = 0 Then
 						
 						ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
-							NStr("en = 'The extension ""%1"" is installed, but the application requires a restart.%1Restart the application.'"),
+							NStr("en = 'The extension ""%1"" is installed, but the application requires a restart.
+							           |Restart the application.'"),
 							ExtensionName);
 						
 					ElsIf DetachedExtensions.Count() > 0 And DetachedExtensions[0].Active Then
@@ -3739,7 +3797,7 @@ Function MetadataObjectsByIDsWithoutRetryAttempt(IDs,
 						Continue;
 					EndIf;
 					
-				ElsIf DataBaseConfigurationChangedDynamically Then
+				ElsIf DataBaseConfigurationChangedDynamicallyFromContext(Context) Then
 					// The metadata object might be available after restart.
 					If RaiseException1 Then
 						// Standard exception caused by dynamic update.
@@ -3771,7 +3829,7 @@ Function MetadataObjectsByIDsWithoutRetryAttempt(IDs,
 					Raise ErrorText;
 				EndIf;
 				
-			ElsIf DataBaseConfigurationChangedDynamically Then
+			ElsIf DataBaseConfigurationChangedDynamicallyFromContext(Context) Then
 				// The metadata object might have been renamed.
 				ErrorDescription = "";
 			Else
@@ -3794,7 +3852,10 @@ Function MetadataObjectsByIDsWithoutRetryAttempt(IDs,
 			EndIf;
 		EndIf;
 		
-		If Not Properties.ExtensionObject And Properties.DeletionMark And Not DataBaseConfigurationChangedDynamically Then
+		If Not Properties.ExtensionObject
+		   And Properties.DeletionMark
+		   And Not DataBaseConfigurationChangedDynamicallyFromContext(Context) Then
+			
 			If FirstAttempt Then
 				Return Undefined;
 			EndIf;

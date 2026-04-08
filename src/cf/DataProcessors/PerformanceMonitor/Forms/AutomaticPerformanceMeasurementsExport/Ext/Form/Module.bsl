@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Variables
@@ -73,10 +72,10 @@ EndProcedure
 Procedure ExportLocalFileDirectoryStartChoice(Item, ChoiceData, StandardProcessing)
 	
 	If SSLAvailable Then
-		NotifyDescription = New CallbackDescription("SelectExportDirectorySuggested", ThisObject);
+		CallbackDescription = New CallbackDescription("SelectExportDirectorySuggested", ThisObject);
 		ModuleFileSystemClient = Eval("FileSystemClient");
 		If TypeOf(ModuleFileSystemClient) = Type("CommonModule") Then
-			ModuleFileSystemClient.Attach1CEnterpriseExtension(NotifyDescription);
+			ModuleFileSystemClient.Attach1CEnterpriseExtension(CallbackDescription);
 		EndIf;
 	EndIf;
 	
@@ -174,14 +173,14 @@ Procedure SelectExportDirectorySuggested(FileSystemExtensionAttached1, Additiona
 		SelectingFile.Multiselect = False;
 		SelectingFile.Title = NStr("en = 'Select an export directory'");
 		
-		NotifyDescription = New CallbackDescription("DirectorySelectionDialogBoxCompletion", ThisObject, Undefined);
+		CallbackDescription = New CallbackDescription("DirectorySelectionDialogBoxCompletion", ThisObject, Undefined);
 		If SSLAvailable Then 
 			ModuleFileSystemClient = Eval("FileSystemClient");
 			If TypeOf(ModuleFileSystemClient) = Type("CommonModule") Then
-				ModuleFileSystemClient.ShowSelectionDialog(NotifyDescription, SelectingFile);
+				ModuleFileSystemClient.ShowSelectionDialog(CallbackDescription, SelectingFile);
 			EndIf;
 		Else
-			SelectingFile.Show(NotifyDescription);
+			SelectingFile.Show(CallbackDescription);
 		EndIf;
 		
 	EndIf;

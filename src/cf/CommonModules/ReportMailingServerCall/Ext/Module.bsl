@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Internal
@@ -13,8 +12,17 @@
 Procedure OnChangeRetainReportDistributionHistory() Export
 	
 	If GetFunctionalOption("RetainReportDistributionHistory") Then
-		SetScheduledJobUsage(Metadata.ScheduledJobs.GetStatusesOfEmailMessages, True);
-		SetScheduledJobUsage(Metadata.ScheduledJobs.ReportDistributionHistoryClearUp, True);
+		// Every day; every 1800 seconds
+		Schedule = New JobSchedule;
+		Schedule.DaysRepeatPeriod = 1;
+		Schedule.RepeatPeriodInDay = 1800; 
+		SetScheduledJobUsage(Metadata.ScheduledJobs.GetStatusesOfEmailMessages, True, Schedule);
+		// Every day; from 2:00:00 once a day, finish after 5:00:00
+		Schedule = New JobSchedule;
+		Schedule.DaysRepeatPeriod = 1;
+		Schedule.BeginTime = '00010101020000';
+		Schedule.EndTime = '00010101050000';
+		SetScheduledJobUsage(Metadata.ScheduledJobs.ReportDistributionHistoryClearUp, True, Schedule);
 	Else
 		SetScheduledJobUsage(Metadata.ScheduledJobs.ReportDistributionHistoryClearUp, False);
 	EndIf;
@@ -35,7 +43,7 @@ EndProcedure
 //     * Recipients - Map
 //     * HadCriticalErrors - Boolean
 //     * Text - String
-//     * More - String
+//     * ShowMoreDetails - String
 //
 Function GenerateMailingRecipientsList(Val RecipientsParameters) Export
 	LogParameters = New Structure("EventName, Metadata, Data, ErrorsArray, HadErrors");
@@ -45,7 +53,7 @@ Function GenerateMailingRecipientsList(Val RecipientsParameters) Export
 	LogParameters.Data       = RecipientsParameters.Ref;
 	LogParameters.Metadata   = Metadata.Catalogs.ReportMailings;
 	
-	ExecutionResult = New Structure("Recipients, HadCriticalErrors, Text, More");
+	ExecutionResult = New Structure("Recipients, HadCriticalErrors, Text, ShowMoreDetails");
 	ExecutionResult.Recipients = ReportMailing.GenerateMailingRecipientsList(RecipientsParameters, LogParameters);
 	ExecutionResult.HadCriticalErrors = ExecutionResult.Recipients.Count() = 0;
 	
@@ -58,38 +66,47 @@ EndFunction
 
 // Runs background job.
 Function RunBackgroundJob1(Val MethodParameters, Val UUID) Export
-	MethodName = "ReportMailing.SendBulkEmailsInBackgroundJob";
 	
 	StartSettings1 = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
 	StartSettings1.BackgroundJobDescription = NStr("en = 'Report distribution. Running in the background'");
 	StartSettings1.RefinementErrors = NStr("en = 'Report distributions failed due to:'");
-	Return TimeConsumingOperations.ExecuteInBackground(MethodName, MethodParameters, StartSettings1);
+	
+	Return TimeConsumingOperations.ExecuteInBackground("ReportMailing.SendBulkEmailsInBackgroundJob",
+		MethodParameters, StartSettings1);
+	
 EndFunction
 
 // Starts the background job that sends out text messages with archive passwords (required for opening the attachments).
 Function RunBackgroundJobToSendSMSWithPasswords(Val MethodParameters, Val UUID) Export
-	MethodName = "ReportMailing.SendBulkSMSMessagesWithReportDistributionArchivePasswordsInBackgroundJob";
-	                             
+	
 	StartSettings1 = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
 	StartSettings1.BackgroundJobDescription = NStr("en = 'Report distributions: Send text messages with passwords in the background'");
 	StartSettings1.RefinementErrors =
 		NStr("en = 'Cannot send text messages with archive passwords to receive the report distribution. Reason:'");
 	
-	Return TimeConsumingOperations.ExecuteInBackground(MethodName, MethodParameters, StartSettings1);
-EndFunction  
+	Return TimeConsumingOperations.ExecuteInBackground(
+		"ReportMailing.SendBulkSMSMessagesWithReportDistributionArchivePasswordsInBackgroundJob",
+		MethodParameters,
+		StartSettings1);
+	
+EndFunction
 
 // Starts the background job that purges the report distribution history.
 Function RunBackgroundJobToClearUpReportDistributionHistory(Val MethodParameters, Val UUID) Export
-	MethodName = "ReportMailing.ClearUpReportDistributionHistoryInBackgroundJob";
 	
 	StartSettings1 = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
 	StartSettings1.BackgroundJobDescription = NStr("en = 'Report distributions: Clear the report distribution history'");
 	StartSettings1.RefinementErrors =
 		NStr("en = 'Cleanup of report distributions failed due to:'");
-	Return TimeConsumingOperations.ExecuteInBackground(MethodName, MethodParameters, StartSettings1);
+	
+	Return TimeConsumingOperations.ExecuteInBackground(
+		"ReportMailing.ClearUpReportDistributionHistoryInBackgroundJob",
+		MethodParameters,
+		StartSettings1);
+	
 EndFunction
 
-Procedure SetScheduledJobUsage(MetadataJob1, Use)         
+Procedure SetScheduledJobUsage(MetadataJob1, Use, Schedule = Undefined)
 	
 	JobParameters = New Structure;
 	JobParameters.Insert("Metadata", MetadataJob1);
@@ -101,6 +118,9 @@ Procedure SetScheduledJobUsage(MetadataJob1, Use)
 		JobParameters = New Structure;
 		JobParameters.Insert("Use", Use);
 		JobParameters.Insert("Metadata", MetadataJob1);
+		If Schedule <> Undefined Then
+			JobParameters.Insert("Schedule", Schedule);
+		EndIf;
 		ScheduledJobsServer.AddJob(JobParameters);
 	Else
 		JobParameters = New Structure("Use", Use);

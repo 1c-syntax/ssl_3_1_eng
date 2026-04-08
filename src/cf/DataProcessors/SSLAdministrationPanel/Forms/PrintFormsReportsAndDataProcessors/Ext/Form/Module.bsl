@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Variables
@@ -42,7 +41,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		NumberFormat_ = StrReplace(NumberFormat_, "%Number%", "Ch");
 		NumberFormat_ = StrReplace(NumberFormat_, "%OfMonths%", NStr("en = 'months'"));
 		Items.ReportDistributionHistoryRetentionPeriodInMonths.EditFormat =
-			StringFunctionsClientServer.SubstituteParametersToString("BLACKSEAFLEET='%1'", NumberFormat_);	
+			StringFunctionsClientServer.SubstituteParametersToString("NF='%1'", NumberFormat_);	
 		Items.ReportDistributionHistoryRetentionPeriodInMonths.Width = StrLen(NumberFormat_);
 	Else
 		Items.ReportsBulkEmailsGroup.Visible = False;
@@ -189,8 +188,8 @@ Procedure GoToTheTranslatorSettings()
 	
 	If CommonClient.SubsystemExists("StandardSubsystems.NationalLanguageSupport.TextTranslation") Then
 		ModuleTranslationOfTextIntoOtherLanguagesClient = CommonClient.CommonModule("TextTranslationToolClient");
-		NotifyDescription = New CallbackDescription("WhenYouFinishSettingUpTheTranslationService", ThisObject);
-		ModuleTranslationOfTextIntoOtherLanguagesClient.GoToSettings(ThisObject, NotifyDescription);
+		CallbackDescription = New CallbackDescription("WhenYouFinishSettingUpTheTranslationService", ThisObject);
+		ModuleTranslationOfTextIntoOtherLanguagesClient.GoToSettings(ThisObject, CallbackDescription);
 	EndIf;
 	
 EndProcedure

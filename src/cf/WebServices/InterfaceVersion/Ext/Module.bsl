@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Private
@@ -35,7 +34,7 @@
 //		…………………………………………………
 //		Consider versioning.
 //		ServiceVersions = Common.GetInterfaceVersions("FileTransferService");
-//			If ServiceVersions .Find("1.0.2.1") = Undefined Then
+//			If ServiceVersions.Find("1.0.2.1") = Undefined Then
 //			HasVersion2Support = False;
 //		Proxy = GetFileTransferProxy(ConnectionParameters);
 //			Else
@@ -55,11 +54,11 @@
 //		Common features of all versions.	
 //
 //	…………………………………………………
-// EndFunction
+// EndFunction 
 //
 Function GetVersions(InterfaceName)
 	
-	VersionsArray = StandardSubsystemsServer.SupportedVersionsOfSoftwareInterface(InterfaceName);
+	VersionsArray = StandardSubsystemsServer.SupportedVersionsOfAPI(InterfaceName);
 	Return XDTOSerializer.WriteXDTO(VersionsArray);
 	
 EndFunction

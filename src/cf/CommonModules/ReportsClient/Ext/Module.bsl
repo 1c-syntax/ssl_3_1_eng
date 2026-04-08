@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -623,7 +622,7 @@ Function ChoiceOverride(ReportForm, Val Handler, LayoutItem,
 	SelectionConditions.Insert("FieldName",           FieldName);
 	SelectionConditions.Insert("LayoutItem", LayoutItem);
 	SelectionConditions.Insert("AvailableTypes",     AvailableTypes);
-	SelectionConditions.Insert("Marked",        MarkedValues);
+	SelectionConditions.Insert("Marked_SSLyf",        MarkedValues);
 	SelectionConditions.Insert("ChoiceParameters",   New Array(ChoiceParameters));
 	
 	OpenStandardForm = True;

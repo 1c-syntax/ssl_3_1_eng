@@ -1,18 +1,17 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Public
 
-#Region ForCallsFromOtherSubsystems
+#Region InterfaceImplementation
 
 // StandardSubsystems.AccessManagement
 
@@ -348,42 +347,75 @@ Function CompletePointExecutionResult(Val TaskRef)
 
 	TaskData = Common.ObjectAttributesValues(TaskRef,
 		"ExecutionResult,CompletionDate,Performer,Executed");
+		
+	PerformerIsCurrentUser = Users.CurrentUser() = TaskData.Performer;
 
-	StringFormat = ?(TaskData.Executed, 
-		NStr("en = '%1, %2 completed the task:
-			|%3'") + Chars.LF, 
-		NStr("en = '%1, %2 rejected the task:
-			|%3'") + Chars.LF);
+	If TaskData.Executed Then
+		If PerformerIsCurrentUser Then
+			StringFormat = NStr("en = '%1, %2 completed the task:
+				|%3'") + Chars.LF;
+		Else
+			StringFormat = NStr("en = '%1, %4 completed task assigned to %2:
+				|%3'") + Chars.LF;
+		EndIf;
+	Else
+		If PerformerIsCurrentUser Then
+			StringFormat = NStr("en = '%1, %2 rejected the task:
+				|%3'") + Chars.LF;
+		Else
+			StringFormat = NStr("en = '%1, %4 rejected task assigned to %2:
+				|%3'") + Chars.LF;
+		EndIf;
+	EndIf;
 
 	Comment = TrimAll(TaskData.ExecutionResult);
 	Comment = ?(IsBlankString(Comment), "", Comment + Chars.LF);
-
+	
 	Result = StringFunctionsClientServer.SubstituteParametersToString(StringFormat, TaskData.CompletionDate,
-		TaskData.Performer, Comment);
+		TaskData.Performer, Comment, Users.CurrentUser());
 	Return Result;
 
 EndFunction
 
 Function ValidatePointExecutionResult(Val TaskRef)
-
-	If Not Accepted Then
-		StringFormat = NStr("en = '%1, %2 sent the task back for revision:
-							|%3'") + Chars.LF;
-
-	Else
-		StringFormat = ?(Completed2, 
-			NStr("en = '%1, %2 confirmed task completion:
-				|%3'") + Chars.LF, 
-			NStr("en = '%1, %2 confirmed task cancellation:
-			   |%3'") + Chars.LF);
-	EndIf;
-
+	
 	TaskData = Common.ObjectAttributesValues(TaskRef,
 		"ExecutionResult,CompletionDate,Performer");
+	
+	PerformerIsCurrentUser = Users.CurrentUser() = TaskData.Performer;
+	
+	If Not Accepted Then
+		If PerformerIsCurrentUser Then
+			StringFormat = NStr("en = '%1, %2 sent the task back for revision:
+									  |%3'") + Chars.LF;
+		Else
+			StringFormat = NStr("en = '%1, %4 returned the task assigned to reviewer %2 for revision:
+									  |%3'") + Chars.LF;
+		EndIf;
+	Else
+		If Completed2 Then
+			If PerformerIsCurrentUser Then
+				StringFormat = NStr("en = '%1, %2 confirmed task completion:
+										  |%3'") + Chars.LF;
+			Else
+				StringFormat = NStr("en = '%1, %4 confirmed completion of task assigned to reviewer %2:
+										  |%3'") + Chars.LF;
+			EndIf;
+		Else
+			If PerformerIsCurrentUser Then
+				StringFormat = NStr("en = '%1, %2 confirmed task cancellation:
+										  |%3'") + Chars.LF;
+			Else
+				StringFormat = NStr("en = '%1, %4 confirmed rejection of task assigned to reviewer %2:
+										  |%3'") + Chars.LF;
+			EndIf;
+		EndIf;
+	EndIf;
+	
 	Comment = TrimAll(TaskData.ExecutionResult);
 	Comment = ?(IsBlankString(Comment), "", Comment + Chars.LF);
 	Result = StringFunctionsClientServer.SubstituteParametersToString(StringFormat, TaskData.CompletionDate,
-		TaskData.Performer, Comment);
+		TaskData.Performer, Comment, Users.CurrentUser());
 	Return Result;
 
 EndFunction

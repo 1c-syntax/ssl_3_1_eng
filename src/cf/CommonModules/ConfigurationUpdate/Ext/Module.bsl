@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -279,7 +278,30 @@ Function PatchesChanged(IsCheckOnly = False) Export
 	
 EndFunction
 
-#Region ForCallsFromOtherSubsystems
+#Region InterfaceImplementation
+
+// A constructor for preparing parameters for "InstallAndDeletePatches"
+// 
+// Returns:
+//   Structure:
+//     * InBackground - Boolean - Set to "True" if the function is called in a background job.
+//     * UpdateExtensionParameters - Boolean - The default value is "True".
+//                                                    If the function is called from a configuration update script, set it to "False".
+//     * ShouldCheckApplicabilityByManifest - Boolean - Set to "True" if the patch is installed manually.
+//     * UsedInDistributedInfoBase - Boolean - The default value is "True"
+//
+Function PatchesInstallationParameters() Export
+	
+	PatchesInstallationParameters = New Structure;
+	
+	PatchesInstallationParameters.Insert("InBackground", False);
+	PatchesInstallationParameters.Insert("UpdateExtensionParameters", True);
+	PatchesInstallationParameters.Insert("ShouldCheckApplicabilityByManifest", False);
+	PatchesInstallationParameters.Insert("UsedInDistributedInfoBase", True);
+	
+	Return PatchesInstallationParameters;
+	
+EndFunction
 
 // OnlineUserSupport.GetApplicationUpdates
 
@@ -370,7 +392,7 @@ EndFunction
 //     * Set - Array - patch files in a temporary storage.
 //     * Delete    - Array - UUIDs of patches to be deleted (String).
 //  PatchesInstallationParameters - See PatchesInstallationParameters
-//                                - Boolean - Obsolete.
+//                                - Boolean - 
 //  ShouldDeleteUpdateExtensionsOperationParameters - Boolean - The default value is "True".
 //                         If the function is called from a configuration update script, set it to "False".
 //  DeleteShouldCheckApplicabilityByManifest - Boolean - Set to "True" if the patch is installed manually.
@@ -570,29 +592,6 @@ Function InstallAndDeletePatches(Corrections, Val PatchesInstallationParameters 
 	
 EndFunction
 
-// A constructor for preparing parameters for "InstallAndDeletePatches"
-// 
-// Returns:
-//   Structure:
-//     * InBackground - Boolean - Set to "True" if the function is called in a background job.
-//     * UpdateExtensionParameters - Boolean - The default value is "True".
-//                                                    If the function is called from a configuration update script, set it to "False".
-//     * ShouldCheckApplicabilityByManifest - Boolean - Set to "True" if the patch is installed manually.
-//     * UsedInDistributedInfoBase - Boolean - The default value is "True"
-//
-Function PatchesInstallationParameters() Export
-	
-	PatchesInstallationParameters = New Structure;
-	
-	PatchesInstallationParameters.Insert("InBackground", False);
-	PatchesInstallationParameters.Insert("UpdateExtensionParameters", True);
-	PatchesInstallationParameters.Insert("ShouldCheckApplicabilityByManifest", False);
-	PatchesInstallationParameters.Insert("UsedInDistributedInfoBase", True);
-	
-	Return PatchesInstallationParameters;
-	
-EndFunction
-
 // Checks whether extensions that require to show 
 // the warning about existing extensions are present.
 // Checks whether extensions that are not patches are present.
@@ -614,9 +613,9 @@ Function WarnAboutExistingExtensions() Export
 	
 EndFunction
 
-// End OnlineUserSupport.GetApplicationUpdates
-
 #EndRegion
+
+// End OnlineUserSupport.GetApplicationUpdates
 
 #EndRegion
 
@@ -877,6 +876,11 @@ EndProcedure
 
 Procedure EnableApplicablePatches() Export
 	
+	If Common.IsSubordinateDIBNode() Then
+		// In a subordinate node, patches are changed when synchronizing.
+		Return;
+	EndIf;
+	
 	MessageText = NStr("en = 'Patch enabling has started following the start of the application update.'");
 	WriteLogEvent(EventLogEvent(), EventLogLevel.Information,,, MessageText);
 	
@@ -1119,11 +1123,16 @@ Function DefaultSettings()
 
 EndFunction
 
-Function ExecuteDeferredHandlers() Export
-	
-	Return Not StandardSubsystemsServer.IsBaseConfigurationVersion()
-		And InfobaseUpdateInternal.UncompletedHandlersStatus() = "UncompletedStatus";
-	
+// Parameters:
+//  Id - UUID
+//
+// Returns:
+//  ConfigurationExtension
+//
+Function ExtensionByID(Id)
+	Filter = New Structure;
+	Filter.Insert("UUID", Id);
+	Return ConfigurationExtensions.Get(Filter)[0];
 EndFunction
 
 Function ExtractPatchFromArchive(Val FileThatWasPut, ShouldCheckApplicabilityByManifest = False)
@@ -1204,6 +1213,13 @@ Function ExtractPatchFromArchive(Val FileThatWasPut, ShouldCheckApplicabilityByM
 	
 EndFunction
 
+Function ExecuteDeferredHandlers() Export
+	
+	Return Not StandardSubsystemsServer.IsBaseConfigurationVersion()
+		And InfobaseUpdateInternal.UncompletedHandlersStatus() = "UncompletedStatus";
+	
+EndFunction
+
 Function PatchApplicable(ZIPReader, TempDirectory)
 	ManifestFile = ZIPReader.Items.Find("Manifest.xml");
 	If ManifestFile = Undefined Then
@@ -1242,18 +1258,6 @@ Function PatchApplicable(ZIPReader, TempDirectory)
 	EndDo;
 	
 	Return False;
-EndFunction
-
-// Parameters:
-//  Id - UUID
-//
-// Returns:
-//  ConfigurationExtension
-//
-Function ExtensionByID(Id)
-	Filter = New Structure;
-	Filter.Insert("UUID", Id);
-	Return ConfigurationExtensions.Get(Filter)[0];
 EndFunction
 
 Function UpdateInfo(Val UpdateDeliveryFileName) Export
@@ -1443,6 +1447,13 @@ EndFunction
 Procedure ClearPatchPropertiesBeforeInfobaseUpdate()
 	
 	Constants.PatchPropertiesBeforeInfobaseUpdate.Set(Undefined);
+	
+EndProcedure
+
+// See StandardSubsystemsServer.WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode
+Procedure WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode(Methods) Export
+	
+	Methods.Insert("NewPatchesDetails1", True);
 	
 EndProcedure
 

@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 // Obsolete API for module ClusterAdministrationClientServer.
@@ -890,7 +889,8 @@ EndProcedure
 
 Function COMConnector()
 	
-	// ACC:547-off This code is required for backward compatibility. It is used in an obsolete API.
+	// ACC:547-off -  This code fragment is retained for backward compatibility and is used in the legacy API.
+	// ACC:222-off - This code fragment is retained for backward compatibility and is used in the legacy API.
 	
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then 
 	If SafeMode() <> False Then
@@ -908,6 +908,7 @@ Function COMConnector()
 	Return New COMObject(CommonClientServer.COMConnectorName());
 #EndIf
 	
+	// ACC:222-on
 	// ACC:547-on
 	
 EndFunction

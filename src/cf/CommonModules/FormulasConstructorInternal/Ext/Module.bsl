@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Internal
@@ -371,11 +370,11 @@ Function RunSearchInListOfFields(ShapeStructure) Export
 	FilterIs_Specified = ValueIsFilled(Filter);
 	
 	If FilterIs_Specified Then
-		CacheTable = New ValueTable;
-		CacheTable.Columns.Add("NameOfTheFieldList", New TypeDescription("String"));
-		CacheTable.Columns.Add("FieldType", New TypeDescription("TypeDescription"));
-		CacheTable.Columns.Add("AvailableFields", New TypeDescription("ValueTable"));
-		ShapeStructure.Insert("CacheForDCS_", CacheTable);
+		TableOfCache = New ValueTable;
+		TableOfCache.Columns.Add("NameOfTheFieldList", New TypeDescription("String"));
+		TableOfCache.Columns.Add("FieldType", New TypeDescription("TypeDescription"));
+		TableOfCache.Columns.Add("AvailableFields", New TypeDescription("ValueTable"));
+		ShapeStructure.Insert("CacheForDCS_", TableOfCache);
 		SearchResult = SetFilter(ShapeStructure, NameOfTheFieldList, Filter, ShapeStructure[NameOfTheFieldList]);
 	EndIf;
 	
@@ -741,6 +740,7 @@ Procedure AddAListOfFieldsToTheForm(Form, Parameters) Export
 		EndIf;
 		SourceOfAvailableFields.DataSource = DataSource;
 		SourceOfAvailableFields.Replace = AddingOptions.Replace;
+		SourceOfAvailableFields.Root = True;
 	EndDo;
 	
 	For Each SourceOfAvailableFields In AddingOptions.SourcesOfAvailableFields Do
@@ -851,7 +851,6 @@ EndProcedure
 Procedure UpdateFieldCollections(Form, FieldsCollections, NameOfTheFieldList = "AvailableFields") Export
 	
 	SourcesOfAvailableFields = ListOfSourcesOfAvailableFields(Form, NameOfTheFieldList); // FormDataCollection
-	MainDataSourceName = MainDataSourceName(SourcesOfAvailableFields);
 	SourcesOfAvailableFields.Clear();
 	
 	CollectionOfDataSourcesFields = FieldsCollections;
@@ -863,13 +862,11 @@ Procedure UpdateFieldCollections(Form, FieldsCollections, NameOfTheFieldList = "
 	For IndexOf = 0 To FieldsCollections.Count()-1 Do
 		FieldsCollection = CollectionOfDataSourcesFields[IndexOf].Value;
 		DataSource = CollectionOfDataSourcesFields[IndexOf].Presentation;
-		If Not ValueIsFilled(DataSource) Then
-			DataSource = MainDataSourceName;
-		EndIf;
 		
 		SourceOfAvailableFields = SourcesOfAvailableFields.Insert(IndexOf);
 		SourceOfAvailableFields.DataSource = DataSource;
 		SourceOfAvailableFields.FieldsCollection = FieldsCollection;
+		SourceOfAvailableFields.Root = True;
 	EndDo;
 	
 	Form[NameOfTheFieldList].GetItems().Clear();
@@ -980,25 +977,25 @@ Procedure FillInTheListOfAvailableDetails(Parameters, SourcesOfAvailableFields, 
 	ListSettings = Parameters.ListSettings;
 	CurrentAttribute = Parameters.CurrentAttribute;
 	
-	CacheData = Undefined;
+	Data_Of_Cache = Undefined;
 	AvailableAttributes = Undefined;
 	TypeSpecified = TypeOf(CurrentAttribute) = Type("ValueTreeRow") And CurrentAttribute.Type <> New TypeDescription();
 	If DCSCache <> Undefined And TypeSpecified Then
 		CacheFilter = New Structure("NameOfTheFieldList, FieldType", NameOfTheFieldList, CurrentAttribute.Type);
-		CacheData = DCSCache.FindRows(CacheFilter);
-		If CacheData.Count() > 0 Then
-			AvailableAttributes = CacheData[0].AvailableFields;
+		Data_Of_Cache = DCSCache.FindRows(CacheFilter);
+		If Data_Of_Cache.Count() > 0 Then
+			AvailableAttributes = Data_Of_Cache[0].AvailableFields;
 		EndIf;
 	EndIf;
 	
 	If AvailableAttributes = Undefined Then
 		CollectionsOfAvailableFields = CollectionsOfAvailableFields(CurrentAttribute, SourcesOfAvailableFields, ListSettings, FormUniqueID);
 		AvailableAttributes = AvailableAttributes(CollectionsOfAvailableFields);
-		If DCSCache <> Undefined And TypeSpecified And CacheData.Count() = 0 Then
-			CacheData = DCSCache.Add();
-			CacheData.NameOfTheFieldList = NameOfTheFieldList;
-			CacheData.FieldType = CurrentAttribute.Type;
-			CacheData.AvailableFields = AvailableAttributes;
+		If DCSCache <> Undefined And TypeSpecified And Data_Of_Cache.Count() = 0 Then
+			Data_Of_Cache = DCSCache.Add();
+			Data_Of_Cache.NameOfTheFieldList = NameOfTheFieldList;
+			Data_Of_Cache.FieldType = CurrentAttribute.Type;
+			Data_Of_Cache.AvailableFields = AvailableAttributes;
 		EndIf;
 	EndIf;
 	
@@ -1156,10 +1153,40 @@ Function AvailableAttributes(CollectionsOfAvailableFields)
 		EndDo;
 	EndDo;
 	
+	CheckDetailsPresentationsUniqueness(AvailableAttributes);
+	
 	AvailableAttributes.Sort("Order, Title, DotsInFieldCount");
 	Return AvailableAttributes;
 	
 EndFunction
+
+Procedure CheckDetailsPresentationsUniqueness(AvailableAttributes)
+	
+	TitlesOfAttributes = New Map;
+	
+	For Each AvailableProps In AvailableAttributes Do
+		If TitlesOfAttributes[AvailableProps.Title] = Undefined Then
+			TitlesOfAttributes[AvailableProps.Title] = 1;
+		Else
+			TitlesOfAttributes[AvailableProps.Title] = TitlesOfAttributes[AvailableProps.Title] + 1;
+		EndIf;
+	EndDo;
+	
+	For Each PropsHeader In TitlesOfAttributes Do
+		If PropsHeader.Value > 1 Then
+			DuplicateAttributes = AvailableAttributes.FindRows(New Structure("Title", PropsHeader.Key));
+			Counter = 1;
+			For Each Attribute In DuplicateAttributes Do
+				Attribute.Title = Attribute.Title + " #" + Counter;
+				If ValueIsFilled(Attribute.RepresentationOfTheDataPath) Then
+					Attribute.RepresentationOfTheDataPath = Attribute.Title;
+				EndIf;
+				Counter = Counter + 1;
+			EndDo;
+		EndIf;
+	EndDo;
+	
+EndProcedure
 
 Function IsInternalField(Val FieldDetails, Val ServiceFields)
 
@@ -1355,10 +1382,9 @@ EndFunction
 Function SourcesOfAvailableFields(SourcesOfAvailableFields, ListSettings, Attribute = Undefined, FormUniqueID = Undefined)
 	
 	Result = New Array;
-	MainDataSourceName = MainDataSourceName(SourcesOfAvailableFields);
 
 	If Attribute = Undefined Then
-		Filter = New Structure("DataSource", MainDataSourceName);
+		Filter = New Structure("Root", True);
 		For Each SourceOfAvailableFields In SourcesOfAvailableFields.FindRows(Filter) Do
 			Result.Add(SourceOfAvailableFields);
 		EndDo;
@@ -1373,10 +1399,13 @@ Function SourcesOfAvailableFields(SourcesOfAvailableFields, ListSettings, Attrib
 	EndDo;
 	
 	If Parent = Undefined Then
-		If ValueIsFilled(MainDataSourceName) Then
-			DataSource = MainDataSourceName + "." + Attribute.Name;
-			DataSources.Add(DataSource);
-		EndIf;
+		Filter = New Structure("Root", True);
+		For Each SourceOfAvailableFields In SourcesOfAvailableFields.FindRows(Filter) Do
+			If ValueIsFilled(SourceOfAvailableFields.DataSource) Then
+				DataSource = SourceOfAvailableFields.DataSource + "." + Attribute.Name;
+				DataSources.Add(DataSource);
+			EndIf;
+		EndDo;
 	Else
 		For Each Type In Parent.Type.Types() Do
 			If Type = Type("CatalogRef.MetadataObjectIDs")
@@ -2670,6 +2699,7 @@ Function SourceListAvailableFieldsAttributes()
 	Result.Insert("Replace", New TypeDescription("Boolean"));
 	Result.Insert("DataCompositionSchema", New TypeDescription());
 	Result.Insert("DataCompositionSchemaId", New TypeDescription("String"));
+	Result.Insert("Root", New TypeDescription("Boolean"));
 	
 	Return Result;
 	
@@ -2805,13 +2835,15 @@ Procedure AddAGroupOfOperatorsStringFunctions(ListOfOperators)
 	AddAnOperatorToAGroup(Group, "Upper", NStr("en = 'Uppercase'"), Type, True);
 	AddAnOperatorToAGroup(Group, "Lower", NStr("en = 'Lowercase'"), Type, True);
 	AddAnOperatorToAGroup(Group, "Title", NStr("en = 'Each word is uppercase'"), Type, True);
-	AddAnOperatorToAGroup(Group, "Left", NStr("en = 'Left characters'"), Type, True);
-	AddAnOperatorToAGroup(Group, "Right", NStr("en = 'Right characters'"), Type, True);
+	AddAnOperatorToAGroup(Group, "Left", NStr("en = 'Left string'"), Type, True);
+	AddAnOperatorToAGroup(Group, "Right", NStr("en = 'Right string'"), Type, True);
 	AddAnOperatorToAGroup(Group, "TrimL", NStr("en = 'Remove spaces on the left'"), Type, True);
 	AddAnOperatorToAGroup(Group, "TrimAll", NStr("en = 'Remove spaces on the left and right'"), Type, True);
 	AddAnOperatorToAGroup(Group, "TrimR", NStr("en = 'Remove spaces on the right'"), Type, True);
 	AddAnOperatorToAGroup(Group, "StrReplace", NStr("en = 'Replace characters in the string'"), Type, True);
 	AddAnOperatorToAGroup(Group, "StrLen", NStr("en = 'String length'"), New TypeDescription("Number"), True);
+	AddAnOperatorToAGroup(Group, "Mid", NStr("en = 'String part'"), Type, True);
+	AddAnOperatorToAGroup(Group, "PSSymbol", NStr("en = 'New string'"));
 	
 EndProcedure
 
@@ -2823,9 +2855,12 @@ Procedure AddAGroupOfOperatorsOtherFunctions(ListOfOperators)
 	Group.Order = 6;
 	Group.Picture = PictureLib.TypeFunction;
 	
-	AddAnOperatorToAGroup(Group, "?", NStr("en = 'Condition'"), New TypeDescription("Boolean"), True);
-	AddAnOperatorToAGroup(Group, "ValueIsFilled", NStr("en = 'Value is filled'"), New TypeDescription("Boolean"), True);
-	AddAnOperatorToAGroup(Group, "Format", NStr("en = 'Format'"), New TypeDescription("String"), True);
+	BooleanType = New TypeDescription("Boolean");
+	StringType = New TypeDescription("String");
+	
+	AddAnOperatorToAGroup(Group, "?", NStr("en = 'Condition'"), BooleanType, True);
+	AddAnOperatorToAGroup(Group, "ValueIsFilled", NStr("en = 'Value is filled'"), BooleanType, True);
+	AddAnOperatorToAGroup(Group, "Format", NStr("en = 'Format'"), StringType, True);
 	
 EndProcedure
 
@@ -2985,16 +3020,6 @@ Function NameOfFieldsListAttribute(NameOfFieldLIstSearchString)
 	
 EndFunction
 
-Function MainDataSourceName(SourcesOfAvailableFields)
-	
-	If SourcesOfAvailableFields.Count() > 0 Then
-		Return SourcesOfAvailableFields[0].DataSource;
-	EndIf;
-	
-	Return "";
-	
-EndFunction
-
 Function FormatNumbers(String, FractionalPartSeparator = ".")
 	
 	Result = "";
@@ -3111,4 +3136,11 @@ Function FindTextInALine(String, Text, SearchConsideringLevels)
 		StyleFonts.ImportantLabelFont, StyleColors.SuccessResultColor, SearchConsideringLevels);
 EndFunction
 	
+// See StandardSubsystemsServer.WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode
+Procedure WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode(Methods) Export
+	
+	Methods.Insert("RunSearchInListOfFields", True);
+	
+EndProcedure
+
 #EndRegion

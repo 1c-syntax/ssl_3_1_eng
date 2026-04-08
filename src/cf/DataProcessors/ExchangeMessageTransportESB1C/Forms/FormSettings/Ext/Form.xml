@@ -128,7 +128,7 @@ For details, see &lt;link Help&gt;Help&lt;/&gt;.</v8:content>
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Sender code in the bus</v8:content>
+					<v8:content>Recipient code in the bus</v8:content>
 				</v8:item>
 			</Title>
 			<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>

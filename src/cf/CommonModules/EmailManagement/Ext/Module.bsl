@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Internal
@@ -138,9 +137,9 @@ Function LoadEmails(EmailsReceived)
 	While Selection.Next() Do
 		ReceivedEmails = 0;
 		EmailsReceived.EmailsReceivedByAccount.Clear();
-		// @skip-check query-in-loop
+		// @skip-check query-in-loop - 
 		GetEmails(Selection, False, ReceivedEmails, EmailsReceived);
-		// @skip-check query-in-loop
+		// @skip-check query-in-loop - 
 		DeterminePreviouslyImportedSubordinateEmails(Selection.Ref, EmailsReceived.EmailsReceivedByAccount);
 	EndDo;
 
@@ -219,7 +218,7 @@ Procedure SendEmailsInternal(Query, AllRecievedEmails, EmailsToDefineFolders, Se
 	
 	While AccountsSelection.Next() Do
 		Account = AccountsSelection.Account;
-		// @skip-check query-in-loop
+		// @skip-check query-in-loop - 
 		If Not LockAccount(Account) Then
 			Continue;
 		EndIf;
@@ -235,8 +234,8 @@ Procedure SendEmailsInternal(Query, AllRecievedEmails, EmailsToDefineFolders, Se
 		While EmailSelection.Next() Do
 			
 			EmailObject = EmailSelection.Ref.GetObject();
-			EmailParameters = Interactions.EmailSendingParameters(EmailObject);
 			Try
+				EmailParameters = Interactions.EmailSendingParameters(EmailObject);
 				MailMessage = EmailOperations.PrepareEmail(Account, EmailParameters);
 			Except
 				
@@ -270,6 +269,11 @@ Procedure SendEmailsInternal(Query, AllRecievedEmails, EmailsToDefineFolders, Se
 			
 		EndDo;
 		
+		If Emails.Count() = 0 Then
+			UnlockAccountForReceiving(Account);
+			Continue;
+		EndIf;
+		
 		ErrorText = Undefined;
 		Try
 			SendingResult = EmailOperations.SendEmails(Account, Emails, ErrorText);
@@ -280,13 +284,16 @@ Procedure SendEmailsInternal(Query, AllRecievedEmails, EmailsToDefineFolders, Se
 			ErrorMessageTemplate = NStr("en = 'Cannot connect to the %1 account due to:
 				|%2'", Common.DefaultLanguageCode());
 			
-			ErrorMessageText = StringFunctionsClientServer.SubstituteParametersToString(ErrorMessageTemplate, 
-				Account, EmailOperations.ExtendedErrorPresentation(ErrorInfo(), Common.DefaultLanguageCode()));
+			ErrorMessageText = StringFunctionsClientServer.SubstituteParametersToString(
+				ErrorMessageTemplate,
+				Account,
+				EmailOperations.ExtendedErrorPresentation(ErrorInfo(), Common.DefaultLanguageCode(), , Account));
 			WriteLogEvent(EventLogEvent(), EventLogLevel.Error, , , ErrorMessageText);
 			
 			If Not ValueIsFilled(SendingResult) Then 
 				
 				If Emails.Count() <> 0 Then
+					
 					FirstEmailData = RefToEmailByOutgoingMailMessage(EmailsData, Emails[0]); 
 					
 					If FirstEmailData <> Undefined Then
@@ -307,6 +314,7 @@ Procedure SendEmailsInternal(Query, AllRecievedEmails, EmailsToDefineFolders, Se
 					Continue;
 					
 				EndIf;
+				
 			EndIf; 
 			
 		EndTry;
@@ -385,11 +393,7 @@ Procedure SendEmailsInternal(Query, AllRecievedEmails, EmailsToDefineFolders, Se
 			EndDo;
 			
 		EndIf;
-		
-		If ValueIsFilled(ErrorsTexts) Then
-			Raise StrConcat(ErrorsTexts, Chars.LF);
-		EndIf;
-		
+
 	EndDo;
 	
 EndProcedure
@@ -716,11 +720,11 @@ Procedure LoadUserEmail(Result)
 		ReceivedEmails = 0;
 		EmailsReceived = EmailsReceived();
 		
-		// @skip-check query-in-loop
+		// @skip-check query-in-loop - 
 		GetEmails(Selection, Result.HasErrors, ReceivedEmails, EmailsReceived);
 		Result.EmailsReceived1 = Result.EmailsReceived1 + ReceivedEmails;
 		
-		// @skip-check query-in-loop
+		// @skip-check query-in-loop - 
 		DeterminePreviouslyImportedSubordinateEmails(Selection.Ref, EmailsReceived.EmailsReceivedByAccount);
 		Interactions.FillInteractionsArrayContacts(EmailsReceived.AllRecievedEmails);
 		Interactions.SetFoldersForEmailsArray(EmailsReceived.EmailsToDefineFolders);
@@ -893,7 +897,7 @@ Procedure GetEmails(Val AccountData, HasErrors, ReceivedEmails, EmailsReceived)
 		
 		HasErrors = True;
 		ErrorMessageText = EmailOperations.ExtendedErrorPresentation(
-			ErrorInfo(), Common.DefaultLanguageCode());
+			ErrorInfo(), Common.DefaultLanguageCode(), , AccountData.Ref);
 		ErrorMessageText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot connect to the %1 account due to:
 				|%2'", Common.DefaultLanguageCode()),
@@ -960,8 +964,8 @@ Function GetEmailMessagesByIDs(Mail, AccountData, MessagesToImportIDs,
 			Except
 				
 				ErrorTextForLog_ = EmailOperations.ExtendedErrorPresentation(
-					ErrorInfo(), Common.DefaultLanguageCode());
-									
+					ErrorInfo(), Common.DefaultLanguageCode(), , AccountData.Ref);
+					
 				ErrorTextForLog_ = StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Cannot connect to the ""%1"" account due to:
 						|%2'", Common.DefaultLanguageCode()),
@@ -972,7 +976,7 @@ Function GetEmailMessagesByIDs(Mail, AccountData, MessagesToImportIDs,
 					EventLogLevel.Error, , , ErrorTextForLog_);
 				
 				ErrorTextForUser = EmailOperations.ExtendedErrorPresentation(
-					ErrorInfo(), , False);
+					ErrorInfo(), , False, AccountData.Ref);
 					
 				ErrorTextForUser = StringFunctionsClientServer.SubstituteParametersToString(
 					NStr("en = 'Cannot connect to the ""%1"" account due to:
@@ -992,7 +996,7 @@ Function GetEmailMessagesByIDs(Mail, AccountData, MessagesToImportIDs,
 				
 				IsOutgoingEmail1 = EmailAddressesEqual(AccountData.Email,
 					InternetEmailMessageSenderAddress(Message.From));
-				// @skip-check query-in-loop - По-объектная запись данных.
+				// @skip-check query-in-loop - 
 				RecordingResult = EmailMessageWriteResult(AccountData, Message, 
 					EmployeeResponsibleForProcessingEmails, AccountData.PutEmailInBaseEmailFolder,
 					AddToEmailsArrayToGetFolder, IsOutgoingEmail1);
@@ -1117,8 +1121,8 @@ Procedure GetEmailByIMAPProtocol(AccountData, Mail, EmailsReceived1, EmailsRecei
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Couldn''t get the email headers. Folder: %1. Account: %2. Reason: %3'"),
 				ActiveFolderName, AccountData.Email, 
-				EmailOperations.ExtendedErrorPresentation(ErrorInfo(), 
-					Common.DefaultLanguageCode(), False)); 
+				EmailOperations.ExtendedErrorPresentation(ErrorInfo(),
+					Common.DefaultLanguageCode(), False, AccountData.Ref));
 			WriteLogEvent(EventLogEvent(), EventLogLevel.Error,
 				Metadata.Catalogs.EmailMessageFolders,, MessageText);
 			Continue;
@@ -1219,7 +1223,7 @@ Procedure GetEmailByIMAPProtocol(AccountData, Mail, EmailsReceived1, EmailsRecei
 			Query.SetParameter("EmptyIDsOfEmailMessagesToImport", BlankIDsTable);
 			Query.SetParameter("Account", AccountData.Ref);
 			
-			// @skip-check query-in-loop
+			// @skip-check query-in-loop - 
 			MessagesToImportIDs = Query.Execute().Unload().UnloadColumn("IDAtServer");
 			
 			EmailsImportedByIDCount = GetEmailMessagesByIDs(Mail, AccountData, 
@@ -1671,7 +1675,7 @@ Function EmailMessageWriteResult(AccountData, Message, EmployeeResponsibleForPro
 	Result = New Structure;
 	Result.Insert("Success",         False);
 	Result.Insert("CreatedEmail", Undefined);
-	Result.Insert("TexErrors",      "");
+	Result.Insert("ErrorText",      "");
 	
 	Block = New DataLock;
 	If Common.FileInfobase() Then
@@ -1731,7 +1735,7 @@ Function EmailMessageWriteResult(AccountData, Message, EmployeeResponsibleForPro
 	Except 
 		
 		RollbackTransaction();
-		Result.TexErrors = ErrorProcessing.DetailErrorDescription(ErrorInfo());
+		Result.ErrorText = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 		Return Result;
 		
 	EndTry;
@@ -2356,9 +2360,36 @@ Procedure SetEmailText(MailMessage, Message) Export
 	EndDo;
 	
 	If HTMLText <> "" Then
+		
 		MailMessage.TextType = Enums.EmailTextTypes.HTML;
 		MailMessage.HTMLText = HTMLText;
-		MailMessage.Text = ?(PlainText <> "", PlainText, GetPlainTextFromHTML1(HTMLText));
+		
+		If PlainText <> "" Then
+			
+			MailMessage.Text = PlainText;
+			
+		Else
+			
+			Try
+			
+				MailMessage.Text = GetPlainTextFromHTML1(HTMLText);
+			
+			Except
+				
+				MailMessage.Text = "";
+				ErrorMessageTemplate = NStr("en = 'An error occurred while extracting plain text from email %1.
+					|The email text will only be available in HTML format.
+					|%2'", Common.DefaultLanguageCode());
+				
+				ErrorMessageText = StringFunctionsClientServer.SubstituteParametersToString(
+					ErrorMessageTemplate, 
+					Interactions.EmailPresentation(MailMessage.Subject, MailMessage.Date),
+					ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+				WriteLogEvent(EventLogEvent(), EventLogLevel.Error, , , ErrorMessageText);
+				
+			EndTry;
+			
+		EndIf;
 		
 	ElsIf RichText <> "" Then
 		MailMessage.TextType = Enums.EmailTextTypes.RichText;
@@ -3468,5 +3499,13 @@ Function LockAccount(Account)
 EndFunction
 
 #EndRegion
+
+// See StandardSubsystemsServer.WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode
+Procedure WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode(Methods) Export
+	
+	Methods.Insert("SendReceiveUserEmail", True);
+	Methods.Insert("SendReceiveEmails", True);
+	
+EndProcedure
 
 #EndRegion

@@ -111,10 +111,10 @@
 				<CommandName>Form.StandardCommand.CustomizeForm</CommandName>
 				<ExtendedTooltip name="FormCustomizeFormExtendedTooltip" id="111"/>
 			</Button>
-			<Button name="FormHelp" id="73">
+			<Button name="FormHelp_SSLyf" id="73">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.StandardCommand.Help</CommandName>
-				<ExtendedTooltip name="FormHelpExtendedTooltip" id="81"/>
+				<ExtendedTooltip name="FormHelp_SSLyfExtendedTooltip" id="81"/>
 			</Button>
 			<SearchStringAddition name="SearchString" id="124">
 				<AdditionSource>
@@ -302,6 +302,34 @@
 				<Event name="BeforeRowChange">ListBeforeRowChange</Event>
 			</Events>
 			<ChildItems>
+				<PictureField name="ListImageNumberIsArchive" id="127">
+					<DataPath>List.ImageNumberIsArchive</DataPath>
+					<ReadOnly>true</ReadOnly>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Archived</v8:content>
+						</v8:item>
+					</Title>
+					<TitleLocation>None</TitleLocation>
+					<ToolTip>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Archived</v8:content>
+						</v8:item>
+					</ToolTip>
+					<HeaderPicture>
+						<xr:Ref>CommonPicture.FileArchive</xr:Ref>
+						<xr:LoadTransparent>false</xr:LoadTransparent>
+					</HeaderPicture>
+					<Width>2</Width>
+					<ValuesPicture>
+						<xr:Ref>CommonPicture.FileArchive</xr:Ref>
+						<xr:LoadTransparent>false</xr:LoadTransparent>
+					</ValuesPicture>
+					<ContextMenu name="ListImageNumberIsArchiveContextMenu" id="128"/>
+					<ExtendedTooltip name="ListImageNumberIsArchiveExtendedTooltip" id="129"/>
+				</PictureField>
 				<ColumnGroup name="GroupVertical" id="114">
 					<Title>
 						<v8:item>
@@ -431,6 +459,7 @@
 				<Field>List.DeletionMark</Field>
 				<Field>List.Extension</Field>
 				<Field>List.FullDescr</Field>
+				<Field>List.ImageNumberIsArchive</Field>
 				<Field>List.IsCurrent</Field>
 				<Field>List.Owner</Field>
 				<Field>List.ParentVersion</Field>
@@ -464,11 +493,166 @@
 		ELSE FALSE
 	END AS IsCurrent,
 	FilesVersionsOverridable.Extension AS Extension,
-	FilesVersionsOverridable.VersionNumber AS VersionNumber
+	FilesVersionsOverridable.VersionNumber AS VersionNumber,
+	0 AS ImageNumberIsArchive
 FROM
 	Catalog.FilesVersions AS FilesVersionsOverridable
 WHERE
 	FilesVersionsOverridable.Owner = &amp;Owner</QueryText>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>PathToFile</dcssch:dataPath>
+					<dcssch:field>PathToFile</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Description</dcssch:dataPath>
+					<dcssch:field>Description</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>UniversalModificationDate</dcssch:dataPath>
+					<dcssch:field>UniversalModificationDate</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Volume</dcssch:dataPath>
+					<dcssch:field>Volume</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>FileModificationDate</dcssch:dataPath>
+					<dcssch:field>FileModificationDate</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>TextExtractionStatus</dcssch:dataPath>
+					<dcssch:field>TextExtractionStatus</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>FileStorage</dcssch:dataPath>
+					<dcssch:field>FileStorage</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>TextStorage</dcssch:dataPath>
+					<dcssch:field>TextStorage</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Size</dcssch:dataPath>
+					<dcssch:field>Size</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>FileStorageType</dcssch:dataPath>
+					<dcssch:field>FileStorageType</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>DateOfTransferToArchive</dcssch:dataPath>
+					<dcssch:field>DateOfTransferToArchive</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>DeletionMark</dcssch:dataPath>
+					<dcssch:field>DeletionMark</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>ConditionallyTransferredToArchive</dcssch:dataPath>
+					<dcssch:field>ConditionallyTransferredToArchive</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>DeleteDigitalSignatures</dcssch:dataPath>
+					<dcssch:field>DeleteDigitalSignatures</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Predefined</dcssch:dataPath>
+					<dcssch:field>Predefined</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Ref</dcssch:dataPath>
+					<dcssch:field>Ref</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>PredefinedDataName</dcssch:dataPath>
+					<dcssch:field>PredefinedDataName</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Code</dcssch:dataPath>
+					<dcssch:field>Code</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Comment</dcssch:dataPath>
+					<dcssch:field>Comment</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Author</dcssch:dataPath>
+					<dcssch:field>Author</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>CreationDate</dcssch:dataPath>
+					<dcssch:field>CreationDate</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>FullDescr</dcssch:dataPath>
+					<dcssch:field>FullDescr</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Full description</v8:content>
+						</v8:item>
+					</dcssch:title>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>ParentVersion</dcssch:dataPath>
+					<dcssch:field>ParentVersion</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>PictureIndex</dcssch:dataPath>
+					<dcssch:field>PictureIndex</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Picture index</v8:content>
+						</v8:item>
+					</dcssch:title>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Owner</dcssch:dataPath>
+					<dcssch:field>Owner</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>IsCurrent</dcssch:dataPath>
+					<dcssch:field>IsCurrent</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>This is current</v8:content>
+						</v8:item>
+					</dcssch:title>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>VersionNumber</dcssch:dataPath>
+					<dcssch:field>VersionNumber</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Extension</dcssch:dataPath>
+					<dcssch:field>Extension</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>ImageNumberIsArchive</dcssch:dataPath>
+					<dcssch:field>ImageNumberIsArchive</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>"This is archive" picture index</v8:content>
+						</v8:item>
+					</dcssch:title>
+				</Field>
+				<Parameter>
+					<dcssch:name>Owner</dcssch:name>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Location</v8:content>
+						</v8:item>
+					</dcssch:title>
+					<dcssch:valueType>
+						<v8:Type>cfg:CatalogRef.Files</v8:Type>
+					</dcssch:valueType>
+					<dcssch:value xsi:nil="true"/>
+					<dcssch:useRestriction>true</dcssch:useRestriction>
+				</Parameter>
 				<MainTable>Catalog.FilesVersions</MainTable>
 				<ListSettings>
 					<dcsset:filter>

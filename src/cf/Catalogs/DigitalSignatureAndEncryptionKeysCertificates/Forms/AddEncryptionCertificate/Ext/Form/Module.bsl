@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -15,8 +14,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	DigitalSignatureInternal.SetVisibilityOfRefToAppsTroubleshootingGuide(Items.Instruction);
 	
-	HaveRightToAddInDirectory = AccessRight("Insert",
-		Metadata.Catalogs.DigitalSignatureAndEncryptionKeysCertificates);
+	HaveRightToAddInDirectory = DigitalSignatureInternal.YouHaveRightToAddCertificatesToCatalog();
 	
 	ConditionalAppearance.Items.Clear();
 	If Not HaveRightToAddInDirectory Then
@@ -53,10 +51,12 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 			Return;
 		EndIf;
 		
+		CertificateProperties = DigitalSignature.CertificateProperties(CryptoCertificate);
+		
 		ShowCertificatePropertiesAdjustmentPage(ThisObject,
 			CryptoCertificate,
 			CryptoCertificate.Unload(),
-			DigitalSignature.CertificateProperties(CryptoCertificate));
+			CertificateProperties);
 		
 		Items.Back.Visible = False;
 	Else
@@ -97,6 +97,14 @@ Procedure OnOpen(Cancel)
 		Return;
 	EndIf;
 	
+	If Certificates.Count() = 0
+		And Not Items.CertificatesUnavailableAtClientGroup.Visible
+		And Not Items.CertificatesUnavailableAtServerGroup.Visible Then
+		WarningTextOnOpen =
+			NStr("en = 'No certificates are available. You may have insufficient permission to add certificates; contact your administrator.'");
+		Cancel = True;
+	EndIf;
+		
 EndProcedure
 
 &AtClient
@@ -253,7 +261,7 @@ Procedure Next(Command)
 	EndIf;
 	
 	If Not HaveRightToAddInDirectory And Not CurrentData.Isinthedirectory Then
-		Raise(NStr("en = 'insufficient rights to use the certificate.'"),
+		Raise(NStr("en = 'Insufficient permission to add certificates; contact your administrator.'"),
 			ErrorCategory.AccessViolation);
 	EndIf;
 	
@@ -542,6 +550,12 @@ Procedure UpdateCertificatesListAtServer(Val CertificatesPropertiesAtClient)
 	
 	DigitalSignatureInternal.UpdateCertificatesList(Certificates, CertificatesPropertiesAtClient,
 		True, False, ErrorGettingCertificatesAtServer, ShowAll);
+	
+	If HaveRightToAddInDirectory Then
+		Certificates.Sort("IsRequest Asc, Presentation Asc");
+	Else
+		Certificates.Sort("Isinthedirectory Desc, IsRequest Asc, Presentation Asc");
+	EndIf;
 	
 	If ValueIsFilled(SelectedCertificateThumbprint)
 	   And (    Items.Certificates.CurrentRow = Undefined

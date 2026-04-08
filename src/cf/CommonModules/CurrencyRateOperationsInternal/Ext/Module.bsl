@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Internal
@@ -178,7 +177,7 @@ Procedure NewDataAvailable(Val Descriptor, ToImport) Export
 	// The data of "ExchangeRates" is obtained when: 
 	// - The infobase connects to the Service Manager. 
 	// The infobase was updated and it requires missing currencies.
-	// In either case, restore the cache and rewrite exchange rates in all data areas.
+	// In either case, clear the cache and rewrite exchange rates in all data areas.
 	// 
 	ElsIf Descriptor.DataType = "ExchangeRates" Then
 		ToImport = True;
@@ -236,8 +235,7 @@ EndProcedure
 // See ExportImportDataOverridable.AfterImportData.
 Procedure AfterImportData(Container) Export
 	
-	If Common.SubsystemExists("CloudTechnology.SuppliedData") Then
-		// Creating links between separated and shared currencies, copying rates.
+	If Common.DataSeparationEnabled() Then
 		UpdateCurrencyRates();
 	EndIf;
 	
@@ -301,7 +299,7 @@ Procedure SaveRateTable(Val RateTable, Val File)
 		XMLRate = StrReplace(
 		StrReplace(
 		StrReplace(
-			StrReplace("<Rate Code=""%1"" Date=""%2"" Factor=""%3"" Rate=""%4""/>", 
+			StrReplace("<Rate Code=""%1"" GetSessions=""%2"" Factor=""%3"" Rate=""%4""/>", 
 			"%1", TableRow.Code),
 			"%2", Left(XDTOSerializer.XMLString(TableRow.Date), 10)),
 			"%3", XDTOSerializer.XMLString(TableRow.Repetition)),
@@ -544,7 +542,7 @@ Procedure DistributeRatesByDataAreas(Val RatesDate, Val RateTable, Val AreasForU
 		
 		BeginTransaction();
 		Try
-			// @skip-check query-in-loop - обработка областей данных.
+			// @skip-check query-in-loop - 
 			ProcessTransactionedAreaRates(CommonQuery, AreaCurrencies, RateTable);
 			ModuleSaaSOperations.SignOutOfDataArea();
 			ModuleSuppliedData.AreaProcessed(FileID, HandlerCode, DataArea);
@@ -660,7 +658,7 @@ Procedure ProcessTransactionedAreaRates(CommonQuery, AreaCurrencies, RateTable)
 		CommonQuery.SetParameter("Currency", CurrencySelection1.Ref);
 		CommonQuery.SetParameter("CurrencyCode_", CurrencySelection1.Code);
 		
-		// @skip-check query-in-loop - добавляется временная таблица в запрос из уже имеющейся временной таблицы.
+		// @skip-check query-in-loop - 
 		CurrencyProperties = SuppliedCurrencyProperties(AreaCurrencies, CurrencySelection1.Code, RateTable, CommonQuery);
 		
 		If Not CurrencyProperties.Supplied_3 Then
@@ -717,7 +715,7 @@ Procedure ProcessTransactionedAreaRates(CommonQuery, AreaCurrencies, RateTable)
 		
 		CommonQuery.Text = StrReplace(QueryText, "NNN", CurrencyProperties.SequenceNumber);
 		
-		// @skip-check query-in-loop
+		// @skip-check query-in-loop - 
 		CommonResult1 = CommonQuery.Execute();
 		CommonSelection = CommonResult1.Select();
 		

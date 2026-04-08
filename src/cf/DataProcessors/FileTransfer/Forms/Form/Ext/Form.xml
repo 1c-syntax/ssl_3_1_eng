@@ -68,7 +68,7 @@
 						<Presentation>
 							<v8:item>
 								<v8:lang>en</v8:lang>
-								<v8:content>From infobase to volumes</v8:content>
+								<v8:content>From database to volumes</v8:content>
 							</v8:item>
 						</Presentation>
 						<Value xsi:type="xs:string">MoveToVolumes</Value>
@@ -81,7 +81,7 @@
 						<Presentation>
 							<v8:item>
 								<v8:lang>en</v8:lang>
-								<v8:content>From volumes to infobase</v8:content>
+								<v8:content>From volumes to database</v8:content>
 							</v8:item>
 						</Presentation>
 						<Value xsi:type="xs:string">MoveToInfobase</Value>
@@ -142,6 +142,20 @@
 							<TitleLocation>None</TitleLocation>
 							<Width>35</Width>
 							<AutoMaxWidth>false</AutoMaxWidth>
+							<ChoiceParameters>
+								<app:item name="Filter.FilesStorageMethod">
+									<app:value xsi:type="FormChoiceListDesTimeValue">
+										<Presentation/>
+										<Value xsi:type="xr:DesignTimeRef">Enum.WaysToStoreFiles.EnumValue.InNetworkDirectories</Value>
+									</app:value>
+								</app:item>
+								<app:item name="Filter.TypeOfFileStorageVolume">
+									<app:value xsi:type="FormChoiceListDesTimeValue">
+										<Presentation/>
+										<Value xsi:type="xr:DesignTimeRef">Enum.TypesOfFileStorage.EnumValue.OperationalStorage</Value>
+									</app:value>
+								</app:item>
+							</ChoiceParameters>
 							<ContextMenu name="DestinationStorageVolumeContextMenu" id="12"/>
 							<ExtendedTooltip name="DestinationStorageVolumeExtendedTooltip" id="13"/>
 							<Events>
@@ -187,6 +201,20 @@
 							<TitleLocation>None</TitleLocation>
 							<Width>35</Width>
 							<AutoMaxWidth>false</AutoMaxWidth>
+							<ChoiceParameters>
+								<app:item name="Filter.FilesStorageMethod">
+									<app:value xsi:type="FormChoiceListDesTimeValue">
+										<Presentation/>
+										<Value xsi:type="xr:DesignTimeRef">Enum.WaysToStoreFiles.EnumValue.InNetworkDirectories</Value>
+									</app:value>
+								</app:item>
+								<app:item name="Filter.TypeOfFileStorageVolume">
+									<app:value xsi:type="FormChoiceListDesTimeValue">
+										<Presentation/>
+										<Value xsi:type="xr:DesignTimeRef">Enum.TypesOfFileStorage.EnumValue.OperationalStorage</Value>
+									</app:value>
+								</app:item>
+							</ChoiceParameters>
 							<ContextMenu name="StorageVolumeSourceContextMenu" id="20"/>
 							<ExtendedTooltip name="StorageVolumeSourceExtendedTooltip" id="21"/>
 							<Events>

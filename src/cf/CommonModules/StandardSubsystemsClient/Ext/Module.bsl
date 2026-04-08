@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -58,30 +57,30 @@ EndProcedure
 // Show the question form.
 //
 // Parameters:
-//   NotifyDescriptionOnCompletion - CallbackDescription - Description of the procedures to be called after the question window is closed.
-//                                                        Has the following parameters:
-//                                                          QuestionResult - Structure
-//                                                            Value - User selection: a system enumeration value or
-//                                                                       a value associated with the clicked button.
-//                                                                       "Timeout" value if the dialog is closed after a timeout.
-//                                                                       DontAskAgain - Boolean - Checkbox selection result.
-//                                                                       
-//                                                            
-//                                                                                                  
-//                                                                                                  
-//                                                          AdditionalParameters - Structure 
-//   QuestionText - String - Question text. 
-//   Buttons - QuestionDialogMode
+//   CallbackDescriptionOnCompletion - CallbackDescription - Describes the procedure that is called upon closing the question window
+//                                                        with the following parameters:
+//                                                         * QuestionResult - Structure:
+//                                                            ** Value - User selection result: a value of
+//                                                                       system enumeration or a value
+//                                                                       related to the pressed button. If the dialog is closed
+//                                                                       after a timeout, the Timeout
+//                                                                       value is used.
+//                                                            ** NeverAskAgain - Boolean - User selection
+//                                                                                                  result in the
+//                                                                                                  checkbox of the same name.
+//                                                          * AdditionalParameters - Structure
+//   QueryText                  - String, FormattedString - Text of the question. 
+//   Buttons                        - QuestionDialogMode
 //                                 - ValueList     - Value list, where:
 //                                       Value - Value connected to the button and returned when the button is clicked. 
 //                                                  Takes a value of the DialogReturnCode enumeration or any XDTO-serializable value.
 //                                                  Presentation - Button text.
-//                                                  AdditionalParameters -
+//                                                  
 //                                       
 //
-//    See StandardSubsystemsClient.QuestionToUserParameters.
+//   AdditionalParameters       - See StandardSubsystemsClient.QuestionToUserParameters.
 //
-Procedure ShowQuestionToUser(NotifyDescriptionOnCompletion, QueryText, Buttons, AdditionalParameters = Undefined) Export
+Procedure ShowQuestionToUser(CallbackDescriptionOnCompletion, QueryText, Buttons, AdditionalParameters = Undefined) Export
 	
 	Parameters = QuestionToUserParameters();
 	If TypeOf(AdditionalParameters) = Type("Structure") Then
@@ -145,7 +144,7 @@ Procedure ShowQuestionToUser(NotifyDescriptionOnCompletion, QueryText, Buttons, 
 	Parameters.Insert("Buttons", DialogButtons);
 	Parameters.Insert("MessageText", QueryText);
 	
-	OpenForm("CommonForm.DoQueryBox", Parameters, , , , , NotifyDescriptionOnCompletion);
+	OpenForm("CommonForm.DoQueryBox", Parameters, , , , , CallbackDescriptionOnCompletion);
 	
 EndProcedure
 
@@ -301,22 +300,22 @@ Procedure ShowSpreadsheetComparison(SpreadsheetDocumentLeft, SpreadsheetDocument
 	
 EndProcedure
 
-// Parameters for comparing spreadsheets using "ShowSpreadsheetsDiff".
+// Parameters for comparing spreadsheets using the ShowSpreadsheetComparison procedure.
 // 
 // Returns:
 //  Structure:
 //    * SpreadsheetDocumentsAddress - String - The addresses in the temporary storage of the spreadsheets being compared.
 //    * Title - String - The form's title. If not specified, then "Compare spreadsheet documents".
-//    * TitleLeft - String - The title of the first spreadsheet (on the left).
-//    * TitleRight - String - The title of the second spreadsheet (on the right).
+//    * TitleLeft_SSLyf - String - The title of the first spreadsheet (on the left).
+//    * TitleRight_SSLyf - String - The title of the second spreadsheet (on the right).
 //
 Function SpreadsheetComparisonParameters() Export
 	
 	Result = New Structure;
 	Result.Insert("SpreadsheetDocumentsAddress", "");
 	Result.Insert("Title", "");
-	Result.Insert("TitleLeft", "");
-	Result.Insert("TitleRight", "");
+	Result.Insert("TitleLeft_SSLyf", "");
+	Result.Insert("TitleRight_SSLyf", "");
 	Return Result;
 	
 EndFunction
@@ -548,7 +547,6 @@ EndProcedure
 #Region ApplicationEventsProcessing
 
 // Disables the exit confirmation.
-//
 Procedure SkipExitConfirmation() Export
 	
 	ApplicationParameters.Insert("StandardSubsystems.SkipExitConfirmation", True);
@@ -687,7 +685,7 @@ Procedure BeforeExit(Cancel = False, WarningText = "") Export
 			WarningText = WarningText + Chars.LF;
 		EndIf;
 		WarningArray.Add(Chars.LF);
-		WarningArray.Add(NStr("en = 'To do so, select ""Continue"" and click the pop-up notification.'"));
+		WarningArray.Add(NStr("en = 'To do so, select ""Cancel"" and click the pop-up notification.'"));
 		WarningText = WarningText + StrConcat(WarningArray, Chars.LF);
 		
 		AttachIdleHandler("ShowExitWarning", 0.1, True);
@@ -866,7 +864,7 @@ EndProcedure
 
 #EndRegion
 
-#Region ForCallsFromOtherSubsystems
+#Region InterfaceImplementation
 
 // Called upon receiving a server notification.
 // The notifications are sent on server in the OnSendServerNotification procedures.
@@ -1012,7 +1010,7 @@ Procedure ShowMessageBoxAndContinue(Parameters, WarningDetails) Export
 		Buttons.Add("ExitApp", NStr("en = 'End session'"));
 		QuestionParameters.DefaultButton = "ExitApp";
 	Else
-		Buttons.Add("Continue", NStr("en = 'Continue'"));
+		Buttons.Add("Continue", NStr("en = 'Cancel'"));
 		Buttons.Add("ExitApp",  NStr("en = 'End session'"));
 		QuestionParameters.DefaultButton = "Continue";
 	EndIf;
@@ -1196,42 +1194,42 @@ EndFunction
 //
 Function SupportInformation() Export
 	
-	SupportInformation = StandardSubsystemsClientServer.NewInformationForSupport();
+	SupportInformation = StandardSubsystemsClientServer.NewInfoForSupport();
 	
 	SystemInfo = New SystemInfo;
 	FillPropertyValues(SupportInformation, SystemInfo);
 	
 	If ApplicationStartCompleted() Then
-		ConfigurationOptions = ClientRunParameters();
+		ConfigurationParameters = ClientRunParameters();
 	Else
-		ConfigurationOptions = ClientParametersOnStart();
+		ConfigurationParameters = ClientParametersOnStart();
 	EndIf;
 	
-	ParameterIsUnavailable = NStr("en = 'Unavailable'");
+	ParameterUnavailable = NStr("en = 'Unavailable'");
 	
 	// ACC:1417-off - A dynamic property set.
 	SupportInformation.ApplicationName1 = CommonClientServer.StructureProperty(
-		ConfigurationOptions,
+		ConfigurationParameters,
 		"DetailedInformation",
-		ParameterIsUnavailable);
+		ParameterUnavailable);
 	// ACC:1417-on
 	
 	// ACC:1417-off - A dynamic property set.
 	SupportInformation.ApplicationVersion = CommonClientServer.StructureProperty(
-		ConfigurationOptions,
+		ConfigurationParameters,
 		"ConfigurationVersion",
-		ParameterIsUnavailable);
+		ParameterUnavailable);
 	// ACC:1417-on
 	
 	SupportInformation.SSLVersion = StandardSubsystemsServerCall.LibraryVersion();
 	SupportInformation.COMConnectorName = CommonClientServer.COMConnectorName();
-	SupportInformation.ThisIsBasicConfiguration = IsBaseConfigurationVersion();
+	SupportInformation.IsBaseConfiguration = IsBaseConfigurationVersion();
 	SupportInformation.IsFullUser = UsersClient.IsFullUser();
 	SupportInformation.IsTrainingPlatform = IsTrainingPlatform();
 	
 	// ACC:1417-off - A dynamic property set.
 	SettingsOfUpdate = CommonClientServer.StructureProperty(
-		ConfigurationOptions,
+		ConfigurationParameters,
 		"SettingsOfUpdate");
 	// ACC:1417-on
 	
@@ -1239,10 +1237,10 @@ Function SupportInformation() Export
 	SupportInformation.ConfigurationChanged = CommonClientServer.StructureProperty(
 		SettingsOfUpdate,
 		"ConfigurationChanged",
-		ParameterIsUnavailable);
+		ParameterUnavailable);
 	// ACC:1417-on
 	
-	Return StandardSubsystemsClientServer.TextOfInformationForSupport(SupportInformation);
+	Return StandardSubsystemsClientServer.SupportInformationText(SupportInformation);
 	
 EndFunction
 
@@ -1426,14 +1424,14 @@ EndFunction
 // That is, when you need to minimize the delay.
 // 
 // Parameters:
-//  NotifyDescription - CallbackDescription - Notification to be handled.
+//  CallbackDescription - CallbackDescription - Notification to be handled.
 //  Result  - Arbitrary - Value to be passed to the "Result" parameter
 //               of the RunCallback platform method.
 //
-Procedure StartNotificationProcessing(NotifyDescription, Result = Undefined) Export
+Procedure StartNotificationProcessing(CallbackDescription, Result = Undefined) Export
 	
 	Context = New Structure;
-	Context.Insert("Notification", NotifyDescription);
+	Context.Insert("Notification", CallbackDescription);
 	Context.Insert("Result", Result);
 	
 	Stream = New MemoryStream;
@@ -1989,11 +1987,42 @@ Procedure ActionsOnStartAfterAllProcedures(NotDefined, Context)
 		Return;
 	EndIf;
 	
-	Parameters.Insert("ContinuationHandler", Parameters.CompletionProcessing);
+	Parameters.Insert("ContinuationHandler", New CallbackDescription(
+		"ActionsOnStartBeforeCompletion", ThisObject));
 	
 	Try
 		SSLSubsystemsIntegrationClient.AfterStart();
 		CommonClientOverridable.AfterStart();
+	Except
+		HandleErrorOnStart(Parameters, ErrorInfo());
+	EndTry;
+	If OnStartInteractiveHandler(Parameters) Then
+		Return;
+	EndIf;
+	
+	RunCallback(Parameters.ContinuationHandler);
+	
+EndProcedure
+
+// For internal use only. Continues the execution of OnStart procedure.
+Procedure ActionsOnStartBeforeCompletion(NotDefined, Context) Export
+	
+	Parameters = ProcessingParametersOnStartSystem();
+	
+	If Not ContinueActionsOnStart(Parameters) Then
+		Return;
+	EndIf;
+	
+	Parameters.Insert("ContinuationHandler", Parameters.CompletionProcessing);
+	
+	ApplicationStartParameters = ApplicationParameters["StandardSubsystems.ApplicationStartParameters"];
+	ApplicationStartParameters.Insert("ProcedureOnStartCompleted");
+	Try
+		If DisplayWarningsBeforeShuttingDownTheSystem(False) Then
+			// Pre-compilate the client modules to avoid implicit server calls
+			// in the "BeforeExit" handler.
+			WarningsBeforeSystemShutdown(False); 
+		EndIf;
 	Except
 		HandleErrorOnStart(Parameters, ErrorInfo());
 	EndTry;
@@ -2180,8 +2209,7 @@ Procedure ActionsBeforeExitCompletionHandler(NotDefined, Parameters) Export
 	   And Not Parameters.ContinuousExecution
 	   And ApplicationParameters.Get(ParameterName) = Undefined Then
 		
-		ParameterName = "StandardSubsystems.SkipExitConfirmation";
-		ApplicationParameters.Insert(ParameterName, True);
+		SkipExitConfirmation();
 		Exit();
 	EndIf;
 	
@@ -2412,9 +2440,9 @@ Procedure InteractiveInitialRegionalInfobaseSettingsProcessing(Parameters, Conte
 	If CommonClient.SubsystemExists("StandardSubsystems.NationalLanguageSupport") Then
 		ModuleNationalLanguageSupportClient = CommonClient.CommonModule("NationalLanguageSupportClient");
 		
-		NotifyDescription = New CallbackDescription("AfterCloseInitialRegionalInfobaseSettingsChoiceForm", ThisObject, Parameters);
+		CallbackDescription = New CallbackDescription("AfterCloseInitialRegionalInfobaseSettingsChoiceForm", ThisObject, Parameters);
 		OpeningParameters  = New Structure("Source", "InitialFilling");
-		ModuleNationalLanguageSupportClient.OpenTheRegionalSettingsForm(NotifyDescription, OpeningParameters);
+		ModuleNationalLanguageSupportClient.OpenTheRegionalSettingsForm(CallbackDescription, OpeningParameters);
 		
 	Else
 		AfterCloseInitialRegionalInfobaseSettingsChoiceForm(New Structure("Cancel", True), Parameters);
@@ -2550,12 +2578,6 @@ Procedure AfterStart() Export
 		AttachIdleHandler("ShowRAMRecommendation", 10, True);
 	EndIf;
 	
-	If DisplayWarningsBeforeShuttingDownTheSystem(False) Then
-		// Pre-compilate the client modules to avoid implicit server calls in the "BeforeExit" handler.
-		// 
-		WarningsBeforeSystemShutdown(False); 
-	EndIf;
-	
 EndProcedure
 
 Function DisplayWarningsBeforeShuttingDownTheSystem(Cancel)
@@ -2578,7 +2600,9 @@ Function DisplayWarningsBeforeShuttingDownTheSystem(Cancel)
 #If Not WebClient Then
 		Cancel = True;
 #EndIf
-		Return False;
+		If Not ApplicationStartParameters.Property("ProcedureOnStartCompleted") Then
+			Return False;
+		EndIf;
 	EndIf;
 	
 	// In thick client (ordinary application) mode, the warning list is not displayed.
@@ -2593,6 +2617,7 @@ Function DisplayWarningsBeforeShuttingDownTheSystem(Cancel)
 	If Not CommonClient.SeparatedDataUsageAvailable() Then
 		Return False;
 	EndIf;
+	
 	Return True;
 	
 EndFunction
@@ -3053,16 +3078,16 @@ Function BeforeStartInteractiveHandler(Parameters)
 	
 EndFunction
 
-Procedure InstallLatestProcedure(Parameters, ModuleName = "", ProcedureName = "", NotifyDescription = Undefined)
+Procedure InstallLatestProcedure(Parameters, ModuleName = "", ProcedureName = "", CallbackDescription = Undefined)
 	
 	ProcedureDetails = New Structure("Module, Name");
 	
-	If NotifyDescription = Undefined Then
+	If CallbackDescription = Undefined Then
 		ProcedureDetails.Module = ModuleName;
 		ProcedureDetails.Name = ProcedureName;
 	Else
-		ProcedureDetails.Module = NotifyDescription.Module;
-		ProcedureDetails.Name = NotifyDescription.ProcedureName;
+		ProcedureDetails.Module = CallbackDescription.Module;
+		ProcedureDetails.Name = CallbackDescription.ProcedureName;
 	EndIf;
 	
 	Parameters.CalledProcedures.Insert(0, ProcedureDetails);

@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -103,7 +102,7 @@ Procedure EventHandlerExternalDataProcessorFileNameOnChange(Item)
 EndProcedure
 
 &AtClient
-Procedure CheckAvailability(Command)
+Procedure CheckAvailability_SSLyf(Command)
 	CheckAvailabilityOnServer();
 EndProcedure
 
@@ -199,8 +198,8 @@ Procedure ExportHandlersCode(Command)
 		ButtonsList.Add(DialogReturnCode.No, NStr("en = 'Open module'"));
 		ButtonsList.Add(DialogReturnCode.Cancel);
 		
-		NotifyDescription = New CallbackDescription("ExportHandlersCodeCompletion", ThisObject);
-		ShowQueryBox(NotifyDescription, NStr("en = 'The debugging module with the handler code is already exported.'"), ButtonsList,,DialogReturnCode.No);
+		CallbackDescription = New CallbackDescription("ExportHandlersCodeCompletion", ThisObject);
+		ShowQueryBox(CallbackDescription, NStr("en = 'The debugging module with the handler code is already exported.'"), ButtonsList,,DialogReturnCode.No);
 		
 	Else
 		

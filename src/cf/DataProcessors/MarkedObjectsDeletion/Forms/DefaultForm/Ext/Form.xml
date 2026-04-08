@@ -1920,7 +1920,7 @@ Searching for marked objects</v8:content>
 						</v8:NumberQualifiers>
 					</Type>
 				</Column>
-				<Column name="ProcessedItemsCount" id="2">
+				<Column name="ProcessedItemsCount_SSLyf" id="2">
 					<Type>
 						<v8:Type>xs:decimal</v8:Type>
 						<v8:NumberQualifiers>
@@ -2141,6 +2141,12 @@ Searching for marked objects</v8:content>
 					<v8:content>Collapse all</v8:content>
 				</v8:item>
 			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Collapse all</v8:content>
+				</v8:item>
+			</ToolTip>
 			<Picture>
 				<xr:Ref>StdPicture.CollapseAll</xr:Ref>
 				<xr:LoadTransparent>true</xr:LoadTransparent>
@@ -2154,6 +2160,12 @@ Searching for marked objects</v8:content>
 					<v8:content>Expand all</v8:content>
 				</v8:item>
 			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Expand all</v8:content>
+				</v8:item>
+			</ToolTip>
 			<Picture>
 				<xr:Ref>StdPicture.ExpandAll</xr:Ref>
 				<xr:LoadTransparent>true</xr:LoadTransparent>

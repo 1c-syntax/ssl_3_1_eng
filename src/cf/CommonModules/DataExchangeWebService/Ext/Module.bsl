@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Internal
@@ -35,7 +34,9 @@ Function GetFileFromStorageInService(Proxy, Val FileID, Val InfobaseNode = Undef
 	
 	FilesNames = New Array;
 	
-	BuildDirectory = GetTempFileName();
+	TempFilesStorageDirectory = DataExchangeServer.TempFilesStorageDirectory();
+	
+	BuildDirectory = CommonClientServer.GetFullFileName(TempFilesStorageDirectory, "{" + String(New UUID) + "}");
 	CreateDirectory(BuildDirectory);
 	
 	FileNameTemplate = "data.zip.[n]";
@@ -116,7 +117,9 @@ Function GetFileFromStorageInService(Proxy, Val FileID, Val InfobaseNode = Undef
 	
 	File = New File(FileName);
 	
-	TempDirectory = GetTempFileName(); //ACC:441 - The directory is deleted when the peer infobase receives the exchange data
+	TempFilesStorageDirectory = DataExchangeServer.TempFilesStorageDirectory();
+	
+	TempDirectory = CommonClientServer.GetFullFileName(TempFilesStorageDirectory, "{" + String(New UUID) + "}"); //ACC:441 - The directory is deleted when the peer infobase receives the exchange data
 	CreateDirectory(TempDirectory);
 	
 	ResultFileName = CommonClientServer.GetFullFileName(TempDirectory, File.Name);
@@ -158,7 +161,9 @@ Function PutFileInStorageInService(Proxy, Val FileName,
 		
 	EndIf;
 	
-	FilesDirectory = GetTempFileName();
+	TempFilesStorageDirectory = DataExchangeServer.TempFilesStorageDirectory();
+	
+	FilesDirectory = CommonClientServer.GetFullFileName(TempFilesStorageDirectory, "{" + String(New UUID) + "}");
 	CreateDirectory(FilesDirectory);
 	
 	// Archive the file.
@@ -1013,7 +1018,7 @@ Function ObsoleteExchangeSettingsOptions(ExchangeNode)
 	
 EndFunction
 
-Function MaximumGeneralVersionOfExchangeInterface(WeightOfCorrespondentExchangeInterface) Export
+Function MaximumGeneralVersionOfExchangeInterface(VersionsOfCorrespondentExchangeInterface) Export
 	
 	SupportedVersionsStructure = New Structure;
 	DataExchangeServer.OnDefineSupportedInterfaceVersions(SupportedVersionsStructure);
@@ -1021,7 +1026,7 @@ Function MaximumGeneralVersionOfExchangeInterface(WeightOfCorrespondentExchangeI
 	
 	MaxVersion = "0.0.0.0";
 	
-	For Each Version In WeightOfCorrespondentExchangeInterface Do
+	For Each Version In VersionsOfCorrespondentExchangeInterface Do
 		
 		If VersionsOfExchangeInterface.Find(Version) = Undefined Then
 			Continue;

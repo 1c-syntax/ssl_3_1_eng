@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -69,7 +68,7 @@ Procedure RefreshScreen(Command)
 EndProcedure
 
 &AtClient
-Procedure More(Command)
+Procedure ShowMoreDetails(Command)
 	
 	DetailsAtServer();
 	
@@ -146,11 +145,11 @@ EndProcedure
 &AtServer
 Procedure DetailsAtServer()
 	
-	Items.NodesStateListMore.Check = Not Items.NodesStateListMore.Check;
+	Items.NodesStateListShowMoreDetails.Check = Not Items.NodesStateListShowMoreDetails.Check;
 	
-	Items.NodesStatesListLastSuccessfulExportDate.Visible = Items.NodesStateListMore.Check;
-	Items.NodesStatesListLastSuccessfulImportDate.Visible = Items.NodesStateListMore.Check;
-	Items.NodesStateListExchangePlanName.Visible = Items.NodesStateListMore.Check;
+	Items.NodesStatesListLastSuccessfulExportDate.Visible = Items.NodesStateListShowMoreDetails.Check;
+	Items.NodesStatesListLastSuccessfulImportDate.Visible = Items.NodesStateListShowMoreDetails.Check;
+	Items.NodesStateListExchangePlanName.Visible = Items.NodesStateListShowMoreDetails.Check;
 	
 EndProcedure
 

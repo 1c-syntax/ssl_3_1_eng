@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -36,9 +35,13 @@ Function SendData(MessageForDataMapping = False) Export
 	Try
 		
 		If InternalPublication Then
+			
 			Result = InternalPublication_SendMessage(MessageForDataMapping);
+			
 		Else
+			
 			Result = ServiceManager_SendMessage(MessageForDataMapping);
+			
 		EndIf;
 		
 	Except
@@ -58,7 +61,17 @@ EndFunction
 Function GetData() Export
 	
 	Try
-		Result = ServiceManager_GetMessage();	
+		
+		If InternalPublication Then 
+			
+			Result = InternalPublication_ReceiveMessage();
+			
+		Else
+			
+			Result = ServiceManager_GetMessage();
+			
+		EndIf;
+		
 	Except
 		
 		ExchangeMessagesTransport.ErrorInformationInMessages(ThisObject, ErrorInfo());
@@ -269,10 +282,10 @@ Function InternalPublication_SaveSettingsInCorrespondent(ConnectionSettings)
 	If DataExchangeCached.IsXDTOExchangePlan(ConnectionSettings.ExchangePlanName) Then
 		CorrespondentConnectionSettings.ExchangeFormatVersion = ConnectionSettings.ExchangeFormatVersion;
 		
-		ObjectsTable1 = DataExchangeXDTOServer.SupportedObjectsInFormat(
+		TableObjects = DataExchangeXDTOServer.SupportedObjectsInFormat(
 			ConnectionSettings.ExchangePlanName, "SendReceive", ConnectionSettings.InfobaseNode);
 		
-		CorrespondentConnectionSettings.SupportedObjectsInFormat = New ValueStorage(ObjectsTable1, New Deflation(9));
+		CorrespondentConnectionSettings.SupportedObjectsInFormat = New ValueStorage(TableObjects, New Deflation(9));
 	EndIf;
 		
 	CorrespondentConnectionSettings.WSCorrespondentEndpoint = Common.ObjectAttributeValue(Endpoint, "Code");
@@ -335,11 +348,48 @@ Function InternalPublication_SendMessage(MessageForDataMapping)
 		DataExchangeWebService.PutMessageForDataMapping(
 			Proxy, ExchangeSettingsStructure, FileIDAsString, CorrespondentDataArea);
 		
-	Else
+	EndIf;
+	
+	Return True;
+	
+EndFunction
+
+Function InternalPublication_ReceiveMessage()
+	
+	Proxy = InternalPublication_Proxy();
+	If Proxy = Undefined Then
 		
-		//
+		Return False;
 		
 	EndIf;
+	
+	ExchangeSettingsStructure = DataExchangeServer.ExchangeSettingsForInfobaseNode(
+		Peer, Enums.ActionsAtCancelInternalPublication.DataImport, "SM");
+		
+	Cancel = False;
+	SetupStatus = DataExchangeWebService.SetupStatus(
+		Proxy, ExchangeSettingsStructure, CorrespondentDataArea, Cancel, ErrorMessage);
+	
+	If Cancel Then
+		
+		ExchangeMessagesTransport.WriteMessageToRegistrationLog(ThisObject, "DataImport");
+		Return False;
+		
+	EndIf;
+	
+	ExchangeParameters = DataExchangeServer.ExchangeParameters();
+	DataExchangeWebService.RunDataExport(Proxy, ExchangeSettingsStructure, ExchangeParameters, CorrespondentDataArea);
+	
+	If ExchangeParameters.TimeConsumingOperation Then
+		
+		DataExchangeWebService.WaitingForTheOperationToComplete(
+			ExchangeSettingsStructure, ExchangeParameters, Proxy, Enums.ActionsOnExchange.DataImport);
+		
+	EndIf;
+	
+	UIDOfTheMessageFile = New UUID(ExchangeParameters.FileID);
+	ExchangeMessage = DataExchangeWebService.GetFileFromStorageInService(
+		Proxy, UIDOfTheMessageFile, Peer, 1024, CorrespondentDataArea);
 	
 	Return True;
 	
@@ -490,7 +540,8 @@ Function ServiceManager_SaveSettingsInCorrespondent(ConnectionSettings)
 	Parameters.Insert("SSL200CompatibilityMode", False);
 	Parameters.Insert("ThisNodeAlias", "");
 	
-	DataExchangeSaaS.UpdateDataAreaTransportSettings(Parameters);
+	ModuleDataExchangeSaaS = Common.CommonModule("DataExchangeSaaS");
+	ModuleDataExchangeSaaS.UpdateDataAreaTransportSettings(Parameters);
 				
 	MessageExchangePlanName = "MessagesExchange";
 	ModuleMessagesSaaS = Common.CommonModule("MessagesSaaS");
@@ -499,14 +550,18 @@ Function ServiceManager_SaveSettingsInCorrespondent(ConnectionSettings)
 		
 	SessionHandlerParameters = TimeConsumingOperationHandlerParameters();
 	
+	ModuleDataExchangeSaaS = Common.CommonModule("DataExchangeSaaS");
+	
 	SetPrivilegedMode(True);
 	
 	BeginTransaction();
 	Try
 		
+		ModuleDataExchangeMessagesManagementInterface = Common.CommonModule("DataExchangeMessagesManagementInterface");
+		
 		// Send a message to a peer infobase.
 		Message = ModuleMessagesSaaS.NewMessage(
-			DataExchangeMessagesManagementInterface.SetUpExchangeStep1Message());
+			ModuleDataExchangeMessagesManagementInterface.SetUpExchangeStep1Message());
 			
 		Message.Body.CorrespondentZone = MSConnectionSettings.CorrespondentDataArea;
 		
@@ -540,7 +595,7 @@ Function ServiceManager_SaveSettingsInCorrespondent(ConnectionSettings)
 		
 		Message.AdditionalInfo = XDTOSerializer.WriteXDTO(AdditionalProperties);
 		
-		SessionHandlerParameters.OperationID = DataExchangeSaaS.SendMessage(Message);
+		SessionHandlerParameters.OperationID = ModuleDataExchangeSaaS.SendMessage(Message);
 		
 		CommitTransaction();
 	Except
@@ -553,7 +608,7 @@ Function ServiceManager_SaveSettingsInCorrespondent(ConnectionSettings)
 		
 		ErrorMessage = ErrorProcessing.DetailErrorDescription(Information);
 		
-		WriteLogEvent(DataExchangeSaaS.EventLogEventDataSynchronizationSetup(),
+		WriteLogEvent(ModuleDataExchangeSaaS.EventLogEventDataSynchronizationSetup(),
 			EventLogLevel.Error, , , ErrorMessage);
 			
 		Return False;
@@ -664,17 +719,17 @@ Function ServiceManager_SendMessage(MessageForDataMapping)
 EndFunction
 
 Function ServiceManager_GetMessage()
-
+	
 	DataAreaExchangeTransportConfigurationModule = Common.CommonModule("InformationRegisters.DataAreaExchangeTransportSettings");
 	DataAreaTransportSettings = DataAreaExchangeTransportConfigurationModule.TransportSettings(Peer);
-		
+	
 	If DataAreaTransportSettings.DefaultExchangeMessagesTransportKind = Enums.ExchangeMessagesTransportTypes.FILE Then
 		
 		Transport = DataProcessors.ExchangeMessageTransportFILE.Create();
 		Transport.DataExchangeDirectory = DataAreaTransportSettings.FILEDataExchangeDirectory;
 		Transport.CompressOutgoingMessageFile = DataAreaTransportSettings.FILECompressOutgoingMessageFile;
 		Transport.ArchivePasswordExchangeMessages = DataAreaTransportSettings.ArchivePasswordExchangeMessages;
-				
+		
 	ElsIf DataAreaTransportSettings.DefaultExchangeMessagesTransportKind = Enums.ExchangeMessagesTransportTypes.FTP Then 
 		
 		Transport = DataProcessors.ExchangeMessageTransportFTP.Create();
@@ -693,12 +748,12 @@ Function ServiceManager_GetMessage()
 	Transport.ExchangeMessage = ExchangeMessage;
 	Transport.TempDirectory = TempDirectory;
 	Transport.NameTemplatesForReceivingMessage = NameTemplatesForReceivingMessage;
-		
+	
 	Result = Transport.GetData();
 	ExchangeMessage = Transport.ExchangeMessage;
 	
-	Return Result;	
-		
+	Return Result;
+	
 EndFunction
 
 Procedure UpdateIdleHandlerParameters(IdleHandlerParameters) Export

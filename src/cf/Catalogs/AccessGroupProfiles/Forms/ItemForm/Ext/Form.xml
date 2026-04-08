@@ -56,10 +56,10 @@
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="SnowUnusedAccessKindsExtendedTooltip" id="251"/>
 			</Button>
-			<Button name="FormHelp" id="395">
+			<Button name="FormHelp_SSLyf" id="395">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.StandardCommand.Help</CommandName>
-				<ExtendedTooltip name="FormHelpExtendedTooltip" id="396"/>
+				<ExtendedTooltip name="FormHelp_SSLyfExtendedTooltip" id="396"/>
 			</Button>
 		</ChildItems>
 	</AutoCommandBar>
@@ -627,13 +627,13 @@ The details displayed may differ from the current profile settings.</v8:content>
 															<Button name="AccessValuesAdd" id="419">
 																<Type>CommandBarButton</Type>
 																<CommandName>Form.Item.AccessValues.StandardCommand.Add</CommandName>
-																<ExtendedTooltip name="AddAccessValuesExtendedTooltip" id="420"/>
+																<ExtendedTooltip name="AccessValuesAddExtendedTooltip" id="420"/>
 															</Button>
 															<Button name="AccessValuesDelete" id="421">
 																<Type>CommandBarButton</Type>
 																<CommandName>Form.Item.AccessValues.StandardCommand.Delete</CommandName>
 																<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
-																<ExtendedTooltip name="DeleteAccessValuesExtendedTooltip" id="422"/>
+																<ExtendedTooltip name="AccessValuesDeleteExtendedTooltip" id="422"/>
 															</Button>
 															<ButtonGroup name="AccessValuesStandardCommands" id="423">
 																<Title>

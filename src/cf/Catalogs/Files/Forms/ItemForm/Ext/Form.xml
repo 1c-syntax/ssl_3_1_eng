@@ -199,6 +199,17 @@
 									</Title>
 									<ExtendedTooltip name="FormSignExtendedTooltip" id="71"/>
 								</Button>
+								<Button name="FormSendForSigning" id="328">
+									<Type>CommandBarButton</Type>
+									<CommandName>Form.Command.SendForSigning</CommandName>
+									<Title>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>Send for signing…</v8:content>
+										</v8:item>
+									</Title>
+									<ExtendedTooltip name="FormSendForSigningExtendedTooltip" id="329"/>
+								</Button>
 								<Button name="FormAddSignatureFromFile" id="20">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.Command.AddDSFromFile</CommandName>
@@ -532,7 +543,7 @@
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
-									<v8:content>Commit</v8:content>
+									<v8:content>Finish editing</v8:content>
 								</v8:item>
 							</Title>
 							<ExtendedTooltip name="EndEditExtendedTooltip" id="163"/>
@@ -1171,6 +1182,17 @@
 										</Title>
 										<ExtendedTooltip name="DigitalSignaturesExtendActionSignaturesExtendedTooltip" id="299"/>
 									</Button>
+									<Button name="DigitalSignaturesSendForSigning" id="330">
+										<Type>CommandBarButton</Type>
+										<CommandName>Form.Command.SendForSigning</CommandName>
+										<Title>
+											<v8:item>
+												<v8:lang>en</v8:lang>
+												<v8:content>Send for signing…</v8:content>
+											</v8:item>
+										</Title>
+										<ExtendedTooltip name="DigitalSignaturesSendForSigningExtendedTooltip" id="331"/>
+									</Button>
 									<SearchStringAddition name="SearchStringDigitalSignatures" id="300">
 										<AdditionSource>
 											<Item>DigitalSignatures</Item>
@@ -1271,8 +1293,8 @@
 													<v8:content>Status</v8:content>
 												</v8:item>
 											</Title>
-											<ContextMenu name="DigitalSignaturesBriefVerificationResultContextMenu" id="324"/>
-											<ExtendedTooltip name="DigitalSignaturesBriefVerificationResultExtendedTooltip" id="325"/>
+											<ContextMenu name="DigitalSignaturesBriefCheckResultContextMenu" id="324"/>
+											<ExtendedTooltip name="DigitalSignaturesBriefCheckResultExtendedTooltip" id="325"/>
 										</InputField>
 										<InputField name="DigitalSignaturesMachineReadableLetterOfAuthority" id="315">
 											<DataPath>DigitalSignatures.MachineReadableLetterOfAuthority</DataPath>
@@ -1702,6 +1724,11 @@
 						</v8:StringQualifiers>
 					</Type>
 				</Column>
+				<Column name="SignatureID" id="4">
+					<Type>
+						<v8:Type>v8:UUID</v8:Type>
+					</Type>
+				</Column>
 			</Columns>
 		</Attribute>
 		<Attribute name="EncryptionCertificates" id="7">
@@ -1824,6 +1851,11 @@
 		</Attribute>
 		<Attribute name="PropertiesParameters" id="20">
 			<Type/>
+		</Attribute>
+		<Attribute name="FileHasBeenMovedToArchive" id="10">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
 		</Attribute>
 	</Attributes>
 	<Commands>
@@ -1990,13 +2022,13 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Commit</v8:content>
+					<v8:content>Finish editing</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Save the file and release it in the infobase.</v8:content>
+					<v8:content>Finalize changes and make the file available for editing.</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Picture>
@@ -2373,6 +2405,15 @@
 				</v8:item>
 			</Title>
 			<Action>MarkAsManuallyVerified</Action>
+		</Command>
+		<Command name="SendForSigning" id="31">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Send for signing…</v8:content>
+				</v8:item>
+			</Title>
+			<Action>SendForSigning</Action>
 		</Command>
 	</Commands>
 	<Parameters>

@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -490,8 +489,8 @@ EndProcedure
 &AtClient
 Procedure AcceptVersionDeclined(Command)
 	
-	NotifyDescription = New CallbackDescription("AcceptVersionDeclinedCompletion", ThisObject);
-	ShowQueryBox(NotifyDescription, NStr("en = 'Do you want to accept the version even though import is restricted?'"), QuestionDialogMode.YesNo, , DialogReturnCode.No);
+	CallbackDescription = New CallbackDescription("AcceptVersionDeclinedCompletion", ThisObject);
+	ShowQueryBox(CallbackDescription, NStr("en = 'Do you want to accept the version even though import is restricted?'"), QuestionDialogMode.YesNo, , DialogReturnCode.No);
 	
 EndProcedure
 
@@ -581,8 +580,8 @@ Procedure ChangeConflictResult(Command)
 			
 		EndIf;
 		
-		NotifyDescription = New CallbackDescription("ChangeConflictResultCompletion", ThisObject);
-		ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.YesNo);
+		CallbackDescription = New CallbackDescription("ChangeConflictResultCompletion", ThisObject);
+		ShowQueryBox(CallbackDescription, QueryText, QuestionDialogMode.YesNo);
 		
 	EndIf;
 	

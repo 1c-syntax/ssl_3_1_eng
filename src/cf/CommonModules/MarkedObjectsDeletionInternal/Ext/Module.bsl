@@ -1,16 +1,15 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//
 
 #Region Internal
 
-#Region ForCallsFromOtherSubsystems
+#Region InterfaceImplementation
 
 // See InfobaseUpdateSSL.OnAddUpdateHandlers.
 Procedure OnAddUpdateHandlers(Handlers) Export
@@ -166,13 +165,13 @@ Procedure OnFillToDoList(ToDoList) Export
 	JobID = "NotDeletedObjects";
 	For Each Section In Sections Do
 
-		ToDoItem = ToDoList.Add();
-		ToDoItem.Id  = JobID;
-		ToDoItem.HasToDoItems       = NotDeletedObjectsCount1.Total > 0;
-		ToDoItem.Presentation  = NStr("en = 'Skipped objects'");
-		ToDoItem.Count     = NotDeletedObjectsCount1.Total;
-		ToDoItem.Form          = "InformationRegister.NotDeletedObjects.ListForm";
-		ToDoItem.Owner       = Section;
+		CaseFile = ToDoList.Add();
+		CaseFile.Id  = JobID;
+		CaseFile.HasToDoItems       = NotDeletedObjectsCount1.Total > 0;
+		CaseFile.Presentation  = NStr("en = 'Skipped objects'");
+		CaseFile.Count     = NotDeletedObjectsCount1.Total;
+		CaseFile.Form          = "InformationRegister.NotDeletedObjects.ListForm";
+		CaseFile.Owner       = Section;
 
 	EndDo;
 
@@ -365,7 +364,7 @@ Procedure MarkedObjectsDeletionControl() Export
 				HasDeletionSession = True;
 			EndIf;
 			Try
-				// @skip-check query-in-loop
+				// @skip-check query-in-loop - 
 				UnlockUsageOfObjectsToDelete(SelectionDetailRecords.SessionID, ?(
 					HasDeletionSession, SelectionDetailRecords.LockTime, Undefined));
 			Except
@@ -381,7 +380,7 @@ Procedure MarkedObjectsDeletionControl() Export
 		Query.Text = QueryTextWithCondition;
 		Query.SetParameter("LockTime", SelectionDetailRecords.LockTime);
 		Query.SetParameter("UnlockTime", UnlockTime);
-		QueryResult = Query.Execute().Unload(); // @skip-check query-in-loop
+		QueryResult = Query.Execute().Unload(); // @skip-check query-in-loop - 
 
 	EndDo;
 
@@ -558,8 +557,8 @@ EndFunction
 
 Function MarkedForDeletion(MetadataFilter, Settings, MarkedForDeletionItemsTree, SearchForTechnologicalObjects = False) Export
 	MarkedForDeletion = MarkedObjectsDeletion.MarkedForDeletion(MetadataFilter, SearchForTechnologicalObjects);
-	Marked = ObjectsToDeleteFromFormData(MarkedForDeletionItemsTree);
-	Return MarkedForDeletionItemsTree(MarkedForDeletion, Settings, Marked);
+	Marked_SSLyf = ObjectsToDeleteFromFormData(MarkedForDeletionItemsTree);
+	Return MarkedForDeletionItemsTree(MarkedForDeletion, Settings, Marked_SSLyf);
 EndFunction
 
 // Performs either of the following user-chosen actions for object pointers that prevent it from being deleted:
@@ -866,13 +865,13 @@ EndFunction
 //       * Attribute - String
 //       * Metadata - String
 //       * Presentation - String
-//   Marked - Array of AnyRef
+//   Marked_SSLyf - Array of AnyRef
 //
 // Returns:
 //   See NewTreeOfDeletableObjects
 //
-Function MarkedForDeletionItemsTree(ObjectsToDelete, Settings, Marked)
-	MarksAreSetSelectively = (Marked.Count() > 0);
+Function MarkedForDeletionItemsTree(ObjectsToDelete, Settings, Marked_SSLyf)
+	MarksAreSetSelectively = (Marked_SSLyf.Count() > 0);
 	ValueTree = NewTreeOfDeletableObjects(AdditionalAttributesNumber(Settings));
 
 	AdditionalDeletableObjectsIDs = StandardSubsystemsServer.ObjectAttributeValuesIfExist(ObjectsToDelete, "Date");
@@ -910,7 +909,7 @@ Function MarkedForDeletionItemsTree(ObjectsToDelete, Settings, Marked)
 		
 		NodeOfType.Technical         = TypeInformation.Technical;
 
-		If MarksAreSetSelectively And Marked.Find(ItemToDeleteRef) = Undefined Then
+		If MarksAreSetSelectively And Marked_SSLyf.Find(ItemToDeleteRef) = Undefined Then
 			NodeOfItemToDelete.Check = False;
 			NodeOfType.Check       = False;
 		EndIf;
@@ -954,8 +953,8 @@ Function SupplementTreeWithAdditionalAttributes(ValueTree, Settings)
 		ResultMetadataType = Result.Rows.Add();
 		FillPropertyValues(ResultMetadataType, MetadataType);
 		MarkedForDeletion = MetadataType.Rows.UnloadColumn("ItemToDeleteRef");
-		AdditionalAttributes = AdditionalAttributesValues(MarkedForDeletion, Settings.FindRows(
-			New Structure("Metadata", Upper(MetadataType.ItemToDeleteRef))));
+		AdditionalAttributes = AdditionalAttributesValues(MarkedForDeletion,
+			Settings.FindRows(New Structure("Metadata", Upper(MetadataType.ItemToDeleteRef))));
 
 		For Each MarkedObject In MetadataType.Rows Do
 			MarkedObjectResult = ResultMetadataType.Rows.Add();
@@ -989,8 +988,8 @@ Function AdditionalAttributesValues(MarkedForDeletion, AdditionalAttributesSetti
 	Result = New Map;
 	AdditionalAttributes = New Array;
 
-	For Each Attribute In AdditionalAttributesSettings Do
-		AdditionalAttributes.Add(Attribute.Attribute);
+	For Each Setting In AdditionalAttributesSettings Do
+		AdditionalAttributes.Add(Setting.Attribute);
 	EndDo;
 
 	If AdditionalAttributes.Count() > 0 Then
@@ -1155,7 +1154,7 @@ EndProcedure
 //   Structure:
 //   * Trash - Array of AnyRef
 //   * NotDeletedObjectsCount - Number
-//   * DeletedItemsCount - Number
+//   * DeletedItemsCount_SSLyf - Number
 //   * NotDeletedItemsLinks - See NotDeletedItemsLinks
 //   * MarkedForDeletionItemsTree - See NewTreeOfDeletableObjects
 //   * NotTrash - See NewTreeOfDeletableObjects
@@ -1171,7 +1170,7 @@ Function FormDataFromDeletionResult(ObjectsToDeleteTree, DeletionResult, Additio
 	Result.Insert("NotTrash", NewTreeOfDeletableObjects());
 	Result.Insert("MarkedForDeletionItemsTree", MarkedForDeletionItemsTree);
 	Result.Insert("NotDeletedItemsLinks", NotDeletedItemsLinks());
-	Result.Insert("DeletedItemsCount", 0);
+	Result.Insert("DeletedItemsCount_SSLyf", 0);
 	Result.Insert("NotDeletedObjectsCount", 0);
 
 	ObjectsPreventingDeletion = DeletionResult.ObjectsPreventingDeletion.UnloadColumn("ItemToDeleteRef");
@@ -1212,7 +1211,7 @@ Function FormDataFromDeletionResult(ObjectsToDeleteTree, DeletionResult, Additio
 		PreviousStepErrors(PreviousStepResult), Result.NotDeletedItemsLinks);
 
 	Result.NotDeletedObjectsCount = DeletionResult.NotTrash.Count();
-	Result.DeletedItemsCount = DeletionResult.Trash.Count();
+	Result.DeletedItemsCount_SSLyf = DeletionResult.Trash.Count();
 
 	Return Result
 EndFunction
@@ -1760,5 +1759,19 @@ Function Value(Source, PropertyName, DefaultValue = Undefined)
 EndFunction
 
 #EndRegion
+
+// See StandardSubsystemsServer.WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode
+Procedure WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode(Methods) Export
+	
+	Methods.Insert("SessionParametersSetting");
+	Methods.Insert("EnableDeleteMarkedObjects");
+	Methods.Insert("SetDeletionScheduleTagged");
+	Methods.Insert("MarkedForDeletion", True);
+	Methods.Insert("RunDataProcessorOfReasonsForNotDeletion", True);
+	Methods.Insert("ToDeleteMarkedObjects", True);
+	Methods.Insert("MarkedObjectsDeletionControl", True);
+	Methods.Insert("MarkedObjectsDeletionScheduled", True);
+	
+EndProcedure
 
 #EndRegion

@@ -148,16 +148,16 @@
 							</Button>
 						</ChildItems>
 					</ButtonGroup>
-					<Button name="NodesStateListMore" id="49">
+					<Button name="NodesStateListShowMoreDetails" id="49">
 						<Type>CommandBarButton</Type>
-						<CommandName>Form.Command.More</CommandName>
+						<CommandName>Form.Command.ShowMoreDetails</CommandName>
 						<Title>
 							<v8:item>
 								<v8:lang>en</v8:lang>
 								<v8:content>Details</v8:content>
 							</v8:item>
 						</Title>
-						<ExtendedTooltip name="NodesStateListMoreExtendedTooltip" id="66"/>
+						<ExtendedTooltip name="NodesStateListShowMoreDetailsExtendedTooltip" id="66"/>
 					</Button>
 					<ButtonGroup name="NodesStateListOutputListGroup" id="50">
 						<Title>
@@ -691,7 +691,7 @@
 			<Action>GoToDataImportEventLog</Action>
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
-		<Command name="More" id="1">
+		<Command name="ShowMoreDetails" id="1">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
@@ -704,7 +704,7 @@
 					<v8:content>Show detailed information</v8:content>
 				</v8:item>
 			</ToolTip>
-			<Action>More</Action>
+			<Action>ShowMoreDetails</Action>
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
 	</Commands>

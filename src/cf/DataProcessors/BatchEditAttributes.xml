@@ -47,7 +47,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>If edit in transaction fails, all changes are discarded.</v8:content>
+							<v8:content>If editing in transaction is impossible, all changes are discarded.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>
@@ -190,7 +190,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Show service attributes</v8:content>
+							<v8:content>Show internal attributes</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>
@@ -203,7 +203,7 @@
 					<ToolTip>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Show service attributes in the list of common attributes.</v8:content>
+							<v8:content>Show internal attributes in the list of common attributes.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<MarkNegatives>false</MarkNegatives>

@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Variables
@@ -63,15 +62,16 @@ EndProcedure
 &AtServer
 Function StartRequestsProcessing(Val Queries, Val EnablingMode, DisablingMode, Val RecoveryMode, Val ApplicabilityCheckMode)
 	
+	JobDescription = NStr("en = 'Processing requests for external resources…'");
+	
 	If EnablingMode Then
 		
 		JobParameters = New Array();
 		JobParameters.Add(StorageAddress);
 		JobParameters.Add(StateStorageAddress);
 		
-		MethodCallParameters = New Array();
-		MethodCallParameters.Add("DataProcessors.ExternalResourcesPermissionsSetup.ExecuteUpdateRequestProcessing");
-		MethodCallParameters.Add(JobParameters);
+		Job = BackgroundJobs.Execute("SafeModeManagerInternal.ExecuteUpdateRequestProcessing",
+			JobParameters,, JobDescription);
 		
 	ElsIf DisablingMode Then
 		
@@ -79,9 +79,8 @@ Function StartRequestsProcessing(Val Queries, Val EnablingMode, DisablingMode, V
 		JobParameters.Add(StorageAddress);
 		JobParameters.Add(StateStorageAddress);
 		
-		MethodCallParameters = New Array();
-		MethodCallParameters.Add("DataProcessors.ExternalResourcesPermissionsSetup.ExecuteDisableRequestProcessing");
-		MethodCallParameters.Add(JobParameters);
+		Job = BackgroundJobs.Execute("SafeModeManagerInternal.ExecuteDisableRequestProcessing",
+			JobParameters,, JobDescription);
 		
 	ElsIf RecoveryMode Then
 		
@@ -89,10 +88,8 @@ Function StartRequestsProcessing(Val Queries, Val EnablingMode, DisablingMode, V
 		JobParameters.Add(StorageAddress);
 		JobParameters.Add(StateStorageAddress);
 		
-		MethodCallParameters = New Array();
-		MethodCallParameters.Add("DataProcessors.ExternalResourcesPermissionsSetup.ExecuteRecoveryRequestProcessing");
-		MethodCallParameters.Add(JobParameters);
-		
+		Job = BackgroundJobs.Execute("SafeModeManagerInternal.ExecuteRecoveryRequestProcessing",
+			JobParameters,, JobDescription);
 	Else
 		
 		JobParameters = New Array();
@@ -100,16 +97,9 @@ Function StartRequestsProcessing(Val Queries, Val EnablingMode, DisablingMode, V
 		JobParameters.Add(StorageAddress);
 		JobParameters.Add(StateStorageAddress);
 		
-		MethodCallParameters = New Array();
-		MethodCallParameters.Add("DataProcessors.ExternalResourcesPermissionsSetup.ExecuteRequestProcessing");
-		MethodCallParameters.Add(JobParameters);
-		
+		Job = BackgroundJobs.Execute("SafeModeManagerInternal.ExecuteRequestProcessing",
+			JobParameters,, JobDescription);
 	EndIf;
-	
-	Job = BackgroundJobs.Execute("Common.ExecuteConfigurationMethod",
-			MethodCallParameters,
-			,
-			NStr("en = 'Processing requests for external resources…'"));
 	
 	JobID = Job.UUID;
 	
@@ -195,9 +185,9 @@ Procedure EndRequestsProcessing()
 		
 	Else
 		
-		NotifyDescription = CallbackDescriptionOnClose;
-		If NotifyDescription <> Undefined Then
-			RunCallback(NotifyDescription, DialogReturnCode.OK);
+		CallbackDescription = CallbackDescriptionOnClose;
+		If CallbackDescription <> Undefined Then
+			RunCallback(CallbackDescription, DialogReturnCode.OK);
 		EndIf;
 		
 	EndIf;

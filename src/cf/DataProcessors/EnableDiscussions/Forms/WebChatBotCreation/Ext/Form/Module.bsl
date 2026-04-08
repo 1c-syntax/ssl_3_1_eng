@@ -1,5 +1,5 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
@@ -186,7 +186,7 @@ Procedure ActivateBot(Command)
 	EndIf;
 	
 	Try
-		ActivateServer();
+		SetAsActiveServer();
 	Except
 		ErrorInfo = ErrorInfo();
 		Refinement = CommonClientServer.ExceptionClarification(ErrorInfo, 
@@ -222,8 +222,8 @@ Procedure SaveWebPageFile(Command)
 
 	MessageText = NStr("en = 'To save the file, install 1C:Enterprise Extension.'");
 	
-	NotifyDescription = New CallbackDescription("SaveWebPageFileFollowUp", ThisObject);
-	FileSystemClient.Attach1CEnterpriseExtension(NotifyDescription, MessageText);
+	CallbackDescription = New CallbackDescription("SaveWebPageFileFollowUp", ThisObject);
+	FileSystemClient.Attach1CEnterpriseExtension(CallbackDescription, MessageText);
 
 EndProcedure
 
@@ -265,10 +265,10 @@ Async Procedure SaveWebPageFileFollowUp(FileSystemExtensionAttached1, Additional
 			SelectedFiles[0]);
 		
 		AdditionalParameters = New Structure("FileName", SelectedFiles[0]);
-		NotifyDescription = New CallbackDescription("SaveWebPageFileOpenFileDirectory",
+		CallbackDescription = New CallbackDescription("SaveWebPageFileOpenFileDirectory",
 			ThisObject, AdditionalParameters);
 		
-		ShowUserNotification(NStr("en = 'Save file'"), NotifyDescription, Explanation, 
+		ShowUserNotification(NStr("en = 'Save file'"), CallbackDescription, Explanation, 
 			PictureLib.Information32);
 		
 	EndIf;
@@ -306,7 +306,7 @@ Function WebPageFileContent()
 EndFunction
 
 &AtServer
-Procedure ActivateServer()
+Procedure SetAsActiveServer()
 	
 	IntegrationParameters = ConversationsInternal.IntegrationParameters();
 	IntegrationParameters.Id = Parameters.Id;
@@ -628,6 +628,36 @@ Procedure FillParameterData(WebChatParameter)
 		For Each LocaleItem In LocalizationList Do
 			WebChatParameter.ValueList.Insert(LocaleItem.Value, LocaleItem.Presentation);
 		EndDo;
+		
+	ElsIf WebChatParameter.Name = "displayUnreadMessagesMark" Then
+		
+		WebChatParameter.Presentation = NStr("en = 'Show unread message icon'");
+		WebChatParameter.Type = "Boolean";
+		WebChatParameter.StandardValue = "true";
+		
+		WebChatParameter.ValueList = New Structure;
+		WebChatParameter.ValueList.Insert("true", True);
+		WebChatParameter.ValueList.Insert("false", False);
+		
+	ElsIf WebChatParameter.Name = "displayCollapsedState" Then
+		
+		WebChatParameter.Presentation = NStr("en = 'Show collapsed chat state'");
+		WebChatParameter.Type = "Boolean";
+		WebChatParameter.StandardValue = "true";
+		
+		WebChatParameter.ValueList = New Structure;
+		WebChatParameter.ValueList.Insert("true", True);
+		WebChatParameter.ValueList.Insert("false", False);
+		
+	ElsIf WebChatParameter.Name = "openChatOnNewMessage" Then
+		
+		WebChatParameter.Presentation = NStr("en = 'Open chat when a new message arrives'");
+		WebChatParameter.Type = "Boolean";
+		WebChatParameter.StandardValue = "true";
+		
+		WebChatParameter.ValueList = New Structure;
+		WebChatParameter.ValueList.Insert("true", True);
+		WebChatParameter.ValueList.Insert("false", False);
 
 	Else
 		
@@ -642,8 +672,8 @@ EndProcedure
 Function AvailableLocales()
 	
 	LocalizationList = New ValueList;
-	For Each LocalizationCode In GetAvailableLocaleCodes() Do
-		LocalizationList.Add(LocalizationCode, LocaleCodePresentation(LocalizationCode));
+	For Each LocaleCode In GetAvailableLocaleCodes() Do
+		LocalizationList.Add(LocaleCode, LocaleCodePresentation(LocaleCode));
 	EndDo;
 	LocalizationList.SortByPresentation(SortDirection.Asc);
 	Return LocalizationList;

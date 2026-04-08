@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -52,6 +51,34 @@ Procedure BeforeWrite(Cancel)
 			// If external users are disconnected, the role must be assigned to users.
 			Purpose.Add().UsersType = Catalogs.Users.EmptyRef();
 		EndIf;
+	EndIf;
+	
+EndProcedure
+
+Procedure OnWrite(Cancel)
+	
+	If DataExchange.Load Then
+		Return;
+	EndIf;
+	
+	If Not UsedByAddressingObjects And UsedWithoutAddressingObjects Then
+		
+		DataLock = New DataLock;
+		LockItem = DataLock.Add("InformationRegister.TaskPerformers");
+		LockItem.SetValue("PerformerRole", Ref);
+		DataLock.Lock();
+
+		Set = InformationRegisters.TaskPerformers.CreateRecordSet();
+		Set.Filter.PerformerRole.Set(Ref);
+		Set.Read();
+		If Set.Count() > 0 Then
+			For Each PerformerTasks In Set Do
+				PerformerTasks.MainAddressingObject       = Undefined;
+				PerformerTasks.AdditionalAddressingObject = Undefined;
+			EndDo;
+		EndIf;
+		Set.Write();
+
 	EndIf;
 	
 EndProcedure

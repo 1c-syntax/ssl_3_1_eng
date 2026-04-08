@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -87,14 +86,14 @@ Var IBUserProcessingParameters; // Parameters to be populated when processing a 
 
 Procedure BeforeWrite(Cancel)
 	
-	// ACC:75-off - DataExchange.Load should be checked as needed after the infobase user is handled.
-	UsersInternal.UserObjectBeforeWrite(ThisObject, IBUserProcessingParameters);
-	// ACC:75-on
-	
 	// ACC:75-off - The DataExchange.Load check must follow the locking of registers.
 	If Common.FileInfobase() Then
 		UsersInternal.LockRegistersBeforeWritingToFileInformationSystem(False);
 	EndIf;
+	// ACC:75-on
+	
+	// ACC:75-off - DataExchange.Load should be checked as needed after the infobase user is handled.
+	UsersInternal.UserObjectBeforeWrite(ThisObject, IBUserProcessingParameters);
 	// ACC:75-on
 	
 	If DataExchange.Load Then

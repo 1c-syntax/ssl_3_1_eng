@@ -1,18 +1,17 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Public
 
-#Region ForCallsFromOtherSubsystems
+#Region InterfaceImplementation
 
 // Configure report form.
 //
@@ -196,7 +195,7 @@ Function ChangeOfUserAccounts(Settings)
 	Columns.Add("EventKind",          StringType);
 	Columns.Add("Author",               StringType100);
 	Columns.Add("AuthorID", StringType36);
-	Columns.Add("Package",          StringType20);
+	Columns.Add("Application",          StringType20);
 	Columns.Add("Computer",           StringType);
 	Columns.Add("SessionStarted",        DateType);
 	Columns.Add("Session",               NumberType);
@@ -415,7 +414,7 @@ Function ChangeOfUserAccounts(Settings)
 		NewRow.EventKind            = EventKind;
 		NewRow.Author                 = Event.UserName;
 		NewRow.AuthorID   = Event.User;
-		NewRow.Package            = Event.ApplicationName;
+		NewRow.Application            = Event.ApplicationName;
 		NewRow.Computer             = Event.Computer;
 		NewRow.Session                 = Event.Session;
 		NewRow[ConnectionColumnName] = Event[ConnectionColumnName];

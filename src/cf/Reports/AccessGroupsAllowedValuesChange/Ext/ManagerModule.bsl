@@ -1,5 +1,5 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
@@ -11,7 +11,7 @@
 
 #Region Public
 
-#Region ForCallsFromOtherSubsystems
+#Region InterfaceImplementation
 
 // StandardSubsystems.ReportsOptions
 
@@ -26,6 +26,10 @@ Procedure BeforeAddReportCommands(ReportsCommands, Parameters, StandardProcessin
 	EndIf;
 	
 	ModuleAccessManagementInternal = Common.CommonModule("AccessManagementInternal");
+	If ModuleAccessManagementInternal.IsRecordLevelRestrictionDisabled() Then
+		Return;
+	EndIf;
+	
 	ParametersForReports = ModuleAccessManagementInternal.ParametersForReports();
 	
 	If Parameters.FormName <> ParametersForReports.AccessGroupsListFormFullName
@@ -54,12 +58,17 @@ Procedure CustomizeReportOptions(Settings, ReportSettings) Export
 		Return;
 	EndIf;
 	
+	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
+		ModuleAccessManagementInternal = Common.CommonModule("AccessManagementInternal");
+	EndIf;
+	
 	ModuleReportsOptions = Common.CommonModule("ReportsOptions");
 	ReportSettings.DefineFormSettings = True;
 	ReportSettings.GroupByReport = False;
 	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "Main");
-	OptionSettings.Enabled = Common.SubsystemExists("StandardSubsystems.AccessManagement");
+	OptionSettings.Enabled = ModuleAccessManagementInternal <> Undefined
+		And Not ModuleAccessManagementInternal.IsRecordLevelRestrictionDisabled();
 	OptionSettings.LongDesc =
 		NStr("en = 'Reads the event log and displays the changes in allowed access group values based on the value group changes for the specified time period.'");
 	

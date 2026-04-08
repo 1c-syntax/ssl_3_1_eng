@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -168,7 +167,7 @@ EndProcedure
 //  UserInfo - Structure - string and referential user presentation:
 //       * UserRef  - CatalogRef.Users - a user,
 //                               from which you need to receive settings.
-//       * InfobaseUserName - String - an infobase user,
+//       * InfoBaseUserName - String - an infobase user,
 //                                             from which you need to receive settings.
 //  Settings - Structure - other user settings:
 //       * Key     - String - string ID of a setting that is used
@@ -194,7 +193,7 @@ EndProcedure
 //  UserInfo - Structure - string and referential user presentation:
 //       * UserRef - CatalogRef.Users - a user
 //                              who needs to copy a setting.
-//       * InfobaseUserName - String - an infobase user
+//       * InfoBaseUserName - String - an infobase user
 //                                             who needs to copy a setting.
 //
 Procedure OnSaveOtherSetings(UserInfo, Settings) Export
@@ -213,7 +212,7 @@ EndProcedure
 //  UserInfo - Structure - string and referential user presentation:
 //       * UserRef - CatalogRef.Users - a user
 //                              who needs to clear a setting.
-//       * InfobaseUserName - String - an infobase
+//       * InfoBaseUserName - String - an infobase
 //                                             user.
 //
 Procedure OnDeleteOtherSettings(UserInfo, Settings) Export

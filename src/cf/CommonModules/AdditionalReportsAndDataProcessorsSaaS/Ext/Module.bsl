@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Internal
@@ -1254,8 +1253,8 @@ Procedure LockAdditionalReportsAndDataProcessorsForUpdate() Export
 		For Each DataProcessorToLock In DataProcessorsToLock Do
 			
 			SuppliedDataProcessor = DataProcessorToLock.GetObject(); // CatalogObject.SuppliedAdditionalReportsAndDataProcessors -
-			SuppliedDataProcessor.Publication = Enums.AdditionalReportsAndDataProcessorsPublicationOptions.isDisabled;
-			SuppliedDataProcessor.DisableReason = Enums.ReasonsForDisablingAdditionalReportsAndDataProcessorsSaaS.ConfigurationVersionUpdate;
+			SuppliedDataProcessor.Publication = Enums.AdditionalReportsAndDataProcessorsPublicationOptions.TurnedOff;
+			SuppliedDataProcessor.TurnedOffReason = Enums.ReasonsForDisablingAdditionalReportsAndDataProcessorsSaaS.ConfigurationVersionUpdate;
 			SuppliedDataProcessor.Write();
 			
 		EndDo;
@@ -1512,10 +1511,10 @@ Procedure ProcessSuppliedAdditionalReportsAndDataProcessors(Descriptor, PathToFi
 			SuppliedDataProcessor.SetNewObjectRef(SuppliedDataProcessorRef);
 		EndIf;
 		
-		If ValueIsFilled(SuppliedDataProcessor.DisableReason) Then
-			If SuppliedDataProcessor.DisableReason = Enums.ReasonsForDisablingAdditionalReportsAndDataProcessorsSaaS.ConfigurationVersionUpdate Then
+		If ValueIsFilled(SuppliedDataProcessor.TurnedOffReason) Then
+			If SuppliedDataProcessor.TurnedOffReason = Enums.ReasonsForDisablingAdditionalReportsAndDataProcessorsSaaS.ConfigurationVersionUpdate Then
 				SuppliedDataProcessor.Publication = Enums.AdditionalReportsAndDataProcessorsPublicationOptions.Used;
-				SuppliedDataProcessor.DisableReason = Enums.ReasonsForDisablingAdditionalReportsAndDataProcessorsSaaS.EmptyRef();
+				SuppliedDataProcessor.TurnedOffReason = Enums.ReasonsForDisablingAdditionalReportsAndDataProcessorsSaaS.EmptyRef();
 			EndIf;
 		Else
 			SuppliedDataProcessor.Publication = Enums.AdditionalReportsAndDataProcessorsPublicationOptions.Used;
@@ -1826,7 +1825,7 @@ EndProcedure
 Procedure CheckCanExecuteSuppliedDataProcessor(Val DataProcessorToUse)
 	
 	PublicationParametersOfDataProcessorToUse = Common.ObjectAttributesValues(DataProcessorToUse, "Publication, Version");
-	If PublicationParametersOfDataProcessorToUse.Publication = Enums.AdditionalReportsAndDataProcessorsPublicationOptions.isDisabled Then
+	If PublicationParametersOfDataProcessorToUse.Publication = Enums.AdditionalReportsAndDataProcessorsPublicationOptions.TurnedOff Then
 		Raise NStr(
 			"en = 'Usage of additional data processor is prohibited. Contact the user with administrative rights in the application.'");
 	EndIf;
@@ -1839,11 +1838,11 @@ Procedure CheckCanExecuteSuppliedDataProcessor(Val DataProcessorToUse)
 		Return;
 	EndIf;
 		
-	PublicationParametersOfSuppliedDataProcessor = Common.ObjectAttributesValues(SuppliedDataProcessor, "Publication, DisableReason, Version");
+	PublicationParametersOfSuppliedDataProcessor = Common.ObjectAttributesValues(SuppliedDataProcessor, "Publication, TurnedOffReason, Version");
 	
 	// Check if the built-in data processor is published.
-	If PublicationParametersOfSuppliedDataProcessor.Publication = Enums.AdditionalReportsAndDataProcessorsPublicationOptions.isDisabled Then
-		Raise LockReasonsDetails[PublicationParametersOfSuppliedDataProcessor.DisableReason];
+	If PublicationParametersOfSuppliedDataProcessor.Publication = Enums.AdditionalReportsAndDataProcessorsPublicationOptions.TurnedOff Then
+		Raise LockReasonsDetails[PublicationParametersOfSuppliedDataProcessor.TurnedOffReason];
 	EndIf;
 	
 	// Checking for data processor version update

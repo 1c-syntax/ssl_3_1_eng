@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -343,7 +342,7 @@ Procedure EditPropertiesContent(Form)
 		MigrationParameters.Insert("Set", Sets[0].Value);
 		MigrationParameters.Insert("Property", Undefined);
 		MigrationParameters.Insert("IsAdditionalInfo", False);
-		MigrationParameters.Insert("PropertyKind",
+		MigrationParameters.Insert("PropertyKind1",
 			PredefinedValue("Enum.PropertiesKinds.AdditionalAttributes"));
 		
 		BeginningLength = StrLen("AdditionalAttributeValue_");
@@ -420,8 +419,8 @@ Procedure EditAttributeHyperlink(Form, HyperlinkAction = False, Item = Undefined
 		OpeningParameters.Insert("Property", AttributeDetails.Property);
 		OpeningParameters.Insert("AdditionalValuesOwner", AttributeDetails.AdditionalValuesOwner);
 	EndIf;
-	NotifyDescription = New CallbackDescription("EditAttributeHyperlinkCompletion", PropertyManagerClient, Form);
-	OpenForm("CommonForm.EditHyperlink", OpeningParameters,,,,, NotifyDescription);
+	CallbackDescription = New CallbackDescription("EditAttributeHyperlinkCompletion", PropertyManagerClient, Form);
+	OpenForm("CommonForm.EditHyperlink", OpeningParameters,,,,, CallbackDescription);
 EndProcedure
 
 Procedure EditAttributeHyperlinkCompletion(Result, AdditionalParameters) Export

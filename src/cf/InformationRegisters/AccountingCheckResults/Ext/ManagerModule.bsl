@@ -1,18 +1,17 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Public
 
-#Region ForCallsFromOtherSubsystems
+#Region InterfaceImplementation
 
 // StandardSubsystems.AccessManagement
 
@@ -61,7 +60,7 @@ Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 			|	UniqueKey";
 		
 		Query.SetParameter("UniqueKey", UniqueKey);
-		Result = Query.Execute().Unload(); // @skip-check query-in-loop
+		Result = Query.Execute().Unload(); // @skip-check query-in-loop - порционная регистрация данных для обновления.
 	
 		InfobaseUpdate.MarkForProcessing(Parameters, Result, AdditionalParameters);
 		

@@ -32,10 +32,10 @@
 				<CommandName>Form.StandardCommand.Cancel</CommandName>
 				<ExtendedTooltip name="FormCancelExtendedTooltip" id="53"/>
 			</Button>
-			<Button name="FormHelp" id="36">
+			<Button name="FormHelp_SSLyf" id="36">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.StandardCommand.Help</CommandName>
-				<ExtendedTooltip name="FormHelpExtendedTooltip" id="54"/>
+				<ExtendedTooltip name="FormHelp_SSLyfExtendedTooltip" id="54"/>
 			</Button>
 		</ChildItems>
 	</AutoCommandBar>

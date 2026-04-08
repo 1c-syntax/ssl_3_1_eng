@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -312,8 +311,8 @@ Procedure Delete(Command)
 	DialogButtons.Add(DialogReturnCode.Yes, NStr("en = 'Dismiss'"));
 	DialogButtons.Add(DialogReturnCode.Cancel, NStr("en = 'Not now'"));
 	
-	NotifyDescription = New CallbackDescription("DeleteReminder", ThisObject);
-	ShowQueryBox(NotifyDescription, NStr("en = 'Dismiss the reminder?'"), DialogButtons);
+	CallbackDescription = New CallbackDescription("DeleteReminder", ThisObject);
+	ShowQueryBox(CallbackDescription, NStr("en = 'Dismiss the reminder?'"), DialogButtons);
 	
 EndProcedure
 
@@ -385,16 +384,16 @@ EndFunction
 
 &AtClient
 Procedure FillNotificationMethods()
-	NotificationMethods = Items.ReminderTimeSettingMethod.ChoiceList;
-	NotificationMethods.Clear();
+	NotificationMethods_ = Items.ReminderTimeSettingMethod.ChoiceList;
+	NotificationMethods_.Clear();
 	For Each Method In GetPredefinedNotificationMethods() Do
-		NotificationMethods.Add(Method.Key);
+		NotificationMethods_.Add(Method.Key);
 	EndDo;	
 	
 	Items.RemindBeforeDueTime.ChoiceList.Clear();
-	TimeIntervals = SubsystemSettings.StandardIntervals;
-	For Each Interval In TimeIntervals Do
-		NotificationMethods.Add(StringFunctionsClientServer.SubstituteParametersToString(
+	TimeIntervals_ = SubsystemSettings.StandardIntervals;
+	For Each Interval In TimeIntervals_ Do
+		NotificationMethods_.Add(StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'in %1'"), Interval));
 		Items.RemindBeforeDueTime.ChoiceList.Add(Interval);
 	EndDo;
@@ -490,8 +489,8 @@ Procedure OpenScheduleSettingDialog()
 		Schedule.DaysRepeatPeriod = 1;
 	EndIf;
 	ScheduleDialog1 = New ScheduledJobDialog(Schedule);
-	NotifyDescription = New CallbackDescription("OpenScheduleSettingDialogCompletion", ThisObject);
-	ScheduleDialog1.Show(NotifyDescription);
+	CallbackDescription = New CallbackDescription("OpenScheduleSettingDialogCompletion", ThisObject);
+	ScheduleDialog1.Show(CallbackDescription);
 EndProcedure
 
 &AtClient

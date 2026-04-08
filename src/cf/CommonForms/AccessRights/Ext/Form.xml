@@ -86,10 +86,10 @@
 				<CommandSource>Form</CommandSource>
 				<ExtendedTooltip name="FormPanelExtendedTooltip" id="113"/>
 			</ButtonGroup>
-			<Button name="FormHelp" id="29">
+			<Button name="FormHelp_SSLyf" id="29">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.StandardCommand.Help</CommandName>
-				<ExtendedTooltip name="FormHelpExtendedTooltip" id="114"/>
+				<ExtendedTooltip name="FormHelp_SSLyfExtendedTooltip" id="114"/>
 			</Button>
 		</ChildItems>
 	</AutoCommandBar>

@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -661,12 +660,12 @@ Function InfoAboutPhone(ContactInformation = Undefined) Export
 	PhoneByFields         = ContactsManagerInternal.ContactInformationToJSONStructure(ContactInformation, 
 		Enums.ContactInformationTypes.Phone);
 	
-	Result.Presentation = String(PhoneByFields.value);
-	Result.CountryCode     = String(PhoneByFields.countryCode);
+	Result.Presentation = String(PhoneByFields.Value);
+	Result.CountryCode     = String(PhoneByFields.CountryCode);
 	Result.CityCode     = String(PhoneByFields.AreaCode);
 	Result.PhoneNumber = String(PhoneByFields.Number);
 	Result.PhoneExtension    = String(PhoneByFields.ExtNumber);
-	Result.Comment   = String(PhoneByFields.comment);
+	Result.Comment   = String(PhoneByFields.Comment);
 	
 	Return Result;
 	
@@ -951,7 +950,7 @@ Function AddressEnteredInFreeFormat(Val ContactInformation) Export
 		ContactInformation = ContactsManagerInternal.JSONToContactInformationByFields(ContactInformation, Enums.ContactInformationTypes.Address);
 	EndIf;
 	
-	Return ContactsManagerClientServer.IsAddressInFreeForm(ContactInformation.addressType);
+	Return ContactsManagerClientServer.IsAddressInFreeForm(ContactInformation.AddressType);
 	
 EndFunction
 
@@ -981,7 +980,7 @@ Function ContactInformationComment(ContactInformation) Export
 	EndIf;
 	
 	If ContactInformationAsStructure.Property("Comment") Then
-		Return ContactInformationAsStructure.comment;
+		Return ContactInformationAsStructure.Comment;
 	EndIf;
 	
 	Return "";
@@ -1053,7 +1052,7 @@ Function ContactInformationAddressCountry(Val Address) Export
 		
 	EndIf;
 	
-	Result.Description = TrimAll(Address.country);
+	Result.Description = TrimAll(Address.Country);
 	CountryData1 = WorldCountryData(, Result.Description);
 	Return ?(CountryData1 = Undefined, Result, CountryData1);
 	
@@ -1081,8 +1080,8 @@ Function ContactInformationAddressDomain(Val ContactInformation) Export
 	
 	If ContactInformationAsStructure.Property("Type") And ContactInformationAsStructure.Property("Value") Then
 		
-		AddressDomain = TrimAll(ContactInformationAsStructure.value);
-		If ContactInformationTypeByDescription(ContactInformationAsStructure.type) = Enums.ContactInformationTypes.WebPage Then
+		AddressDomain = TrimAll(ContactInformationAsStructure.Value);
+		If ContactInformationTypeByDescription(ContactInformationAsStructure.Type) = Enums.ContactInformationTypes.WebPage Then
 			
 			Position = StrFind(AddressDomain, "://");
 			If Position > 0 Then
@@ -1091,7 +1090,7 @@ Function ContactInformationAddressDomain(Val ContactInformation) Export
 			Position = StrFind(AddressDomain, "/");
 			Return ?(Position = 0, AddressDomain, Left(AddressDomain, Position - 1));
 			
-		ElsIf ContactInformationTypeByDescription(ContactInformationAsStructure.type) = Enums.ContactInformationTypes.Email Then
+		ElsIf ContactInformationTypeByDescription(ContactInformationAsStructure.Type) = Enums.ContactInformationTypes.Email Then
 			
 			Position = StrFind(AddressDomain, "@");
 			Return ?(Position = 0, AddressDomain, Mid(AddressDomain, Position + 1));
@@ -1363,7 +1362,10 @@ Function WorldCountryData(Val CountryCode = Undefined, Val Description = Undefin
 	
 	StandardizedCode = WorldCountryCode(CountryCode);
 	If CountryCode <> Undefined Then
-		SearchCondition.Add("Code=" + CheckQuotesInString(StandardizedCode));
+		TemplateCode = "(Code = %1 OR Code = %2)";
+		SearchCondition.Add(StringFunctionsClientServer.SubstituteParametersToString(TemplateCode,
+			CheckQuotesInString(StandardizedCode), CheckQuotesInString(CountryCode)));
+		
 		ClassifierFilter.Insert("Code", StandardizedCode);
 	EndIf;
 	
@@ -1724,7 +1726,7 @@ EndFunction
 //                              If it is a reference, contact information
 //                              will be received from the object by reference, otherwise, from the ContactInformation table of the object.
 //    AdditionalParameters - See ContactInformationParameters.
-//                            - String - Obsolete.
+//                            - String - 
 //    DeleteCITitleLocation - FormItemTitleLocation - obsolete, use AdditionalParameters instead.
 //    DeleteExcludedKinds - Array  - obsolete, use AdditionalParameters instead.
 //    DeleteDeferredInitialization - Array - obsolete, use AdditionalParameters instead.
@@ -2114,7 +2116,7 @@ Procedure OnReadAtServer(Form, Object, ItemForPlacementName = "ContactInformatio
 				If TabularSectionsNamesByCIKinds = Undefined Then
 					Filter = New Structure("IsTabularSectionAttribute", True);
 					TabularSectionCIKinds = ContactsManagerClientServer.DescriptionOfTheContactInformationOnTheForm(Form).Unload(Filter, "Kind");
-					// @skip-check query-in-loop - Выполняется только в одной итерации, при первом появлении реквизита табличной части
+					// @skip-check query-in-loop - 
 					TabularSectionsNamesByCIKinds = TabularSectionsNamesByCIKinds(TabularSectionCIKinds, ObjectName);
 				EndIf;
 				
@@ -2245,7 +2247,7 @@ Procedure FillCheckProcessingAtServer(Form, Object, Cancel) Export
 			If TabularSectionsNamesByCIKinds = Undefined Then
 				Filter = New Structure("IsTabularSectionAttribute", True);
 				TabularSectionCIKinds = ContactsManagerClientServer.DescriptionOfTheContactInformationOnTheForm(Form).Unload(Filter , "Kind");
-				// @skip-check query-in-loop - Выполняется только в одной итерации, при первом появлении реквизита табличной части
+				// @skip-check query-in-loop - 
 				TabularSectionsNamesByCIKinds = TabularSectionsNamesByCIKinds(TabularSectionCIKinds, ObjectName);
 			EndIf;
 			
@@ -2488,9 +2490,9 @@ Function UpdateContactInformation(Form, Object, Result = Undefined) Export
 				If ContactsManagerClientServer.IsJSONContactInformation(FoundRow.Value) Then
 					ContactInformationByFields = ContactsManagerInternal.JSONToContactInformationByFields(FoundRow.Value, Undefined);
 					If Result.Property("Comment") Then
-						ContactInformationByFields.comment = Result.Comment;
+						ContactInformationByFields.Comment = Result.Comment;
 					Else 
-						ContactInformationByFields.comment = "";
+						ContactInformationByFields.Comment = "";
 					EndIf;
 					FoundRow.Value = ContactsManagerInternal.ToJSONStringStructure(ContactInformationByFields);
 				EndIf;
@@ -2884,6 +2886,40 @@ EndFunction
 
 #Region AddressInfoAndValidation
 
+// Returns the address type (address division type) from an address string in the JSON format.
+//
+// It is not recommended to compare the address type directly with a string. 
+// Use the specialized functions from the common modules 
+//  ContactsManagerClientServer and AddressManagerClientServer 
+// (if present in the configuration). 
+// For more details, see the CustomFormatAddress, ForeignAddress, and EEU functions from the 
+// ContactsManagerClientServer common module.
+//
+// Parameters:
+//   Address - String - Address in the JSON format.
+//
+// Returns:
+//   String - Address type, e.g.: Foreign, EEU, FreeForm, etc.
+//            If the address type cannot be determined, an empty string is returned.
+//
+Function AddressType(Address) Export
+	
+	If TypeOf(Address) = Type("String") Then
+		
+		If IsBlankString(Address) Then
+			Return "";
+		EndIf;
+		
+		AddressFromJSON = ContactsManagerInternal.JSONToContactInformationByFields(Address, Enums.ContactInformationTypes.Address);
+		
+		Return AddressFromJSON.addressType;
+		
+	EndIf;
+	
+	Return "";
+	
+EndFunction
+
 // Returns detailed address information as separate fields (city, street, postal code, and so on).
 // If the "AddressManager" common module is integrated, a call 
 // to this function is automatically redirected to that module.
@@ -2898,11 +2934,11 @@ EndFunction
 //   Structure:
 //        * Presentation    - String - Text presentation of the address. For example,
 //                                      "Av. Larco 1234, Miraflores 15074, Lima, Peru".
-//        * AddressType        - String - Address type. Valid values are: "FreeForm", "Foreign".
+//        * AddressType        - String - Address type. Valid values are: "FreeForm", "Foreign2".
 //        * Country           - String - Text presentation of a country. For example, "Peru".
 //        * CountryCode        - String - a country code. For example, "604".
 //        * IndexOf           - String - Postal code. For example, "15074".
-//        * State_SSLym           - String - Text presentation of a region or state. For example, "Miraflores".
+//        * State           - String - Text presentation of a region or state. For example, "Miraflores".
 //        * City            - String - Text presentation of a street.
 //        * Street            - String - Text presentation of the street, building, etc.
 //                                      For example, "Av. Larco 1234".
@@ -2946,7 +2982,6 @@ Function InfoAboutAddresses(Addresses, AdditionalParameters = Undefined) Export
 		
 	Return AddressInformationAsFields(Addresses, AdditionalParameters);
 EndFunction
-
 
 // Checks contact information.
 //
@@ -2995,6 +3030,136 @@ Function ValidateContactInformation(Presentation, FieldValues, InformationKind, 
 	EndIf;
 	
 	Return ErrorsLevel;
+	
+EndFunction
+
+
+// A parameter constructor that describes the rules for address presentation generation.
+// 
+// Returns:
+//  Structure - New address presentation parameters:
+//   * FieldList - Array - The fields to be included in the representation. For example: ["City", "Street", "House"]).
+//                            If data is missing, the default set and order of fields will be applied.
+//   * LocalityOnly - Boolean - If "True", the presentation will only include the settlement (without street, house, etc.). By default, it is set to "False".
+//                                      
+//   * MailAddress - Boolean - If set to "True", the presentation repeats the postal address sequence:
+//                              street, house number, apartment, settlement, country, zip code.:
+//                              By default, it is set to "False".
+//   * IncludeZipCode - Boolean - Flag indicating whether the postal code should be included in the address presentation.
+//                                       By default, it is set to "True".
+//   * IncludeCountry - Boolean -  Flag indicating whether the country should be included in the address presentation.
+//                                By default, it is set to "False".
+//   * IncludeStreetTo- Boolean - Flag indicating whether the street should be included in the address presentation.
+//                                By default, it is set to True.
+//   * IncludeBuildingsAndPremises - Boolean - Flag indicating whether the building and room should be included in the address presentation.
+//                                 By default, it is set to True.
+//   * PostfixOfAddressType - String - Contains a prefix added to the field name to indicate the type of address element.
+//                                  The prefix is used in composite address fields.
+//                                  For example, "Street" = "Maple" and "StreetType" = "ave."
+//                                  If not specified, the TypeShort is used. 
+//                                  To display spelled-out forms in the address, use TypeFull. 
+//                                  
+// 
+Function NewAddressRepresentationParameters() Export
+	
+	Result = New Structure;
+	Result.Insert("FieldList",              New Array);
+	Result.Insert("LocalityOnly",    False);
+	Result.Insert("MailAddress",            False);
+	Result.Insert("IncludeZipCode",   True);
+	Result.Insert("IncludeCountry",           False);
+	Result.Insert("PostfixOfAddressType",       "");
+	Result.Insert("IncludeStreetTo",            True);
+	Result.Insert("IncludeBuildingsAndPremises", True);
+	Return Result;
+	
+EndFunction
+
+// Returns a formatted address presentation.
+//
+// The presentation is generated according to the specified field order. 
+// The function supports various output formats, including reverse order 
+// (starts with house number, ends with region) and abbreviated versions. 
+//
+// Parameters:
+//   Address - String - Address in the JSON format.
+//         - Structure - A list of address fields whose key matches the 
+//             field names in the AddressInfo3 function.
+//   AddressRepresentationParameters - See NewAddressRepresentationParameters
+//                                - Undefined -   
+//
+// Returns:
+//   String - The generated address presentation. If the passed address is invalid, the function returns an empty string.
+//
+Function AddressPresentation(Address, Val AddressRepresentationParameters = Undefined) Export
+	
+	PresentationFields    = New Array;
+	FieldsOfBuildingsAndPremises = New Array;
+	
+	AddressByFields = Undefined;
+	AddressType    = Undefined;
+	
+	If ContactsManagerClientServer.IsJSONContactInformation(Address) Then
+		AddressByFields = InfoAboutAddress(Address);
+		AddressType = AddressByFields.AddressType;
+	ElsIf TypeOf(Address) = Type("Structure") Then
+		AddressByFields = New Structure(New FixedStructure(Address));
+		If AddressByFields.Property("AddressType") Then
+			AddressType = AddressByFields.AddressType;
+		EndIf;
+	EndIf;
+	
+	If Not ValueIsFilled(AddressByFields) Then
+		Return "";
+	EndIf;
+	
+	If ContactsManagerClientServer.IsAddressInFreeForm(AddressType)  Then
+		If AddressByFields.Property("Presentation") Then
+			Return AddressByFields["Presentation"];
+		Else
+			Return "";
+		EndIf;
+	EndIf;
+	
+	PresentationParameters =  NewAddressRepresentationParameters();
+	If ValueIsFilled(AddressRepresentationParameters) Then
+		FillPropertyValues(PresentationParameters, AddressRepresentationParameters);
+	EndIf;
+	
+	If Not ContactsManagerClientServer.IsItForeignAddressOrEAEU(AddressType) Then
+	
+		If ContactsManagerInternalCached.AreAddressManagementModulesAvailable() Then
+			ModuleAddressManager = Common.CommonModule("AddressManager");
+			Return ModuleAddressManager.AddressPresentation(AddressByFields, AddressType, PresentationParameters);
+		EndIf;
+	
+	EndIf;
+	
+	FieldsOrder = DefineOrderOfLevelsToRepresent(PresentationParameters);
+	
+	For Each FieldName In FieldsOrder Do
+		
+		If FieldName = "House" Then
+			
+			PresentationFields.Add(ContactsManagerClientServer.AddressObjectName(AddressByFields.BuildingUnit, "Number", "BuildingType", True));
+			
+			For Each Building In AddressByFields.BuildingUnits Do
+				PresentationFields.Add(ContactsManagerClientServer.AddressObjectName(Building, "Number", "BuildingType", True));
+			EndDo;
+			
+		ElsIf FieldName = "Premises" Then
+			For Each Premise In AddressByFields.Premises Do
+				PresentationFields.Add(ContactsManagerClientServer.AddressObjectName(Premise, "Number", "PremiseType", True));
+			EndDo;
+			
+		ElsIf AddressByFields.Property(FieldName) And ValueIsFilled(AddressByFields[FieldName]) Then
+			PresentationFields.Add(ContactsManagerClientServer.AddressObjectName(AddressByFields, FieldName));
+		EndIf;
+	EndDo;
+	
+	Presentation = StrConcat(PresentationFields, ", ");
+	
+	Return Presentation;
 	
 EndFunction
 
@@ -3363,7 +3528,7 @@ Procedure WriteContactInformation(Object, Val Value, InformationKind, Informatio
 	EndIf;
 	
 	NewRow = Object.ContactInformation.Add();
-	NewRow.Presentation = CIObject.value;
+	NewRow.Presentation = CIObject.Value;
 	NewRow.Value      = ContactsManagerInternal.ToJSONStringStructure(CIObject);
 	NewRow.Kind           = InformationKind;
 	NewRow.Type           = InformationType;
@@ -4188,7 +4353,7 @@ Function AddressInformationAsFields(Addresses, AdditionalParameters)
 		AddressFields.Comment = AddressFromJSON.comment;
 		AddressFields.Country      = AddressFromJSON.country;
 		AddressFields.CountryCode   = AddressFromJSON.countryCode;
-		AddressFields.State_SSLym      = AddressFromJSON.area;
+		AddressFields.State      = AddressFromJSON.area;
 		AddressFields.IndexOf      = AddressFromJSON.ZIPcode;
 		AddressFields.City       = AddressFromJSON.city;
 		AddressFields.Street       = AddressFromJSON.street;
@@ -4210,6 +4375,84 @@ Function AddressInformationAsFields(Addresses, AdditionalParameters)
 	
 EndFunction
 
+// The default level order.
+// 
+// Parameters:
+//  AddressRepresentationParameters - See NewAddressRepresentationParameters
+// 
+// Returns:
+//  Array - The default level order
+//
+Function DefineOrderOfLevelsToRepresent(AddressRepresentationParameters)
+	
+	AddressLevels = New Array;
+	
+	If AddressRepresentationParameters.FieldList.Count() > 0 Then
+		AddressLevels = New Array(New FixedArray(AddressRepresentationParameters.FieldList));
+	ElsIf AddressRepresentationParameters.MailAddress Then
+		AddressLevels.Add("Street");
+		AddressLevels.Add("House");
+		AddressLevels.Add("Premises");
+		AddressLevels.Add("Locality");
+		AddressLevels.Add("City");
+		AddressLevels.Add("District");
+		AddressLevels.Add("State");
+		AddressLevels.Add("Country");
+		AddressLevels.Add("IndexOf");
+	Else
+		AddressLevels.Add("Country");
+		AddressLevels.Add("IndexOf");
+		AddressLevels.Add("State");
+		AddressLevels.Add("District");
+		AddressLevels.Add("City");
+		AddressLevels.Add("Locality");
+		AddressLevels.Add("Street");
+		AddressLevels.Add("House");
+		AddressLevels.Add("Premises");
+	EndIf;
+	
+	If Not AddressRepresentationParameters.IncludeCountry Then
+		
+		Position = AddressLevels.Find("Country");
+		If Position <> Undefined Then 
+			AddressLevels.Delete(AddressLevels.Find("Country"));
+		EndIf;
+		
+	EndIf;
+	
+	If Not AddressRepresentationParameters.IncludeZipCode Then
+		
+		Position = AddressLevels.Find("IndexOf");
+		If Position <> Undefined Then 
+			AddressLevels.Delete(AddressLevels.Find("IndexOf"));
+		EndIf;
+		
+	EndIf;
+	
+	If AddressRepresentationParameters.LocalityOnly Then
+		
+		Position = AddressLevels.Find("Street");
+		If Position <> Undefined Then 
+			AddressLevels.Delete(AddressLevels.Find("Street"));
+		EndIf;
+		
+		Position = AddressLevels.Find("House");
+		If Position <> Undefined Then 
+			AddressLevels.Delete(AddressLevels.Find("House"));
+		EndIf;
+		
+		Position = AddressLevels.Find("Premises");
+		If Position <> Undefined Then 
+			AddressLevels.Delete(AddressLevels.Find("Premises"));
+		EndIf;
+		
+	EndIf;
+	
+	
+	Return AddressLevels;
+	
+EndFunction
+
 #Region InitializeFormItemContactInformationOwnerObject
 
 Procedure DefineContactInformationParametersByOwner(Form, Object, ContactInformationParameters, IsMainObjectParameters, HiddenKinds)
@@ -4225,10 +4468,10 @@ Procedure DefineContactInformationParametersByOwner(Form, Object, ContactInforma
 				Return;
 		EndIf;
 		
-		IsMainObjectParameters = False;
-		
 	EndDo;
-
+	
+	IsMainObjectParameters = False;
+	
 EndProcedure
 
 // Parameters:
@@ -4280,7 +4523,8 @@ Procedure GenerateContactInformationAttributes(Val Form, Val AttributesToBeAdded
 	
 	For Each ObjectOfContactInformation In ContactInformation Do
 		
-		If ObjectOfContactInformation.DeletionMark And IsBlankString(ObjectOfContactInformation.Value) Then
+		If ObjectOfContactInformation.DeletionMark And IsBlankString(ObjectOfContactInformation.Value)
+		   And IsBlankString(ObjectOfContactInformation.FieldValues) Then
 			Continue;
 		EndIf;
 			
@@ -4363,9 +4607,11 @@ Procedure GenerateContactInformationAttributes(Val Form, Val AttributesToBeAdded
 					EndIf;
 				EndIf;
 			Else
-				ObjectOfContactInformation.AttributeName = "ContactInformationField" + ObjectOfContactInformation.PredefinedKindName;
+				KindName = ?(ValueIsFilled(ObjectOfContactInformation.PredefinedDataName),
+					ObjectOfContactInformation.PredefinedDataName, ObjectOfContactInformation.PredefinedKindName);
+				ObjectOfContactInformation.AttributeName = "ContactInformationField" + KindName;
 				If HasCommentField Then
-					ObjectOfContactInformation.AttributeNameComment = "CommentContactInformationField" + ObjectOfContactInformation.PredefinedKindName;
+					ObjectOfContactInformation.AttributeNameComment = "CommentContactInformationField" + KindName;
 				EndIf;
 				GeneratedAttributes.Delete(CreatedAttribute);
 			EndIf;
@@ -4537,7 +4783,7 @@ Procedure ModifyComment(Form, AttributeName, ItemForPlacementName, ContactInform
 	If ContactsManagerClientServer.IsJSONContactInformation(FoundRow.Value) Then
 		ContactInformationByFields = ContactsManagerInternal.JSONToContactInformationByFields(
 			FoundRow.Value, Undefined);
-		ContactInformationByFields.comment = FoundRow.Comment;
+		ContactInformationByFields.Comment = FoundRow.Comment;
 		FoundRow.Value = ContactsManagerInternal.ToJSONStringStructure(ContactInformationByFields);
 	EndIf;
 	
@@ -5668,7 +5914,7 @@ Procedure ContactInformationConvertionToJSON(ContactInformation)
 					CIRow.FieldValues, CIRow.Type, SettingsOfConversion);
 				
 				If CIRow.Type = Enums.ContactInformationTypes.Address
-				   And ContactsManagerClientServer.IsAddressInFreeForm(ContactInformationByFields.addressType) Then
+				   And ContactsManagerClientServer.IsAddressInFreeForm(ContactInformationByFields.AddressType) Then
 						Continue;
 				EndIf;
 				
@@ -5714,8 +5960,8 @@ Function ContactInformationBasicInfo(ContactInformation = Undefined) Export
 	ContactInformationFields = ContactsManagerInternal.ContactInformationToJSONStructure(ContactInformation);
 	ContactInformationType = ContactInformationType(ContactInformation);
 	
-	Result.Presentation           = String(ContactInformationFields.value);
-	Result.Comment             = String(ContactInformationFields.comment);
+	Result.Presentation           = String(ContactInformationFields.Value);
+	Result.Comment             = String(ContactInformationFields.Comment);
 	Result.ContactInformationType = ContactInformationType;
 	
 	Return Result;
@@ -5857,7 +6103,7 @@ Function EmailFIllingErrors(EMAddress, InformationKind, Val AttributeName = "", 
 		Enums.ContactInformationTypes.Email);
 	
 	Try
-		Result = CommonClientServer.EmailsFromString(Email.value);
+		Result = CommonClientServer.EmailsFromString(Email.Value);
 		If Result.Count() > 1 Then
 			ErrorString = NStr("en = 'Only one email address is allowed'");
 		ElsIf Result.Count() = 1 Then
@@ -6590,7 +6836,7 @@ Function ContactInformationFromFormAttributes(Form, Object)
 			If TabularSectionsNamesByCIKinds = Undefined Then
 				Filter = New Structure("IsTabularSectionAttribute", True);
 				TabularSectionCIKinds = ContactsManagerClientServer.DescriptionOfTheContactInformationOnTheForm(Form).Unload(Filter, "Kind");
-				// @skip-check query-in-loop - Выполняется только в одной итерации, при первом появлении реквизита табличной части
+				// @skip-check query-in-loop - 
 				TabularSectionsNamesByCIKinds = TabularSectionsNamesByCIKinds(TabularSectionCIKinds, MetadataObjectName);
 			EndIf;
 			
@@ -6650,7 +6896,7 @@ Procedure MoveContactInformationRecordFromFormToTable(ContactInformation, TableR
 	ValidFrom = ?(TableRow.Property("ValidFrom"), TableRow.ValidFrom, Undefined);
 	FillPropertyValues(ContactInformationRow, TableRow, "Kind,Type");
 	
-	ContactInformationRow.Presentation = CIObject.value;
+	ContactInformationRow.Presentation = CIObject.Value;
 	ContactInformationRow.Value      = ContactsManagerInternal.ToJSONStringStructure(CIObject);
 	
 	ContactsManagerLocalization.OnConvertContactInformationFromJSONToXML(CIObject, ContactInformationRow.FieldValues, TableRow.Type);

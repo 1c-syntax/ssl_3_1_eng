@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -555,12 +554,12 @@ EndFunction
 //                 - InformationRegisterRecordSet
 //                 - AccumulationRegisterRecordSet
 //                 - AccountingRegisterRecordSet
-//                 - CalculationRegisterRecordSet - A set of records in memory and in the database that need to be verified.<plch id="1">
-//                     An optional "Replacing" property (Boolean, ReplacementMode) can be added to the "AdditionalProperties" structure.<plch id="1">
-//                     If not specified, it defaults to True.<plch id="1">
-//                     If "Replacing" is "False" or "ReplacementMode.Addition", database records are not checked.<plch id="1">
-//                     If "Replacing" is "True" or "ReplacementMode.Replacing", records for verification will be retrieved from the database<plch id="1">
-//                     based on the Filter property settings.<plch id="1">
+//                 - CalculationRegisterRecordSet - A set of records in memory and in the database that need to be verified.
+//                     An optional "Replacing" property (Boolean, ReplacementMode) can be added to the "AdditionalProperties" structure.
+//                     If not specified, it defaults to True.
+//                     If "Replacing" is "False" or "ReplacementMode.Addition", database records are not checked.
+//                     If "Replacing" is "True" or "ReplacementMode.Replacing", records for verification will be retrieved from the database
+//                     based on the Filter property settings.
 //                     Otherwise, they will be retrieved using the row keys from the record set.
 //
 //  User   - CatalogRef.Users
@@ -774,6 +773,21 @@ EndFunction
 //                      - CalculationRegisterRecordSet - — the set of the records being checked.
 //
 Procedure OnReadAtServer(Form, CurrentObject) Export
+	
+	Properties = New Structure("Ref", Null);
+	FillPropertyValues(Properties, CurrentObject);
+	
+	If Properties.Ref <> Null
+	   And Not ValueIsFilled(Properties.Ref)
+	   And Common.IsRefTypeObject(TypeOf(CurrentObject)) Then
+		
+		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Procedure %1 should be called only from the %2 form handler.
+			           |(That is, for an existing object with a non-empty reference.)'"),
+			"AccessManagement.OnReadAtServer",
+			"OnReadAtServer");
+		Raise(ErrorText, ErrorCategory.ConfigurationError);
+	EndIf;
 	
 	If AccessManagementInternal.AccessAllowed(CurrentObject, True, False, True) Then
 		Return;
@@ -1324,12 +1338,13 @@ EndFunction
 // Returns access rights to metadata objects of reference type by specified IDs.
 //
 // Parameters:
-//  IDs - Array - Values of the CatalogRef.MetadataObjectIDs,
-//                            reference type metadata objects, for which rights are to be returned.
+//  IDs - Array of CatalogRef.MetadataObjectIDs
+//                 - Array of CatalogRef.ExtensionObjectIDs
 //
 // Returns:
 //  Map of KeyAndValue:
-//    * Key     - CatalogRef.MetadataObjectIDs - Object ID.
+//    * Key     - CatalogRef.MetadataObjectIDs
+//               - CatalogRef.ExtensionObjectIDs
 //    * Value - Structure:
 //        ** Key     - String - Name of the access right ("Read", "Update", "Insert").
 //        ** Value - Boolean - if True, there is the right, otherwise, there is not.
@@ -1452,8 +1467,8 @@ EndFunction
 //            for which you want to fill in access value sets.
 //
 //  Table - See AccessValuesSetsTable
-//          - Undefined - returns prepared sets of access values in this parameter. 
-//            If Undefined is passed, a new table of access value sets will be created and filled in.
+//          - Undefined -  
+//            
 //
 //  SubordinateObjectRef - AnyRef - Intended for populating owner access value sets for the given subordinate object.
 //            For details, see AccessManagementOverridable.OnFillAccessRightsDependencies.
@@ -1482,6 +1497,10 @@ Procedure FillAccessValuesSets(Val Object, Table, Val SubordinateObjectRef = Und
 			"WriteAccessValuesSets",
 			"WriteDependentAccessValuesSets");
 		Raise ErrorText;
+	EndIf;
+	
+	If AccessManagementInternal.IsRecordLevelRestrictionDisabled() Then
+		Return;
 	EndIf;
 	
 	Table = ?(TypeOf(Table) = Type("ValueTable"), Table, AccessValuesSetsTable());
@@ -2049,6 +2068,10 @@ Procedure ReplaceRightsInObjectsRightsSettings(RenamedTable) Export
 	UsersInternal.CheckIfSafeModeOff(
 		"AccessManagement.ReplaceRightsInObjectsRightsSettings");
 	
+	If AccessManagementInternal.IsRecordLevelRestrictionDisabled() Then
+		Return;
+	EndIf;
+	
 	// ACC:96-off - No.434. Using JOIN is acceptable as the rows should be unique and
 	// this is a one-time operation in an update handler.
 	Query = New Query;
@@ -2341,7 +2364,8 @@ EndProcedure
 //
 Procedure DisableAccessKeysUpdate(Disconnect, ScheduleUpdate1 = True) Export
 	
-	If Not Common.SeparatedDataUsageAvailable() Then
+	If Not Common.SeparatedDataUsageAvailable()
+	 Or AccessManagementInternal.IsRecordLevelRestrictionDisabled() Then
 		Return;
 	EndIf;
 	
@@ -2434,12 +2458,12 @@ EndProcedure
 // 
 //
 // Parameters:
-//  Version      - String - 
-//                  
+//  Version      - String - Version to be used in "InfobaseUpdate.NewUpdateHandlerTable".
+//                  You can pass an empty string if "ObsoleteIsInitialPopulationOnly" is set to "True".
 //  Handlers - See InfobaseUpdate.NewUpdateHandlerTable
-//  ObsoleteIsInitialPopulationOnly - Boolean - 
-//    
-//  ObsoleteExclusiveOfDIB - Boolean - 
+//  ObsoleteIsInitialPopulationOnly - Boolean - If True, the deferred update handler for the version in
+//    the "Version" parameter will not be added. Intended for backward compatibility.
+//  ObsoleteExclusiveOfDIB - Boolean - Add handlers regardless of whether the infobase is distributed.
 //
 // Example:
 //	Procedure OnAddUpdateHandlers(Handlers) Export
@@ -2496,7 +2520,7 @@ EndProcedure
 
 #EndRegion
 
-#Region ForCallsFromOtherSubsystems
+#Region InterfaceImplementation
 
 // ServiceSubsystems.TMPAMEMObjects
 
@@ -2529,7 +2553,7 @@ EndFunction
 
 // End ServiceSubsystems.TMPAMEM
 
-// 
+// Development.RightsAndAccessRestrictionsDevelopment
 
 // Assignment: to call ASDS restrictions from the constructor.
 // 
@@ -2609,7 +2633,7 @@ EndFunction
 //                                       It can be outside the line (line length + 1).
 //         *** ErrorText    - String - an error text without describing the position.
 //         *** ErrorString   - String - a line, in which an error with the added <<?>> was found.
-//      ** AddOn - String - description of options of the first restriction part keywords.
+//      ** Supplement - String - description of options of the first restriction part keywords.
 //
 //   * AdditionalTables - Array of Structure:
 //      ** Table           - String - Full name of a metadata object.
@@ -2711,7 +2735,7 @@ EndFunction
 
 // End Development.RightsAndAccessRestrictionsDevelopment
 
-// 
+// CloudTechnology.ServiceUsers
 
 // Sets user permissions according to the provided access groups 
 // (in case of simplified mode, access group profiles) and user groups.
@@ -2776,6 +2800,39 @@ Procedure SendAccessGroupsToServiceManagerOnMigrateToNewVersion() Export
 EndProcedure
 
 // End CloudTechnology.ServiceUsers
+
+// Designed for file infobases, where it prevents file-based DBMS deadlocks when reading with RLS within
+// a transaction or before writing (before the CheckAccessBeforeWrite event subscription being triggered).
+// It is recommended to enable this flag at the actual start of the transaction, rather than in nested transactions.
+// The file-based DBMS has the following characteristics:
+//
+// 1. When reading within a transaction, the file-based DBMS automatically applies shared locks to all
+// tables used in the query, including access restriction (RLS) tables added at the SDBL level.
+//    2. If a shared lock is set in session 1, it cannot be upgraded to an exclusive lock if
+// another session is already waiting for an exclusive lock.
+//    
+//
+// Parameters:
+//  BeforeWriteNewObject - Boolean - Set to True if, anywhere within the shared transaction,
+//    a new reference object with RLS is written.
+//  BeforeWriteAccessSettings - Boolean - Set to True if, anywhere within the shared transaction, an object is modified in a way that affects access rights
+//    a) A new access value is added (organization, counterparty, etc.).
+//    b) The access value group is changed for an access value (for example, the counterparty access group of a counterparty).
+//    c) Another access-related setting is changed (e.g., a new file folder is specified or the parent of a file folder is changed);
+//    d) A constant that toggles an access type is changed (for example, UseExternalUsers).
+//    
+//
+Procedure SetLockBeforeWriteToFileIB(BeforeWriteNewObject = False,
+			BeforeWriteAccessSettings = False) Export
+	
+	If Not Common.FileInfobase() Then
+		Return;
+	EndIf;
+	
+	AccessManagementInternal.SetLockBeforeWriteToFileIB(
+		BeforeWriteNewObject, BeforeWriteAccessSettings);
+	
+EndProcedure
 
 #EndRegion
 

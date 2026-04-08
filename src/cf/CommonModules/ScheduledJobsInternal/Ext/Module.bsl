@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Internal
@@ -102,7 +101,7 @@ EndFunction
 //        The default value is False.
 //    * CanAccessExternalResources - Boolean - "True" if the scheduled job accesses web services
 //        but its "UseExternalResources" property is not set to "True".
-//        The default value is "False".
+//        The default value is "UseExternalResources".
 //
 Function ScheduledJobsDependentOnFunctionalOptions() Export
 	
@@ -286,6 +285,82 @@ Function BackgroundJobsProperties(Filter = Undefined) Export
 	EndIf;
 	
 	Return Table;
+	
+EndFunction
+
+// Throws an exception if the user does not have the administration right.
+Procedure RaiseIfNoAdministrationRights() Export
+	
+	If Common.DataSeparationEnabled()
+		And Common.SeparatedDataUsageAvailable() Then
+		If Not Users.IsFullUser() Then
+			Raise NStr("en = 'Access violation.'");
+		EndIf;
+	Else
+		If Not PrivilegedMode() Then
+			VerifyAccessRights("Administration", Metadata);
+		EndIf;
+	EndIf;
+	
+EndProcedure
+
+// It is intended for "manual" immediate execution of the scheduled job procedure either in the client session (in the file infobase)
+// or in the background job on the server (in the server infobase).
+// It is used in any connection mode.
+// The "manual" run mode does not affect the scheduled job execution according to the emergency
+// and main schedules, as the background job has no reference to the scheduled job.
+// The BackgroundJob type does not allow such a reference, so the same rule is applied
+// to file mode.
+// 
+// Parameters:
+//  Job             - ScheduledJob
+//                      - String - ScheduledJob UUID string.
+//
+// Returns:
+//  Structure:
+//    * StartedAt -   Undefined
+//                    -   Date - for the file infobase, sets the passed time as the
+//                        scheduled job method start time.
+//                        For the server infobase returns the background job start time upon completion.
+//    * BackgroundJobIdentifier - String - for the server infobase, returns the running background job ID.
+//
+Function ExecuteScheduledJobManually(Val Job) Export
+	
+	RaiseIfNoAdministrationRights();
+	SetPrivilegedMode(True);
+	
+	ExecutionParameters = ScheduledJobExecutionParameters();
+	ExecutionParameters.ProcedureAlreadyExecuting = False;
+	Job = ScheduledJobsServer.GetScheduledJob(Job);
+	
+	ExecutionParameters.Started1 = False;
+	LastBackgroundJobProperties = LastBackgroundJobScheduledJobExecutionProperties(Job);
+	
+	If LastBackgroundJobProperties <> Undefined
+	   And LastBackgroundJobProperties.State = BackgroundJobState.Active Then
+		
+		ExecutionParameters.StartedAt  = LastBackgroundJobProperties.Begin;
+		If ValueIsFilled(LastBackgroundJobProperties.Description) Then
+			ExecutionParameters.BackgroundJobPresentation = LastBackgroundJobProperties.Description;
+		Else
+			ExecutionParameters.BackgroundJobPresentation = ScheduledJobPresentation(Job);
+		EndIf;
+	Else
+		BackgroundJobDescription = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Manual start: %1'"), ScheduledJobPresentation(Job));
+		// Long-running operations are not used because the scheduled job method is called.
+		JobName = Job.Metadata.Name;
+		BackgroundJob = ConfigurationExtensions.ExecuteBackgroundJobWithDatabaseExtensions(
+			Metadata.ScheduledJobs[JobName].MethodName,
+			Job.Parameters,
+			String(Job.UUID),
+			BackgroundJobDescription);
+		ExecutionParameters.BackgroundJobIdentifier = String(BackgroundJob.UUID);
+		ExecutionParameters.StartedAt = BackgroundJobs.FindByUUID(BackgroundJob.UUID).Begin;
+		ExecutionParameters.Started1 = True;
+	EndIf;
+	
+	ExecutionParameters.ProcedureAlreadyExecuting = Not ExecutionParameters.Started1;
+	Return ExecutionParameters;
 	
 EndFunction
 
@@ -473,22 +548,6 @@ Function DefaultSettings()
 	
 EndFunction
 
-// Throws an exception if the user does not have the administration right.
-Procedure RaiseIfNoAdministrationRights() Export
-	
-	If Common.DataSeparationEnabled()
-		And Common.SeparatedDataUsageAvailable() Then
-		If Not Users.IsFullUser() Then
-			Raise NStr("en = 'Access violation.'");
-		EndIf;
-	Else
-		If Not PrivilegedMode() Then
-			VerifyAccessRights("Administration", Metadata);
-		EndIf;
-	EndIf;
-	
-EndProcedure
-
 // Parameters:
 //  Parameters - Structure:
 //     * Table - ValueTable:
@@ -636,61 +695,6 @@ Procedure SetScheduledJobProperties(Receiver, JobSource)
 EndProcedure
 
 #Region ProceduresAndFunctionsToManageScheduledJobs
-
-// It is intended for "manual" immediate execution of the scheduled job procedure either in the client session (in the file infobase)
-// or in the background job on the server (in the server infobase).
-// It is used in any connection mode.
-// The "manual" run mode does not affect the scheduled job execution according to the emergency
-// and main schedules, as the background job has no reference to the scheduled job.
-// The BackgroundJob type does not allow such a reference, so the same rule is applied
-// to file mode.
-// 
-// Parameters:
-//  Job             - ScheduledJob
-//                      - String - ScheduledJob UUID string.
-//
-// Returns:
-//  Structure:
-//    * StartedAt -   Undefined
-//                    -   Date - for the file infobase, sets the passed time as the
-//                        scheduled job method start time.
-//                        For the server infobase returns the background job start time upon completion.
-//    * BackgroundJobIdentifier - String - for the server infobase, returns the running background job ID.
-//
-Function ExecuteScheduledJobManually(Val Job) Export
-	
-	RaiseIfNoAdministrationRights();
-	SetPrivilegedMode(True);
-	
-	ExecutionParameters = ScheduledJobExecutionParameters();
-	ExecutionParameters.ProcedureAlreadyExecuting = False;
-	Job = ScheduledJobsServer.GetScheduledJob(Job);
-	
-	ExecutionParameters.Started1 = False;
-	LastBackgroundJobProperties = LastBackgroundJobScheduledJobExecutionProperties(Job);
-	
-	If LastBackgroundJobProperties <> Undefined
-	   And LastBackgroundJobProperties.State = BackgroundJobState.Active Then
-		
-		ExecutionParameters.StartedAt  = LastBackgroundJobProperties.Begin;
-		If ValueIsFilled(LastBackgroundJobProperties.Description) Then
-			ExecutionParameters.BackgroundJobPresentation = LastBackgroundJobProperties.Description;
-		Else
-			ExecutionParameters.BackgroundJobPresentation = ScheduledJobPresentation(Job);
-		EndIf;
-	Else
-		BackgroundJobDescription = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Manual start: %1'"), ScheduledJobPresentation(Job));
-		// Long-running operations are not used because the scheduled job method is called.
-		BackgroundJob = ConfigurationExtensions.ExecuteBackgroundJobWithDatabaseExtensions(Job.Metadata.MethodName, Job.Parameters, String(Job.UUID), BackgroundJobDescription);
-		ExecutionParameters.BackgroundJobIdentifier = String(BackgroundJob.UUID);
-		ExecutionParameters.StartedAt = BackgroundJobs.FindByUUID(BackgroundJob.UUID).Begin;
-		ExecutionParameters.Started1 = True;
-	EndIf;
-	
-	ExecutionParameters.ProcedureAlreadyExecuting = Not ExecutionParameters.Started1;
-	Return ExecutionParameters;
-	
-EndFunction
 
 Function ScheduledJobExecutionParameters() 
 	
@@ -1115,5 +1119,13 @@ Procedure AddBackgroundJobProperties(Val BackgroundJobArray, Val BackgroundJobPr
 EndProcedure
 
 #EndRegion
+
+// See StandardSubsystemsServer.WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode
+Procedure WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode(Methods) Export
+	
+	Methods.Insert("GenerateScheduledJobsTable", True);
+	Methods.Insert("FillBackgroundJobsPropertiesTableInBackground", True);
+	
+EndProcedure
 
 #EndRegion

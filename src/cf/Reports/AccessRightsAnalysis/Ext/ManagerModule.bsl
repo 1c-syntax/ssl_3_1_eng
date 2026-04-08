@@ -1,18 +1,17 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Public
 
-#Region ForCallsFromOtherSubsystems
+#Region InterfaceImplementation
 
 // See ReportsOptionsOverridable.BeforeAddReportCommands.
 Procedure BeforeAddReportCommands(ReportsCommands, Parameters, StandardProcessing) Export
@@ -60,6 +59,8 @@ Procedure CustomizeReportOptions(Settings, ReportSettings) Export
 		OptionSettings.Location.Insert(SubsystemForMonitoring, "Important");
 	EndIf;
 	
+	IsRecordLevelRestrictionDisabled = AccessManagementInternal.IsRecordLevelRestrictionDisabled();
+	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "UsersRightsToTables");
 	OptionSettings.LongDesc = NStr("en = 'Shows user rights to infobase tables.'");
 	OptionSettings.Enabled = False;
@@ -90,11 +91,11 @@ Procedure CustomizeReportOptions(Settings, ReportSettings) Export
 	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "UsersRightsToObject");
 	OptionSettings.LongDesc = NStr("en = 'Displays the calculated user permissions for an infobase object (for example, a document or catalog item).'");
-	OptionSettings.Enabled = False;
+	OptionSettings.Enabled = Not IsRecordLevelRestrictionDisabled;
 	
 	OptionSettings = ModuleReportsOptions.OptionDetails(Settings, ReportSettings, "UsersRightsByAllowedValue");
 	OptionSettings.LongDesc = NStr("en = 'Displays users with access to infobase objects (for example, documents and catalog items) based on the selected value (company, warehouse, and so on).'");
-	OptionSettings.Enabled = False;
+	OptionSettings.Enabled = Not IsRecordLevelRestrictionDisabled;
 	
 EndProcedure
 
@@ -432,6 +433,18 @@ EndProcedure
 //
 Function AccessRestrictionKinds(ForExternalUsers = Undefined, ShouldAddIsAuthorizedUser = False,
 			AllTablesWithRestriction = Undefined) Export
+	
+	If AccessManagementInternal.IsRecordLevelRestrictionDisabled() Then
+		Result = New ValueTable;
+		Result.Columns.Add("ForExternalUsers", New TypeDescription("Boolean"));
+		Result.Columns.Add("Table", New TypeDescription(
+			"CatalogRef.MetadataObjectIDs, CatalogRef.ExtensionObjectIDs"));
+		Result.Columns.Add("Right", New TypeDescription("String",,,, New StringQualifiers(50)));
+		Result.Columns.Add("AccessKind", Metadata.DefinedTypes.AccessValue.Type);
+		Result.Columns.Add("IsAuthorizedUser", New TypeDescription("Boolean"));
+		Result.Columns.Add("Presentation", New TypeDescription("String",,,, New StringQualifiers(150)));
+		Return Result;
+	EndIf;
 	
 	UniversalRestriction =
 		AccessManagementInternal.LimitAccessAtRecordLevelUniversally(True, True);
@@ -913,6 +926,10 @@ EndProcedure
 
 Procedure AddRightsToDataElementCommand(ReportsCommands, Parameters)
 	
+	If AccessManagementInternal.IsRecordLevelRestrictionDisabled() Then
+		Return;
+	EndIf;
+	
 	AddCommand = True;
 	VariantPresentation = UsersRightsToObjectOptionPresentation(Parameters, AddCommand);
 	
@@ -933,7 +950,8 @@ EndProcedure
 
 Procedure AddRightsByValueCommand(ReportsCommands, Parameters)
 	
-	If Not Users.IsFullUser() Then
+	If Not Users.IsFullUser()
+	 Or AccessManagementInternal.IsRecordLevelRestrictionDisabled() Then
 		Return;
 	EndIf;
 	

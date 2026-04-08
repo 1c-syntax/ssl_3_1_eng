@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Variables
@@ -81,7 +80,7 @@ Procedure OnOpen(Cancel)
 	
 	If ErrorInfo <> Undefined Then
 		ErrorReport = New ErrorReport(ErrorInfo);
-		StandardSubsystemsClient.ConfigureVisibilityAndTitleForURLSendErrorReport(Items.GenerateErrorReport, ErrorInfo, True);
+		StandardSubsystemsClient.ConfigureVisibilityAndTitleForURLSendErrorReport(Items.GenerateErrorReport_SSLyf, ErrorInfo, True);
 	EndIf;
 	
 EndProcedure
@@ -168,12 +167,12 @@ EndProcedure
 Procedure CheckPatches(Command)
 	Result = AvailableFixesOnServer();
 	
-	NotifyDescription = New CallbackDescription("CheckAvailableFixesContinued", ThisObject, Result);
-	InfobaseUpdateClient.ProcessManualPatchCheckResult(Result, NotifyDescription);
+	CallbackDescription = New CallbackDescription("CheckAvailableFixesContinued", ThisObject, Result);
+	InfobaseUpdateClient.ProcessManualPatchCheckResult(Result, CallbackDescription);
 EndProcedure
 
 &AtClient
-Procedure GenerateErrorReportClick(Item)
+Procedure GenerateErrorReport_SSLyfClick(Item)
 	StandardSubsystemsClient.ShowErrorReport(ErrorReport);
 EndProcedure
 
@@ -209,7 +208,8 @@ Function StartingPatchInstallation()
 	
 	ExecutionParameters = TimeConsumingOperations.FunctionExecutionParameters(UUID);
 	ExecutionParameters.BackgroundJobDescription = NStr("en = 'Installing patches'");
-	Return TimeConsumingOperations.ExecuteFunction(ExecutionParameters, "GetApplicationUpdates.DownloadAndInstallFixes");
+	Return TimeConsumingOperations.ExecuteFunction(ExecutionParameters,
+		"InfobaseUpdateInternal.DownloadAndInstallFixes");
 	
 EndFunction
 

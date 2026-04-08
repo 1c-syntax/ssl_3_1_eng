@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -67,6 +66,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	SetHierarchy(UseHierarchy);
 	
 	OnChangeUseSignOrEncryptionAtServer();
+	
+	WorkingWithServerFileArchive.VisibilityOfListFieldImageNumberIsArchive(Items.ListImageNumberIsArchive);
 	
 	FillPropertyValues(ThisObject, FolderRightsSettings(Items.Folders.CurrentRow));
 	
@@ -147,8 +148,10 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 		Items.List.Refresh();
 		If ValueIsFilled(Parameter.File) Then
 			Items.List.CurrentRow = Parameter.File;
-		ElsIf Source <> Undefined Then
+		ElsIf TypeOf(Source) = Type("CatalogRef.Files") Then
 			Items.List.CurrentRow = Source;
+		ElsIf Items.List.CurrentData <> Undefined Then
+			Items.List.CurrentRow = Items.List.CurrentData.Ref;
 		EndIf;
 		
 	EndIf;
@@ -222,15 +225,22 @@ Procedure ListSelection(Item, RowSelected, Field, StandardProcessing)
 		ShowValue(, RowSelected);
 		Return;
 	EndIf;
+
+	CurrentData = Item.CurrentData;
 	
-	FileData = FilesOperationsInternalServerCall.FileDataToOpen(RowSelected,
-		Undefined, UUID, Undefined, FilePreviousURL);
+	FileGettingParameters = FilesOperationsClient.ParametersForAsynchronousFileReceipt("SelectModeAndEditFile");
+	FileGettingParameters.AttachedFile				= RowSelected;
+	FileGettingParameters.OwnerForm					= ThisObject;
+	FileGettingParameters.CheckPresenceOfFileInArchive	= False;
+	FileGettingParameters.FileInArchive						= CurrentData.ImageNumberIsArchive = 0;
+
+	FileGettingParameters.MethodParameters.FilePreviousURL = FilePreviousURL;
 	
-	HandlerParameters = New Structure;
-	HandlerParameters.Insert("FileData", FileData);
-	Handler = New CallbackDescription("ListSelectionAfterEditModeChoice", ThisObject, HandlerParameters);
-	
-	FilesOperationsInternalClient.SelectModeAndEditFile(Handler, FileData, Items.FormEdit.Enabled);
+	ActionParameters = FileGettingParameters.ActionParameters;
+	ActionParameters.OwnerForm						= ThisObject;
+	ActionParameters.CommandEditAvailability	= Items.FormEdit.Enabled;
+
+	FilesOperationsClient.OpenFile(FileGettingParameters);
 	
 EndProcedure
 
@@ -253,6 +263,9 @@ Procedure ListBeforeAddRow(Item, Cancel, Copy, Parent, Var_Group)
 	Cancel = True;
 	
 	If Copy Then
+		If Item.CurrentData.ImageNumberIsArchive = 0 Then
+			Return;
+		EndIf;		
 		FilesOperationsClient.CopyAttachedFile(FileOwner, BasisFile);
 	Else
 		FilesOperationsInternalClient.AppendFile(Undefined, FileOwner, ThisObject, 2, True);
@@ -426,11 +439,19 @@ Procedure OpenFileExecute()
 	If Not FileCommandsAvailable() Then 
 		Return;
 	EndIf;
-	
-	FileData = FilesOperationsInternalServerCall.FileDataToOpen(Items.List.CurrentRow, 
-		Undefined, UUID, Undefined, FilePreviousURL);
-	FilesOperationsClient.OpenFile(FileData, False);
-	
+
+	CurrentData = Items.List.CurrentData;
+
+	FileGettingParameters = FilesOperationsClient.ParametersForAsynchronousFileReceipt("OpenFile");
+	FileGettingParameters.AttachedFile				= CurrentData.Ref;
+	FileGettingParameters.OwnerForm					= ThisObject;
+	FileGettingParameters.CheckPresenceOfFileInArchive	= False;
+	FileGettingParameters.FileInArchive						= CurrentData.ImageNumberIsArchive = 0;
+
+	FileGettingParameters.MethodParameters.FilePreviousURL = FilePreviousURL;
+
+	FilesOperationsClient.OpenFile(FileGettingParameters);
+
 EndProcedure
 
 &AtClient
@@ -557,9 +578,17 @@ Procedure SaveAs(Command)
 		Return;
 	EndIf;
 	
-	FileData = FilesOperationsInternalServerCall.FileDataToSave(
-		Items.List.CurrentRow, , UUID);
-	FilesOperationsInternalClient.SaveAs(Undefined, FileData, UUID);
+	CurrentData = Items.List.CurrentData;
+	
+	FileGettingParameters = FilesOperationsClient.ParametersForAsynchronousFileReceipt("SaveAs", "FilesOperationsInternal.FileDataToSaveAsynchronous");
+	FileGettingParameters.AttachedFile				= CurrentData.Ref;
+	FileGettingParameters.OwnerForm					= ThisObject;
+	FileGettingParameters.CheckPresenceOfFileInArchive	= False;
+	FileGettingParameters.FileInArchive						= CurrentData.ImageNumberIsArchive = 0;
+	
+	FileGettingParameters.ActionParameters.UUID = UUID;
+	
+	FilesOperationsClient.SaveFileAs(FileGettingParameters);
 	
 EndProcedure
 
@@ -607,16 +636,36 @@ Procedure Sign(Command)
 		Return;
 	EndIf;
 	
-	NotifyDescription      = New CallbackDescription("SignCompletion", ThisObject);
-	AdditionalParameters = New Structure("ResultProcessing", NotifyDescription);
+	CallbackDescription      = New CallbackDescription("SignCompletion", ThisObject);
+	AdditionalParameters = New Structure("ResultProcessing", CallbackDescription);
+	
+	ModuleDigitalSignatureClient = CommonClient.CommonModule("DigitalSignatureClient");
+	SigningParameters = ModuleDigitalSignatureClient.NewSignatureType();
+	SigningParameters.CanSelectLetterOfAuthority = True;
+	SigningParameters.AllowSendingForSigning = True;
+
+	FilesOperationsClient.SignFile(Items.List.SelectedRows, UUID, AdditionalParameters,
+		SigningParameters);
+	
+EndProcedure
+	
+&AtClient
+Procedure SendForSigning(Command)
+	
+	If Not CommonClient.SubsystemExists("StandardSubsystems.DigitalSignature") Then
+		Return;
+	EndIf;
+	
+	CallbackDescription      = New CallbackDescription("SignCompletion", ThisObject);
+	AdditionalParameters = New Structure("ResultProcessing", CallbackDescription);
 	
 	ModuleDigitalSignatureClient = CommonClient.CommonModule("DigitalSignatureClient");
 	SigningParameters = ModuleDigitalSignatureClient.NewSignatureType();
 	SigningParameters.CanSelectLetterOfAuthority = True;
 
-	FilesOperationsClient.SignFile(Items.List.SelectedRows, UUID, AdditionalParameters,
+	FilesOperationsClient.SendFileForSigning(Items.List.SelectedRows, UUID, AdditionalParameters,
 		SigningParameters);
-	
+		
 EndProcedure
 
 &AtClient
@@ -802,8 +851,8 @@ Procedure Delete(Command)
 	
 	SelectedRows = SelectedRows();
 	
-	NotifyDescription = New CallbackDescription("AfterDeleteData", ThisObject);
-	FilesOperationsInternalClient.DeleteFilesData(NotifyDescription, SelectedRows, UUID);
+	CallbackDescription = New CallbackDescription("AfterDeleteData", ThisObject);
+	FilesOperationsInternalClient.DeleteFilesData(CallbackDescription, SelectedRows, UUID);
 	
 EndProcedure
 
@@ -843,7 +892,7 @@ Procedure ImportFilesAfterExtensionInstalled(Result, ExecutionParameters) Export
 	FormParameters.Insert("FolderForAdding", Items.Folders.CurrentRow);
 	FormParameters.Insert("FileNamesArray",   FileNamesArray);
 	
-	OpenForm("DataProcessor.FilesOperations.Form.FilesImport", FormParameters);
+	OpenForm("DataProcessor.FilesOperations.Form.LoadFiles", FormParameters);
 EndProcedure
 
 &AtClient
@@ -1363,6 +1412,9 @@ Procedure MakeCommandsUnavailable()
 	Items.FormSign.Enabled = False;
 	Items.ListContextMenuSign.Enabled = False;
 	
+	Items.FormSendForSigning.Enabled = False;
+	Items.ListContextMenuSendForSigning.Enabled = False;
+	
 	Items.FormSaveWithSignature.Enabled = False;
 	Items.ListContextMenuSaveWithSignature.Enabled = False;
 	
@@ -1409,47 +1461,51 @@ Procedure SetCommandsAvailability(Val CommandsData, Val SeveralLinesAreHighlight
 	Encrypted  = CommandsData.Encrypted;
 	SignedWithDS  = CommandsData.SignedWithDS;
 	BeingEditedBy = CommandsData.BeingEditedBy;
+	FileHasBeenMovedToArchive = CommandsData.ImageNumberIsArchive = 0;
 	
 	CurrentUserIsAuthor = CommandsData.Author = UsersClient.AuthorizedUser();
 	EditedByCurrentUser = CommandsData.CurrentUserEditsFile;
 	
 	EditedByAnother = ValueIsFilled(BeingEditedBy) And Not EditedByCurrentUser;
 	
-	Items.FormEndEdit.Enabled                 = FilesModification And EditedByCurrentUser And Not FilesBeingEditedInCloudService;
-	Items.ListContextMenuEndEdit.Enabled = FilesModification And EditedByCurrentUser And Not FilesBeingEditedInCloudService;
+	Items.FormEndEdit.Enabled                 = FilesModification And EditedByCurrentUser And Not FilesBeingEditedInCloudService And Not FileHasBeenMovedToArchive;
+	Items.ListContextMenuEndEdit.Enabled = FilesModification And EditedByCurrentUser And Not FilesBeingEditedInCloudService And Not FileHasBeenMovedToArchive;
 	
-	Items.FormSaveChanges.Enabled                 = FilesModification And EditedByCurrentUser;
-	Items.ListContextMenuSaveChanges.Enabled = FilesModification And EditedByCurrentUser;
+	Items.FormSaveChanges.Enabled                 = FilesModification And EditedByCurrentUser And Not FileHasBeenMovedToArchive;
+	Items.ListContextMenuSaveChanges.Enabled = FilesModification And EditedByCurrentUser And Not FileHasBeenMovedToArchive;
 	
-	Items.FormRelease.Enabled                 = FilesModification And ValueIsFilled(BeingEditedBy) And Not FilesBeingEditedInCloudService;
-	Items.ListContextMenuRelease.Enabled = FilesModification And ValueIsFilled(BeingEditedBy) And Not FilesBeingEditedInCloudService;
+	Items.FormRelease.Enabled                 = FilesModification And ValueIsFilled(BeingEditedBy) And Not FilesBeingEditedInCloudService And Not FileHasBeenMovedToArchive;
+	Items.ListContextMenuRelease.Enabled = FilesModification And ValueIsFilled(BeingEditedBy) And Not FilesBeingEditedInCloudService And Not FileHasBeenMovedToArchive;
 	
-	Items.FormLock.Enabled                 = FilesModification And Not ValueIsFilled(BeingEditedBy) And Not SignedWithDS And Not IsInternal And Not FilesBeingEditedInCloudService;
-	Items.ListContextMenuLock.Enabled = FilesModification And Not ValueIsFilled(BeingEditedBy) And Not SignedWithDS And Not IsInternal And Not FilesBeingEditedInCloudService;
+	Items.FormLock.Enabled                 = FilesModification And Not ValueIsFilled(BeingEditedBy) And Not SignedWithDS And Not IsInternal And Not FilesBeingEditedInCloudService And Not FileHasBeenMovedToArchive;
+	Items.ListContextMenuLock.Enabled = FilesModification And Not ValueIsFilled(BeingEditedBy) And Not SignedWithDS And Not IsInternal And Not FilesBeingEditedInCloudService And Not FileHasBeenMovedToArchive;
 	
-	Items.FormEdit.Enabled                 = FilesModification And Not SignedWithDS And Not EditedByAnother And Not IsInternal;
-	Items.ListContextMenuEdit.Enabled = FilesModification And Not SignedWithDS And Not EditedByAnother And Not IsInternal;
+	Items.FormEdit.Enabled                 = FilesModification And Not SignedWithDS And Not EditedByAnother And Not IsInternal And Not FileHasBeenMovedToArchive;
+	Items.ListContextMenuEdit.Enabled = FilesModification And Not SignedWithDS And Not EditedByAnother And Not IsInternal And Not FileHasBeenMovedToArchive;
 
-	Items.FormMoveToFolder.Enabled                 = FilesModification And Not SignedWithDS And Not FilesBeingEditedInCloudService;
-	Items.ListContextMenuMoveToFolder.Enabled = FilesModification And Not SignedWithDS And Not FilesBeingEditedInCloudService;
+	Items.FormMoveToFolder.Enabled                 = FilesModification And Not SignedWithDS And Not FilesBeingEditedInCloudService And Not FileHasBeenMovedToArchive;
+	Items.ListContextMenuMoveToFolder.Enabled = FilesModification And Not SignedWithDS And Not FilesBeingEditedInCloudService And Not FileHasBeenMovedToArchive;
 	
-	Items.FormSign.Enabled                 = FilesModification And Not ValueIsFilled(BeingEditedBy) And Not FilesBeingEditedInCloudService;
-	Items.ListContextMenuSign.Enabled = FilesModification And Not ValueIsFilled(BeingEditedBy) And Not FilesBeingEditedInCloudService;
+	Items.FormSign.Enabled                 = FilesModification And Not ValueIsFilled(BeingEditedBy) And Not FilesBeingEditedInCloudService And Not FileHasBeenMovedToArchive;
+	Items.ListContextMenuSign.Enabled = FilesModification And Not ValueIsFilled(BeingEditedBy) And Not FilesBeingEditedInCloudService And Not FileHasBeenMovedToArchive;
 	
-	Items.FormSaveWithSignature.Enabled                 = SignedWithDS;
-	Items.ListContextMenuSaveWithSignature.Enabled = SignedWithDS;
+	Items.FormSendForSigning.Enabled                 = FilesModification And Not ValueIsFilled(BeingEditedBy) And Not FilesBeingEditedInCloudService And Not FileHasBeenMovedToArchive;
+	Items.ListContextMenuSendForSigning.Enabled = FilesModification And Not ValueIsFilled(BeingEditedBy) And Not FilesBeingEditedInCloudService And Not FileHasBeenMovedToArchive;
 	
-	Items.FormEncrypt.Enabled                 = FilesModification And Not ValueIsFilled(BeingEditedBy) And Not Encrypted And Not IsInternal And Not FilesBeingEditedInCloudService;
-	Items.ListContextMenuEncrypt.Enabled = FilesModification And Not ValueIsFilled(BeingEditedBy) And Not Encrypted And Not IsInternal And Not FilesBeingEditedInCloudService;
+	Items.FormSaveWithSignature.Enabled                 = SignedWithDS And Not FileHasBeenMovedToArchive;
+	Items.ListContextMenuSaveWithSignature.Enabled = SignedWithDS And Not FileHasBeenMovedToArchive;
 	
-	Items.FormDecrypt.Enabled                 = FilesModification And Encrypted And Not FilesBeingEditedInCloudService;
-	Items.ListContextMenuDecrypt.Enabled = FilesModification And Encrypted And Not FilesBeingEditedInCloudService;
+	Items.FormEncrypt.Enabled                 = FilesModification And Not ValueIsFilled(BeingEditedBy) And Not Encrypted And Not IsInternal And Not FilesBeingEditedInCloudService And Not FileHasBeenMovedToArchive;
+	Items.ListContextMenuEncrypt.Enabled = FilesModification And Not ValueIsFilled(BeingEditedBy) And Not Encrypted And Not IsInternal And Not FilesBeingEditedInCloudService And Not FileHasBeenMovedToArchive;
 	
-	Items.FormAddSignatureFromFile.Enabled                 = FilesModification And Not ValueIsFilled(BeingEditedBy) And Not FilesBeingEditedInCloudService;
-	Items.ListContextMenuAddSignatureFromFile.Enabled = FilesModification And Not ValueIsFilled(BeingEditedBy) And Not FilesBeingEditedInCloudService;
+	Items.FormDecrypt.Enabled                 = FilesModification And Encrypted And Not FilesBeingEditedInCloudService And Not FileHasBeenMovedToArchive;
+	Items.ListContextMenuDecrypt.Enabled = FilesModification And Encrypted And Not FilesBeingEditedInCloudService And Not FileHasBeenMovedToArchive;
 	
-	Items.FormUpdateFromFileOnHardDrive.Enabled                 = FilesModification And Not SignedWithDS And Not FilesBeingEditedInCloudService;
-	Items.ListContextMenuUpdateFromFileOnHardDrive.Enabled = FilesModification And Not SignedWithDS And Not FilesBeingEditedInCloudService;
+	Items.FormAddSignatureFromFile.Enabled                 = FilesModification And Not ValueIsFilled(BeingEditedBy) And Not FilesBeingEditedInCloudService And Not FileHasBeenMovedToArchive;
+	Items.ListContextMenuAddSignatureFromFile.Enabled = FilesModification And Not ValueIsFilled(BeingEditedBy) And Not FilesBeingEditedInCloudService And Not FileHasBeenMovedToArchive;
+	
+	Items.FormUpdateFromFileOnHardDrive.Enabled                 = FilesModification And Not SignedWithDS And Not FilesBeingEditedInCloudService And Not FileHasBeenMovedToArchive;
+	Items.ListContextMenuUpdateFromFileOnHardDrive.Enabled = FilesModification And Not SignedWithDS And Not FilesBeingEditedInCloudService And Not FileHasBeenMovedToArchive;
 	
 	Items.FormSaveAs.Enabled                 = True;
 	Items.ListContextMenuSaveAs.Enabled = True;
@@ -1460,15 +1516,17 @@ Procedure SetCommandsAvailability(Val CommandsData, Val SeveralLinesAreHighlight
 	Items.FormOpen.Enabled                 = True;
 	Items.ListContextMenuOpen.Enabled = True;
 	
-	Items.Print.Enabled                      = True;
-	Items.ListContextMenuPrint.Enabled = True;
+	Items.Print.Enabled                      = Not FileHasBeenMovedToArchive;
+	Items.ListContextMenuPrint.Enabled = Not FileHasBeenMovedToArchive;
 
 	Items.PrintWithStamp.Visible = HasDigitalSignature
 		And (CommandsData.Extension = "mxl") Or (CommandsData.Extension = "docx")
 		And CommandsData.SignedWithDS;
-	
-	Items.Send.Enabled                      = True;
-	Items.ListContextMenuSend.Enabled = True;
+
+ 	Items.PrintWithStamp.Enabled = Not FileHasBeenMovedToArchive;
+		
+	Items.Send.Enabled                      = Not FileHasBeenMovedToArchive;
+	Items.ListContextMenuSend.Enabled = Not FileHasBeenMovedToArchive;
 	
 	Items.FormSetDeletionMark.Enabled = FilesModification;
 	Items.ListContextMenuSetDeletionMark.Enabled = FilesModification;

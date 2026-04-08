@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -129,7 +128,7 @@ EndFunction
 // Parameters:
 //   Form - ClientApplicationForm - a form containing dynamic list
 //   MarkedObjectsDisplaySettings - See MarkedObjectsDisplaySettings
-//                                          - — FormTable is an item of the dynamic list form. 
+//                                          - FormTable -  
 //
 // Example:
 // 	// To set one list
@@ -253,8 +252,8 @@ Function RefsToObjectsToDelete(Source) Export
 	RefsToDelete = LockedRefsToDelete(LinkDescriptions.UnloadColumn("Ref"));
 	DeletedLinksDeleteMarks = Common.ObjectsAttributeValue(RefsToDelete, "DeletionMark");
 
-	AddedLinks = LinksAddedWhenTheObjectWasChanged(LinkDescriptions, DeletedLinksDeleteMarks);
-	For Each ReferenceDetails In AddedLinks Do
+	AddedRefs = LinksAddedWhenTheObjectWasChanged(LinkDescriptions, DeletedLinksDeleteMarks);
+	For Each ReferenceDetails In AddedRefs Do
 		RefsToObjectsToDelete.Insert(ReferenceDetails.Ref, ReferenceDetails.Presentation);
 	EndDo;
 

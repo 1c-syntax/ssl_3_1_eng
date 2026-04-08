@@ -122,6 +122,7 @@ They can configure scheduled synchronization or synchronize data manually at any
 				</v8:item>
 			</Title>
 			<Width>45</Width>
+			<HorizontalStretch>true</HorizontalStretch>
 			<Group>Horizontal</Group>
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
@@ -224,7 +225,7 @@ Please contact the administrator.</v8:content>
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<BackColor>style:WarningBackColor</BackColor>
+			<BackColor>style:SynchronizationTooltip</BackColor>
 			<ExtendedTooltip name="InfoPanelRestartRequiredExtendedTooltip" id="760"/>
 			<ChildItems>
 				<PictureDecoration name="RestartWarningPicture" id="761">
@@ -269,7 +270,7 @@ Please contact the administrator.</v8:content>
 			<Behavior>Usual</Behavior>
 			<Representation>None</Representation>
 			<ShowTitle>false</ShowTitle>
-			<BackColor>style:WarningBackColor</BackColor>
+			<BackColor>style:SynchronizationTooltip</BackColor>
 			<ExtendedTooltip name="InfoPanelLoopFoundExtendedTooltip" id="770"/>
 			<ChildItems>
 				<PictureDecoration name="WarnAboutLoopPicture" id="771">
@@ -295,7 +296,8 @@ Please contact the administrator.</v8:content>
 					<Title formatted="true">
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Synchronization loop is found. For more information, follow the &lt;link 1&gt;link&lt;/&gt;.</v8:content>
+							<v8:content>Cyclic synchronization found. See details &lt;link 1&gt;here&lt;/&gt;. 
+&lt;link 2&gt;Don't show this again&lt;/&gt;.</v8:content>
 						</v8:item>
 					</Title>
 					<GroupVerticalAlign>Center</GroupVerticalAlign>
@@ -668,10 +670,10 @@ To switch to exchange using a web service, use the switch to Internet connection
 									<CommandName>Form.StandardCommand.CustomizeForm</CommandName>
 									<ExtendedTooltip name="FormCustomizeFormExtendedTooltip" id="483"/>
 								</Button>
-								<Button name="FormHelp" id="133">
+								<Button name="FormHelp_SSLyf" id="133">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.StandardCommand.Help</CommandName>
-									<ExtendedTooltip name="FormHelpExtendedTooltip" id="487"/>
+									<ExtendedTooltip name="FormHelp_SSLyfExtendedTooltip" id="487"/>
 								</Button>
 							</ChildItems>
 						</CommandBar>
@@ -865,8 +867,8 @@ To switch to exchange using a web service, use the switch to Internet connection
 										<xr:LoadTransparent>false</xr:LoadTransparent>
 									</HeaderPicture>
 									<MaxWidth>1</MaxWidth>
-									<ContextMenu name="AppsListTransportPictureContextMenu" id="799"/>
-									<ExtendedTooltip name="AppsListTransportPictureExtendedTooltip" id="800"/>
+									<ContextMenu name="ApplicationsListTransportPictureContextMenu" id="799"/>
+									<ExtendedTooltip name="ApplicationsListTransportPictureExtendedTooltip" id="800"/>
 								</PictureField>
 								<LabelField name="ApplicationsListApplication" id="588">
 									<DataPath>ApplicationsList.PeerInfobaseName</DataPath>
@@ -1105,8 +1107,8 @@ To switch to exchange using a web service, use the switch to Internet connection
 										<xr:Ref>CommonPicture.DataSynchronizationSettings</xr:Ref>
 										<xr:LoadTransparent>false</xr:LoadTransparent>
 									</ValuesPicture>
-									<ContextMenu name="AppsListMigrationToWSAvailableContextMenu" id="786"/>
-									<ExtendedTooltip name="AppsListMigrationToWSAvailableExtendedTooltip" id="787"/>
+									<ContextMenu name="ApplicationsListCanMigrateToWSContextMenu" id="786"/>
+									<ExtendedTooltip name="ApplicationsListCanMigrateToWSExtendedTooltip" id="787"/>
 								</PictureField>
 								<CheckBoxField name="ApplicationsListScheduleConfigured" id="641">
 									<DataPath>ApplicationsList.ScheduleConfigured</DataPath>
@@ -1657,6 +1659,15 @@ Please wait…</v8:content>
 					</Title>
 					<Type>
 						<v8:Type>v8ui:Picture</v8:Type>
+					</Type>
+				</Column>
+				<Column name="CurrentNodeAction" id="40">
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>0</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
 					</Type>
 				</Column>
 			</Columns>

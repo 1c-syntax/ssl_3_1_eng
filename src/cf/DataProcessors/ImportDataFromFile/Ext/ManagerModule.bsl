@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -568,7 +567,7 @@ Procedure FillMappingTableWithDataToImport(TemplateWithData, TableColumnsInforma
 				DataType = TypeOf(NewRow[ColumnName]);
 				
 				If DataType <> Type("String") And DataType <> Type("Boolean") And DataType <> Type("Number") And DataType <> Type("Date")  And DataType <> Type("UUID") Then 
-					//@skip-check query-in-loop - построчная загрузка разнородных данных.
+					//@skip-check query-in-loop - 
 					CellData = CellValue(Column, Cell.Text);
 				Else
 					If DataType = Type("Boolean") Then
@@ -1385,7 +1384,7 @@ Procedure SpreadsheetDocumentIntoValuesTable(TemplateWithData, ColumnsInformatio
 				ColumnName = FoundColumn.ColumnName;
 				NewRow[ColumnName] = AdjustValueToType(Cell.Text, FoundColumn.ColumnType);
 				If Not ValueIsFilled(NewRow[ColumnName]) And ValueIsFilled(Cell.Text) Then
-					//@skip-check query-in-loop - построчная загрузка разнородных данных.
+					//@skip-check query-in-loop - 
 					NewRow[ColumnName] = CellValue(FoundColumn, Cell.Text);
 				EndIf;
 				If EmptyTableRow Then
@@ -1776,6 +1775,9 @@ Procedure DeleteTempFile(TempFileName)
 	
 EndProcedure
 
+
+//CSV
+
 #Region CSVFilesOperations
 
 Procedure ImportCSVFileToTable(FileName, TemplateWithData, ColumnsInformation)
@@ -1842,23 +1844,75 @@ Procedure ImportCSVFileToTable(FileName, TemplateWithData, ColumnsInformation)
 	
 EndProcedure
 
-Procedure SaveTableToCSVFile(PathToFile, ColumnsInformation) Export
+Function CreateCSVInTemporaryStorage(ColumnsInformation, AddressInTempStorage = "") Export
 	
-	HeaderFormatForCSV = "";
+	CommonClientServer.Validate(
+		ColumnsInformation <> Undefined And ColumnsInformation.Count() > 0,
+		NStr("en = 'Columns to generate CSV are not transferred'"));
 	
-	For Each Column In ColumnsInformation Do 
-		HeaderFormatForCSV = HeaderFormatForCSV + Column.ColumnPresentation + ";";
-	EndDo;
+	Stream = New MemoryStream();
 	
-	If StrLen(HeaderFormatForCSV) > 0 Then
-		HeaderFormatForCSV = Left(HeaderFormatForCSV, StrLen(HeaderFormatForCSV)-1);
+	Try
+		WriteCSVHeaderToThread(Stream, ColumnsInformation);
+		BinaryData = Stream.CloseAndGetBinaryData();
+	Except
+		Stream.Close();
+		Raise;
+	EndTry;
+	
+	If BinaryData = Undefined Or BinaryData.Size() = 0 Then
+		Raise NStr("en = 'Cannot generate a CSV file. Empty result received'");
 	EndIf;
 	
-	File = New TextWriter(PathToFile);
-	File.WriteLine(HeaderFormatForCSV);
-	File.Close();
+	MaxFileSize = MaximumSizeOfTemplateFile();
+	If BinaryData.Size() > MaxFileSize Then
+		Raise StrTemplate(
+			NStr("en = 'CSV file size (%1 bytes) exceeds the allowed limit (%2 bytes)'"),
+			Format(BinaryData.Size(), "NG=0"), Format(MaxFileSize, "NG=0"));
+	EndIf;
+	
+	Return PutToTempStorage(BinaryData, AddressInTempStorage);
+	
+EndFunction
+
+Procedure WriteCSVHeaderToThread(Stream, ColumnsInformation)
+	
+	Record = New TextWriter(Stream, TextEncoding.UTF8);
+	
+	ColumnsArray1 = New Array;
+	
+	For Each Column In ColumnsInformation Do
+		PresentationScreened = EscapeCSVValue(Column.ColumnPresentation);
+		ColumnsArray1.Add(PresentationScreened);
+	EndDo;
+	
+	Title = StrConcat(ColumnsArray1, ";");
+	Record.WriteLine(Title);
+	
+	Record.Close();
 	
 EndProcedure
+
+Function EscapeCSVValue(Value)
+	
+	StringValue1 = TrimAll(String(Value));
+	
+	If StrFind(StringValue1, ";") > 0 
+		Or StrFind(StringValue1, """") > 0
+		Or StrFind(StringValue1, Chars.LF) > 0 
+		Or StrFind(StringValue1, Chars.CR) > 0 Then
+		
+		StringValue1 = StrReplace(StringValue1, """", """""");
+		Return """" + StringValue1 + """";
+	EndIf;
+	
+	Return StringValue1;
+	
+EndFunction
+
+Function MaximumSizeOfTemplateFile() Export
+	Return 200 * 1024 * 1024;
+EndFunction
 
 #EndRegion
 
@@ -2191,6 +2245,16 @@ Function EventLogEvent()
 	Return NStr("en = 'Import data from spreadsheet'", Common.DefaultLanguageCode());
 	
 EndFunction
+
+// See StandardSubsystemsServer.WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode
+Procedure WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode(Methods) Export
+	
+	Methods.Insert("GenerateReportOnBackgroundImport", True);
+	Methods.Insert("WriteMappedData", True);
+	Methods.Insert("FillMappingTableWithDataFromTemplateBackground", True);
+	Methods.Insert("ImportFileToTable", True);
+	
+EndProcedure
 
 #EndRegion
 

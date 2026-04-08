@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Internal
@@ -42,7 +41,8 @@ EndFunction
 //
 Function IsReferenceType(Val TypeToCheck) Export
 	
-	Return RefTypesDetails().ContainsType(TypeToCheck);
+	RefTypesDetails = ODataInterfaceInternalCached.RefTypesDetails();
+	Return RefTypesDetails.ContainsType(TypeToCheck);
 	
 EndFunction
 
@@ -197,7 +197,7 @@ Procedure BeforeImportData(Container) Export
 			Or ReaderStream.Name <> "Data" Then
 		
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
-			NStr("en = 'Invalid XML file format. Start of ""%1"" element is expected.'"), "Data");
+			NStr("en = 'Invalid XML file format. Start of %1 element is expected.'"), "Data");
 		
 	EndIf;
 	
@@ -228,23 +228,6 @@ EndProcedure
 #EndRegion
 
 #Region Private
-
-// Returns type details that contain all reference types of metadata objects
-// in the configuration.
-//
-// Returns:
-//   TypeDescription
-//
-Function RefTypesDetails()
-	
-	AnyXDTORefTypeDetails = XDTOFactory.Create(XDTOFactory.Type("http://v8.1c.ru/8.1/data/core", "TypeDescription"));
-	AnyXDTORefTypeDetails.TypeSet.Add(XDTOSerializer.WriteXDTO(New XMLExpandedName(
-		"http://v8.1c.ru/8.1/data/enterprise/current-config", "AnyRef")));
-	AnyRefTypeDetails = XDTOSerializer.ReadXDTO(AnyXDTORefTypeDetails);
-	
-	Return AnyRefTypeDetails;
-	
-EndFunction
 
 // Returns references of business processes route points.
 //

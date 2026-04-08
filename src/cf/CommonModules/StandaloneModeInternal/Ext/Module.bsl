@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Internal
@@ -605,7 +604,7 @@ Procedure DisableAutoDataSyncronizationWithWebApplication(Source) Export
 		Parameters.Peer = Source.Peer;
 		Parameters.TransportID = Source.TransportID;
 		
-		Transport = ExchangeMessagesTransport.Initialize(Parameters);
+		Transport = ExchangeMessagesTransport.Initialize(Parameters, False);
 		
 		If Transport.AuthenticationRequired() Then
 			
@@ -694,7 +693,7 @@ EndFunction
 // For internal use
 // 
 // Returns:
-//   See DataExchangeServer.IsStandaloneWorkplace
+//  See DataExchangeServer.IsStandaloneWorkplace
 //
 Function IsStandaloneWorkplace() Export
 	
@@ -706,9 +705,9 @@ EndFunction
 // 
 // Returns:
 //  Structure:
-//   * InfobaseNode - See ApplicationInSaaS 
-//   * AccountPasswordRecoveryAddress - See AccountPasswordRecoveryAddress
-//   * CloseOnSynchronizationDone - Boolean - The default value is "True".
+// * InfobaseNode - See ApplicationInSaaS 
+// * AccountPasswordRecoveryAddress - See AccountPasswordRecoveryAddress
+// * CloseOnSynchronizationDone - Boolean - The default value is "True".
 //
 Function DataExchangeExecutionFormParameters() Export
 	
@@ -977,9 +976,9 @@ Procedure CloseInitialImageDataWrite(Recipient, InitialImageFormed = False) Expo
 		ExportingParameters.WrittenItems = 0;
 		ExportingParameters.WrittenItemsAfterCheckFileSize = 0;
 		
-		ArchiveFileName = StrTemplate("data_%1.zip", Format(ExportingParameters.FileNumber, "NG=0"));
+		ArchiveFileName_ = StrTemplate("data_%1.zip", Format(ExportingParameters.FileNumber, "NG=0"));
 		FullArchiveFileName = CommonClientServer.GetFullFileName(
-			ExportingParameters.ArchiveDirectory, ArchiveFileName);
+			ExportingParameters.ArchiveDirectory, ArchiveFileName_);
 			
 		Archiver = New ZipFileWriter(FullArchiveFileName,,,, ZIPCompressionLevel.Maximum);
 		Archiver.Add(ExportingParameters.DataFileName);
@@ -1100,16 +1099,33 @@ Procedure DoImportParametersFromInitialImage()
 	Try
 		ChangeSeparationUsage(True, Parameters.DataArea);
 		
+		Block = New DataLock;
+		LockItem = Block.Add(Common.TableNameByRef(MasterNodeRef));
+		LockItem.SetValue("Ref", MasterNodeRef);
+		Block.Lock();
+		
+		LockDataForEdit(MasterNodeRef);
+		
 		MainNodeObject = MasterNodeRef.GetObject();
 		MainNodeObject.DataExchange.Load = True;
 		MainNodeObject.AdditionalProperties.Insert("IsSWPMasterNode");
 		MainNodeObject.AdditionalProperties.Insert("DeleteSyncSetting");
+		
 		MainNodeObject.Delete();
 		
 		ChangeSeparationUsage(False);
 		
-		// Creating exchange plan nodes for standalone mode in the zero data area.
-		StandaloneWorkstationNode = ExchangePlans[StandaloneModeExchangePlan()].ThisNode().GetObject();
+		// Creating exchange plan nodes for standalone mode in the zero data area.        
+		OfflineWorkplaceNodeLink = ExchangePlans[StandaloneModeExchangePlan()].ThisNode();
+		
+		Block = New DataLock;
+		LockItem = Block.Add(Common.TableNameByRef(OfflineWorkplaceNodeLink));
+		LockItem.SetValue("Ref", OfflineWorkplaceNodeLink);
+		Block.Lock();
+		
+		LockDataForEdit(OfflineWorkplaceNodeLink);
+		
+		StandaloneWorkstationNode = OfflineWorkplaceNodeLink.GetObject();
 		StandaloneWorkstationNode.Code          = Parameters.StandaloneWorkstationCode;
 		StandaloneWorkstationNode.Description = Parameters.StandaloneWorkstationDescription;
 		StandaloneWorkstationNode.AdditionalProperties.Insert("GettingExchangeMessage");

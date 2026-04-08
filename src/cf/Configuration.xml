@@ -1,34 +1,34 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.18">
-	<Configuration uuid="db64b4c0-9057-45c8-869c-38fdea503219">
+	<Configuration uuid="2ef4544b-dbf0-43ad-a262-80ef3752520d">
 		<InternalInfo>
 			<xr:ContainedObject>
 				<xr:ClassId>9cd510cd-abfc-11d4-9434-004095e12fc7</xr:ClassId>
-				<xr:ObjectId>b7c0dc55-f669-4ca1-93f5-3cb092742afc</xr:ObjectId>
+				<xr:ObjectId>29060d06-ed58-407e-9a77-01fba610de08</xr:ObjectId>
 			</xr:ContainedObject>
 			<xr:ContainedObject>
 				<xr:ClassId>9fcd25a0-4822-11d4-9414-008048da11f9</xr:ClassId>
-				<xr:ObjectId>e950bef9-248f-4721-a349-e9339dc3a324</xr:ObjectId>
+				<xr:ObjectId>0063bbd0-39e6-4a40-bea3-a9a704c43803</xr:ObjectId>
 			</xr:ContainedObject>
 			<xr:ContainedObject>
 				<xr:ClassId>e3687481-0a87-462c-a166-9f34594f9bba</xr:ClassId>
-				<xr:ObjectId>e9e70d87-233d-4e4e-9fe4-8eddad57a465</xr:ObjectId>
+				<xr:ObjectId>e007ae0f-3a26-4532-aebb-7d3a3c1f6904</xr:ObjectId>
 			</xr:ContainedObject>
 			<xr:ContainedObject>
 				<xr:ClassId>9de14907-ec23-4a07-96f0-85521cb6b53b</xr:ClassId>
-				<xr:ObjectId>baf634d7-7d2e-47d1-aa97-bbd23fd3f2a1</xr:ObjectId>
+				<xr:ObjectId>e43b71c5-d996-4bc7-8ac4-fdfd90cc5914</xr:ObjectId>
 			</xr:ContainedObject>
 			<xr:ContainedObject>
 				<xr:ClassId>51f2d5d8-ea4d-4064-8892-82951750031e</xr:ClassId>
-				<xr:ObjectId>2fe8860c-ec42-4bf1-96a3-2789006427c1</xr:ObjectId>
+				<xr:ObjectId>39009229-cc9f-448e-b3e4-996e1ef3adc8</xr:ObjectId>
 			</xr:ContainedObject>
 			<xr:ContainedObject>
 				<xr:ClassId>e68182ea-4237-4383-967f-90c1e3370bc7</xr:ClassId>
-				<xr:ObjectId>760f345e-5925-47d6-ae5a-24ffb347be56</xr:ObjectId>
+				<xr:ObjectId>63fd2215-633c-4de0-a436-7c0e3a4e73a6</xr:ObjectId>
 			</xr:ContainedObject>
 			<xr:ContainedObject>
 				<xr:ClassId>fb282519-d103-4dd3-bc12-cb271d631dfc</xr:ClassId>
-				<xr:ObjectId>24b2a8c9-2409-44c9-9509-aab12ccc57b9</xr:ObjectId>
+				<xr:ObjectId>a0ebca4b-058b-4476-bbb7-15b882d30c5d</xr:ObjectId>
 			</xr:ContainedObject>
 		</InternalInfo>
 		<Properties>
@@ -53,7 +53,7 @@
 				<xr:Item xsi:type="xr:MDObjectRef">Role.InteractiveOpenExtReportsAndDataProcessors</xr:Item>
 			</DefaultRoles>
 			<Vendor>1C Company</Vendor>
-			<Version>3.1.11.143</Version>
+			<Version>3.1.12.175</Version>
 			<UpdateCatalogAddress/>
 			<IncludeHelpInContents>true</IncludeHelpInContents>
 			<UseManagedFormInOrdinaryApplication>false</UseManagedFormInOrdinaryApplication>
@@ -295,6 +295,7 @@
 			<StyleItem>CompletedBusinessProcess</StyleItem>
 			<StyleItem>ContactInformationEditedInDialogColor</StyleItem>
 			<StyleItem>CreateRightBackground</StyleItem>
+			<StyleItem>DataSynchronizationBoldFont</StyleItem>
 			<StyleItem>DeniedAccessRightColor</StyleItem>
 			<StyleItem>DocumentRecordsReportGroupHeadingFont</StyleItem>
 			<StyleItem>DSStampColor</StyleItem>
@@ -324,7 +325,7 @@
 			<StyleItem>LabelColorRed</StyleItem>
 			<StyleItem>LabelColorYellow</StyleItem>
 			<StyleItem>LabelsFont</StyleItem>
-			<StyleItem>LabelTextColor_SSLym</StyleItem>
+			<StyleItem>LabelTextColor</StyleItem>
 			<StyleItem>LockedAttributeColor</StyleItem>
 			<StyleItem>MainListItem</StyleItem>
 			<StyleItem>MasterFieldBackground</StyleItem>
@@ -351,6 +352,7 @@
 			<StyleItem>SuccessResultColor</StyleItem>
 			<StyleItem>SynchronizationSetupWizardCommandImportantFont</StyleItem>
 			<StyleItem>SynchronizationSetupWizardCommandStandardFont</StyleItem>
+			<StyleItem>SynchronizationTooltip</StyleItem>
 			<StyleItem>ToDoListChildToDoTitle</StyleItem>
 			<StyleItem>ToDoListSectionTitleFont</StyleItem>
 			<StyleItem>ToDoListTitleColor</StyleItem>
@@ -365,7 +367,7 @@
 			<StyleItem>DeletedAttributeTitleBackground</StyleItem>
 			<StyleItem>DeletedAttributeTitleFont</StyleItem>
 			<CommonPicture>AccessLevelAdministrationSource</CommonPicture>
-			<CommonPicture>AccessLevelCreate</CommonPicture>
+			<CommonPicture>AccessLevelCreating</CommonPicture>
 			<CommonPicture>AccessLevelEdit</CommonPicture>
 			<CommonPicture>AccessLevelHasRight</CommonPicture>
 			<CommonPicture>AccessLevelInsertWithoutCreate</CommonPicture>
@@ -419,6 +421,7 @@
 			<CommonPicture>BotFatherWebChat</CommonPicture>
 			<CommonPicture>BotFatherWebhook</CommonPicture>
 			<CommonPicture>BotFatherWhatsapp</CommonPicture>
+			<CommonPicture>BotMax</CommonPicture>
 			<CommonPicture>BottomBorder</CommonPicture>
 			<CommonPicture>Calculate</CommonPicture>
 			<CommonPicture>Call</CommonPicture>
@@ -437,6 +440,7 @@
 			<CommonPicture>CatalogCCTMarkedForDeletionConnectorLeftTop</CommonPicture>
 			<CommonPicture>CatalogCCTMarkedForDeletionConnectorTop</CommonPicture>
 			<CommonPicture>CatalogCCTMarkedForDeletionConnectorTopBottom</CommonPicture>
+			<CommonPicture>CatOpenAuthorizationOfMailService</CommonPicture>
 			<CommonPicture>CCTCatalogConnectorUp</CommonPicture>
 			<CommonPicture>CertificateCheckError</CommonPicture>
 			<CommonPicture>CertificateCheckSuccess</CommonPicture>
@@ -561,6 +565,7 @@
 			<CommonPicture>ExternalOperationSplashIcon</CommonPicture>
 			<CommonPicture>Fax</CommonPicture>
 			<CommonPicture>FieldsAndOrders</CommonPicture>
+			<CommonPicture>FileArchive</CommonPicture>
 			<CommonPicture>FileIconCollection</CommonPicture>
 			<CommonPicture>FillForm</CommonPicture>
 			<CommonPicture>Filters</CommonPicture>
@@ -629,6 +634,7 @@
 			<CommonPicture>LeftArrow</CommonPicture>
 			<CommonPicture>LeftBorder</CommonPicture>
 			<CommonPicture>LockFile</CommonPicture>
+			<CommonPicture>Max16</CommonPicture>
 			<CommonPicture>Maximum</CommonPicture>
 			<CommonPicture>Mean</CommonPicture>
 			<CommonPicture>Meeting</CommonPicture>
@@ -990,6 +996,7 @@
 			<Role>AddEditNotifications</Role>
 			<Role>AddEditPerformersRoles</Role>
 			<Role>AddEditPeriodClosingDates</Role>
+			<Role>AddEditPersonalCertificatesElectronicSignatureAndEncryptionKeys</Role>
 			<Role>AddEditPersonalMessageTemplates</Role>
 			<Role>AddEditPersonalReportsOptions</Role>
 			<Role>AddEditPolls</Role>
@@ -1026,6 +1033,8 @@
 			<Role>ReadDataImportRestrictionDates</Role>
 			<Role>ReadEmailAccounts</Role>
 			<Role>ReadExternalUsers</Role>
+			<Role>ReadingCertificatesOfElectronicSignatureAndEncryptionKeys</Role>
+			<Role>ReadingPersonalCertificatesElectronicSignatureAndEncryptionKeys</Role>
 			<Role>ReadJobs</Role>
 			<Role>ReadMessageTemplates</Role>
 			<Role>ReadObjectVersionInfo</Role>
@@ -1175,11 +1184,6 @@
 			<CommonModule>ConfigurationUpdateClient</CommonModule>
 			<CommonModule>ConfigurationUpdateGlobal</CommonModule>
 			<CommonModule>ConfigurationUpdateServerCall</CommonModule>
-			<CommonModule>ContactingTechnicalSupportGlobal</CommonModule>
-			<CommonModule>ContactingTechnicalSupportInternal</CommonModule>
-			<CommonModule>ContactingTechnicalSupportInternalClient</CommonModule>
-			<CommonModule>ContactingTechnicalSupportInternalServerCall</CommonModule>
-			<CommonModule>ContactingTechnicalSupportLocalization</CommonModule>
 			<CommonModule>ContactsManager</CommonModule>
 			<CommonModule>ContactsManagerClient</CommonModule>
 			<CommonModule>ContactsManagerClientLocalization</CommonModule>
@@ -1539,6 +1543,11 @@
 			<CommonModule>StringFunctionsClientServerLocalization</CommonModule>
 			<CommonModule>SubordinationStructureInternal</CommonModule>
 			<CommonModule>SubordinationStructureOverridable</CommonModule>
+			<CommonModule>SupportRequestsGlobal</CommonModule>
+			<CommonModule>SupportRequestsInternal</CommonModule>
+			<CommonModule>SupportRequestsInternalClient</CommonModule>
+			<CommonModule>SupportRequestsInternalServerCall</CommonModule>
+			<CommonModule>SupportRequestsLocalization</CommonModule>
 			<CommonModule>Surveys</CommonModule>
 			<CommonModule>SurveysClient</CommonModule>
 			<CommonModule>SurveysClientServer</CommonModule>
@@ -1581,6 +1590,10 @@
 			<CommonModule>UsersInternalSaaSClientServer</CommonModule>
 			<CommonModule>UsersInternalSaaSServerCall</CommonModule>
 			<CommonModule>UsersOverridable</CommonModule>
+			<CommonModule>WorkingWithBinaryDataStoresServer</CommonModule>
+			<CommonModule>WorkingWithClientServerFileArchive</CommonModule>
+			<CommonModule>WorkingWithFilesInBinaryDataWarehouseIsService</CommonModule>
+			<CommonModule>WorkingWithServerFileArchive</CommonModule>
 			<CommonModule>WorkSchedules</CommonModule>
 			<CommonModule>WorkSchedulesClient</CommonModule>
 			<CommonAttribute>CommentLanguage1</CommonAttribute>
@@ -1622,7 +1635,11 @@
 			<XDTOPackage>EnterpriseData_1_15_3</XDTOPackage>
 			<XDTOPackage>EnterpriseData_1_16_2</XDTOPackage>
 			<XDTOPackage>EnterpriseData_1_17_3</XDTOPackage>
+			<XDTOPackage>EnterpriseData_1_18_3</XDTOPackage>
+			<XDTOPackage>EnterpriseData_1_19_1</XDTOPackage>
 			<XDTOPackage>EnterpriseData_1_2_3</XDTOPackage>
+			<XDTOPackage>EnterpriseData_1_20_2</XDTOPackage>
+			<XDTOPackage>EnterpriseData_1_21_1</XDTOPackage>
 			<XDTOPackage>EnterpriseData_1_3_20</XDTOPackage>
 			<XDTOPackage>EnterpriseData_1_4_20</XDTOPackage>
 			<XDTOPackage>EnterpriseData_1_5_22</XDTOPackage>
@@ -1647,6 +1664,7 @@
 			<WebService>RemoteAdministrationOfExchange_2_4_5_1</WebService>
 			<WebService>RemoteControl</WebService>
 			<HTTPService>exchange_dsl_1_0_0_1</HTTPService>
+			<HTTPService>OpenAuthorizationOfMailService</HTTPService>
 			<EventSubscription>AdditionalAttributesFillCheckProcessing</EventSubscription>
 			<EventSubscription>AdditionalReportsAndDataProcessorsBeforeDeleteMetadataObjectID</EventSubscription>
 			<EventSubscription>BeforeDeleteExchangePlan</EventSubscription>
@@ -1734,6 +1752,7 @@
 			<EventSubscription>WriteToBusinessProcessesList</EventSubscription>
 			<ScheduledJob>AccessUpdateOnRecordsLevel</ScheduledJob>
 			<ScheduledJob>AccountingCheck</ScheduledJob>
+			<ScheduledJob>BackupOfBuiltInBinaryDataStorage</ScheduledJob>
 			<ScheduledJob>CleanUpUnusedFiles</ScheduledJob>
 			<ScheduledJob>ClearingObsoleteObjectVersions</ScheduledJob>
 			<ScheduledJob>ClearObsoleteData</ScheduledJob>
@@ -1773,6 +1792,7 @@
 			<ScheduledJob>TextExtraction</ScheduledJob>
 			<ScheduledJob>TextExtractionPlanningSaaS</ScheduledJob>
 			<ScheduledJob>TotalsPeriodSetup</ScheduledJob>
+			<ScheduledJob>TransferringFilesBetweenOperationalStorageAndFileArchive</ScheduledJob>
 			<ScheduledJob>UpdateAggregates</ScheduledJob>
 			<ScheduledJob>DeleteObsoleteExtensionsVersionsParameters</ScheduledJob>
 			<SettingsStorage>ReportsVariantsStorage</SettingsStorage>
@@ -1817,6 +1837,7 @@
 			<FunctionalOption>UseEncryption</FunctionalOption>
 			<FunctionalOption>UseExternalUserGroups</FunctionalOption>
 			<FunctionalOption>UseExternalUsers</FunctionalOption>
+			<FunctionalOption>UseFileArchive</FunctionalOption>
 			<FunctionalOption>UseFileSync</FunctionalOption>
 			<FunctionalOption>UseFullTextSearch</FunctionalOption>
 			<FunctionalOption>UseImportForbidDates</FunctionalOption>
@@ -1952,6 +1973,7 @@
 			<CommonCommand>ObjectsUnregisteredDuringLoop</CommonCommand>
 			<CommonCommand>ProxyServerCustomSettings</CommonCommand>
 			<CommonCommand>ReceivingEvents</CommonCommand>
+			<CommonCommand>RegisterAppInAuthService</CommonCommand>
 			<CommonCommand>RelatedDocuments</CommonCommand>
 			<CommonCommand>RelatedObjectsCreation</CommonCommand>
 			<CommonCommand>Remind</CommonCommand>
@@ -1976,6 +1998,7 @@
 			<CommonCommand>TasksBySubject</CommonCommand>
 			<CommonCommand>TimeInApp</CommonCommand>
 			<CommonCommand>UserInfo</CommonCommand>
+			<CommonCommand>WarningAboutExchangeSettingCyclicity</CommonCommand>
 			<CommonCommand>DeleteSynchronizationSetting</CommonCommand>
 			<CommandGroup>DataSynchronization</CommandGroup>
 			<CommandGroup>DataSyncParameters</CommandGroup>
@@ -2017,6 +2040,8 @@
 			<Constant>DeniedExtensionsList</Constant>
 			<Constant>DenyDisplayingUnsafeContentInEmails</Constant>
 			<Constant>DenyUploadFilesByExtension</Constant>
+			<Constant>DirectoryOfBackupsOfBuiltInBinaryDataStorageForLinux</Constant>
+			<Constant>DirectoryOfBackupsOfBuiltInBinaryDataStorageForWindows</Constant>
 			<Constant>DistributedInfobaseNodePrefix</Constant>
 			<Constant>ExternalResourceAccessLockParameters</Constant>
 			<Constant>ExtractTextFilesOnServer</Constant>
@@ -2064,6 +2089,7 @@
 			<Constant>PatchPropertiesBeforeInfobaseUpdate</Constant>
 			<Constant>PerformanceMonitorRecordPeriod</Constant>
 			<Constant>PeriodClosingDatesVersion</Constant>
+			<Constant>PortionSizeOfFilesBeingMoved</Constant>
 			<Constant>ProxyServerSetting</Constant>
 			<Constant>RefineSignaturesAutomatically</Constant>
 			<Constant>RefineSignaturesDates</Constant>
@@ -2087,6 +2113,7 @@
 			<Constant>SynchronizeFiles</Constant>
 			<Constant>SystemTitle</Constant>
 			<Constant>TextFilesExtensionsList</Constant>
+			<Constant>TextInformingUserAboutUnavailabilityOfFileInArchive</Constant>
 			<Constant>TextTranslationService</Constant>
 			<Constant>TimestampServersAddresses</Constant>
 			<Constant>TotalsAndAggregatesParameters</Constant>
@@ -2108,6 +2135,7 @@
 			<Constant>UseEncryption</Constant>
 			<Constant>UseExternalUserGroups</Constant>
 			<Constant>UseExternalUsers</Constant>
+			<Constant>UseFileArchive</Constant>
 			<Constant>UseFullTextSearch</Constant>
 			<Constant>UseImportForbidDates</Constant>
 			<Constant>UseMarkedObjectsDeletion</Constant>
@@ -2273,6 +2301,7 @@
 			<Catalog>FileStorageVolumes</Catalog>
 			<Catalog>FilesVersions</Catalog>
 			<Catalog>FileSynchronizationAccounts</Catalog>
+			<Catalog>GeneralSettingsForAuthorizationOfInternetServices</Catalog>
 			<Catalog>IncomingEmailAttachedFiles</Catalog>
 			<Catalog>InteractionsTabs</Catalog>
 			<Catalog>InternetServicesAuthorizationSettings</Catalog>
@@ -2319,6 +2348,7 @@
 			<DocumentJournal>Interactions</DocumentJournal>
 			<Enum>AccountingIssueSeverity</Enum>
 			<Enum>ActionsAtCancelInternalPublication</Enum>
+			<Enum>ActionsInFileArchiveWorkSettings</Enum>
 			<Enum>ActionsOnExchange</Enum>
 			<Enum>AddInUsageOptions</Enum>
 			<Enum>AdditionalAccessValues</Enum>
@@ -2400,8 +2430,11 @@
 			<Enum>TIFFCompressionTypes</Enum>
 			<Enum>TooltipDisplayMethods</Enum>
 			<Enum>TypesOfAnswersToQuestion</Enum>
+			<Enum>TypesOfBackupsOfBuiltInBinaryDataStorage</Enum>
+			<Enum>TypesOfFileStorage</Enum>
 			<Enum>UpdateHandlersStatuses</Enum>
 			<Enum>VersionsLifetimes</Enum>
+			<Enum>WaysToStoreFiles</Enum>
 			<Enum>WorkScheduleFillingMethods</Enum>
 			<Report>AccessGroupsAllowedValuesChange</Report>
 			<Report>AccessGroupsMembers</Report>
@@ -2447,6 +2480,7 @@
 			<DataProcessor>AutoTextExtraction</DataProcessor>
 			<DataProcessor>AvailableQuestionnaires</DataProcessor>
 			<DataProcessor>BatchEditAttributes</DataProcessor>
+			<DataProcessor>BinaryDataStorageManagement</DataProcessor>
 			<DataProcessor>BusinessProcessFlowchart</DataProcessor>
 			<DataProcessor>ContactInformationInput</DataProcessor>
 			<DataProcessor>ConvertXTDOObjects</DataProcessor>
@@ -2525,6 +2559,8 @@
 			<InformationRegister>AdditionalInfo</InformationRegister>
 			<InformationRegister>ApplicationRuntimeParameters</InformationRegister>
 			<InformationRegister>ArchiveOfExchangeMessages</InformationRegister>
+			<InformationRegister>BackupHistoryOfBuiltInBinaryDataStorage</InformationRegister>
+			<InformationRegister>BinaryDataStorageLocations</InformationRegister>
 			<InformationRegister>BusinessCalendarData</InformationRegister>
 			<InformationRegister>BusinessProcessesData</InformationRegister>
 			<InformationRegister>CalendarNonWorkDaysPeriods</InformationRegister>
@@ -2567,6 +2603,7 @@
 			<InformationRegister>ExtensionVersionParameters</InformationRegister>
 			<InformationRegister>ExternalModulesAttachmentModes</InformationRegister>
 			<InformationRegister>ExternalUsersAccessKeys</InformationRegister>
+			<InformationRegister>FileArchiveWorkSettings</InformationRegister>
 			<InformationRegister>FileRepository</InformationRegister>
 			<InformationRegister>FilesClearingSettings</InformationRegister>
 			<InformationRegister>FilesEncoding</InformationRegister>
@@ -2577,6 +2614,7 @@
 			<InformationRegister>FileSynchronizationSettings</InformationRegister>
 			<InformationRegister>FileWorkingDirectories</InformationRegister>
 			<InformationRegister>InfobaseObjectsMaps</InformationRegister>
+			<InformationRegister>InformationAboutStoringDeduplicatedFiles</InformationRegister>
 			<InformationRegister>InformationPackagesOnStart</InformationRegister>
 			<InformationRegister>InteractionsContacts</InformationRegister>
 			<InformationRegister>InteractionsContactStates</InformationRegister>

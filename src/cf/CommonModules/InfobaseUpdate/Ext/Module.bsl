@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -340,9 +339,13 @@ Function ObjectProcessed(Data) Export
 		ElsIf TypeOf(Data) = Type("String") Then
 			Processed = False;
 		Else
-			// ACC:488-off Safe mode is not required.
-			Processed = Eval(HandlerProperties.CheckProcedure + "(MetadataAndFilter)");
-			// ACC:488-on
+			If HandlerProperties.CheckProcedure = InfobaseUpdateInternal.StandardNameOfVerificationProcedure() Then
+				//@skip-check query-in-loop - проверка должна выполняться для каждого обработчика отдельно.
+				Processed = DataUpdatedForNewApplicationVersion(MetadataAndFilter);
+			Else
+				Processed = Common.ExecuteConfigurationMethod(HandlerProperties.CheckProcedure,
+					CommonClientServer.ValueInArray(MetadataAndFilter), True);
+			EndIf;
 		EndIf;
 		
 		Result.Processed = Processed And Result.Processed;
@@ -2184,7 +2187,7 @@ Function HasDataToProcess(Queue, FullObjectNameMetadata, Filter = Undefined) Exp
 		
 		SetSafeModeDisabled(True);
 		SetPrivilegedMode(True);
-		If Not Query.Execute().IsEmpty() Then // @skip-check query-in-loop - для избежания слишком тяжелого запроса.
+		If Not Query.Execute().IsEmpty() Then // @skip-check query-in-loop - 
 			Return True;
 		EndIf;
 		SetPrivilegedMode(False);
@@ -2998,6 +3001,8 @@ EndFunction
 //                                      and not required for others. Full names of objects separated by commas. 
 //                                      These names must be locked from changing until data processing procedure is finalized.
 //                                      If it is not empty, then the CheckProcedure property must also be filled in.
+//                                      Important: The property is ignored for handlers with the Non-critical order;
+//                                      such handlers should not block users from working with the object.
 //     * NewObjects        - String - It is required and intended for deferred update handlers only.
 //                                      Accepts a comma-delimited list of the full names of the objects 
 //                                      that will be created during the update handler runtime.
@@ -3412,7 +3417,7 @@ EndFunction
 //
 Function DataToUpdateInMultithreadHandler(Parameters) Export
 	
-	DataSet = Parameters.DataToUpdate.DataSet;
+	DataSet = Parameters.UpdatedData.DataSet;
 	
 	If DataSet.Count() > 0 Then
 		Data = DataSet[0].Data.Copy();
@@ -3627,7 +3632,7 @@ Function DataAreasUpdateProgress(UpdateMode) Export
 	|				THEN &TheStateOrderIsInProgress
 	|			WHEN UpdateHandlers.Status = VALUE(Enum.UpdateHandlersStatuses.Error)
 	|				THEN &ErrorStatusOrder
-	|			ELSE &TheStateOrderIsPending
+	|			ELSE &TheStateOrderIsInProgress
 	|		END) AS StatusOrder
 	|INTO UpdateStatistics
 	|FROM
@@ -3939,7 +3944,7 @@ EndProcedure
 
 #EndRegion
 
-#Region ForCallsFromOtherSubsystems
+#Region InterfaceImplementation
 
 // OnlineUserSupport.GetApplicationUpdates
 
@@ -4040,15 +4045,24 @@ Procedure FillObjectInitialData(ObjectToFillIn, PopulationSettings) Export
 	
 EndProcedure
 
-// Populates predefined items using the initial population in the 
-// "OnInitialItemFilling" handler of the "MetadataObject" object manager module.
-// 
+// Updates the predefined items of the specified metadata object according to the rules
+// specified in the initial population handler (OnInitialItemsFilling) of the object manager module.
+//
+// According to the Using predefined items standard, the update is not performed in subordinate DIB nodes,
+// since predefined items are not automatically created there and are not updated when metadata changes;
+// they must be received from the master node along with configuration changes.
+//
 // Parameters:
-//  MetadataObject - MetadataObject - Catalog or CCT to be updated.
-//  ParametersOfUpdate - See PredefinedItemsUpdateParameters
-//                      - Undefined - Update all the predefined items.
+//  MetadataObject     - MetadataObject - a catalog or chart of characteristic types
+//                         whose predefined items must be updated.
+//  ParametersOfUpdate  - See PredefinedItemsUpdateParameters
+//                       - Undefined - 
 //
 Procedure DoUpdatePredefinedItems(MetadataObject, ParametersOfUpdate = Undefined) Export
+	
+	If Common.IsSubordinateDIBNode() Then
+		Return;
+	EndIf;
 	
 	PredefinedItemsUpdateParameters = ?(ParametersOfUpdate = Undefined,
 		PredefinedItemsUpdateParameters(), ParametersOfUpdate);
@@ -4566,7 +4580,7 @@ Procedure AddAdditionalSourceLockCheck(Queue, QueryText, FullObjectName, FullReg
 						TemporaryTablesOfLockedAdditionalSources[SourceMetadata] = LockedAdditionalSourceTTName;
 						AdditionalParametersForTTCreation = AdditionalProcessingDataSelectionParameters();
 						AdditionalParametersForTTCreation.TempTableName = LockedAdditionalSourceTTName;
-						CreateTemporaryTableOfDataProhibitedFromReadingAndEditing(Queue, // @skip-check query-in-loop - пакетная проверка заблокированных данных.
+						CreateTemporaryTableOfDataProhibitedFromReadingAndEditing(Queue, // @skip-check query-in-loop - 
 							FullSourceName,
 							TempTablesManager,
 							AdditionalParametersForTTCreation); 
@@ -4640,7 +4654,7 @@ Procedure AddAdditionalSourceLockCheck(Queue, QueryText, FullObjectName, FullReg
 					
 					AdditionalParametersForTTCreation = AdditionalProcessingDataSelectionParameters();
 					AdditionalParametersForTTCreation.TempTableName = LockedAdditionalSourceTTName;
-					CreateTemporaryTableOfDataProhibitedFromReadingAndEditing(Queue, DataSource, TempTablesManager, AdditionalParametersForTTCreation); // @skip-check query-in-loop - пакетная проверка заблокированных данных.
+					CreateTemporaryTableOfDataProhibitedFromReadingAndEditing(Queue, DataSource, TempTablesManager, AdditionalParametersForTTCreation); // @skip-check query-in-loop - 
 					
 					TemporaryTablesOfLockedAdditionalSources.Insert(SourceMetadata, LockedAdditionalSourceTTName);
 				EndIf;
@@ -4721,7 +4735,7 @@ Procedure AddAdditionalSourceLockCheckForStandaloneRegister(Queue, QueryText, Fu
 			TempTableName = "TTLocked" + DataSource;
 			AdditionalParametersForTTCreation.TempTableName = TempTableName;
 			
-			CreateTemporaryTableOfRefsProhibitedFromReadingAndEditing(Queue, MetadataObjectsArray, TempTablesManager, AdditionalParametersForTTCreation); // @skip-check query-in-loop - пакетная проверка заблокированных данных.
+			CreateTemporaryTableOfRefsProhibitedFromReadingAndEditing(Queue, MetadataObjectsArray, TempTablesManager, AdditionalParametersForTTCreation); // @skip-check query-in-loop - 
 			
 			ConditionByAdditionalSourcesRefs = StringFunctionsClientServer.SubstituteParametersToString(
 				TemplateConditionsForAdditionalSourcesLinks,
@@ -5094,7 +5108,7 @@ Procedure DeleteTheRegistrationOfChangesToTheSubordinateRegister(Node, Recorders
 		Set = GetAReusedSet(DeletionParameters.ReusedSets);
 		Set.Filter.Recorder.Set(Recorder);
 		
-		WriteProgressProgressHandler(Set, Node); // @skip-check query-in-loop - нет запроса в цикле.
+		WriteProgressProgressHandler(Set, Node); // @skip-check query-in-loop - 
 		DeleteRegistrationOfDataItemChanges(Set, DeletionParameters);
 	EndDo;
 	
@@ -5123,7 +5137,7 @@ Procedure DeleteRegistrationOfIndependentRegisterChanges(Node, Records, FullObje
 			Set.Filter[Column.Name].Use = True;
 		EndDo;
 		
-		WriteProgressProgressHandler(Set, Node, RegisterMetadata); // @skip-check query-in-loop - нет запроса в цикле.
+		WriteProgressProgressHandler(Set, Node, RegisterMetadata); // @skip-check query-in-loop - 
 		DeleteRegistrationOfDataItemChanges(Set, DeletionParameters);
 	EndDo;
 	
@@ -5740,7 +5754,7 @@ Function SelectDataByPage(Query, BuildParameters)
 					Query.Text = Query.Text + TemporaryTablesDropQueryText;
 				EndIf;
 				
-				Upload0 = Query.Execute().Unload(); // @skip-check query-in-loop - оптимизированная выборка данных.
+				Upload0 = Query.Execute().Unload(); // @skip-check query-in-loop - 
 				
 				If Result = Undefined Then
 					Result = Upload0;
@@ -6216,12 +6230,12 @@ EndProcedure
 //             - Undefined - in this case aliases are equal to field names.
 //  TableName - String - a name of a table that contains fields.
 //                        if a blank row is specified, a table name is not inserted.
-//  Additional - Boolean - True, if these are not the first fields in the selection and they require "," before them.
+//  Additional_SSLyf - Boolean - True, if these are not the first fields in the selection and they require "," before them.
 //
 // Returns:
 //  String - a query text fragment with fields to select.
 //
-Function FieldsForQuery(FieldsNames, Aliases = Undefined, TableName = "", Additional = False)
+Function FieldsForQuery(FieldsNames, Aliases = Undefined, TableName = "", Additional_SSLyf = False)
 	
 	FieldsCount = FieldsNames.Count();
 	
@@ -6265,7 +6279,7 @@ Function FieldsForQuery(FieldsNames, Aliases = Undefined, TableName = "", Additi
 	Separator = ",
 		|	";
 	
-	Return ?(Additional, Separator, "") + StrConcat(Fields, Separator);
+	Return ?(Additional_SSLyf, Separator, "") + StrConcat(Fields, Separator);
 	
 EndFunction
 
@@ -6277,12 +6291,12 @@ EndFunction
 //              - Undefined - order is not specified (always ASC).
 //  TableName - String - a name of a table that contains fields.
 //                        if a blank row is specified, a table name is not inserted.
-//  Additional - Boolean - True, if these are not the first fields in the selection and they require "," before them.
+//  Additional_SSLyf - Boolean - True, if these are not the first fields in the selection and they require "," before them.
 //
 // Returns:
 //  String - a query text fragment for ordering.
 //
-Function OrderingsForQuery(FieldsNames, Directions = Undefined, TableName = "", Additional = False)
+Function OrderingsForQuery(FieldsNames, Directions = Undefined, TableName = "", Additional_SSLyf = False)
 	
 	FieldsCount = FieldsNames.Count();
 	
@@ -6311,7 +6325,7 @@ Function OrderingsForQuery(FieldsNames, Directions = Undefined, TableName = "", 
 	Separator = ",
 		|	";
 	
-	Return ?(Additional, Separator, "") + StrConcat(Ordering, Separator);
+	Return ?(Additional_SSLyf, Separator, "") + StrConcat(Ordering, Separator);
 	
 EndFunction
 
@@ -7076,6 +7090,13 @@ Procedure CheckMultithreadingParameters(AdditionalParameters, ObjectName) // ACC
 		Raise(MessageText, ErrorCategory.ConfigurationError);
 		
 	EndIf;
+	
+EndProcedure
+
+// See StandardSubsystemsServer.WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode
+Procedure WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode(Methods) Export
+	
+	Methods.Insert("RelaunchDeferredUpdate", True);
 	
 EndProcedure
 

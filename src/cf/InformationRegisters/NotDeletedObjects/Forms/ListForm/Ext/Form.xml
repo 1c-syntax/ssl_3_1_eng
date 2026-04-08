@@ -64,6 +64,12 @@
 				<xr:Ref>CommonPicture.ItemIcons</xr:Ref>
 				<xr:LoadTransparent>false</xr:LoadTransparent>
 			</RowsPicture>
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>List</v8:content>
+				</v8:item>
+			</Title>
 			<ToolTipRepresentation>ShowTop</ToolTipRepresentation>
 			<AutoRefresh>false</AutoRefresh>
 			<AutoRefreshPeriod>60</AutoRefreshPeriod>
@@ -158,12 +164,6 @@ To view the reasons why these objects cannot be deleted, go to &lt;link %1&gt;Ma
 				<CalculatedField>
 					<dcssch:dataPath>StandardPicture</dcssch:dataPath>
 					<dcssch:expression>4</dcssch:expression>
-					<dcssch:title xsi:type="v8:LocalStringType">
-						<v8:item>
-							<v8:lang>en</v8:lang>
-							<v8:content>Standard picture</v8:content>
-						</v8:item>
-					</dcssch:title>
 					<dcssch:useRestriction>
 						<dcssch:condition>true</dcssch:condition>
 						<dcssch:group>true</dcssch:group>

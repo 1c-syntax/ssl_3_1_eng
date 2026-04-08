@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -326,7 +325,7 @@ EndProcedure
 
 // Parameters:
 //  Parameters - 
-//  AreChatsActive - Boolean - Flag indicating that the message transport is the "Business interactions" subsystem.
+//  AreChatsActive - Boolean - Indicates that the messages are delivered by the Collaboration System.
 //  Interval - Number - Timeout in seconds before the next check.
 //
 Procedure BeforeRecurringClientDataSendToServer(Parameters, AreChatsActive, Interval) Export
@@ -342,7 +341,7 @@ EndProcedure
 
 // Parameters:
 //  Results - See CommonOverridable.OnReceiptRecurringClientDataOnServer.Results
-//  AreChatsActive - Boolean - Flag indicating that the message transport is the "Business interactions" subsystem.
+//  AreChatsActive - Boolean - Indicates that the messages are delivered by the Collaboration System.
 //  Interval - Number - Timeout in seconds before the next check.
 //
 Procedure AfterRecurringReceiptOfClientDataOnServer(Results, AreChatsActive, Interval) Export
@@ -401,7 +400,7 @@ Procedure OnFormClosureLongRunningOperation(Result, Context) Export
 EndProcedure
 
 // Parameters:
-//  AreChatsActive - Boolean - Flag indicating that the message transport is the "Business interactions" subsystem.
+//  AreChatsActive - Boolean - Indicates that the messages are delivered by the Collaboration System.
 //  Interval - Number - Timeout in seconds before the next check.
 //
 // Returns:

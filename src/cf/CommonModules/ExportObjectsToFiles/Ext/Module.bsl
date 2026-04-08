@@ -1,5 +1,5 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
@@ -50,7 +50,7 @@ Function SaveByFormatToFile(ExportCommands, ListOfObjects, SettingsForSaving) Ex
 	
 	For Each ExportCommand In ListOfCommands Do
 		
-		//@skip-check query-in-loop - запрос используется внутри обработки исключения для заранее неизвестных данных.
+		//@skip-check query-in-loop - The query is used within the exception handler for unforeknown data.
 		ExecuteExportToFile(ExportCommand, SettingsForSaving, ListOfObjects, Result);
 		
 	EndDo;
@@ -97,7 +97,7 @@ Procedure OnDefineCommandsAttachedToObject(FormSettings, Sources, AttachedReport
 	
 	For Each ExportCommand In ExportCommands Do
 		
-		If ExportCommand.isDisabled Then
+		If ExportCommand.TurnedOff Then
 			Continue;
 		EndIf;
 		
@@ -552,7 +552,7 @@ EndFunction
 // * FileSystemExtensionIsRequired - Boolean
 // * HiddenByFunctionalOptions - Boolean 
 // * UUID - String 
-// * isDisabled - Boolean 
+// * TurnedOff - Boolean 
 // * FormCommandName - String
 // * VisibilityConditionsByObjectTypes - Map of KeyAndValue:
 //     ** Key - TypeDescription - Object type
@@ -694,7 +694,7 @@ Function GenerateDataForExport(Val PrintManagerName, ObjectsTableByTemplates, Va
 				InternalParameters.Insert("OutputParameters", OutputParameters);
 				InternalParameters.Insert("SaveFormat", SaveFormat);
 				
-				// @skip-check query-in-loop - Малый цикл
+				// @skip-check query-in-loop - 
 				StartPreparationForExport(
 					ObjectsMatchingExportTemplate,
 					TempCollectionForSinglePrintForm,
@@ -702,7 +702,7 @@ Function GenerateDataForExport(Val PrintManagerName, ObjectsTableByTemplates, Va
 			Else
 				
 				PrintParameters = New Structure;
-				// @skip-check query-in-loop - Малый цикл
+				// @skip-check query-in-loop - 
 				PrintManagement.Print(
 					ObjectsMatchingExportTemplate,
 					PrintParameters,
@@ -850,7 +850,7 @@ Procedure StartPreparationForExport(ObjectsArray, PrintFormsCollection, Internal
 		PrintForm.OutputInOtherLanguagesAvailable = True;
 		PrintForm.FullTemplatePath = PrintForm.TemplateName;
 		PrintForm.TemplateSynonym = PrintManagement.TemplatePresentation(PrintForm.FullTemplatePath, LanguageCode);
-		// @skip-check query-in-loop - Небольшое количество итераций цикла с запросом к таблице РегистрСведений.ПользовательскиеМакетыПечати 
+		// @skip-check query-in-loop -  
 		// @skip-check query-in-loop - A few loop iterations that query the table
 // "InformationRegister.UserPrintTemplates", which contains just a handful of records.
 		Template = PrintManagement.PrintFormTemplate(PrintForm.FullTemplatePath, LanguageCode);
@@ -937,7 +937,7 @@ EndFunction
 // * ParameterName - String
 // * Output - Boolean
 // 
-Function NewParameterStructure()
+Function ParameterNewStructure()
 	
 	Structure = New Structure;
 	Structure.Insert("IsParameter", True);
@@ -1179,16 +1179,16 @@ Procedure TemplateRowToStructure(StructureWithData, SourceData, Additional_Data,
 		DataForParameterCalculation.ParameterNameRowNumber = LineNumber;
 		DataForParameterCalculation.ParameterLineNumber = LineNumber;
 		
-		DataOfStructureParameter = DataOfParameter(SourceData, DataForParameterCalculation);
+		ParameterDataStructure = DataOfParameter(SourceData, DataForParameterCalculation);
 		
-		AddToStructure = (DataOfStructureParameter <> Undefined
-			And DataOfStructureParameter.Output);
+		AddToStructure = (ParameterDataStructure <> Undefined
+			And ParameterDataStructure.Output);
 		
 		If AddToStructure Then
 			
 			DataCnt = DataCnt + 1;
 			DataCntAsString = XMLString(DataCnt);
-			StructureWithData.Insert("Data_" + DataCntAsString, DataOfStructureParameter);
+			StructureWithData.Insert("Data_" + DataCntAsString, ParameterDataStructure);
 			StructureWithData.DataVolume = DataCnt;
 			
 		EndIf;
@@ -1427,16 +1427,16 @@ Procedure FillStructureWithData(StructureWithData, ArrayOfNestedOnes, ArrayOfPro
 			DataForParameterCalculation.ParameterNameRowNumber = LineNumber;
 			DataForParameterCalculation.ParameterLineNumber = LineNumber;
 			
-			DataOfStructureParameter = DataOfParameter(SourceData, DataForParameterCalculation);
+			ParameterDataStructure = DataOfParameter(SourceData, DataForParameterCalculation);
 			
-			If DataOfStructureParameter = Undefined
-			 Or Not DataOfStructureParameter.Output Then
+			If ParameterDataStructure = Undefined
+			 Or Not ParameterDataStructure.Output Then
 				Continue;
 			EndIf;
 			
 			DataCnt = DataCnt + 1;
 			DataCntAsString = XMLString(DataCnt);
-			StructureWithData.Insert("Data_" + DataCntAsString, DataOfStructureParameter);
+			StructureWithData.Insert("Data_" + DataCntAsString, ParameterDataStructure);
 			StructureWithData.DataVolume = DataCnt;
 			
 		EndIf;
@@ -1764,11 +1764,11 @@ Procedure RowStructureDBF(StringStructure, ColumnTypes_, ServiceData)
 		SourceData.Insert("ObjectData", ObjectData);
 		SourceData.Insert("DataSourcePassed", DataSource);
 		
-		DataOfStructureParameter = DataOfParameter(SourceData, DataForParameterCalculation);
-		StringStructure.Insert("Data_" + ColumnsCounterAsString, DataOfStructureParameter);
+		ParameterDataStructure = DataOfParameter(SourceData, DataForParameterCalculation);
+		StringStructure.Insert("Data_" + ColumnsCounterAsString, ParameterDataStructure);
 		StringStructure.DataVolume = ColumnsCounter;
 		If ColumnTypes_["ColumnNumber_" + ColumnNumberAsString] = Undefined Then
-			ColumnTypes_.Insert("ColumnNumber_" + ColumnNumberAsString, DataOfStructureParameter.FieldType);
+			ColumnTypes_.Insert("ColumnNumber_" + ColumnNumberAsString, ParameterDataStructure.FieldType);
 		EndIf;
 		
 	EndDo;
@@ -1906,7 +1906,7 @@ Function DataOfParameter(SourceData, DataForParameterCalculation)
 	FieldName = PrintManagement.ClearSquareBrackets(FullPath);
 	FieldType = ParameterFieldTypes[StrReplace(FieldName, ".", "_")];
 	
-	ParameterStructure = NewParameterStructure();
+	ParameterStructure = ParameterNewStructure();
 	ParameterStructure.FullPath = FullPath;
 	ParameterStructure.ConditionalAppearance = FieldFormatSettings[FieldName];
 	ParameterStructure.ParameterName = StrReplace(ParameterName, " ", "");
@@ -2089,10 +2089,43 @@ Function TableOfAreas(Template)
 		
 	EndDo;
 	
+	UpdateConditionAreas(TableOfAreas);
 	TableOfAreas.Sort("Top, Bottom Desc, Priority");
+	
 	Return TableOfAreas;
 	
 EndFunction
+
+Procedure UpdateConditionAreas(TableOfAreas)
+	
+	TableOfAreas.Sort("Top, Bottom Desc, Priority");
+	
+	For Each Area In TableOfAreas Do
+		
+		If Not Area.IsOutputConditionArea Then
+			Continue;
+		EndIf;
+		
+		Filter = New Structure;
+		Filter.Insert("IsOutputConditionArea", True);
+		Filter.Insert("DetailsParameter", Area.DetailsParameter);
+		FoundRows = TableOfAreas.FindRows(Filter);
+		For Each CurrentRow In FoundRows Do
+			
+			If Area.Bottom <= CurrentRow.Bottom
+			   And Area.Top > CurrentRow.Top Then
+				
+				Area.IsOutputConditionArea = False;
+				Area.Priority = 0;
+				Break;
+				
+			EndIf;
+			
+		EndDo;
+		
+	EndDo;
+	
+EndProcedure
 
 Procedure SupplementAreasTableWithTableData(Template, TableOfAreas, TemplateTables)
 	
@@ -2167,7 +2200,7 @@ EndFunction
 
 Procedure NotifyExportUnavailable(Object)
 	
-	Template = NStr("en = 'Export ""%1"" failed: Selected template is unavailable.'");
+	Template = NStr("en = 'Export %1 failed: Selected template is unavailable.'");
 	ObjectAsString = String(Object);
 	MessageText = StringFunctionsClientServer.SubstituteParametersToString(Template, ObjectAsString);
 	Common.MessageToUser(MessageText, Object);
@@ -2750,11 +2783,11 @@ Procedure FillExportCommandsForObjectList(ListOfObjects, ExportCommands)
 			Continue;
 		EndIf;
 		
-		FormExportCommands = ObjectExportCommands(MetadataObject); // @skip-check query-in-loop - Малый цикл
+		FormExportCommands = ObjectExportCommands(MetadataObject); // @skip-check query-in-loop - 
 		
 		For Each ExportCommandToAdd In FormExportCommands Do
 			
-			If ExportCommandToAdd.isDisabled Then
+			If ExportCommandToAdd.TurnedOff Then
 				Continue;
 			EndIf;
 			

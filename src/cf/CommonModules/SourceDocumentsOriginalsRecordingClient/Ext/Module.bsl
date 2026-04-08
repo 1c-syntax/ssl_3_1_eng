@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -119,8 +118,8 @@ Procedure OpenStateSelectionMenu(Val Form, Val Source = Undefined) Export
 		Form.OriginalStatesChoiceList.Delete(ClarifyByPrintForms);
 	EndIf;
 
-	NotifyDescription = New CallbackDescription("OpenStateSelectionMenuCompletion", ThisObject, RecordData);
-	Form.ShowChooseFromMenu(NotifyDescription, Form.OriginalStatesChoiceList, FormItemSource);
+	CallbackDescription = New CallbackDescription("OpenStateSelectionMenuCompletion", ThisObject, RecordData);
+	Form.ShowChooseFromMenu(CallbackDescription, Form.OriginalStatesChoiceList, FormItemSource);
 
 EndProcedure
 
@@ -230,14 +229,14 @@ EndProcedure
 // The procedure displays a notification about changing a document original state to the user.
 //
 //	Parameters:
-//  ProcessedItemsCount - Number - a number of successfully processed documents.
+//  ProcessedItemsCount_SSLyf - Number - a number of successfully processed documents.
 //  Document - DefinedType.ObjectWithSourceDocumentsOriginalsAccounting - Reference to the document for processing the user notification click 
 //			   in case of the single state setting. Optional parameter.
 //  OriginalState - CatalogRef.SourceDocumentsOriginalsStates - Reference to the state to apply.
 //
-Procedure NotifyUserOfStatesSetting(ProcessedItemsCount, Document = Undefined, OriginalState = Undefined) Export
+Procedure NotifyUserOfStatesSetting(ProcessedItemsCount_SSLyf, Document = Undefined, OriginalState = Undefined) Export
 
-	If ProcessedItemsCount > 1 Then
+	If ProcessedItemsCount_SSLyf > 1 Then
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'The original state ""%1"" is applied to all selected documents.'"), String(OriginalState));
 		
@@ -246,10 +245,10 @@ Procedure NotifyUserOfStatesSetting(ProcessedItemsCount, Document = Undefined, O
 
 		ShowUserNotification(TitleText,, MessageText, PictureLib.DialogInformation, UserNotificationStatus.Information);
 	Else
-		NotifyDescription = New CallbackDescription("ProcessNotificationClick", ThisObject, Document);
+		CallbackDescription = New CallbackDescription("ProcessNotificationClick", ThisObject, Document);
 		MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = '""%1"" is applied:'"), String(OriginalState));
-		ShowUserNotification(MessageText, NotifyDescription, Document, PictureLib.DialogInformation,
+		ShowUserNotification(MessageText, CallbackDescription, Document, PictureLib.DialogInformation,
 			UserNotificationStatus.Information);
 	EndIf;
 

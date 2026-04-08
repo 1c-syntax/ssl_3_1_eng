@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -166,8 +165,8 @@ EndProcedure
 &AtClient
 Procedure SetUpSchedule(Command)
 	ScheduleDialog1 = New ScheduledJobDialog(CurrentSchedule());
-	NotifyDescription = New CallbackDescription("SetUpScheduleCompletion", ThisObject);
-	ScheduleDialog1.Show(NotifyDescription);
+	CallbackDescription = New CallbackDescription("SetUpScheduleCompletion", ThisObject);
+	ScheduleDialog1.Show(CallbackDescription);
 EndProcedure
 
 &AtClient
@@ -506,8 +505,7 @@ Procedure RunScheduledJob()
 	ScheduledJobMetadata1 = Metadata.ScheduledJobs.ClearingObsoleteObjectVersions;
 	
 	Filter = New Structure;
-	MethodName = ScheduledJobMetadata1.MethodName;
-	Filter.Insert("MethodName", MethodName);
+	Filter.Insert("MethodName", ScheduledJobMetadata1.MethodName);
 	
 	Filter.Insert("State", BackgroundJobState.Active);
 	CleanupBackgroundJobs = BackgroundJobs.GetBackgroundJobs(Filter);
@@ -515,8 +513,10 @@ Procedure RunScheduledJob()
 		BackgroundJobIdentifier = CleanupBackgroundJobs[0].UUID;
 	Else
 		JobParameters = TimeConsumingOperations.BackgroundExecutionParameters(UUID);
-		JobParameters.BackgroundJobDescription = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Manual start: %1'"), ScheduledJobMetadata1.Synonym);
-		JobResult = TimeConsumingOperations.ExecuteProcedure(JobParameters, ScheduledJobMetadata1.MethodName);
+		JobParameters.BackgroundJobDescription = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Manual start: %1'"), ScheduledJobMetadata1.Synonym);
+		JobResult = TimeConsumingOperations.ExecuteProcedure(JobParameters,
+			Metadata.ScheduledJobs.ClearingObsoleteObjectVersions.MethodName);
 		If ValueIsFilled(JobResult.JobID) Then
 			BackgroundJobIdentifier = JobResult.JobID;
 		EndIf;
@@ -546,7 +546,7 @@ EndProcedure
 &AtClient
 Procedure StartUpdateObsoleteVersionsInformation()
 	
-	Items.Clear.Visible = CurrentBackgroundJob <> "Clearing";
+	Items.Clear.Visible = False;
 	If ValueIsFilled(BackgroundJobIdentifier) Then
 		If CurrentBackgroundJob = "Calculation1" Then
 			Items.ObsoleteVersionsInformation.Title = StatusTextCalculation();
@@ -562,8 +562,8 @@ Procedure StartUpdateObsoleteVersionsInformation()
 	IdleParameters = TimeConsumingOperationsClient.IdleParameters(ThisObject);
 	IdleParameters.OutputIdleWindow = False;
 	
-	NotifyDescription = New CallbackDescription("OnCompleteSearchForObsoleteVersions", ThisObject);
-	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, NotifyDescription, IdleParameters);
+	CallbackDescription = New CallbackDescription("OnCompleteSearchForObsoleteVersions", ThisObject);
+	TimeConsumingOperationsClient.WaitCompletion(TimeConsumingOperation, CallbackDescription, IdleParameters);
 	
 EndProcedure
 

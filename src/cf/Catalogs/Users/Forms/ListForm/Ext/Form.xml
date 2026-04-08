@@ -305,10 +305,10 @@
 						</Popup>
 					</ChildItems>
 				</ButtonGroup>
-				<Button name="FormHelp" id="70">
+				<Button name="FormHelp_SSLyf" id="70">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.StandardCommand.Help</CommandName>
-					<ExtendedTooltip name="FormHelpExtendedTooltip" id="107"/>
+					<ExtendedTooltip name="FormHelp_SSLyfExtendedTooltip" id="107"/>
 				</Button>
 				<SearchStringAddition name="UsersSearch" id="319">
 					<AdditionSource>

@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Variables
@@ -48,17 +47,37 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		SimplifiedInterface = ModuleAccessManagementInternal.SimplifiedAccessRightsSetupInterface();
 		Items.OpenAccessGroups.Visible            = Not SimplifiedInterface;
 		Items.UseUserGroups.Visible = Not SimplifiedInterface;
-		Items.LimitAccessAtRecordLevelUniversally.Visible
-			= ModuleAccessManagementInternal.ScriptVariantRussian()
-				And Users.IsFullUser();
-		Items.AccessUpdateOnRecordsLevel.Visible =
-			ModuleAccessManagementInternal.LimitAccessAtRecordLevelUniversally(True);
 		
+		IsRecordLevelRestrictionDisabled = ModuleAccessManagementInternal.IsRecordLevelRestrictionDisabled();
+		IsStandardOptionDisabled          = ModuleAccessManagementInternal.IsStandardOptionDisabled();
+		Items.LimitAccessAtRecordLevel.Visible =
+			Not IsRecordLevelRestrictionDisabled;
+		Items.LimitAccessAtRecordLevelUniversally.Visible =
+			Not IsRecordLevelRestrictionDisabled
+			And Not IsStandardOptionDisabled
+			And ModuleAccessManagementInternal.ScriptVariantRussian()
+			And Users.IsFullUser();
+		Items.AccessUpdateOnRecordsLevel.Visible =
+			Not IsRecordLevelRestrictionDisabled
+			And ModuleAccessManagementInternal.LimitAccessAtRecordLevelUniversally(True);
 		If Common.IsSubordinateDIBNode() Then
 			Items.LimitAccessAtRecordLevel.Enabled = False;
 			Items.LimitAccessAtRecordLevelUniversally.Enabled = False;
 		EndIf;
 		UpdateVisibilityOfStandardOptionObsoleteWarning(ThisObject);
+		If IsRecordLevelRestrictionDisabled Then
+			For Each SubordinateItem In Items.AccessGroupsGroup.ChildItems Do
+				If SubordinateItem <> Items.AccessGroupsProfilesAndRecordLevelRestrictionGroup Then
+					SubordinateItem.Visible = False;
+				EndIf;
+			EndDo;
+			For Each SubordinateItem In Items.AccessGroupsProfilesAndRecordLevelRestrictionGroup.ChildItems Do
+				If SubordinateItem <> Items.AccessGroupsAndRecordLevelRestrictionGroup
+				   And SubordinateItem <> Items.AccessGroupsProfilesGroup Then
+					SubordinateItem.Visible = False;
+				EndIf;
+			EndDo;
+		EndIf;
 		IsAccessRightsChangeLoggingSupported =
 			ModuleAccessManagementInternal.IsAccessRightsChangeLoggingSupported();
 	Else
@@ -81,8 +100,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	If Common.SubsystemExists("StandardSubsystems.PersonalDataProtection") Then
 		Items.GroupPersonalDataAccessEventRegistrationSettings.Visible =
-			  Not Common.DataSeparationEnabled()
-			And Users.IsFullUser(, True);
+		 Users.IsFullUser(, True);
 	Else
 		Items.PersonalDataProtectionGroup.Visible = False;
 	EndIf;

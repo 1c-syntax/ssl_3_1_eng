@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -105,7 +104,7 @@ EndProcedure
 //                  - DynamicListGroupRow
 //                  - DefinedType.BusinessProcess - business process.
 //
-Procedure Activate(Val CommandParameter) Export
+Procedure MakeActivated(Val CommandParameter) Export
 	
 	QueryText = "";
 	TaskCount1 = 0;
@@ -147,7 +146,7 @@ Procedure Activate(Val CommandParameter) Export
 			
 	EndIf;
 	
-	Notification = New CallbackDescription("ActivateCompletion", ThisObject, CommandParameter);
+	Notification = New CallbackDescription("MakeActivatedCompletion", ThisObject, CommandParameter);
 	ShowQueryBox(Notification, QueryText, QuestionDialogMode.YesNo, , DialogReturnCode.No, NStr("en = 'Suspend business process'"));
 	
 EndProcedure
@@ -205,7 +204,8 @@ EndProcedure
 // Parameters:
 //  Form               - ClientApplicationForm
 //                      - ManagedFormExtensionForObjects - a task form, where:
-//   * Object - TaskObject - task.
+//   * Object - TaskObject 
+//            - TaskObject.PerformerTask - task.
 //  CurrentUser - CatalogRef.ExternalUsers
 //                      - CatalogRef.Users - Reference to the current user.
 //                                                        
@@ -213,18 +213,33 @@ EndProcedure
 Procedure AcceptTaskForExecution(Form, CurrentUser) Export
 	
 	Form.Object.AcceptedForExecution = True;
+	Performer                     = Form.Object.Performer;
 	
 	// Keep "AcceptForExecutionDate" empty. 
 	// It will be initialized with the current session date before writing the task.
 	Form.Object.AcceptForExecutionDate = Date('00010101');
-	If Not ValueIsFilled(Form.Object.Performer) Then
+	If Not ValueIsFilled(Performer) Then
 		Form.Object.Performer = CurrentUser;
+		AcceptTaskForExecutionContinued(Form, True);
+	ElsIf Performer = CurrentUser Then
+		AcceptTaskForExecutionContinued(Form);
+	Else
+		AdditionalParameters = New Structure;
+		AdditionalParameters.Insert("CurrentUser", CurrentUser);
+		AdditionalParameters.Insert("Form",               Form);
+		
+		QuestionNotification = New CallbackDescription("AfterQuestionAcceptTaskForExecution", ThisObject, AdditionalParameters);
+		QueryText = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Accept the task with a change of assignee?
+			|New assignee is %1, replacing %2'"), CurrentUser, Performer);
+		
+		DialogButtons = New ValueList();
+		DialogButtons.Add(DialogReturnCode.Yes,     NStr("en = 'Accept'"));
+		DialogButtons.Add(DialogReturnCode.No,    NStr("en = 'Keep current assignee'"));
+		DialogButtons.Add(DialogReturnCode.Cancel, NStr("en = 'Cancel'"));
+		
+		ShowQueryBox(QuestionNotification, QueryText, DialogButtons);
 	EndIf;
-	
-	ClearMessages();
-	Form.Write();
-	UpdateAcceptForExecutionCommandsAvailability(Form);
-	NotifyChanged(Form.Object.Ref);
 	
 EndProcedure
 
@@ -346,13 +361,16 @@ EndProcedure
 //
 Procedure TaskFormNotificationProcessing(Form, EventName, Parameter, Source) Export
 	
-	If EventName = "Write_PerformerTask" 
-		And Not Form.Modified 
-		And (Source = Form.Object.Ref Or (TypeOf(Source) = Type("Array") 
-		And Source.Find(Form.Object.Ref) <> Undefined)) Then
-		If Parameter.Property("Forwarded") Then
-			Form.Close();
-		Else
+	If EventName = "Write_PerformerTask" Then
+		If Not Form.Modified 
+			And (Source = Form.Object.Ref Or (TypeOf(Source) = Type("Array") 
+			And Source.Find(Form.Object.Ref) <> Undefined)) Then
+			If Parameter.Property("Forwarded") Then
+				Form.Close();
+			Else
+				Form.Read();
+			EndIf;
+		ElsIf Parameter.Property("AcceptTaskForExecution") And Parameter.AcceptTaskForExecution = "Refresh" Then
 			Form.Read();
 		EndIf;
 	EndIf;
@@ -563,6 +581,44 @@ Procedure OpenTaskSubject(List) Export
 	ShowValue(, List.CurrentData.SubjectOf);
 EndProcedure
 
+Procedure AfterQuestionAcceptTaskForExecution(Result, AdditionalParameters) Export
+	
+	IsFormUpdateRequired = False;
+	If Result = DialogReturnCode.Cancel Then
+		Return;
+	ElsIf Result = DialogReturnCode.Yes Then
+		AdditionalParameters.Form.Object.Performer = AdditionalParameters.CurrentUser;
+		IsFormUpdateRequired = True;
+	EndIf;
+	
+	AcceptTaskForExecutionContinued(AdditionalParameters.Form, IsFormUpdateRequired);
+	
+EndProcedure
+
+// Parameters:
+//  Form               - ClientApplicationForm
+//                      - ManagedFormExtensionForObjects - a task form, where:
+//   * Object - TaskObject.PerformerTask 
+//            - TaskObject - task.
+//  CurrentUser - CatalogRef.ExternalUsers
+//                      - CatalogRef.Users - Reference to the
+//                                                        current user.
+//
+Procedure AcceptTaskForExecutionContinued(Form, IsFormUpdateRequired = False)
+	
+	AcceptTaskForExecution = ?(IsFormUpdateRequired, "Refresh", "");
+	NotificationParameters = New Structure;
+	NotificationParameters.Insert("AcceptTaskForExecution", AcceptTaskForExecution);
+	
+	ClearMessages();
+	Form.Write();
+	UpdateAcceptForExecutionCommandsAvailability(Form);
+	NotifyChanged(Form.Object.Ref);
+	
+	Notify("Write_PerformerTask", NotificationParameters, Form.Object.Ref);
+	
+EndProcedure
+
 // Standard handler DeletionMark used in the lists of business processes.
 // The procedure is intended for calling from the DeletionMark list event handler.
 //
@@ -650,7 +706,7 @@ Procedure BusinessProcessesListDeletionMarkCompletion(Result, List) Export
 	
 EndProcedure
 
-Procedure ActivateCompletion(Val Result, Val CommandParameter) Export
+Procedure MakeActivatedCompletion(Val Result, Val CommandParameter) Export
 	
 	If Result <> DialogReturnCode.Yes Then
 		Return;
@@ -687,7 +743,10 @@ Procedure ForwardTasksCompletion(Val Result, Val TaskArray) Export
 	TasksAreForwarded = BusinessProcessesAndTasksServerCall.ForwardTasks(
 		TaskArray, Result, False, ForwardedTaskArray);
 		
-	Notify("Write_PerformerTask", New Structure("Forwarded", TasksAreForwarded), TaskArray);
+		
+	If TasksAreForwarded Then
+		Notify("Write_PerformerTask", New Structure("Forwarded", TasksAreForwarded), TaskArray);
+	EndIf;
 	
 EndProcedure
 

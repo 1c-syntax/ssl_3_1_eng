@@ -136,6 +136,17 @@
 				<Event name="BeforeRowChange">ListBeforeRowChange</Event>
 			</Events>
 			<ChildItems>
+				<LabelField name="ListFileDescription" id="43">
+					<DataPath>List.FileDescription</DataPath>
+					<Title>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>File name</v8:content>
+						</v8:item>
+					</Title>
+					<ContextMenu name="ListFileDescriptionContextMenu" id="44"/>
+					<ExtendedTooltip name="ListFileDescriptionExtendedTooltip" id="45"/>
+				</LabelField>
 				<LabelField name="ListPathToFile" id="18">
 					<DataPath>List.PathToFile</DataPath>
 					<Title>
@@ -256,9 +267,130 @@
 	CAST("" AS STRING) AS PathToFile,
 	CAST(0 AS NUMBER(10, 0)) AS Size,
 	VALUE(Catalog.Users.EmptyRef) AS Author,
-	FALSE AS AreAttachedFiles
+	FALSE AS AreAttachedFiles,
+	CAST("" AS STRING) AS FileDescription
 FROM
 	Catalog.FileStorageVolumes AS FileRepositoryOverridable</QueryText>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Code</dcssch:dataPath>
+					<dcssch:field>Code</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>FilesStorageMethod</dcssch:dataPath>
+					<dcssch:field>FilesStorageMethod</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>TypeOfFileStorageVolume</dcssch:dataPath>
+					<dcssch:field>TypeOfFileStorageVolume</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Comment</dcssch:dataPath>
+					<dcssch:field>Comment</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>FillOrder</dcssch:dataPath>
+					<dcssch:field>FillOrder</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>LastFilesCleanupTime</dcssch:dataPath>
+					<dcssch:field>LastFilesCleanupTime</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>MaximumSize</dcssch:dataPath>
+					<dcssch:field>MaximumSize</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>PathToFile</dcssch:dataPath>
+					<dcssch:field>PathToFile</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>File path</v8:content>
+						</v8:item>
+					</dcssch:title>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>FullPathLinux</dcssch:dataPath>
+					<dcssch:field>FullPathLinux</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>FullPathWindows</dcssch:dataPath>
+					<dcssch:field>FullPathWindows</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>NameOfBinaryDataStore</dcssch:dataPath>
+					<dcssch:field>NameOfBinaryDataStore</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Predefined</dcssch:dataPath>
+					<dcssch:field>Predefined</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Ref</dcssch:dataPath>
+					<dcssch:field>Ref</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>PredefinedDataName</dcssch:dataPath>
+					<dcssch:field>PredefinedDataName</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Description</dcssch:dataPath>
+					<dcssch:field>Description</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>PictureIndex</dcssch:dataPath>
+					<dcssch:field>PictureIndex</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Picture index</v8:content>
+						</v8:item>
+					</dcssch:title>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Size</dcssch:dataPath>
+					<dcssch:field>Size</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Size</v8:content>
+						</v8:item>
+					</dcssch:title>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Author</dcssch:dataPath>
+					<dcssch:field>Author</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Author</v8:content>
+						</v8:item>
+					</dcssch:title>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>AreAttachedFiles</dcssch:dataPath>
+					<dcssch:field>AreAttachedFiles</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>These are attachments</v8:content>
+						</v8:item>
+					</dcssch:title>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>DeletionMark</dcssch:dataPath>
+					<dcssch:field>DeletionMark</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>FileDescription</dcssch:dataPath>
+					<dcssch:field>FileDescription</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>File name</v8:content>
+						</v8:item>
+					</dcssch:title>
+				</Field>
 				<MainTable>Catalog.FileStorageVolumes</MainTable>
 				<ListSettings>
 					<dcsset:filter>

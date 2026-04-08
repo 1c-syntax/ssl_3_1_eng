@@ -218,7 +218,7 @@
 						<Title>
 							<v8:item>
 								<v8:lang>en</v8:lang>
-								<v8:content>Commit</v8:content>
+								<v8:content>Finish editing</v8:content>
 							</v8:item>
 						</Title>
 						<ExtendedTooltip name="FormEndEditExtendedTooltip" id="153"/>
@@ -319,6 +319,17 @@
 									</v8:item>
 								</Title>
 								<ExtendedTooltip name="FormSignExtendedTooltip" id="163"/>
+							</Button>
+							<Button name="FormSendForSigning" id="456">
+								<Type>CommandBarButton</Type>
+								<CommandName>Form.Command.SendForSigning</CommandName>
+								<Title>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Send for signing…</v8:content>
+									</v8:item>
+								</Title>
+								<ExtendedTooltip name="FormSendForSigningExtendedTooltip" id="457"/>
 							</Button>
 							<Button name="FormAddSignatureFromFile" id="127">
 								<Type>CommandBarButton</Type>
@@ -662,10 +673,10 @@
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="ShowServiceFilesExtendedTooltip" id="433"/>
 			</Button>
-			<Button name="FormHelp" id="147" DisplayImportance="VeryLow">
+			<Button name="FormHelp_SSLyf" id="147" DisplayImportance="VeryLow">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.StandardCommand.Help</CommandName>
-				<ExtendedTooltip name="FormHelpExtendedTooltip" id="172"/>
+				<ExtendedTooltip name="FormHelp_SSLyfExtendedTooltip" id="172"/>
 			</Button>
 		</ChildItems>
 	</AutoCommandBar>
@@ -1205,7 +1216,7 @@
 														<Title>
 															<v8:item>
 																<v8:lang>en</v8:lang>
-																<v8:content>Commit</v8:content>
+																<v8:content>Finish editing</v8:content>
 															</v8:item>
 														</Title>
 														<ExtendedTooltip name="ListContextMenuEndEditExtendedTooltip" id="189"/>
@@ -1266,6 +1277,17 @@
 																	</v8:item>
 																</Title>
 																<ExtendedTooltip name="ListContextMenuSignExtendedTooltip" id="202"/>
+															</Button>
+															<Button name="ListContextMenuSendForSigning" id="458">
+																<Type>CommandBarButton</Type>
+																<CommandName>Form.Command.SendForSigning</CommandName>
+																<Title>
+																	<v8:item>
+																		<v8:lang>en</v8:lang>
+																		<v8:content>Send for signing…</v8:content>
+																	</v8:item>
+																</Title>
+																<ExtendedTooltip name="ListContextMenuSendForSigningExtendedTooltip" id="459"/>
 															</Button>
 															<Button name="ListContextMenuAddSignatureFromFile" id="134">
 																<Type>CommandBarButton</Type>
@@ -1490,7 +1512,7 @@
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
-													<v8:content>Picture number signed encrypted</v8:content>
+													<v8:content>Encrypted</v8:content>
 												</v8:item>
 											</Title>
 											<TitleLocation>None</TitleLocation>
@@ -1513,6 +1535,34 @@
 											<FileDragMode>AsFile</FileDragMode>
 											<ContextMenu name="ListSignedEncryptedPictureNumberContextMenu" id="118"/>
 											<ExtendedTooltip name="ListSignedEncryptedPictureNumberExtendedTooltip" id="209"/>
+										</PictureField>
+										<PictureField name="ListImageNumberIsArchive" id="460">
+											<DataPath>List.ImageNumberIsArchive</DataPath>
+											<ReadOnly>true</ReadOnly>
+											<Title>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Archived</v8:content>
+												</v8:item>
+											</Title>
+											<TitleLocation>None</TitleLocation>
+											<ToolTip>
+												<v8:item>
+													<v8:lang>en</v8:lang>
+													<v8:content>Archived</v8:content>
+												</v8:item>
+											</ToolTip>
+											<HeaderPicture>
+												<xr:Ref>CommonPicture.FileArchive</xr:Ref>
+												<xr:LoadTransparent>false</xr:LoadTransparent>
+											</HeaderPicture>
+											<Width>2</Width>
+											<ValuesPicture>
+												<xr:Ref>CommonPicture.FileArchive</xr:Ref>
+												<xr:LoadTransparent>false</xr:LoadTransparent>
+											</ValuesPicture>
+											<ContextMenu name="ListImageNumberIsArchiveContextMenu" id="461"/>
+											<ExtendedTooltip name="ListImageNumberIsArchiveExtendedTooltip" id="462"/>
 										</PictureField>
 										<ColumnGroup name="ListNamePictureDetailsGroup" id="310" DisplayImportance="VeryHigh">
 											<Title>
@@ -1738,6 +1788,7 @@
 				<Field>List.Extension</Field>
 				<Field>List.FileBeingEdited</Field>
 				<Field>List.FileOwner</Field>
+				<Field>List.ImageNumberIsArchive</Field>
 				<Field>List.IsInternal</Field>
 				<Field>List.Ref</Field>
 				<Field>List.SignedWithDS</Field>
@@ -1786,6 +1837,11 @@
 			THEN 0
 		ELSE -1
 	END AS SignedEncryptedPictureNumber,
+	CASE
+		WHEN ISNULL(Files.CurrentVersion.DateOfTransferToArchive, DATETIME(1, 1, 1)) = DATETIME(1, 1, 1)
+			THEN -1
+		ELSE 0
+	END AS ImageNumberIsArchive,
 	DATEADD(Files.UniversalModificationDate, SECOND, &amp;SecondsToLocalTime) AS ChangeDate,
 	Files.IsInternal AS IsInternal,
 	FilesEncoding.Encoding
@@ -2000,6 +2056,20 @@ WHERE
 				<Field xsi:type="dcssch:DataSetFieldField">
 					<dcssch:dataPath>Encoding</dcssch:dataPath>
 					<dcssch:field>Encoding</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>ChangedBy</dcssch:dataPath>
+					<dcssch:field>ChangedBy</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>ImageNumberIsArchive</dcssch:dataPath>
+					<dcssch:field>ImageNumberIsArchive</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>"This is archive" picture index</v8:content>
+						</v8:item>
+					</dcssch:title>
 				</Field>
 				<Parameter>
 					<dcssch:name>EmptyUsers</dcssch:name>
@@ -2382,13 +2452,13 @@ FROM
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Commit</v8:content>
+					<v8:content>Finish editing</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Save the file and release it in the infobase.</v8:content>
+					<v8:content>Finalize changes and make the file available for editing.</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Picture>
@@ -2708,7 +2778,7 @@ FROM
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Save with digital signature</v8:content>
+					<v8:content>Save with digital signature…</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>SaveWithSignature</Action>
@@ -2922,6 +2992,22 @@ FROM
 				</v8:item>
 			</Title>
 			<Action>PrintWithStamp</Action>
+		</Command>
+		<Command name="SendForSigning" id="34">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Send for signing…</v8:content>
+				</v8:item>
+			</Title>
+			<ToolTip>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Send for signing</v8:content>
+				</v8:item>
+			</ToolTip>
+			<Action>SendForSigning</Action>
+			<CurrentRowUse>Use</CurrentRowUse>
 		</Command>
 	</Commands>
 	<Parameters>

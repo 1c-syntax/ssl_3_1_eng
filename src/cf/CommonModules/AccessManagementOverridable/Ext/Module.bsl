@@ -1,14 +1,52 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//
 
 #Region Public
+
+// Overrides the standard behavior of the AccessManagement subsystem.
+//
+// Parameters:
+//  Settings - Structure:
+//   * CaptionsLevelRestrictions - Boolean - Default is True.
+//         If set to False, restriction texts in roles are cleared during compilation,
+//         access restriction registers are not populated,
+//         and record-level restriction settings are hidden in the Administration panel.
+//         The property cannot be calculated based on database data, but can depend on metadata,
+//         such as the configuration name.
+//         When disabled, the system verifies that service registers are empty and, if not, clears them using the
+//         AccessUpdateOnRecordsLevel scheduled job.
+//         Likewise, the list of access types in delivered access group profiles is cleared during profile
+//         and access group updates, resetting access values.
+//
+//   * StandardOption - Boolean - Default is True. If set to False, the option to switch
+//         to the standard mode is hidden in the Administration panel.
+//         The SSLImplementationCheck.erf report removes standard variant templates from roles
+//         and updates restrictions by removing the condition "#If &RecordLevelAccessRestrictionIsUniversal #Then",
+//         keeping only the optimized restriction form, for example, "#ForObject(...)".
+//         For the built-in English language, the value is always False and cannot be overridden.
+//         This property can only be modified during development and is not allowed to be changed in production.
+//
+// Example:
+//  1. Disable support for the standard option:
+//  Settings.StandardOption = False;
+//
+//  2. Disable record-level restriction.
+//
+//  2.1. Disable permanently:
+//  Settings.RecordLevelRestriction = False;
+//
+//  2.2. Disable depending on the configuration type:
+//  Settings.RecordLevelRestriction = Not StandardSubsystemsServer.IsBaseConfigurationVersion();
+//
+Procedure OnDefineSettings(Settings) Export
+	
+EndProcedure
 
 // Fills access kinds used in access restrictions.
 // Note: the Users and ExternalUsers access kinds are predefined,

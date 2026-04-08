@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -801,6 +800,18 @@ Function ForwardTasks(Val RedirectedTasks_SSLs, Val ForwardingInfo, Val IsCheckO
 	
 	Result = True;
 	
+	If TypeOf(ForwardingInfo) = Type("Structure") 
+	  And (TypeOf(ForwardingInfo.Performer) = Type("CatalogRef.Users")
+	Or TypeOf(ForwardingInfo.Performer) = Type("CatalogRef.ExternalUsers")) Then
+		UserDetails = Common.ObjectAttributesValues(ForwardingInfo.Performer, "Invalid,DeletionMark");
+		
+		If UserDetails.Invalid 
+		 Or UserDetails.DeletionMark Then
+			Common.MessageToUser(NStr("en = 'The task is assigned to an inactive user.'"));
+			Return False; 
+		EndIf;
+	EndIf;
+	
 	TasksInfo = Common.ObjectsAttributesValues(RedirectedTasks_SSLs, "BusinessProcess,Executed");
 	BeginTransaction();
 	Try
@@ -858,7 +869,7 @@ Function ForwardTasks(Val RedirectedTasks_SSLs, Val ForwardingInfo, Val IsCheckO
 			TaskObject.ExecuteTask();
 			
 			SetPrivilegedMode(True);
-			//@skip-check query-in-loop - пообъектная запись больших объемов данных.
+			//@skip-check query-in-loop - 
 			SubordinateBusinessProcesses = SelectHeadTaskBusinessProcesses(Task.Key, True).Select();
 			SetPrivilegedMode(False);
 			While SubordinateBusinessProcesses.Next() Do
@@ -868,7 +879,7 @@ Function ForwardTasks(Val RedirectedTasks_SSLs, Val ForwardingInfo, Val IsCheckO
 			EndDo;
 			
 			SetPrivilegedMode(True);
-			//@skip-check query-in-loop - пообъектная запись больших объемов данных.
+			//@skip-check query-in-loop - 
 			SubordinateBusinessProcesses = MainTaskBusinessProcesses(Task.Key, True);
 			SetPrivilegedMode(False);
 			
@@ -1097,22 +1108,26 @@ Procedure AcceptTasksForExecution(Var_Tasks) Export
 	Try
 		LockTasks(Var_Tasks);
 		
+		ListOfCompletedTasks = TasksExecutionStatusesByPerformer(Var_Tasks, Users.CurrentUser());
+		
 		For Each Task In Var_Tasks Do
 			
 			If TypeOf(Task) = Type("DynamicListGroupRow") Then
 				Continue;
 			EndIf;
 			
-			TaskObject = Task.GetObject();
-			If TaskObject.Executed Then
+			TaskInformation = ListOfCompletedTasks.Find(Task, "Task");
+			If TaskInformation = Undefined Or TaskInformation.Executed Then
 				Continue;
 			EndIf;
 			
+			TaskObject = Task.GetObject();
 			TaskObject.Lock();
-			TaskObject.AcceptedForExecution = True;
+			
+			TaskObject.AcceptedForExecution      = True;
 			TaskObject.AcceptForExecutionDate = CurrentSessionDate();
 			If Not ValueIsFilled(TaskObject.Performer) Then
-				TaskObject.Performer = Users.AuthorizedUser();
+				TaskObject.Performer         = Users.AuthorizedUser();
 			EndIf;
 			TaskObject.Write(); // ACC:1327 - A lock is set earlier in BusinessProcessesAndTasksServer.LockTasks.
 			
@@ -1843,44 +1858,44 @@ Procedure OnFillToDoList(ToDoList) Export
 	For Each Section In Sections Do
 		
 		MyTasksID = "PerformerTasks" + StrReplace(Section.FullName(), ".", "");
-		ToDoItem = ToDoList.Add();
-		ToDoItem.Id  = MyTasksID;
-		ToDoItem.HasToDoItems       = PerformerTaskQuantity.Total > 0;
-		ToDoItem.Presentation  = NStr("en = 'My tasks'");
-		ToDoItem.Count     = PerformerTaskQuantity.Total;
-		ToDoItem.Form          = "Task.PerformerTask.Form.MyTasks";
+		CaseFile = ToDoList.Add();
+		CaseFile.Id  = MyTasksID;
+		CaseFile.HasToDoItems       = PerformerTaskQuantity.Total > 0;
+		CaseFile.Presentation  = NStr("en = 'My tasks'");
+		CaseFile.Count     = PerformerTaskQuantity.Total;
+		CaseFile.Form          = "Task.PerformerTask.Form.MyTasks";
 		FilterValue		= New Structure("Executed", False);
-		ToDoItem.FormParameters = New Structure("Filter", FilterValue);
-		ToDoItem.Owner       = Section;
+		CaseFile.FormParameters = New Structure("Filter", FilterValue);
+		CaseFile.Owner       = Section;
 		
-		ToDoItem = ToDoList.Add();
-		ToDoItem.Id  = "PerformerTasksOverdue";
-		ToDoItem.HasToDoItems       = PerformerTaskQuantity.Overdue1 > 0;
-		ToDoItem.Presentation  = NStr("en = 'overdue'");
-		ToDoItem.Count     = PerformerTaskQuantity.Overdue1;
-		ToDoItem.Important         = True;
-		ToDoItem.Owner       = MyTasksID; 
+		CaseFile = ToDoList.Add();
+		CaseFile.Id  = "PerformerTasksOverdue";
+		CaseFile.HasToDoItems       = PerformerTaskQuantity.Overdue1 > 0;
+		CaseFile.Presentation  = NStr("en = 'overdue'");
+		CaseFile.Count     = PerformerTaskQuantity.Overdue1;
+		CaseFile.Important         = True;
+		CaseFile.Owner       = MyTasksID; 
 		
-		ToDoItem = ToDoList.Add();
-		ToDoItem.Id  = "PerformerTasksForToday";
-		ToDoItem.HasToDoItems       = PerformerTaskQuantity.ForToday > 0;
-		ToDoItem.Presentation  = NStr("en = 'today'");
-		ToDoItem.Count     = PerformerTaskQuantity.ForToday;
-		ToDoItem.Owner       = MyTasksID; 
+		CaseFile = ToDoList.Add();
+		CaseFile.Id  = "PerformerTasksForToday";
+		CaseFile.HasToDoItems       = PerformerTaskQuantity.ForToday > 0;
+		CaseFile.Presentation  = NStr("en = 'today'");
+		CaseFile.Count     = PerformerTaskQuantity.ForToday;
+		CaseFile.Owner       = MyTasksID; 
 
-		ToDoItem = ToDoList.Add();
-		ToDoItem.Id  = "PerformerTasksForWeek";
-		ToDoItem.HasToDoItems       = PerformerTaskQuantity.ForWeek > 0;
-		ToDoItem.Presentation  = NStr("en = 'this week'");
-		ToDoItem.Count     = PerformerTaskQuantity.ForWeek;
-		ToDoItem.Owner       = MyTasksID; 
+		CaseFile = ToDoList.Add();
+		CaseFile.Id  = "PerformerTasksForWeek";
+		CaseFile.HasToDoItems       = PerformerTaskQuantity.ForWeek > 0;
+		CaseFile.Presentation  = NStr("en = 'this week'");
+		CaseFile.Count     = PerformerTaskQuantity.ForWeek;
+		CaseFile.Owner       = MyTasksID; 
 
-		ToDoItem = ToDoList.Add();
-		ToDoItem.Id  = "PerformerTasksForNextWeek";
-		ToDoItem.HasToDoItems       = PerformerTaskQuantity.ForNextWeek > 0;
-		ToDoItem.Presentation  = NStr("en = 'next week'");
-		ToDoItem.Count     = PerformerTaskQuantity.ForNextWeek > 0;
-		ToDoItem.Owner       = MyTasksID; 
+		CaseFile = ToDoList.Add();
+		CaseFile.Id  = "PerformerTasksForNextWeek";
+		CaseFile.HasToDoItems       = PerformerTaskQuantity.ForNextWeek > 0;
+		CaseFile.Presentation  = NStr("en = 'next week'");
+		CaseFile.Count     = PerformerTaskQuantity.ForNextWeek > 0;
+		CaseFile.Owner       = MyTasksID; 
 	EndDo;
 	
 EndProcedure
@@ -2040,7 +2055,7 @@ Function TaskPerformers(Var_Tasks)
 		|	PerformerTask.Ref AS PerformerTask,
 		|	TaskPerformers.Performer AS Performer
 		|FROM
-		|	PerformerTask.PerformerTask AS PerformerTask
+		|	Task.PerformerTask AS PerformerTask
 		|		LEFT JOIN InformationRegister.TaskPerformers AS TaskPerformers
 		|		ON TaskPerformers.PerformerRole = PerformerTask.PerformerRole
 		|		AND TaskPerformers.MainAddressingObject = PerformerTask.MainAddressingObject
@@ -2068,9 +2083,13 @@ Function TaskPerformers(Var_Tasks)
 	Return Result;
 	
 EndFunction
-	
+
 Procedure FindMessageAndAddText(Val MessageSetByAddressees, Val EmailRecipient,
 	Val MessageRecipientPresentation, Val EmailText, Val EmailType)
+	
+	If Not ValueIsFilled(EmailRecipient) Then
+		Return;
+	EndIf;
 	
 	FilterParameters = New Structure("EmailType, MailAddress", EmailType, EmailRecipient);
 	EmailParametersRow = MessageSetByAddressees.FindRows(FilterParameters);
@@ -2185,6 +2204,20 @@ Function OverdueTasksEmails(OverdueTasks)
 	TaskPerformers = TaskPerformers(TasksWithRoleAddressing);
 	CommonClientServer.SupplementArray(EmailsRecipients, TaskPerformers.Assignees);
 	EmailsRecipients = CommonClientServer.CollapseArray(EmailsRecipients);
+	
+	UsersDetails = Common.ObjectsAttributesValues(EmailsRecipients, "Invalid,DeletionMark");
+	
+	Position = EmailsRecipients.UBound();
+	While Position >= 0 Do
+		UserDetails = UsersDetails[EmailsRecipients[Position]];
+		If UserDetails = Undefined
+			Or UserDetails.Invalid
+			Or UserDetails.DeletionMark Then
+			EmailsRecipients.Delete(Position);
+		EndIf;
+		Position = Position - 1;
+	EndDo;
+	
 	RecipientsAddresses = Emails(EmailsRecipients);
 
 	MessageSetByAddressees = New ValueTable;
@@ -2205,6 +2238,7 @@ Function OverdueTasksEmails(OverdueTasks)
 		Else
 			Assignees = TaskPerformers.ByTasks[OverdueTaskRef];
 			Coordinators = TasksCoordinators[OverdueTaskRef];
+			
 			If Assignees.Count() > 0 Then
 				For Each Performer In Assignees Do
 					EmailRecipient = Email(RecipientsAddresses, Performer);
@@ -2283,7 +2317,7 @@ Procedure SendNotifAboutOverdueTask(MailMessage)
 	Except
 		ErrorInfo = ErrorInfo();
 		
-		If Not ModuleEmailOperationsInternalClientServer.ThisIsErrorInWorkOfInternetMail(
+		If Not ModuleEmailOperationsInternalClientServer.IsInternetMailError(
 			ErrorInfo) Then
 			
 			Raise;
@@ -2412,7 +2446,7 @@ Function SendNotificationOnNewTasks(Performer, TasksByExecutive, RecipientsAddre
 	Except
 		ErrorInfo = ErrorInfo();
 		
-		If Not ModuleEmailOperationsInternalClientServer.ThisIsErrorInWorkOfInternetMail(
+		If Not ModuleEmailOperationsInternalClientServer.IsInternetMailError(
 			ErrorInfo) Then
 			
 			Raise;
@@ -2474,6 +2508,43 @@ EndFunction
 #EndRegion
 
 #Region AuxiliaryProceduresAndFunctions
+
+// Parameters:
+//  Task - Array of TaskRef - Tasks to be checked.
+//  Performer - CatalogRef.Users, 
+//                CatalogRef.ExternalUsers - Assignee.
+// 
+// Returns:
+//  ValueTable:
+//   * Task - TaskRef - Task
+//   * Executed - Task status (if the user is the assignee or has the assignee role).
+//
+Function TasksExecutionStatusesByPerformer(Var_Tasks, Performer)
+	
+	Query = New Query;
+	Query.Text =  "SELECT
+	|	PerformerTask.Ref AS Task,
+	|	PerformerTask.Executed AS Executed
+	|FROM
+	|	Task.PerformerTask AS PerformerTask
+	|		LEFT JOIN InformationRegister.TaskPerformers AS TaskPerformers
+	|		ON PerformerTask.PerformerRole = TaskPerformers.PerformerRole
+	|			AND PerformerTask.MainAddressingObject = TaskPerformers.MainAddressingObject
+	|			AND PerformerTask.AdditionalAddressingObject = TaskPerformers.AdditionalAddressingObject
+	|WHERE
+	|	PerformerTask.Ref IN(&Tasks)
+	|	AND (PerformerTask.Performer = &Performer
+	|		OR TaskPerformers.Performer = &Performer)";
+	
+	Query.SetParameter("Performer", Performer);
+	Query.SetParameter("Tasks",      Var_Tasks);
+
+	QueryResult = Query.Execute().Unload();
+	
+	Return QueryResult;
+	
+EndFunction
+
 
 Function SelectRolesWithPerformerCount(MainAddressingObject) Export
 	If MainAddressingObject <> Undefined Then
@@ -2678,7 +2749,7 @@ Function SelectBusinessProcessesOfHeadTasks(Var_Tasks, ForChange = False)
 	
 	Query = New Query(StrConcat(QueriesTexts, Chars.LF + "UNION ALL" + Chars.LF));
 	Query.SetParameter("HeadTasks", Var_Tasks);
-	Return Query.Execute();
+	Return Query.Execute().Select();
 	
 EndFunction
 
@@ -3314,5 +3385,16 @@ Function NewTasksBySubject() Export
 EndFunction
 
 #EndRegion
+
+// See StandardSubsystemsServer.WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode
+Procedure WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode(Methods) Export
+	
+	Methods.Insert("FillEmployeeResponsibleForCompletionControl");
+	Methods.Insert("UpdateScheduledJobUsage");
+	Methods.Insert("FillPredefinedItemDescriptionAllAddressingObjects");
+	Methods.Insert("NotifyPerformersOnNewTasks", True);
+	Methods.Insert("CheckTasks", True);
+	
+EndProcedure
 
 #EndRegion

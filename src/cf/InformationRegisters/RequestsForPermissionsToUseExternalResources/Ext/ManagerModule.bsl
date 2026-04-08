@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -72,7 +71,7 @@ EndFunction
 //    associated with relevant exchange plan nodes, and so on. If a permission is logically
 //    isolated (for example, if granting of a permission is controlled by the constant value with the Boolean type),
 //    it is recommended that you use a reference to the MetadataObjectIDs catalog item,
-//  ReplacementMode - Boolean - defines the replacement mode of permissions previously granted for this owner. If the
+//  Var_ReplacementMode - Boolean - defines the replacement mode of permissions previously granted for this owner. If the
 //    value is True, in addition to granting the requested permissions,
 //    clearing all permissions that were previously requested for the owner are added to the request.
 //  PermissionsToAdd - Array of XDTODataObject - an array of XDTODataObjects that match internal details
@@ -85,7 +84,7 @@ EndFunction
 // Returns:
 //   UUID - an ID of the created request.
 //
-Function RequestToUsePermissions(Val ProgramModule, Val Owner, Val ReplacementMode, Val PermissionsToAdd, Val PermissionsToDelete) Export
+Function RequestToUsePermissions(Val ProgramModule, Val Owner, Val Var_ReplacementMode, Val PermissionsToAdd, Val PermissionsToDelete) Export
 	
 	If Not RequestForPermissionsToUseExternalResourcesRequired() Then
 		Return New UUID();
@@ -109,7 +108,7 @@ Function RequestToUsePermissions(Val ProgramModule, Val Owner, Val ReplacementMo
 	Manager.QueryID = New UUID();
 	Manager.AdministrationRequest = False;
 	Manager.SafeMode = SafeMode;
-	Manager.ReplacementMode = ReplacementMode;
+	Manager.ReplacementMode = Var_ReplacementMode;
 	Manager.Operation = Enums.SecurityProfileAdministrativeOperations.RefreshEnabled;
 	
 	OwnerProperties = SafeModeManagerInternal.PropertiesForPermissionRegister(Owner);
@@ -302,7 +301,7 @@ Function SecurityProfileName(Val ProgramModule)
 	
 	If ProgramModule = Catalogs.MetadataObjectIDs.EmptyRef() Then
 		
-		Return Constants.InfobaseSecurityProfile.Get();
+		Return SafeModeManager.InfobaseSecurityProfile();
 		
 	Else
 		

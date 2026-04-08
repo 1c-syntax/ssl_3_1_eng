@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -125,17 +124,15 @@ EndProcedure
 //                                          2, Create an infobase backup.
 //      * IBBackupDirectoryName - String - a backup directory.
 //      * RestoreInfobase - Boolean - roll back in case of update errors.
-//    NotifyDescription - CallbackDescription - a description of form closing notification.
+//    CallbackDescription - CallbackDescription - a description of form closing notification.
 //
-Procedure ShowBackup(BackupParameters, NotifyDescription) Export
+Procedure ShowBackup(BackupParameters, CallbackDescription) Export
 	
-	OpenForm("DataProcessor.InstallUpdates.Form.BackupCreationSetup", BackupParameters,,,,, NotifyDescription);
+	OpenForm("DataProcessor.InstallUpdates.Form.BackupCreationSetup", BackupParameters,,,,, CallbackDescription);
 	
 EndProcedure
 
-#Region ForCallsFromOtherSubsystems
-
-// OnlineUserSupport.GetApplicationUpdates
+#Region InterfaceImplementation
 
 // Returns the backup settings title text for displaying in a form.
 //
@@ -166,6 +163,8 @@ Function BackupCreationTitle(Parameters) Export
 	EndIf;
 	
 EndFunction
+
+// OnlineUserSupport.GetApplicationUpdates
 
 // Checks whether update installation is possible. If possible, runs
 // the update script or schedules an update for a specified time.
@@ -199,11 +198,6 @@ Procedure InstallUpdate(Form, Parameters, AdministrationParameters) Export
 	
 #If Not WebClient And Not MobileClient Then
 	
-	If Not UpdateInstallationPossible(Parameters, AdministrationParameters) Then
-		Return;
-	EndIf;
-	
-	ConfigurationUpdateServerCall.SaveConfigurationUpdateSettings(Parameters);
 	
 	If Parameters.UpdateMode = 0 Then
 		InstallUpdateNowStart(Form, Parameters, AdministrationParameters);
@@ -383,77 +377,8 @@ Function VersionsRequiringSuccessfulUpdate(TransferredUpdateFiles)
 	Return ConfigurationUpdateServerCall.VersionsRequiringSuccessfulUpdate(FilesOfUpdate);
 EndFunction
 
-Function UpdateInstallationPossible(Parameters, AdministrationParameters)
-	
-	Result = UpdatesInstallationSupported();
-	If Not Result.Supported Then 
-		ShowMessageBox(, Result.ErrorDescription);
-		Return False;
-	EndIf;
-	
-	IsFileInfobase = CommonClient.FileInfobase();
-	
-	If IsFileInfobase And Parameters.CreateDataBackup = 2 Then
-		File = New File(Parameters.IBBackupDirectoryName);
-		If Not File.Exists() Or Not File.IsDirectory() Then // ACC:566 Synchronous calls outside of the web client are allowed.
-			ShowMessageBox(,
-				NStr("en = 'Please specify an existing folder for storing the infobase backup.'"));
-			Return False;
-		EndIf;
-	EndIf;
-	
-	If Parameters.UpdateMode = 0 Then // Update now.
-		ParameterName = "StandardSubsystems.MessagesForEventLog";
-		If IsFileInfobase
-			And ConfigurationUpdateServerCall.HasActiveConnections(ApplicationParameters[ParameterName]) Then
-			
-			ShowMessageBox(,
-				NStr("en = 'Cannot proceed with configuration update
-				           |as some infobase connections were not closed.'"));
-			Return False;
-		EndIf;
-	ElsIf Parameters.UpdateMode = 2 Then
-		If Not UpdateDateCorrect(Parameters) Then
-			Return False;
-		EndIf;
-		
-		InvalidEmailSpecified = Parameters.EmailReport
-			And Not CommonClientServer.EmailAddressMeetsRequirements(Parameters.Email);
-		
-		If InvalidEmailSpecified Then
-			ShowMessageBox(,
-				NStr("en = 'Please specify a valid email address.'"));
-			Return False;
-		EndIf;
-		
-		If Not JobSchedulerSupported() Then
-			ShowMessageBox(,
-				NStr("en = 'Job scheduler supports Windows Vista 6.0 or later.'"));
-			Return False;
-		EndIf;
-	EndIf;
-	
-	Return True;
-	
-EndFunction
 
-Function UpdateDateCorrect(Parameters)
-	
-	CurrentDate = CommonClient.SessionDate();
-	If Parameters.UpdateDateTime < CurrentDate Then
-		MessageText = NStr("en = 'A configuration update can be scheduled only for a future date and time.'");
-	ElsIf Parameters.UpdateDateTime > AddMonth(CurrentDate, 1) Then
-		MessageText = NStr("en = 'A configuration update cannot be scheduled to a date later than one month from the current date.'");
-	EndIf;
-	
-	DateCorrect = IsBlankString(MessageText);
-	If Not DateCorrect Then
-		ShowMessageBox(, MessageText);
-	EndIf;
-	
-	Return DateCorrect;
-	
-EndFunction
+
 
 Procedure InsertScriptParameter(Val ParameterName, Val ParameterValue, DoFormat, ParametersArea)
 	
@@ -669,26 +594,6 @@ Procedure CheckForConfigurationUpdate()
 #EndIf
 
 EndProcedure
-
-Function JobSchedulerSupported()
-	
-	// Task Scheduler is supported for versions 6.0 (Windows Vista) and later.
-	
-	SystemInfo = New SystemInfo();
-	
-	PointPosition = StrFind(SystemInfo.OSVersion, ".");
-	If PointPosition < 2 Then 
-		Return False;
-	EndIf;
-	
-	VersionNumber = Mid(SystemInfo.OSVersion, PointPosition - 2, 2);
-	
-	TypeDescriptionNumber = New TypeDescription("Number");
-	VersionLaterThanVista = TypeDescriptionNumber.AdjustValue(VersionNumber) >= 6;
-	
-	Return VersionLaterThanVista;
-	
-EndFunction
 
 #If Not WebClient And Not MobileClient Then
 
@@ -1057,6 +962,29 @@ Procedure InstallUpdateNowStart(Form, Parameters, AdministrationParameters)
 	
 EndProcedure
 
+Procedure ScheduleConfigurationUpdate(Parameters, AdministrationParameters)
+	
+	GenerateUpdateScriptFiles(False, Parameters, AdministrationParameters);
+	
+	ApplicationStartupParameters = FileSystemClient.ApplicationStartupParameters();
+	ApplicationStartupParameters.ExecuteWithFullRights = True;
+	
+	StartupCommand = New Array;
+	StartupCommand.Add("wscript.exe");
+	StartupCommand.Add("//nologo");
+	StartupCommand.Add(Parameters.TaskSchedulerTaskCreationScriptName);
+	
+	FileSystemClient.StartApplication(StartupCommand, ApplicationStartupParameters);
+	
+	ParametersOfUpdate = ConfigurationUpdateServerCall.ParametersOfUpdate();
+	ParametersOfUpdate.UpdateAdministratorName = UserName();
+	ParametersOfUpdate.UpdateScheduled = True;
+	ParametersOfUpdate.UpdateComplete = False;
+	ParametersOfUpdate.ConfigurationUpdateResult = False;
+	ConfigurationUpdateServerCall.WriteUpdateStatus(ParametersOfUpdate);
+	
+EndProcedure
+
 Procedure WaitHandlerSetUpdateNowFollowUp() Export
 	
 	ApplicationParameters.Delete(ParameterNameSkipExit());
@@ -1206,7 +1134,7 @@ Procedure RunUpdateScriptCompletion(Parameters, AdministrationParameters)
 	
 	ReturnCode = Undefined;
 	RunApp(CommandLine1,,, ReturnCode); // ACC:534 Start update script.
-	ApplicationParameters.Insert("StandardSubsystems.SkipExitConfirmation", True);
+	StandardSubsystemsClient.SkipExitConfirmation();
 	Exit(False);
 	
 EndProcedure
@@ -1216,29 +1144,6 @@ Procedure DontStopScenariosExecution()
 	Shell = New COMObject("Wscript.Shell");
 	Shell.RegWrite("HKCU\Software\Microsoft\Internet Explorer\Styles\MaxScriptStatements", 1107296255, "REG_DWORD");
 
-EndProcedure
-
-Procedure ScheduleConfigurationUpdate(Parameters, AdministrationParameters)
-	
-	GenerateUpdateScriptFiles(False, Parameters, AdministrationParameters);
-	
-	ApplicationStartupParameters = FileSystemClient.ApplicationStartupParameters();
-	ApplicationStartupParameters.ExecuteWithFullRights = True;
-	
-	StartupCommand = New Array;
-	StartupCommand.Add("wscript.exe");
-	StartupCommand.Add("//nologo");
-	StartupCommand.Add(Parameters.TaskSchedulerTaskCreationScriptName);
-	
-	FileSystemClient.StartApplication(StartupCommand, ApplicationStartupParameters);
-	
-	ParametersOfUpdate = ConfigurationUpdateServerCall.ParametersOfUpdate();
-	ParametersOfUpdate.UpdateAdministratorName = UserName();
-	ParametersOfUpdate.UpdateScheduled = True;
-	ParametersOfUpdate.UpdateComplete = False;
-	ParametersOfUpdate.ConfigurationUpdateResult = False;
-	ConfigurationUpdateServerCall.WriteUpdateStatus(ParametersOfUpdate);
-	
 EndProcedure
 
 #EndIf

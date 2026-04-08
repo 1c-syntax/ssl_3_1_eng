@@ -51,7 +51,7 @@
 			<Subsystem>DataExchange</Subsystem>
 			<Subsystem>IBVersionUpdate</Subsystem>
 			<Subsystem>ConfigurationUpdate</Subsystem>
-			<Subsystem>ContactingTechnicalSupport</Subsystem>
+			<Subsystem>SupportRequests</Subsystem>
 			<Subsystem>Conversations</Subsystem>
 			<Subsystem>SendSMSMessage</Subsystem>
 			<Subsystem>DocumentRecordsReport</Subsystem>

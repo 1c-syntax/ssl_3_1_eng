@@ -3,7 +3,7 @@
 	<Title>
 		<v8:item>
 			<v8:lang>en</v8:lang>
-			<v8:content>Авторизация в сервисе Яндекс.Диск</v8:content>
+			<v8:content>Authorization in Yandex.Disk</v8:content>
 		</v8:item>
 	</Title>
 	<SaveWindowSettings>false</SaveWindowSettings>
@@ -19,7 +19,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Поле HTML</v8:content>
+					<v8:content>HTML field</v8:content>
 				</v8:item>
 			</Title>
 			<TitleLocation>None</TitleLocation>
@@ -45,7 +45,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Поле HTML</v8:content>
+					<v8:content>HTML field</v8:content>
 				</v8:item>
 			</Title>
 			<Type>

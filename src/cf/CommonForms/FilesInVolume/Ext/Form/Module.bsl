@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -46,6 +45,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	
 	SetUpDynamicList(FileStorageName);
+
+	SetVisibilityOfListColumns();
 	
 	If Common.IsMobileClient() Then
 		Items.FileStoragePresentation.TitleLocation = FormItemTitleLocation.Top;
@@ -60,8 +61,8 @@ EndProcedure
 &AtClient
 Procedure FileStoragePresentationStartChoice(Item, ChoiceData, StandardProcessing)
 	
-	NotifyDescription = New CallbackDescription("FileStoragePresentationStartChoiceSelectionMade", ThisObject);
-	ShowChooseFromList(NotifyDescription, FileStorageNames, Items.FileStoragePresentation,
+	CallbackDescription = New CallbackDescription("FileStoragePresentationStartChoiceSelectionMade", ThisObject);
+	ShowChooseFromList(CallbackDescription, FileStorageNames, Items.FileStoragePresentation,
 		FileStorageNames.FindByValue(FileStorageName));
 		
 EndProcedure
@@ -115,7 +116,8 @@ Procedure SetUpDynamicList(Val StorageName)
 	|	FileRepository.PathToFile AS PathToFile,
 	|	FileRepository.Size AS Size,
 	|	FileRepository.Author AS Author,
-	|	&AreAttachedFiles AS AreAttachedFiles
+	|	&AreAttachedFiles AS AreAttachedFiles,
+	|	FileRepository.Description AS FileDescription
 	|FROM
 	|	&CatalogName AS FileRepository
 	|WHERE
@@ -133,6 +135,16 @@ Procedure SetUpDynamicList(Val StorageName)
 	List.Parameters.SetParameterValue("Volume", Volume);
 	
 	SaveSelectionSettings(Volume, FileStorageName);
+	
+EndProcedure
+
+&AtServer
+Procedure SetVisibilityOfListColumns()
+	
+	FilesStorageMethod = Common.ObjectAttributeValue(Volume, "FilesStorageMethod");
+	If FilesStorageMethod <> Enums.WaysToStoreFiles.InNetworkDirectories Then
+		Items.ListPathToFile.Visible = False;
+	EndIf;
 	
 EndProcedure
 

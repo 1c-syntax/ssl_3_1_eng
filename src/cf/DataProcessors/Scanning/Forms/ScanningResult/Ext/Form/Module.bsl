@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Variables
@@ -63,18 +62,18 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	ScanJobParameters = Common.CommonSettingsStorageLoad("ScanAddIn", "ScanJobParameters", Undefined);
 	Items.ScanningError.Visible = ScanJobParameters <> Undefined;
 	
-	// 
-	If Common.SubsystemExists("StandardSubsystems.ContactingTechnicalSupport") Then
+	// StandardSubsystems.SupportRequests
+	If Common.SubsystemExists("StandardSubsystems.SupportRequests") Then
 		
-		ModuleForContactingTechnicalSupportService = Common.CommonModule(
-			"ContactingTechnicalSupportInternal");
+		ModuleSupportRequestsInternal = Common.CommonModule(
+			"SupportRequestsInternal");
 		
-		ModuleForContactingTechnicalSupportService.OnCreateAtServer(ThisObject);
+		ModuleSupportRequestsInternal.OnCreateAtServer(ThisObject);
 		
 	Else
-		Items.TechnicalSupportGroup.Visible = False;
+		Items.GroupSupportRequests.Visible = False;
 	EndIf;
-	// End StandardSubsystems.ContactingTechnicalSupport
+	// End StandardSubsystems.SupportRequests
 	
 EndProcedure
 
@@ -152,57 +151,57 @@ Procedure RecommendationsURLProcessing(Item, Var_URL, StandardProcessing)
 		StandardProcessing = False;
 		Run32BitClient();
 	Else
-		Expression = NStr("en = 'Действие для навигационной ссылки не определено.'");
+		Expression = NStr("en = 'URL action is not defined.'");
 		Raise(Expression, ErrorCategory.GotoURLError);
 	EndIf;
 	
 EndProcedure
 
 &AtClient
-Procedure DescriptionOfSupportRequestURLProcessing(Item, Var_URL, StandardProcessing)
+Procedure SupportRequestDetailsURLProcessing(Item, Var_URL, StandardProcessing)
 	
-	// 
-	If CommonClient.SubsystemExists("StandardSubsystems.ContactingTechnicalSupport") Then
+	// StandardSubsystems.SupportRequests
+	If CommonClient.SubsystemExists("StandardSubsystems.SupportRequests") Then
 		
 		StandardProcessing = False;
 		
-		If Var_URL = "QuestionInSupport" Then
+		If Var_URL = "SupportTicket" Then
 			
 			CompletionHandler = New CallbackDescription(
-				"ContinueSendingQuestionToSupport",
+				"ContinueSubmitSupportTicket",
 				ThisObject);
 			
 			If Not ValueIsFilled(ErrorPresentation) Then
-				ErrorPresentation = NStr("en = 'Вызвана помощь из окна сканирования.'");
+				ErrorPresentation = NStr("en = 'Help opened from the scanner dialog.'");
 			EndIf;
 			
-			FilesOperationsInternalClient.GenerateInformationForSupport(
+			FilesOperationsInternalClient.GenerateSupportInformation(
 				ErrorPresentation,
 				CompletionHandler);
 			
-		ElsIf Var_URL = "InformationToSendToSupport" Then
+		ElsIf Var_URL = "InfoForSupport" Then
 			
 			CompletionHandler = New CallbackDescription(
-				"ContinueDownloadingInformationToSendToSupport",
+				"ContinueDownloadInfoForSupport",
 				ThisObject);
 			
 			If Not ValueIsFilled(ErrorPresentation) Then
-				ErrorPresentation = NStr("en = 'Вызвана помощь из окна сканирования.'");
+				ErrorPresentation = NStr("en = 'Help opened from the scanner dialog.'");
 			EndIf;
 			
-			FilesOperationsInternalClient.GenerateInformationForSupport(
+			FilesOperationsInternalClient.GenerateSupportInformation(
 				ErrorPresentation,
 				CompletionHandler);
 			
 		Else
 			
-			Expression = NStr("en = 'Действие для навигационной ссылки не определено.'");
+			Expression = NStr("en = 'URL action is not defined.'");
 			Raise(Expression, ErrorCategory.GotoURLError);
 			
 		EndIf;
 		
 	EndIf;
-	// 
+	// End StandardSubsystems.SupportRequests
 	
 EndProcedure
 
@@ -452,39 +451,39 @@ EndProcedure
 #Region Private
 
 &AtClient
-Procedure ContinueSendingQuestionToSupport(Result, AdditionalParameters) Export
+Procedure ContinueSubmitSupportTicket(Result, AdditionalParameters) Export
 	
-	// 
-	ModuleForContactingTechnicalSupportServiceClient = CommonClient.CommonModule(
-		"ContactingTechnicalSupportInternalClient");
+	// StandardSubsystems.SupportRequests
+	ModuleSupportRequestsInternalClient = CommonClient.CommonModule(
+		"SupportRequestsInternalClient");
 	
-	RequestParameters_ = ModuleForContactingTechnicalSupportServiceClient.RequestParameters_();
+	RequestParameters_ = ModuleSupportRequestsInternalClient.RequestParameters_();
 	RequestParameters_.TechnologicalInfo = Result.TechnologicalInfo;
 	RequestParameters_.AdditionalFiles = Result.AdditionalFiles;
-	RequestParameters_.Subject = NStr("en = 'Проблема при сканировании файла'");
+	RequestParameters_.Subject = NStr("en = 'Scanning problem'");
 	
-	ModuleForContactingTechnicalSupportServiceClient.SendQuestionToSupport(
+	ModuleSupportRequestsInternalClient.SubmitSupportTicket(
 		ThisObject,
 		RequestParameters_);
-	// End StandardSubsystems.ContactingTechnicalSupport
+	// End StandardSubsystems.SupportRequests
 	
 EndProcedure
 
 &AtClient
-Procedure ContinueDownloadingInformationToSendToSupport(Result, AdditionalParameters) Export
+Procedure ContinueDownloadInfoForSupport(Result, AdditionalParameters) Export
 	
-	// 
-	ModuleForContactingTechnicalSupportServiceClient = CommonClient.CommonModule(
-		"ContactingTechnicalSupportInternalClient");
+	// StandardSubsystems.SupportRequests
+	ModuleSupportRequestsInternalClient = CommonClient.CommonModule(
+		"SupportRequestsInternalClient");
 	
-	RequestParameters_ = ModuleForContactingTechnicalSupportServiceClient.RequestParameters_();
+	RequestParameters_ = ModuleSupportRequestsInternalClient.RequestParameters_();
 	RequestParameters_.TechnologicalInfo = Result.TechnologicalInfo;
 	RequestParameters_.AdditionalFiles = Result.AdditionalFiles;
 	
-	ModuleForContactingTechnicalSupportServiceClient.DownloadInformationToSendToSupport(
+	ModuleSupportRequestsInternalClient.DownloadInfoForSupport(
 		ThisObject,
 		RequestParameters_);
-	// End StandardSubsystems.ContactingTechnicalSupport
+	// End StandardSubsystems.SupportRequests
 	
 EndProcedure
 
@@ -493,13 +492,13 @@ Procedure SetRecommendationText()
 	
 	Recommendations = New Array;
 	
-	Template = NStr("en = 'Сканирование выполняется с помощью %1.'");
+	Template = NStr("en = 'Scanning is performed by %1.'");
 	Recommendation = StringFunctionsClientServer.SubstituteParametersToString(Template, ScannerName);
 	Recommendations.Add(Recommendation);
 	
 	Recommendations.Add("");
-	Recommendations.Add(NStr("en = 'Попробуйте следующие варианты:'"));
-	Recommendations.Add(" • " + NStr("en = 'Проверьте подключение сканера и повторите попытку сканирования.'"));
+	Recommendations.Add(NStr("en = 'Try the following solutions:'"));
+	Recommendations.Add(" • " + NStr("en = 'Check scanner connection and try again.'"));
 	
 	Template = " • " + NStr("en = 'Specify an available scanner in the <a href = ""%1"">scanning settings</a>.'");
 	Recommendation = StringFunctionsClientServer.SubstituteParametersToString(Template, "OpenSettings");
@@ -512,14 +511,14 @@ Procedure SetRecommendationText()
 	
 	ImageResolution = PredefinedValue("Enum.ScannedImageResolutions.dpi1200");
 	If ShowScannerDialog Or ResolutionEnum = ImageResolution Then
-		Recommendations.Add(" • " + NStr("en = 'Снизьте разрешение сканирования до <b>600 dpi</b>.'"));
+		Recommendations.Add(" • " + NStr("en = 'Reduce the scanner resolution to <b>600 dpi</b>.'"));
 	EndIf;
 	
 	SystemInfo = New SystemInfo();
 	If SystemInfo.PlatformType = PlatformType.Windows_x86_64 Then
 		Template = " • " + NStr(
-			"en = 'Установите и запустите <a href = ""%1"">тонкий клиент 1С:Предприятия для Windows (32-bit)</a>,
-			|   в котором доступно больше устройств и настроек сканирования.'");
+			"en = 'Install the <a href = ""%1"">1C:Enterprise thin client for Windows x86</a>.
+			|It supports more scanners and settings.'");
 		Recommendation = StringFunctionsClientServer.SubstituteParametersToString(Template, "Run32BitClient");
 		Recommendations.Add(Recommendation);
 	EndIf;
@@ -575,8 +574,8 @@ Procedure PrepareForScanning(Result, OpeningParameters) Export
 	EndIf;
 	
 	If OpeningParameters.CurrentStep = 1 Then
-		NotifyDescription = New CallbackDescription("PrepareForScanningAfterInitialization", ThisObject, OpeningParameters);
-		FilesOperationsInternalClient.InitAddIn(NotifyDescription, True);
+		CallbackDescription = New CallbackDescription("PrepareForScanningAfterInitialization", ThisObject, OpeningParameters);
+		FilesOperationsInternalClient.InitAddIn(CallbackDescription, True);
 		Return;
 	EndIf;
 	
@@ -1241,8 +1240,8 @@ EndProcedure
 Procedure BeginScan()
 	
 	If Attachable_Module = Undefined Then
-		NotifyDescription = New CallbackDescription("StartScanAfterAddInObtained", ThisObject);
-		FilesOperationsInternalClient.InitAddIn(NotifyDescription, True);
+		CallbackDescription = New CallbackDescription("StartScanAfterAddInObtained", ThisObject);
+		FilesOperationsInternalClient.InitAddIn(CallbackDescription, True);
 		Return;
 	EndIf;
 	

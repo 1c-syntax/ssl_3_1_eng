@@ -1,5 +1,5 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
@@ -77,9 +77,9 @@ EndProcedure
 Procedure ConfigureJobSchedule(Command)
 	
 	If ValueIsFilled(ScheduledJobID) Then
-		NotifyDescription = New CallbackDescription("ConfigureJobScheduleCompletion", ThisObject);
+		CallbackDescription = New CallbackDescription("ConfigureJobScheduleCompletion", ThisObject);
 		Dialog = New ScheduledJobDialog(GetSchedule());
-		Dialog.Show(NotifyDescription);
+		Dialog.Show(CallbackDescription);
 	Else
 		ShowMessageBox(,NStr("en = 'Cannot change the job''s schedule: The scheduled job does not exist in this app version.'"));
 	EndIf;
@@ -98,7 +98,7 @@ Procedure GoToEventLogCommand(Command)
 		EndIf;
 		If Details = Undefined
 			Or Area.Top <> Area.Bottom Then
-			ShowMessageBox(,NStr("en = 'Select the job session line or cell.'"));
+			ShowMessageBox(,NStr("en = 'Select the job session line or cell'"));
 			Return;
 		EndIf;
 		StartDate = Details.Get(0);

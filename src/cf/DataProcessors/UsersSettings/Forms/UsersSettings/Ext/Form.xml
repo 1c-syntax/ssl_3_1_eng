@@ -1041,8 +1041,8 @@ who has a Name for sign-in.</v8:content>
 										<xr:LoadTransparent>true</xr:LoadTransparent>
 									</Picture>
 									<FileDragMode>AsFile</FileDragMode>
-									<ContextMenu name="PictureOfInformation1ContextMenu" id="228"/>
-									<ExtendedTooltip name="PictureOfInformation1ExtendedTooltip" id="229"/>
+									<ContextMenu name="InfoPicture1ContextMenu" id="228"/>
+									<ExtendedTooltip name="InfoPicture1ExtendedTooltip" id="229"/>
 								</PictureDecoration>
 								<LabelDecoration name="InsufficientRightsText" id="230">
 									<Title formatted="false">

@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Internal
@@ -1601,7 +1600,7 @@ Function AdditionalPropertyUsed(Property) Export
 	
 	For Each Table In ObjectTables1 Do
 		Query.Text = StrReplace(QueryText, "TableName", Table + ".AdditionalAttributes");
-		If Not Query.Execute().IsEmpty() Then // @skip-check query-in-loop - запрос к разным таблицам.
+		If Not Query.Execute().IsEmpty() Then // @skip-check query-in-loop 
 			Return True;
 		EndIf;
 	EndDo;
@@ -2106,7 +2105,7 @@ EndProcedure
 Procedure DeleteSettingFromStorage(Filter)
 	
 	SettingsSelection = SystemSettingsStorage.Select(Filter);
-	While NextSettingsItem(SettingsSelection) Do
+	While SettingsSelection.Next() Do
 		Try
 			ObjectKey = SettingsSelection.ObjectKey;
 			If StrStartsWith(ObjectKey, "PropertySetsKey") Then
@@ -2130,29 +2129,6 @@ Procedure DeleteSettingFromStorage(Filter)
 	EndDo;
 	
 EndProcedure
-
-Function NextSettingsItem(Selection)
-	
-	HasNextObject = False;
-	Try
-		HasNextObject = Selection.Next();
-	Except
-		ErrorInfo = ErrorInfo();
-		ErrorText = NStr("en = 'An error occurred
-			|when reading settings in handler %1:
-			|%2'");
-		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorText,
-			"PropertyManagerInternal.ClearUnusedSettings",
-			ErrorProcessing.DetailErrorDescription(ErrorInfo));
-		WriteLogEvent(
-			InfobaseUpdate.EventLogEvent(),
-			EventLogLevel.Warning,,,
-			ErrorText);
-	EndTry;
-	
-	Return HasNextObject;
-	
-EndFunction
 
 Function DescriptionAlreadyUsed(Property, PropertiesSet, Description) Export
 	
@@ -2809,7 +2785,7 @@ Function ReadSettingsFromStorage(SettingsManager) Export
 	Settings.Columns.Add("User");
 	
 	SettingsSelection = SettingsManager.Select();
-	While NextSettingsItem(SettingsSelection) Do
+	While SettingsSelection.Next() Do
 		
 		If StrFind(SettingsSelection.ObjectKey, "PropertySetsKey") = 0 Then
 			Continue;
@@ -2827,5 +2803,16 @@ Function ReadSettingsFromStorage(SettingsManager) Export
 EndFunction
 
 #EndRegion
+
+// See StandardSubsystemsServer.WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode
+Procedure WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode(Methods) Export
+	
+	Methods.Insert("SessionParametersSetting");
+	Methods.Insert("SetUsageFlagValue");
+	Methods.Insert("FillSeparatedDataHandlers");
+	Methods.Insert("ClearUnusedSettings");
+	Methods.Insert("CreatePredefinedPropertiesSets");
+	
+EndProcedure
 
 #EndRegion

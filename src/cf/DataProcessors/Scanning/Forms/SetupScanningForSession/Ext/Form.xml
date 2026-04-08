@@ -286,9 +286,9 @@
 													<v8:item>
 														<v8:lang>en</v8:lang>
 														<v8:content>&lt;b&gt;JPG&lt;/&gt; is suitable for most documents and images. It uses lossy compression, and the compression ratio can be adjusted.
-&lt;b&gt;PNG&lt;/&gt;is suitable for most documents and images. It offers lossless compression and small file sizes.
-&lt;b&gt;TIF&lt;/&gt;offers lossless image compression and is commonly used to store images for printing purposes. It also supports multipage images.
-&lt;b&gt;GIF&lt;/&gt;is an outdated format for storing low-quality images with small file sizes.
+&lt;b&gt;PNG&lt;/&gt; is suitable for most documents and images. It offers lossless compression and small file sizes.
+&lt;b&gt;TIF&lt;/&gt; offers lossless image compression and is commonly used to store images for printing purposes. It also supports multipage images.
+&lt;b&gt;GIF&lt;/&gt; is an outdated format for storing low-quality images with small file sizes.
 
 &lt;b&gt;Convert to PDF&lt;/&gt; allows you to place scanned images into a PDF file and supports multipage images.</v8:content>
 													</v8:item>

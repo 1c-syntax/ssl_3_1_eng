@@ -45,7 +45,7 @@
 			<Form>HowToOpenFile</Form>
 			<Form>SavingFileVersion</Form>
 			<Form>QuestionForm</Form>
-			<Form>FilesImport</Form>
+			<Form>LoadFiles</Form>
 			<Form>FinishingEditing</Form>
 			<Form>ImportingFolder</Form>
 			<Form>SavingFolder</Form>

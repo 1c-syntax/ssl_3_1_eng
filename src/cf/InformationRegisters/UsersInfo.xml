@@ -180,7 +180,7 @@
 					<Synonym>
 						<v8:item>
 							<v8:lang>en</v8:lang>
-							<v8:content>Demand password change on next login</v8:content>
+							<v8:content>Require password change on next login</v8:content>
 						</v8:item>
 					</Synonym>
 					<Comment/>

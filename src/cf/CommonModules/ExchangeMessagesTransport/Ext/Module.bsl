@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -39,7 +38,7 @@ Function InitializationParameters(TransportID = "") Export
 	
 EndFunction
 
-// Initialize the transport data processor.
+// Initialize transport data processor.
 // 
 // Parameters:
 //  InitializationParameters - Structure:
@@ -52,6 +51,7 @@ EndFunction
 //   * TransportSettings - Structure - Composition repeats the attributes of the transport data processor,
 //   * AuthenticationData - Structure - Its composition repeats the attributes of the transport data processor. 
 //   Includes only authentication details. For example, "Password" and "UserName".
+//  CreateTemporaryFilesDirectory - Boolean - If True, create a temporary directory
 // 
 // Returns:
 //   DataProcessorObject.ExchangeMessageTransportCOM,
@@ -66,9 +66,9 @@ EndFunction
 //   DataProcessorObject.ExchangeMessagesTransportPassiveMode,
 //   DataProcessorObject.ExchangeMessagesTransportYandexDisk - Handler for the given transport with the filled parameters.
 //    During initialization, "TempDirectory" is created and a temp name for the "ExchangeMessage" file and 
-//     filename templates ("NameTemplatesForMessageReceipt") are set
+//     filename templates ("NameTemplatesForReceivingMessage") are set
 //  
-Function Initialize(InitializationParameters) Export
+Function Initialize(InitializationParameters, CreateTemporaryFilesDirectory = True) Export
 	
 	Parameters = InitializationParameters();
 	FillPropertyValues(Parameters, InitializationParameters);
@@ -123,18 +123,20 @@ Function Initialize(InitializationParameters) Export
 		FillInDefaultMessageNames(Transport);
 	EndIf;
 	
-	Transport.TempDirectory = TempExchangeMessagesDirectory(Transport);
+	If CreateTemporaryFilesDirectory Then
+		Transport.TempDirectory = TempExchangeMessagesDirectory(Transport);
 	
-	TempFileName = String(New UUID) + ".xml";
+		TempFileName = String(New UUID) + ".xml";
 	
-	Transport.ExchangeMessage = 
-		CommonClientServer.GetFullFileName(Transport.TempDirectory, TempFileName);
+		Transport.ExchangeMessage = 
+			CommonClientServer.GetFullFileName(Transport.TempDirectory, TempFileName);
+	EndIf;
 	
 	Return Transport;
 	
 EndFunction
 
-// Drop the transport processing; delete the temporary exchange directory 
+// Drop the transport processing, delete the temporary exchange directory 
 // 
 // Parameters:
 //  Transport - DataProcessorObject.ExchangeMessageTransportCOM,
@@ -236,27 +238,14 @@ Function DefaultTransportSettings(Peer, TransportID = "") Export
 
 EndFunction
 
-// Default transport.
-// 
-// Parameters:
-//  Peer - ExchangePlanRef - Peer infobase
-// 
-// Returns:
-//  String - Transport ID
-//  
-Function DefaultTransport(Peer) Export
-	
-	Return Catalogs.ExchangeMessageTransportSettings.DefaultTransport(Peer);
-		
-EndFunction
-
 // Transport parameters (transport handler).
 // 
 // Parameters:
 //  TransportID - String - Transport ID
 // 
 // Returns:
-//   Undefined, Structure - See StructureOfTransportParameters
+//   Undefined,
+//   Structure - See ExchangeMessagesTransport.StructureOfTransportParameters
 //
 Function TransportParameters(Val TransportID) Export
 	
@@ -295,6 +284,126 @@ Function TransportParameter(Val TransportID, ParameterName) Export
 	Return Parameters[ParameterName];
 	
 EndFunction
+
+// A structure with transport parameters.
+// 
+// Returns:
+//  Structure - A structure with transport parameters:
+//   * Alias - String - Brief transport presentation
+//   * TransportID - String
+//   * LongDesc - String - Transport detailed description.
+//   * NameOfConfigurationForm - String - The name of the form for the set up transport
+//   * NameOfFirstSetupForm - String - The name of the form used for the initial synchronization.
+//   * NameOfAuthenticationForm - String - The name of the form used to input authentication data
+//   * AttributesForSecureStorage - Array of String - A list of attributes that
+//   are put to the safe storage when saving the transport settings
+//   * StartDataExchangeFromCorrespondent - Boolean - Flag indicating that the synchronization can be run in the peer infobase
+//   * UseProgress - Boolean - Flag indicating whether the progress bar is displayed during a data exchange.
+//   If "True", use it for offline exchanges. If "False", use it for online exchanges.
+//   * SaveConnectionParametersToFile - Boolean
+//   * ApplicationOperationMode - Number - Only affects the icon in the list of the "DataSyncSettings" form.
+//   Valid values are 0 and 1. "0"  - An exchange over ordinary channels (FILE, FTP, etc.). "1" - Application in a service.
+//   * Picture - Picture - The transport icon displayed in choice lists
+//   * DirectConnection - Boolean - If "True", there's a direct connection with the infobase (COM, WS, or HTTP)
+//   * PassiveMode - Boolean - If "True", this is a stub transport.
+//   Stub transports don't support data initialization.
+//   It is intended to be used with WS and HTTP
+//   * SettingUpSubAssetInCorrespondent - Boolean - 
+//   "True" if the transport should be fine-tuned in the peer infobase during a synchronization.
+//   Otherwise, "False"
+//
+Function StructureOfTransportParameters() Export
+	
+	Parameters = New Structure;
+	
+	Parameters.Insert("Alias", "");
+	Parameters.Insert("TransportID", "");
+	Parameters.Insert("LongDesc", "");
+	Parameters.Insert("NameOfConfigurationForm", "FormSettings");
+	Parameters.Insert("NameOfFirstSetupForm", "FormSettings");
+	Parameters.Insert("NameOfAuthenticationForm", "AuthenticationForm");
+	Parameters.Insert("AttributesForSecureStorage", New Array);
+	Parameters.Insert("StartDataExchangeFromCorrespondent", True);
+	Parameters.Insert("UseProgress", True);
+	Parameters.Insert("SaveConnectionParametersToFile", True);
+	Parameters.Insert("ApplicationOperationMode", 0); 
+	Parameters.Insert("Picture", PictureLib.TransportDataTransfer);
+	
+	// For online exchange
+	Parameters.Insert("DirectConnection", False);
+	Parameters.Insert("PassiveMode", False);
+	
+	Parameters.Insert("SettingUpSubAssetInCorrespondent", False);
+	
+	Return Parameters;
+	
+EndFunction
+
+// Structure for validating received transport parameters.
+// 
+// Returns:
+//  Structure - Structure for validating received transport parameters.:
+//   * ConnectionIsSet - Boolean - Connection verified.
+//   * ConnectionAllowed - Boolean - Has permission to use the specified type of transport.
+//   * InterfaceVersions - Undefined, 
+//                        String - Used for versioned transport types, for example, WEB or HTTP.
+//   * ErrorMessage - String - Connection error text.
+//   * CorrespondentParametersReceived - Boolean - Received a response with the peer infobase parameters.
+//   * CorrespondentParameters - Undefined,
+//                               String - XML string with the peer infobase parameters.
+//   * CorrespondentExchangePlanName - String - Name of the exchange plan in the peer infobase.
+//   * ThisNodeExistsInPeerInfobase - Boolean - Indicates whether the peer infobase has a setting with the current infobase. 
+//   * ThisInfobaseHasPeerInfobaseNode - Boolean - Indicates whether the infobase has a setting with the peer infobase.
+//   * NodeToDelete - Undefined,
+//                       ExchangePlanRef - Exchange node to delete.
+//
+Function StructureOfResultOfObtainingParametersOfCorrespondent() Export
+	
+	Result = New Structure;
+	Result.Insert("ConnectionIsSet", False);
+	Result.Insert("ConnectionAllowed", False);
+	Result.Insert("InterfaceVersions", Undefined);
+	Result.Insert("ErrorMessage", "");
+	
+	Result.Insert("CorrespondentParametersReceived", False);
+	Result.Insert("CorrespondentParameters", Undefined);
+	Result.Insert("CorrespondentExchangePlanName", "");
+
+	// Synchronization settings duplication check (sync is already set up)
+	Result.Insert("ThisNodeExistsInPeerInfobase", False);
+	Result.Insert("ThisInfobaseHasPeerInfobaseNode", False);
+	Result.Insert("NodeToDelete", Undefined);
+	
+	Return Result;
+	
+EndFunction
+
+// Default transport.
+// 
+// Parameters:
+//  Peer - ExchangePlanRef - Peer infobase
+// 
+// Returns:
+//  String - Transport ID
+//  
+Function DefaultTransport(Peer) Export
+	
+	Return Catalogs.ExchangeMessageTransportSettings.DefaultTransport(Peer);
+		
+EndFunction
+
+// Delete all settings for the transport.
+// 
+// Parameters:
+//  Peer - ExchangePlanRef - Exchange plan node being deleted
+//
+Procedure DeleteAllTransportSettings(Peer) Export
+	
+	Catalogs.ExchangeMessageTransportSettings.DeleteAllSettings(Peer);
+
+EndProcedure
+
+#Region ManagersOfTypicalTransportTreatments
 
 // Returns a transport handler by ID.
 // 
@@ -433,16 +542,7 @@ Function YandexDiskTransportManager() Export
 	
 EndFunction
 
-// Delete all settings for the transport.
-// 
-// Parameters:
-//  Peer - ExchangePlanRef - Exchange plan node being deleted
-//
-Procedure DeleteAllTransportSettings(Peer) Export
-	
-	Catalogs.ExchangeMessageTransportSettings.DeleteAllSettings(Peer);
-
-EndProcedure
+#EndRegion
 
 #EndRegion
 
@@ -727,10 +827,22 @@ Procedure CheckAndFillInXMLConnectionSettings(
 	
 	FillPropertyValues(ConnectionSettings, ConnectionSettingsFromFile, , "ExchangePlanName, SourceInfobasePrefix");
 	
+	NumberSentFromConnectionSettings = Undefined;
+	
+	If CommonClientServer.HasAttributeOrObjectProperty(ConnectionSettings, "SentNo") Then
+		NumberSentFromConnectionSettings = ConnectionSettings.SentNo;
+	EndIf;
+	
+	NumberReceivedFromConnectionSettings = Undefined;
+	
+	If CommonClientServer.HasAttributeOrObjectProperty(ConnectionSettings, "ReceivedNo") Then
+		NumberReceivedFromConnectionSettings = ConnectionSettings.ReceivedNo;
+	EndIf;
+	
 	If StrLen(ConnectionSettings.SecondInfobaseNewNodeCode) = 36
 		And StrLen(ConnectionSettings.PredefinedNodeCode) = 36
-		And ValueIsFilled(ConnectionSettings.SentNo)
-		And ValueIsFilled(ConnectionSettings.ReceivedNo) Then
+		And ValueIsFilled(NumberSentFromConnectionSettings)
+		And ValueIsFilled(NumberReceivedFromConnectionSettings) Then
 		
 		If ExchangePlans[ConnectionSettings.ExchangePlanName].ThisNode().Code <> ConnectionSettings.PredefinedNodeCode
 			And DataExchangeCached.ExchangePlanNodes(ConnectionSettings.ExchangePlanName).Count() > 0 Then
@@ -1289,6 +1401,29 @@ Function JSONValue(String, ReadToMap = True, PropertiesWithDateValuesNames = Und
 
 EndFunction
 
+// Check that all required transport configuration fields are filled.
+//
+// Parameters:
+//  Setting - QueryResult, Structure - Values of transport settings attributes.
+//  SettingID - String - Transport ID.
+//
+// Returns:
+//   Boolean - True if all required attributes are filled.
+//
+Function RequiredAttributesOfTransportSettingsHaveBeenFilledIn(Val Setting, Val SettingID) Export
+	
+	SettingUpTransport = SettingUpTransportInStructure(Setting);
+
+	TransportManager = TransportManagerById(SettingID);
+	
+	SettingFilledIn = RequiredAttributesOfSettingsAreFilledIn(SettingUpTransport, TransportManager);
+	
+	ExchangeMessagesTransportOverridable.WhenCheckingFillingInRequiredAttributesOfTransportSettings(SettingUpTransport, TransportManager, SettingFilledIn);
+	
+	Return SettingFilledIn;
+	
+EndFunction
+
 #EndRegion
 
 #Region Private
@@ -1312,81 +1447,6 @@ Function AllTypesOfTransport()
 	ExchangeMessagesTransportOverridable.WhenDeterminingTransportTypes(TypesOfTransport);
 		
 	Return TypesOfTransport;
-	
-EndFunction
-
-// A structure with transport parameters.
-// 
-// Returns:
-//  Structure - A structure with transport parameters:
-//   * Alias - String - Brief transport presentation
-//   * TransportID - String
-//   * LongDesc - String - Transport detailed description.
-//   * NameOfConfigurationForm - String - The name of the form for the set up transport
-//   * NameOfFirstSetupForm - String - The name of the form used for the initial synchronization.
-//   * NameOfAuthenticationForm - String - The name of the form used to input authentication data
-//   * AttributesForSecureStorage - Array of String - A list of attributes that
-//   are put to the safe storage when saving the transport settings
-//   * StartDataExchangeFromCorrespondent - Boolean - Flag indicating that the synchronization can be run in the peer infobase
-//   * UseProgress - Boolean - Flag indicating whether the progress bar is displayed during a data exchange.
-//   If "True", use it for offline exchanges. If "False", use it for online exchanges.
-//   * SaveConnectionParametersToFile - Boolean
-//   * ApplicationOperationMode - Number - Only affects the icon in the list of the "DataSyncSettings" form.
-//   Valid values are 0 and 1. "0"  - An exchange over ordinary channels (FILE, FTP, etc.). "1" - Application in a service.
-//   * Picture - Picture - The transport icon displayed in choice lists
-//   * DirectConnection - Boolean - If "True", there's a direct connection with the infobase (COM, WS, or HTTP)
-//   * PassiveMode - Boolean - If "True", this is a stub transport.
-//   Stub transports don't support data initialization.
-//   It is intended to be used with WS and HTTP
-//   * SettingUpSubAssetInCorrespondent - Boolean - 
-//   "True" if the transport should be fine-tuned in the peer infobase during a synchronization.
-//   Otherwise, "False"
-//
-Function StructureOfTransportParameters() Export
-	
-	Parameters = New Structure;
-	
-	Parameters.Insert("Alias", "");
-	Parameters.Insert("TransportID", "");
-	Parameters.Insert("LongDesc", "");
-	Parameters.Insert("NameOfConfigurationForm", "FormSettings");
-	Parameters.Insert("NameOfFirstSetupForm", "FormSettings");
-	Parameters.Insert("NameOfAuthenticationForm", "AuthenticationForm");
-	Parameters.Insert("AttributesForSecureStorage", New Array);
-	Parameters.Insert("StartDataExchangeFromCorrespondent", True);
-	Parameters.Insert("UseProgress", True);
-	Parameters.Insert("SaveConnectionParametersToFile", True);
-	Parameters.Insert("ApplicationOperationMode", 0); 
-	Parameters.Insert("Picture", PictureLib.TransportDataTransfer);
-	
-	// For online exchange
-	Parameters.Insert("DirectConnection", False);
-	Parameters.Insert("PassiveMode", False);
-	
-	Parameters.Insert("SettingUpSubAssetInCorrespondent", False);
-	
-	Return Parameters;
-	
-EndFunction
-
-Function StructureOfResultOfObtainingParametersOfCorrespondent() Export
-	
-	Result = New Structure;
-	Result.Insert("ConnectionIsSet", False);
-	Result.Insert("ConnectionAllowed", False);
-	Result.Insert("InterfaceVersions", Undefined);
-	Result.Insert("ErrorMessage", "");
-	
-	Result.Insert("CorrespondentParametersReceived", False);
-	Result.Insert("CorrespondentParameters", Undefined);
-	Result.Insert("CorrespondentExchangePlanName", "");
-
-	// Synchronization settings duplication check (sync is already set up)
-	Result.Insert("ThisNodeExistsInPeerInfobase", False);
-	Result.Insert("ThisInfobaseHasPeerInfobaseNode", False);
-	Result.Insert("NodeToDelete", Undefined);
-	
-	Return Result;
 	
 EndFunction
 
@@ -1642,7 +1702,7 @@ Function AuthenticationRequired(AuthenticationParameters, FormName = "") Export
 		Return False;
 	EndIf;
 	
-	Transport = Initialize(AuthenticationParameters);
+	Transport = Initialize(AuthenticationParameters, False);
 	
 	DataProcessorName = Transport.Metadata().FullName();
 	NameOfAuthenticationForm = TransportParameter(AuthenticationParameters.TransportID, "NameOfAuthenticationForm");
@@ -1804,11 +1864,11 @@ Function PackExchangeMessageIntoZipFile(Transport, Password) Export
 	
 EndFunction
 
-Function UnzipExchangeMessageFromZipFile(Transport, ArchiveFileName, Password) Export
+Function UnzipExchangeMessageFromZipFile(Transport, ArchiveFileName_, Password) Export
 
 	Result = True;
 	
-	Archive = New ZipFileReader(ArchiveFileName, Password);
+	Archive = New ZipFileReader(ArchiveFileName_, Password);
 	FileInArchive = Archive[0];
 		
 	Try
@@ -2490,6 +2550,161 @@ Function VerifyAuthentication(Peer, TransportID, TransportSettings, Authenticati
 		Raise Transport.ErrorMessage;
 		
 	EndIf;
+	
+EndFunction
+
+// Validates required transport settings attributes.
+//
+// Parameters:
+//  Setting - Structure - Values of transport settings attributes.
+//  TransportManager - Arbitrary - Transport manager. See ExchangeMessagesTransport.TransportManagerById().
+//
+// Returns:
+//   Boolean - True if all required attributes are filled.
+//
+Function RequiredAttributesOfSettingsAreFilledIn(Setting, TransportManager)
+	
+	If Not Setting.Count() Then
+		Return False;
+	EndIf;
+	
+	SettingFilledIn = True;
+	
+	If TransportManager = TransportManagerCOM() Then
+		SettingFilledIn = RequiredAttributesForCOMTransportSettingsHaveBeenFilledIn(Setting);
+	Else
+		RequiredDetails_ = RequiredAttributesOfTransports();
+		
+		RequiredTransportAttributes = RequiredDetails_.Get(TransportManager);
+		
+		If RequiredTransportAttributes <> Undefined Then
+			For Each SettingsDetails In RequiredTransportAttributes Do
+				If Setting.Property(SettingsDetails) Then
+					If Not ValueIsFilled(Setting[SettingsDetails]) Then
+						SettingFilledIn = False;
+						Break;
+					EndIf;
+				EndIf;
+			EndDo;	
+		EndIf;
+	EndIf;
+	
+	Return SettingFilledIn;
+	
+EndFunction
+
+// Validates required COM transport settings attributes.
+//
+// Parameters:
+//  Setting - Structure - Values of transport settings attributes.
+//
+// Returns:
+//   Boolean - True if all required attributes are filled.
+//
+Function RequiredAttributesForCOMTransportSettingsHaveBeenFilledIn(Setting)
+	
+	SettingFilledIn = False;
+	
+	If Setting.InfobaseOperatingMode Then
+		If ValueIsFilled(Setting.NameOf1CEnterpriseServer) And ValueIsFilled(Setting.NameOfInfobaseOn1CEnterpriseServer) Then
+			SettingFilledIn = True;
+		EndIf;
+	Else
+		SettingFilledIn = ValueIsFilled(Setting.InfobaseDirectory);
+	EndIf;
+	
+	Return SettingFilledIn;
+	
+EndFunction
+
+// Returns a map with the required attributes
+//
+// Returns:
+//  Map of KeyAndValue:
+//   * Key - Arbitrary - Transport manager. See ExchangeMessagesTransport.TransportManagersById().
+//   * Value - Array - Names of required attributes
+//
+Function RequiredAttributesOfTransports()
+	
+	RequiredAttributesForFilling = New Map;
+	
+	SettingsDetails_1 = New Array;
+	SettingsDetails_1.Add("Account");
+	RequiredAttributesForFilling.Insert(TransportManagerEMAIL(), SettingsDetails_1);
+	
+	SettingsDetails_1 = New Array;
+	SettingsDetails_1.Add("SendingChannel");
+	SettingsDetails_1.Add("ReceiptChannel");
+	SettingsDetails_1.Add("RecipientCode");
+	SettingsDetails_1.Add("IntegrationService");
+	RequiredAttributesForFilling.Insert(TransportManagerESB1C(), SettingsDetails_1);
+	
+	SettingsDetails_1 = New Array;
+	SettingsDetails_1.Add("DataExchangeDirectory");
+	RequiredAttributesForFilling.Insert(TransportManagerFILE(), SettingsDetails_1);
+
+	SettingsDetails_1 = New Array;
+	SettingsDetails_1.Add("Path"); 
+	SettingsDetails_1.Add("User");
+	RequiredAttributesForFilling.Insert(TransportManagerFTP(), SettingsDetails_1); 
+	
+	SettingsDetails_1 = New Array;
+	SettingsDetails_1.Add("ClientID");
+	SettingsDetails_1.Add("ClientSecret");
+	SettingsDetails_1.Add("AccessToken");
+	SettingsDetails_1.Add("RefreshToken");
+	RequiredAttributesForFilling.Insert(YandexDiskTransportManager(), SettingsDetails_1);
+	
+	SettingsDetails_1 = New Array;
+	SettingsDetails_1.Add("ClientID");
+	SettingsDetails_1.Add("ClientSecret");
+	SettingsDetails_1.Add("AccessToken");
+	SettingsDetails_1.Add("RefreshToken");
+	RequiredAttributesForFilling.Insert(TransportManagerGoogleDrive(), SettingsDetails_1);
+	
+	SettingsDetails_1 = New Array;
+	SettingsDetails_1.Add("WebServiceAddress");
+	RequiredAttributesForFilling.Insert(TransportManagerWS(), SettingsDetails_1);
+	
+	SettingsDetails_1 = New Array;
+	SettingsDetails_1.Add("WebServiceAddress");
+	RequiredAttributesForFilling.Insert(TransportManagerHTTP(), SettingsDetails_1);
+
+	SettingsDetails_1 = New Array;
+	SettingsDetails_1.Add("PeerInfobaseName");
+	SettingsDetails_1.Add("CorrespondentEndpoint");
+	RequiredAttributesForFilling.Insert(TransportManagerSM(), SettingsDetails_1);
+	
+	SettingsDetails_1 = New Array;
+	RequiredAttributesForFilling.Insert(TransportManagerPassiveMode(), SettingsDetails_1);
+	
+	Return RequiredAttributesForFilling;
+	
+EndFunction
+
+// Converts a setting into a structure.
+// 
+// Parameters:
+//  Setting - QueryResult, Structure - Values of transport settings attributes. 
+//
+// Returns:
+//  Structure - Values of settings attribute.
+//
+Function SettingUpTransportInStructure(Setting)
+	
+	If TypeOf(Setting) = Type("QueryResult") Then
+		Result = New Structure;
+		
+		Selection = Setting.Select();
+		
+		While Selection.Next() Do
+			Result.Insert(Selection.Setting, Selection.Value);
+		EndDo;
+	Else
+		Result = Setting;
+	EndIf;
+	
+	Return Result;
 	
 EndFunction
 

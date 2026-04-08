@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -36,6 +35,8 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		
 	EndIf;
 	
+	FillInInformationAboutMessageFromArchiveAtServer();
+	
 	NodeNameLabel = NStr("en = 'Cannot install the application update received from
 		|""%1"".
 		|See <a href = ""%2"">Event log</a> for technical information.'");
@@ -43,6 +44,13 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		StringFunctions.FormattedString(NodeNameLabel, String(InfobaseNode), "EventLog");
 	
 	SetFormItemsView();
+	
+EndProcedure
+
+&AtClient
+Procedure OnOpen(Cancel)
+	
+	AttachIdleHandler("FillInInformationAboutMessageFromArchive", 60, False);
 	
 EndProcedure
 
@@ -62,6 +70,13 @@ Procedure NodeNameHelpTextURLProcessing(Item, FormattedStringURL, StandardProces
 	
 EndProcedure
 
+&AtClient
+Procedure ContinueUploadingMessageFromArchiveOnChange(Item)
+	
+	Items.ConnectionParametersPages.Visible = Not ContinueUploadingMessageFromArchive;
+	
+EndProcedure
+
 #EndRegion
 
 #Region FormCommandsEventHandlers
@@ -71,7 +86,6 @@ Procedure SyncAndContinue(Command)
 	
 	WarningText = "";
 	HasErrors = False;
-	TimeConsumingOperation = False;
 	
 	CheckUpdateRequired();
 	
@@ -90,12 +104,6 @@ Procedure SyncAndContinue(Command)
 		
 	EndIf;
 	
-	If Not TimeConsumingOperation Then
-		
-		SyncAndContinueCompletion();
-		
-	EndIf;
-	
 EndProcedure
 
 &AtClient
@@ -110,8 +118,15 @@ EndProcedure
 &AtClient
 Procedure ExitApplication(Command)
 	
+	If ValueIsFilled(ParametersOfExchangeHandler) Then
+		CancelJobExecution(ParametersOfExchangeHandler.OperationID);
+	EndIf;
+
+	DetachIdleHandler("WhileWaitingForDataExchangeMessageToLoadWithoutUpdatingInfobase");
+	DetachIdleHandler("WhileWaitingForUpdateDataExchangeMessageToLoad");
+
 	Close();
-	
+		
 EndProcedure
 
 &AtClient
@@ -129,6 +144,32 @@ Procedure ForgotPassword(Command)
 	ExchangeMessagesTransportClient.OpenInstructionHowToChangeDataSynchronizationPassword(AccountPasswordRecoveryAddress);
 EndProcedure
 
+&AtClient
+Procedure OpenMessageFromArchive(Command)
+	
+	If Not ValueIsFilled(PeriodOfRecordingArchiveMessage) Then
+		CommonClient.MessageToUser(NStr("en = 'The archived message is missing'"));
+		Return;
+	EndIf;
+	
+	RecordStructure = New Structure("Period, InfobaseNode", PeriodOfRecordingArchiveMessage, InfobaseNode);
+	
+	ValueType = Type("InformationRegisterRecordKey.ArchiveOfExchangeMessages");
+	WriteParameters = New Array(1);
+	WriteParameters[0] = RecordStructure;
+	
+	RecordKey = New(ValueType, WriteParameters);
+	
+	WriteParameters = New Structure;
+	WriteParameters.Insert("Key", RecordKey);
+	
+	OpenForm("InformationRegister.ArchiveOfExchangeMessages.Form.RecordForm", 
+		WriteParameters,
+		ThisObject,
+		UUID);
+	
+EndProcedure
+
 #EndRegion
 
 #Region Private
@@ -138,10 +179,115 @@ EndProcedure
 &AtClient
 Procedure SynchronizeAndContinueWithoutIBUpdate()
 	
-	ImportDataExchangeMessageWithoutUpdating();
-	SynchronizeAndContinueWithoutIBUpdateCompletion();
+	AttachIdleHandler("AtBeginningOfDownloadOfDataExchangeMessageWithoutUpdatingInfobase", 0.1, True);
+	
+	SettingUpFormElementsForLongTermOperation(True);
+
+EndProcedure
+
+&AtClient
+Procedure AtBeginningOfDownloadOfDataExchangeMessageWithoutUpdatingInfobase()
+	
+	ContinueWait = True;
+	WhenYouStartDownloadingDataExchangeMessageWithoutUpdatingInfobaseAtServer(ContinueWait);
+	
+	If ContinueWait Then
+		DataExchangeClient.InitIdleHandlerParameters(
+			ParametersOfExchangeWaitingHandler);
+		
+		AttachIdleHandler("WhileWaitingForDataExchangeMessageToLoadWithoutUpdatingInfobase",
+			ParametersOfExchangeWaitingHandler.CurrentInterval, True);
+	Else
+		AttachIdleHandler("AtEndOfLoadingDataExchangeMessageWithoutUpdatingInfobase", 0.1, True);
+	EndIf;
+
+EndProcedure
+
+&AtServer
+Procedure WhenYouStartDownloadingDataExchangeMessageWithoutUpdatingInfobaseAtServer(ContinueWait) 
+	
+	AuthenticationData = New Structure;
+	
+	If IsStandaloneWorkplace Then
+		AuthenticationData.Insert("UserName", UserName);
+		AuthenticationData.Insert("Password", Password);
+	EndIf;
+			
+	ProcedureParameters = New Structure;
+	ProcedureParameters.Insert("ContinueUploadingMessageFromArchive", ContinueUploadingMessageFromArchive);
+	ProcedureParameters.Insert("InfobaseNode", InfobaseNode);
+	ProcedureParameters.Insert("AuthenticationData",   AuthenticationData);
+	ProcedureParameters.Insert("HasErrors",             False);
+	
+	OperationStartDate = CurrentSessionDate();
+	
+	ParametersOfExchangeHandler = Undefined;
+	
+	ModuleDataExchangeCreationWizard = DataExchangeServer.ModuleDataExchangeCreationWizard();
+	ModuleDataExchangeCreationWizard.AtBeginningOfDownloadOfDataExchangeMessageWithoutUpdatingInfobase(ProcedureParameters,
+		ParametersOfExchangeHandler, ContinueWait);      
 		
 EndProcedure
+
+&AtClient
+Procedure WhileWaitingForDataExchangeMessageToLoadWithoutUpdatingInfobase()
+	
+	ContinueWait = False;
+	WhileWaitingForDataExchangeMessageToLoadWithoutUpdatingInfobaseAtServer(ParametersOfExchangeHandler, ContinueWait);
+	
+	If ContinueWait Then
+		DataExchangeClient.UpdateIdleHandlerParameters(ParametersOfExchangeWaitingHandler);
+		
+		AttachIdleHandler("WhileWaitingForDataExchangeMessageToLoadWithoutUpdatingInfobase",
+			ParametersOfExchangeWaitingHandler.CurrentInterval, True);
+	Else
+		AttachIdleHandler("AtEndOfLoadingDataExchangeMessageWithoutUpdatingInfobase", 0.1, True);
+	EndIf;
+
+EndProcedure
+
+&AtServerNoContext
+Procedure WhileWaitingForDataExchangeMessageToLoadWithoutUpdatingInfobaseAtServer(HandlerParameters, ContinueWait)
+	
+	ModuleDataExchangeCreationWizard = DataExchangeServer.ModuleDataExchangeCreationWizard();
+	ModuleDataExchangeCreationWizard.WhileWaitingForMessageToLoadBeforeUpdatingInformationBase(HandlerParameters, ContinueWait);
+	
+EndProcedure
+
+&AtClient
+Procedure AtEndOfLoadingDataExchangeMessageWithoutUpdatingInfobase()
+	
+	ErrorMessage = "";
+	
+	WhenDownloadOfDataExchangeMessageIsCompletedWithoutUpdatingInfobaseATServer(ParametersOfExchangeHandler, ErrorMessage);
+	
+	If Not IsBlankString(ErrorMessage) Then
+		CommonClient.MessageToUser(ErrorMessage,,,, HasErrors);
+	EndIf;
+	
+	SynchronizeAndContinueWithoutIBUpdateCompletion();
+	
+	SyncAndContinueCompletion();
+	
+EndProcedure
+
+&AtServerNoContext
+Procedure WhenDownloadOfDataExchangeMessageIsCompletedWithoutUpdatingInfobaseATServer(HandlerParameters, ErrorMessage)
+	
+	CompletionStatus = Undefined;
+	
+	ModuleDataExchangeCreationWizard = DataExchangeServer.ModuleDataExchangeCreationWizard();
+	ModuleDataExchangeCreationWizard.UponCompletionOfMessageDownloadBeforeUpdatingInformationBase(HandlerParameters, CompletionStatus);
+		
+	If CompletionStatus.Cancel Then
+		ErrorMessage = CompletionStatus.ErrorMessage;
+	Else
+		If CompletionStatus.Result <> Undefined And CompletionStatus.Result.Cancel Then
+			ErrorMessage = CompletionStatus.Result.ErrorMessage;
+		EndIf;
+	EndIf; 
+
+EndProcedure  
 
 &AtServer
 Procedure SynchronizeAndContinueWithoutIBUpdateCompletion()
@@ -160,23 +306,7 @@ Procedure SynchronizeAndContinueWithoutIBUpdateCompletion()
 	
 	If Not HasErrors Then
 		
-		DataExchangeServer.SetDataExchangeMessageImportModeBeforeStart("ImportPermitted", False);
-		
-		// If the message is imported, reimporting is not required.
-		If Constants.LoadDataExchangeMessage.Get() Then
-			Constants.LoadDataExchangeMessage.Set(False);
-		EndIf;
-		Constants.RetryDataExchangeMessageImportBeforeStart.Set(False);
-		
-		Try
-			ExportMessageAfterInfobaseUpdate();
-		Except
-			// If import fails, resume the startup and run import in 1C:Enterprise mode.
-			// 
-			EventLogMessageKey = DataExchangeServer.DataExchangeEventLogEvent();
-			WriteLogEvent(EventLogMessageKey,
-				EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
-		EndTry;
+		Return;
 		
 	ElsIf ConfigurationChanged() Then
 		If Not Constants.LoadDataExchangeMessage.Get() Then
@@ -199,127 +329,6 @@ Procedure SynchronizeAndContinueWithoutIBUpdateCompletion()
 	
 EndProcedure
 
-&AtServer
-Procedure ExportMessageAfterInfobaseUpdate()
-	
-	// The repeat mode can be disabled if messages are imported and the infobase is updated successfully.
-	DataExchangeServer.DisableDataExchangeMessageImportRepeatBeforeStart();
-	
-	Try
-		If GetFunctionalOption("UseDataSynchronization") Then
-			
-			InfobaseNode = DataExchangeServer.MasterNode();
-			
-			If InfobaseNode <> Undefined Then
-				
-				ExecuteExport = True;
-				
-				TransportID = ExchangeMessagesTransport.DefaultTransport(InfobaseNode);
-				
-				If ExecuteExport Then
-					
-					AuthenticationData = New Structure;
-					If IsStandaloneWorkplace Then
-						AuthenticationData.Insert("UserName", UserName);
-						AuthenticationData.Insert("Password", Password);
-					EndIf;
-					
-					// Export only.
-					Cancel = False;
-					
-					ExchangeParameters = DataExchangeServer.ExchangeParameters();
-					ExchangeParameters.TransportID = TransportID;
-					ExchangeParameters.ExecuteImport1 = False;
-					ExchangeParameters.ExecuteExport2 = True;
-					ExchangeParameters.AuthenticationData = AuthenticationData;
-					ExchangeParameters.TheTimeoutOnTheServer = 15;
-						
-					DataExchangeServer.ExecuteDataExchangeForInfobaseNode(InfobaseNode, ExchangeParameters, Cancel);
-					
-				EndIf;
-				
-			EndIf;
-			
-		EndIf;
-		
-	Except
-		WriteLogEvent(DataExchangeServer.DataExchangeEventLogEvent(),
-			EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
-	EndTry;
-	
-EndProcedure
-
-&AtServer
-Procedure ImportDataExchangeMessageWithoutUpdating()
-	
-	Try
-		ImportMessageBeforeInfobaseUpdate();
-	Except
-		WriteLogEvent(DataExchangeServer.DataExchangeEventLogEvent(),
-			EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
-		HasErrors = True;
-	EndTry;
-	
-	SetFormItemsView();
-	
-EndProcedure
-
-&AtServer
-Procedure ImportMessageBeforeInfobaseUpdate()
-	
-	If DataExchangeInternal.DataExchangeMessageImportModeBeforeStart(
-			"SkipImportDataExchangeMessageBeforeStart") Then
-		Return;
-	EndIf;
-	
-	If GetFunctionalOption("UseDataSynchronization") Then
-		
-		If InfobaseNode <> Undefined Then
-			
-			SetPrivilegedMode(True);
-			DataExchangeServer.SetDataExchangeMessageImportModeBeforeStart("ImportPermitted", True);
-			SetPrivilegedMode(False);
-			
-			// Updating object registration rules before importing data.
-			DataExchangeServer.UpdateDataExchangeRules();
-			
-			TransportID = ExchangeMessagesTransport.DefaultTransport(InfobaseNode);
-			
-			OperationStartDate = CurrentSessionDate();
-			
-			AuthenticationData = New Structure;
-			If IsStandaloneWorkplace Then
-				AuthenticationData.Insert("UserName", UserName);
-				AuthenticationData.Insert("Password", Password);
-			EndIf;			
-			
-			// Import only.
-			ExchangeParameters = DataExchangeServer.ExchangeParameters();
-			ExchangeParameters.TransportID = TransportID;
-			ExchangeParameters.ExecuteImport1 = True;
-			ExchangeParameters.ExecuteExport2 = False;
-			
-			ExchangeParameters.TimeConsumingOperationAllowed = TimeConsumingOperationAllowed;
-			ExchangeParameters.TimeConsumingOperation          = TimeConsumingOperation;
-			ExchangeParameters.OperationID       = OperationID;
-			ExchangeParameters.FileID          = FileID;
-			ExchangeParameters.AuthenticationData        = AuthenticationData;
-			ExchangeParameters.TheTimeoutOnTheServer   = 15;
-			
-			DataExchangeServer.ExecuteDataExchangeForInfobaseNode(InfobaseNode, ExchangeParameters, HasErrors);
-			
-			TimeConsumingOperationAllowed = ExchangeParameters.TimeConsumingOperationAllowed;
-			TimeConsumingOperation          = ExchangeParameters.TimeConsumingOperation;
-			OperationID       = ExchangeParameters.OperationID;
-			FileID          = ExchangeParameters.FileID;
-			AuthenticationData        = ExchangeParameters.AuthenticationData;
-			
-		EndIf;
-		
-	EndIf;
-	
-EndProcedure
-
 #EndRegion
 
 #Region ScenarioWithInfobaseUpdate
@@ -327,10 +336,115 @@ EndProcedure
 &AtClient
 Procedure SynchronizeAndContinueWithIBUpdate()
 	
-	ImportDataExchangeMessageWithUpdate();
-	SynchronizeAndContinueWithIBUpdateCompletion();
+	AttachIdleHandler("AtBeginningOfDownloadMessageExchangesDataWithUpdate", 0.1, True);
+	
+	SettingUpFormElementsForLongTermOperation(True);
 	
 EndProcedure
+
+&AtClient
+Procedure AtBeginningOfDownloadMessageExchangesDataWithUpdate()
+	
+	ContinueWait = True;
+	AtBeginningOfDownloadUpdateDataExchangeMessageIsAtServer(ContinueWait);
+	
+	If ContinueWait Then
+		DataExchangeClient.InitIdleHandlerParameters(
+			ParametersOfExchangeWaitingHandler);
+		
+		AttachIdleHandler("WhileWaitingForUpdateDataExchangeMessageToLoad",
+			ParametersOfExchangeWaitingHandler.CurrentInterval, True);
+	Else
+		AttachIdleHandler("WhenDownloadIsCompleteMessageExchangesDataWithUpdate", 0.1, True);
+	EndIf;
+
+EndProcedure
+
+&AtServer
+Procedure AtBeginningOfDownloadUpdateDataExchangeMessageIsAtServer(ContinueWait) 
+	
+	AuthenticationData = New Structure;
+	
+	If IsStandaloneWorkplace Then
+		AuthenticationData.Insert("UserName", UserName);
+		AuthenticationData.Insert("Password", Password);
+	EndIf;
+
+	ProcedureParameters = New Structure;
+	ProcedureParameters.Insert("ContinueUploadingMessageFromArchive", ContinueUploadingMessageFromArchive);
+	ProcedureParameters.Insert("InfobaseNode", InfobaseNode);
+	ProcedureParameters.Insert("AuthenticationData",   AuthenticationData);
+	ProcedureParameters.Insert("HasErrors",             HasErrors);
+	
+	OperationStartDate = CurrentSessionDate();
+	
+	ParametersOfExchangeHandler = Undefined;
+	
+	ModuleDataExchangeCreationWizard = DataExchangeServer.ModuleDataExchangeCreationWizard();
+	ModuleDataExchangeCreationWizard.AtBeginningOfDownloadMessageExchangesDataWithUpdate(ProcedureParameters,
+		ParametersOfExchangeHandler, ContinueWait);      
+		
+EndProcedure
+
+&AtClient
+Procedure WhileWaitingForUpdateDataExchangeMessageToLoad()
+	
+	ContinueWait = False;
+	WhileWaitingForUpdateDataExchangeMessageToLoadAtServer(ParametersOfExchangeHandler, ContinueWait);
+	
+	If ContinueWait Then
+		DataExchangeClient.UpdateIdleHandlerParameters(ParametersOfExchangeWaitingHandler);
+		
+		AttachIdleHandler("WhileWaitingForUpdateDataExchangeMessageToLoad",
+			ParametersOfExchangeWaitingHandler.CurrentInterval, True);
+	Else
+		AttachIdleHandler("WhenDownloadIsCompleteMessageExchangesDataWithUpdate", 0.1, True);
+	EndIf;
+
+EndProcedure  
+
+&AtServerNoContext
+Procedure WhileWaitingForUpdateDataExchangeMessageToLoadAtServer(HandlerParameters, ContinueWait)
+	
+	ModuleDataExchangeCreationWizard = DataExchangeServer.ModuleDataExchangeCreationWizard();
+	ModuleDataExchangeCreationWizard.WhileWaitingForUpdateDataExchangeMessageToLoad(HandlerParameters, ContinueWait);
+	
+EndProcedure
+
+&AtClient
+Procedure WhenDownloadIsCompleteMessageExchangesDataWithUpdate()
+	
+	ErrorMessage = "";
+	
+	WhenDownloadIsCompleteUpdateDataExchangeMessageIsAtServer(ParametersOfExchangeHandler, ErrorMessage);
+	
+	If Not IsBlankString(ErrorMessage) Then
+		CommonClient.MessageToUser(ErrorMessage,,,, HasErrors);
+	EndIf;
+	
+	SynchronizeAndContinueWithIBUpdateCompletion();
+	
+	SyncAndContinueCompletion();
+
+EndProcedure
+
+&AtServerNoContext
+Procedure WhenDownloadIsCompleteUpdateDataExchangeMessageIsAtServer(HandlerParameters, ErrorMessage)
+	
+	CompletionStatus = Undefined;
+	
+	ModuleDataExchangeCreationWizard = DataExchangeServer.ModuleDataExchangeCreationWizard();
+	ModuleDataExchangeCreationWizard.WhenDownloadIsCompleteMessageExchangesDataWithUpdate(HandlerParameters, CompletionStatus);
+	
+	If CompletionStatus.Cancel Then
+		ErrorMessage = CompletionStatus.ErrorMessage;
+	Else
+		If CompletionStatus.Result <> Undefined And CompletionStatus.Result.Cancel Then
+			ErrorMessage = CompletionStatus.Result.ErrorMessage;
+		EndIf;
+	EndIf;
+	
+EndProcedure  
 
 &AtServer
 Procedure SynchronizeAndContinueWithIBUpdateCompletion()
@@ -364,101 +478,6 @@ Procedure SynchronizeAndContinueWithIBUpdateCompletion()
 		
 		WarningText = NStr("en = 'Receiving data from the master node is completed with errors.
 			|For more information, see the event log.'");
-		
-	EndIf;
-	
-EndProcedure
-
-&AtServer
-Procedure ImportDataExchangeMessageWithUpdate()
-	
-	Try
-		ImportPriorityDataToSubordinateDIBNode();
-	Except
-		WriteLogEvent(DataExchangeServer.DataExchangeEventLogEvent(),
-			EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
-		HasErrors = True;
-	EndTry;
-	
-	SetFormItemsView();
-	
-EndProcedure
-
-&AtServer
-Procedure ImportPriorityDataToSubordinateDIBNode()
-	
-	If DataExchangeInternal.DataExchangeMessageImportModeBeforeStart(
-			"SkipImportDataExchangeMessageBeforeStart") Then
-		Return;
-	EndIf;
-	
-	If DataExchangeInternal.DataExchangeMessageImportModeBeforeStart(
-			"SkipImportPriorityDataBeforeStart") Then
-		Return;
-	EndIf;
-	
-	SetPrivilegedMode(True);
-	DataExchangeServer.SetDataExchangeMessageImportModeBeforeStart("ImportPermitted", True);
-	SetPrivilegedMode(False);
-	
-	CheckDataSynchronizationEnabled();
-	
-	If GetFunctionalOption("UseDataSynchronization") Then
-		
-		InfobaseNode = DataExchangeServer.MasterNode();
-		
-		If InfobaseNode <> Undefined Then
-			
-			TransportID = ExchangeMessagesTransport.DefaultTransport(InfobaseNode);
-			
-			If TransportID = Undefined Then
-				Catalogs.ExchangeMessageTransportSettings.ProcessDataForMigrationToNewVersion();
-				TransportID = ExchangeMessagesTransport.DefaultTransport(InfobaseNode);
-			EndIf;
-			
-			ParameterName = "StandardSubsystems.DataExchange.RecordRules."
-				+ DataExchangeCached.GetExchangePlanName(InfobaseNode);
-			RegistrationRulesUpdated = StandardSubsystemsServer.ApplicationParameter(ParameterName);
-			If RegistrationRulesUpdated = Undefined Then
-				DataExchangeServer.UpdateDataExchangeRules();
-			EndIf;
-			RegistrationRulesUpdated = StandardSubsystemsServer.ApplicationParameter(ParameterName);
-			If RegistrationRulesUpdated = Undefined Then
-				Raise StringFunctionsClientServer.SubstituteParametersToString(
-					NStr("en = 'Cannot update data registration rules cache for exchange plan ""%1""'"),
-					DataExchangeCached.GetExchangePlanName(InfobaseNode));
-			EndIf;
-			
-			OperationStartDate = CurrentSessionDate();
-			
-			AuthenticationData = New Structure;
-			If IsStandaloneWorkplace Then
-				AuthenticationData.Insert("UserName", UserName);
-				AuthenticationData.Insert("Password", Password);
-			EndIf;
-			
-			// Importing application parameters only.
-			ExchangeParameters = DataExchangeServer.ExchangeParameters();
-			ExchangeParameters.TransportID = TransportID;
-			ExchangeParameters.ExecuteImport1 = True;
-			ExchangeParameters.ExecuteExport2 = False;
-			ExchangeParameters.ParametersOnly   = True;
-			
-			ExchangeParameters.TimeConsumingOperationAllowed = TimeConsumingOperationAllowed;
-			ExchangeParameters.TimeConsumingOperation          = TimeConsumingOperation;
-			ExchangeParameters.OperationID       = OperationID;
-			ExchangeParameters.FileID          = FileID;
-			ExchangeParameters.AuthenticationData         = AuthenticationData;	
-			ExchangeParameters.TheTimeoutOnTheServer    = 15;
-						
-			DataExchangeServer.ExecuteDataExchangeForInfobaseNode(InfobaseNode, ExchangeParameters, HasErrors);
-			
-			TimeConsumingOperationAllowed = ExchangeParameters.TimeConsumingOperationAllowed;
-			TimeConsumingOperation          = ExchangeParameters.TimeConsumingOperation;
-			OperationID       = ExchangeParameters.OperationID;
-			FileID          = ExchangeParameters.FileID;
-			
-		EndIf;
 		
 	EndIf;
 	
@@ -508,6 +527,13 @@ Procedure SyncAndContinueCompletion()
 	SetFormItemsView();
 	
 	If IsBlankString(WarningText) Then
+		
+		ShowUserNotification(NStr("en = 'Standalone mode'"),
+			,
+			NStr("en = 'Data resync is complete.'"),
+			PictureLib.Information32,
+			UserNotificationStatus.Important);
+		
 		Close("Continue");
 	Else
 		ShowMessageBox(, WarningText);
@@ -528,37 +554,6 @@ Procedure EnableDataExchangeMessageImportRecurrenceBeforeStart()
 EndProcedure
 
 &AtServer
-Procedure CheckDataSynchronizationEnabled()
-	
-	If Not GetFunctionalOption("UseDataSynchronization") Then
-		
-		If Common.DataSeparationEnabled() Then
-			
-			UseDataSynchronization = Constants.UseDataSynchronization.CreateValueManager();
-			UseDataSynchronization.AdditionalProperties.Insert("DisableObjectChangeRecordMechanism");
-			UseDataSynchronization.DataExchange.Load = True;
-			UseDataSynchronization.Value = True;
-			UseDataSynchronization.Write();
-			
-		Else
-			
-			If DataExchangeServer.GetExchangePlansInUse().Count() > 0 Then
-				
-				UseDataSynchronization = Constants.UseDataSynchronization.CreateValueManager();
-				UseDataSynchronization.AdditionalProperties.Insert("DisableObjectChangeRecordMechanism");
-				UseDataSynchronization.DataExchange.Load = True;
-				UseDataSynchronization.Value = True;
-				UseDataSynchronization.Write();
-				
-			EndIf;
-			
-		EndIf;
-		
-	EndIf;
-	
-EndProcedure
-
-&AtServer
 Procedure SetFormItemsView()
 	
 	If DataExchangeServer.LoadDataExchangeMessage()
@@ -574,6 +569,67 @@ Procedure SetFormItemsView()
 	Items.PanelMain.CurrentPage = ?(TimeConsumingOperation, Items.TimeConsumingOperation, Items.Begin);
 	Items.TimeConsumingOperationButtonsGroup.Visible = TimeConsumingOperation;
 	Items.MainButtonsGroup.Visible = Not TimeConsumingOperation;
+	
+EndProcedure
+
+&AtClient
+Procedure FillInInformationAboutMessageFromArchive()
+	
+	FillInInformationAboutMessageFromArchiveAtServer();
+	
+EndProcedure  
+
+&AtServer
+Procedure FillInInformationAboutMessageFromArchiveAtServer()
+	
+	Query = New Query;
+	Query.Text = 
+	"SELECT
+	|	ArchiveOfExchangeMessagesSliceLast.Period AS Period
+	|FROM
+	|	InformationRegister.ArchiveOfExchangeMessages.SliceLast(, InfobaseNode = &InfobaseNode) AS ArchiveOfExchangeMessagesSliceLast";
+	
+	Query.SetParameter("InfobaseNode", InfobaseNode);
+	
+	QueryResult = Query.Execute();
+	
+	If QueryResult.IsEmpty() Then 
+		Items.OpenMessageFromArchive.Title = NStr("en = '<No archived message>'");
+		Items.ContinueUploadingMessageFromArchive.ReadOnly = True;
+		
+		ContinueUploadingMessageFromArchive = False;
+		PeriodOfRecordingArchiveMessage = Date(1,1,1);
+	Else
+		Selection = QueryResult.Select();
+		Selection.Next();
+		
+		Items.OpenMessageFromArchive.Title = StrTemplate(NStr("en = 'Archived message from %1.'"), Format(Selection.Period, "DLF=DT"));
+		Items.ContinueUploadingMessageFromArchive.ReadOnly = False;
+		
+		PeriodOfRecordingArchiveMessage = Selection.Period;
+	EndIf;
+	
+EndProcedure
+
+&AtClient
+Procedure SettingUpFormElementsForLongTermOperation(LongTermOperationIsBeingPerformed)
+	
+	If LongTermOperationIsBeingPerformed Then
+		Items.PanelMain.CurrentPage = Items.TimeConsumingOperation;
+		Items.MainButtonsGroup.Visible = False;
+		Items.TimeConsumingOperationButtonsGroup.Visible = True;
+	Else
+		Items.PanelMain.CurrentPage = Items.Begin; 
+		Items.MainButtonsGroup.Visible = True;
+		Items.TimeConsumingOperationButtonsGroup.Visible = False;
+	EndIf;
+
+EndProcedure
+
+&AtServerNoContext
+Procedure CancelJobExecution(Val TaskID_)
+	
+	TimeConsumingOperations.CancelJobExecution(TaskID_);
 	
 EndProcedure
 

@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Internal
@@ -335,7 +334,7 @@ Procedure OnDefineChecks(ChecksGroups, Checks) Export
 	Validation.HandlerChecks           = "ContactsManagerInternal.CheckContactInformationKinds";
 	Validation.GoToCorrectionHandler = "Catalog.ContactInformationKinds.Form.ContactInformationKindsCorrection";
 	Validation.AccountingChecksContext = "_ContactInformation";
-	Validation.isDisabled                    = True;
+	Validation.TurnedOff                    = True;
 	
 	If ContactsManagerInternalCached.AreAddressManagementModulesAvailable() Then
 		ModuleAddressManager = Common.CommonModule("AddressManager");
@@ -733,11 +732,11 @@ Procedure CorrectContactInformationKindsInBackground(Val CheckParameters, Storag
 		
 		InitialObjectWithIssue = ObjectsWithIssues.Get(ObjectsWithIssues.Count() - 1).ObjectWithIssue;
 		TotalObjectCount = TotalObjectCount + ObjectsWithIssues.Count();
-		// @skip-check query-in-loop
+		// @skip-check query-in-loop - 
 		TotalObjectsCorrected = TotalObjectsCorrected + CorrectContactInformationKindsBatch(ObjectsWithIssues, Validation);
 		
 		SelectionParameters.InitialObjectWithIssue = InitialObjectWithIssue;
-		// @skip-check query-in-loop
+		// @skip-check query-in-loop - 
 		ObjectsWithIssues = ModuleAccountingAudit.ObjectsWithIssues(Validation, SelectionParameters);
 	
 	EndDo;
@@ -1145,7 +1144,7 @@ Function ContactsByPresentation(Presentation, ExpectedKind, SplitByFields = Fals
 	Else
 		
 		ContactInformation = ContactsManagerClientServer.NewContactInformationDetails(ExpectedType);
-		ContactInformation.value = Presentation;
+		ContactInformation.Value = Presentation;
 		Return ContactInformation;
 		
 	EndIf;
@@ -1167,7 +1166,7 @@ Function GenerateAddressByPresentation(Presentation, ExpectedKind, SplitByFields
 	
 	AnalysisData = AddressPartsAsTable(Presentation);
 	If AnalysisData.Count() = 0 Then
-		Address.value = Presentation;
+		Address.Value = Presentation;
 		Return Address;
 	EndIf;
 	
@@ -1175,12 +1174,12 @@ Function GenerateAddressByPresentation(Presentation, ExpectedKind, SplitByFields
 	CountryString = AnalysisData.Find(-2, "Level");
 	
 	If CountryString = Undefined Then
-		Address.country = DescriptionMainCountry;
+		Address.Country = DescriptionMainCountry;
 	Else
-		Address.country = TrimAll(Upper(CountryString.Value));
+		Address.Country = TrimAll(Upper(CountryString.Value));
 	EndIf;
 	
-	CountryData = ContactsManager.WorldCountryData(, Address.country);
+	CountryData = ContactsManager.WorldCountryData(, Address.Country);
 	If CountryData <> Undefined Then
 		Address.countryCode = CountryData.Code;
 	EndIf;
@@ -1190,7 +1189,7 @@ Function GenerateAddressByPresentation(Presentation, ExpectedKind, SplitByFields
 		ModuleAddressManager.HandlingFrequentAbbreviationsInAddresses(AnalysisData);
 	EndIf;
 	
-	If Address.country = DescriptionMainCountry 
+	If Address.Country = DescriptionMainCountry 
 	   And Common.SubsystemExists("StandardSubsystems.AddressClassifier") Then
 		
 		If RecognizeAddress Then
@@ -1206,16 +1205,16 @@ Function GenerateAddressByPresentation(Presentation, ExpectedKind, SplitByFields
 				
 				ModuleAddressManagerClientServer = Common.CommonModule("AddressManagerClientServer");
 				If  ModuleAddressManagerClientServer <> Undefined Then
-					Address.addressType = ModuleAddressManagerClientServer.MunicipalAddress();
+					Address.AddressType = ModuleAddressManagerClientServer.MunicipalAddress();
 				EndIf;
 				
-				Address.value = Presentation;
+				Address.Value = Presentation;
 				DistributeAddressToFieldsWithoutClassifier(Address, AnalysisData);
 				
 			Else
 				
-				Address.value = Presentation;
-				Address.addressType = ContactsManagerClientServer.CustomFormatAddress();
+				Address.Value = Presentation;
+				Address.AddressType = ContactsManagerClientServer.CustomFormatAddress();
 				
 			EndIf;
 		Else
@@ -1235,12 +1234,12 @@ Function GenerateAddressByPresentation(Presentation, ExpectedKind, SplitByFields
 	Else
 		
 		If HasAddressManagerClientServer Then
-			AddressType = ?(ContactsManager.IsEEUMemberCountry(Address.country),
+			AddressType = ?(ContactsManager.IsEEUMemberCountry(Address.Country),
 				ContactsManagerClientServer.EEUAddress(),
 				ContactsManagerClientServer.ForeignAddress());
-			Address.addressType = AddressType;
+			Address.AddressType = AddressType;
 		Else
-			Address.addressType = ContactsManagerClientServer.CustomFormatAddress();
+			Address.AddressType = ContactsManagerClientServer.CustomFormatAddress();
 		EndIf;
 		
 		IncludeCountryInPresentation = False;
@@ -1269,10 +1268,10 @@ Function GenerateAddressByPresentation(Presentation, ExpectedKind, SplitByFields
 		
 	EndIf;
 	
-	If IsBlankString(Address.ZIPcode) And Address.addressType <> ContactsManagerClientServer.CustomFormatAddress() Then
+	If IsBlankString(Address.ZipCode) And Address.AddressType <> ContactsManagerClientServer.CustomFormatAddress() Then
 		RowIndex2 = AnalysisData.Find(-1, "Level");
 		If RowIndex2 <> Undefined Then
-			Address.ZIPcode = TrimAll(RowIndex2.Value);
+			Address.ZipCode = TrimAll(RowIndex2.Value);
 		EndIf;
 	EndIf;
 	
@@ -1288,18 +1287,18 @@ Procedure UpdateAddressPresentation(Address, IncludeCountryInPresentation)
 	
 	FilledLevelsList = New Array;
 	
-	If IncludeCountryInPresentation And Address.Property("country") And Not IsBlankString(Address.country) Then
-		FilledLevelsList.Add(Address.country);
+	If IncludeCountryInPresentation And Address.Property("country") And Not IsBlankString(Address.Country) Then
+		FilledLevelsList.Add(Address.Country);
 	EndIf;
 	
-	If Address.Property("zipCode") And Not IsBlankString(Address.ZIPcode) Then
-		FilledLevelsList.Add(Address.ZIPcode);
+	If Address.Property("zipCode") And Not IsBlankString(Address.ZipCode) Then
+		FilledLevelsList.Add(Address.ZipCode);
 	EndIf;
 	
 	FilledLevelsList.Add(TrimAll(Address["area"] + " " + Address["areaType"]));
 	FilledLevelsList.Add(TrimAll(Address["city"] + " " + Address["cityType"]));
 	
-	Address.value = StrConcat(FilledLevelsList, ", ");
+	Address.Value = StrConcat(FilledLevelsList, ", ");
 	
 EndProcedure
 
@@ -1329,6 +1328,34 @@ Procedure DistributeAddressToFieldsWithoutClassifier(Address, AnalysisData)
 	
 EndProcedure
 
+Function ConnectTheNameAndTypeOfTheAddressObject(Val Description, Val AddressObjectType, ThisIsTheRegion = False) Export
+    If IsBlankString(AddressObjectType) Then
+        Return Description;
+    EndIf;
+    
+    If ThisIsTheRegion Then
+        If NameOfTheRegionWithoutType(Description) Then
+            Return TrimAll(Description);
+        EndIf;
+        Return TrimAll(Description + " " + AddressObjectType);
+    EndIf;
+    
+    Return TrimAll(AddressObjectType + " " + Description);
+EndFunction
+
+Function NameOfTheRegionWithoutType(Description)
+	
+	// ACC: 1297-off address information is not localized
+	If StrStartsWith(Upper(Description), Upper("Khanty-Mansiysk Autonomous Okrug - Yugra")) // @Non-NLS-1
+		Or StrStartsWith(Upper(Description), Upper("Kemerovo area - Kuzbass")) Then // @Non-NLS-1
+			Return True; 
+	EndIf;
+	
+	Return False;
+	// ACC:1297-on
+	
+EndFunction
+
 // Splits an address string into address lines.
 //
 // Returns:
@@ -1336,82 +1363,117 @@ EndProcedure
 //
 Function AddressPartsAsTable(Val Text) Export
 	
-	BusinessObjectsTypes = BusinessObjectsTypes();
 	Result            = AddressParts();
 	RegionCode           = Undefined;
+	Position                = 1;
 	
-	Number = 1;
-	For Each Term In TextWordsAsTable(Text, "," + Chars.LF) Do
-		Value = TrimAll(Term.Value);
+	BusinessObjectsTypes = BusinessObjectsTypes();
+	
+	ModuleAddressClassifier = Undefined;
+	If Common.SubsystemExists("StandardSubsystems.AddressClassifier") Then
+		ModuleAddressClassifier = Common.CommonModule("AddressClassifier");
+	EndIf;
+	
+	SetOfAddressParts = StrSplit(StrReplace(Text, "№", ""), "," + Chars.LF, False);
+	
+	For Each Term In SetOfAddressParts Do
+		Value = TrimAll(Term);
 		If IsBlankString(Value) Then
 			Continue;
 		EndIf;
 		
 		String = Result.Add();
-		
 		String.Level = 0;
-		String.Position = Number;
-		Number = Number + 1;
+		String.Position = Position;
+		Position = Position + 1;
 		
-		String.Begin = Term.Begin;
-		String.Length  = Term.Length;
-		  
-		If StrFind(Value, " ") = 0 Then 
+		If StrFind(Value, " ") = 0 Then
 			String.Description = Value;
-			String.Value = String.Description;
+			String.Value     = Value;
 			Continue;
 		EndIf;
 		
 		ValueInUpperCase = Upper(Value);
+		FoundType              = False;
+		
 		For Each BusinessObjectsType In BusinessObjectsTypes Do
 			
+			// Begins with type
 			If StrStartsWith(ValueInUpperCase, BusinessObjectsType.ObjectTypeInBeginning) Then
-				
-				String.Description = TrimAll(Mid(Value, BusinessObjectsType.Length + 1));
-				String.ObjectType   = TrimAll(Left(Value, BusinessObjectsType.Length));
+				Length = BusinessObjectsType.Length;
+				String.Description = TrimAll(Mid(Value, Length + 1));
+				String.ObjectType   = TrimAll(Left(Value, Length));
 				String.Value     = ContactsManagerClientServer.ConnectTheNameAndTypeOfTheAddressObject(String.Description, String.ObjectType);
+				FoundType           = True;
 				Break;
 				
+			// Ends with type
 			ElsIf StrEndsWith(ValueInUpperCase, BusinessObjectsType.ObjectTypeInEnd) Then
-				
-				String.Description = TrimAll(Mid(Value, 1, StrLen(Value) - BusinessObjectsType.Length));
-				String.ObjectType   = TrimAll(Right(Value, BusinessObjectsType.Length));
+				Length = BusinessObjectsType.Length;
+				String.Description = TrimAll(Mid(Value, 1, StrLen(Value) - Length));
+				String.ObjectType   = TrimAll(Right(Value, Length));
 				String.Value     = ContactsManagerClientServer.ConnectTheNameAndTypeOfTheAddressObject(String.Description, String.ObjectType);
+				FoundType           = True;
 				Break;
 				
 			EndIf;
-			
 		EndDo;
 		
-		If RegionCode = Undefined And Common.SubsystemExists("StandardSubsystems.AddressClassifier") Then			
-			
-			ModuleAddressClassifier = Common.CommonModule("AddressClassifier");
-			RegionCode = ModuleAddressClassifier.КодРегионаПоНаименованию(
-				ContactsManagerClientServer.ConnectTheNameAndTypeOfTheAddressObject(String.Description, String.ObjectType, True));
-			
-			If RegionCode = Undefined And ValueIsFilled(Value) Then
+		If Not FoundType Then
+			BusinessObjectParts = StrSplit(Value, " ", False);
+			If BusinessObjectParts.Count() > 0 Then
+				String.ObjectType   = BusinessObjectParts[0];
+				BusinessObjectParts.Delete(0);
+				String.Description = TrimAll(StrConcat(BusinessObjectParts, " "));
+				String.Value     = ContactsManagerClientServer.ConnectTheNameAndTypeOfTheAddressObject(String.Description, String.ObjectType);
+			Else
+				String.Description = Value;
+				String.Value     = Value;
+			EndIf;
+		EndIf;
+		
+		If RegionCode = Undefined
+		   And ValueIsFilled(String.Value)
+		   And ModuleAddressClassifier <> Undefined Then
+			RegionCode = ModuleAddressClassifier.КодРегионаПоНаименованию(String.Value);
+			If RegionCode = Undefined Then
 				RegionCode = ModuleAddressClassifier.КодРегионаПоНаименованию(Value);
 			EndIf;
-				
 			If RegionCode <> Undefined Then
 				String.Value = ModuleAddressClassifier.НаименованиеРегионаПоКоду(RegionCode);
 				String.Level  = 1;
 			EndIf;
 		EndIf;
 		
-		If ValueIsFilled(String.Value) Then
-			Continue;
-		EndIf;
-		
-		BusinessObjectParts = StrSplit(Value, " " + Chars.LF + Chars.Tab);
-	
-		String.ObjectType   = BusinessObjectParts[0];
-		BusinessObjectParts.Delete(0);
-		String.Description = TrimAll(StrConcat(BusinessObjectParts, " "));
-		String.Value = ContactsManagerClientServer.ConnectTheNameAndTypeOfTheAddressObject(String.Description, String.ObjectType);
-	
 	EndDo;
 	
+	Return Result;
+	
+EndFunction
+
+// A function creating a table that contains an address where each row is a part of the address.
+//
+// Returns:
+//  ValueTable:
+//    * Level - Number
+//    * Position - Number
+//    * Value - String
+//    * Description - String
+//    * ObjectType - String
+// 
+Function AddressParts() Export
+	
+	StringType = New TypeDescription("String", New StringQualifiers(128));
+	NumberType  = New TypeDescription("Number");
+	
+	Result = New ValueTable;
+	Columns = Result.Columns;
+	Columns.Add("Level", NumberType);
+	Columns.Add("Position", NumberType);
+	Columns.Add("Value", StringType);
+	Columns.Add("Description", StringType);
+	Columns.Add("ObjectType", StringType);
+
 	Return Result;
 	
 EndFunction
@@ -1433,97 +1495,6 @@ Function BusinessObjectsTypes()
 	AbbreviationList.Columns.Add("ObjectTypeInEnd",  Common.StringTypeDetails(20));
 
 	Return AbbreviationList;
-	
-EndFunction
-
-// A function creating a table that contains an address where each row is a part of the address.
-//
-// Returns:
-//  ValueTable:
-//    * Level - Number
-//    * Position - Number
-//    * Value - String
-//    * Description - String
-//    * ObjectType - String
-//    * Begin - Number
-//    * Length - Number
-//    * Id - String
-// 
-Function AddressParts() Export
-	
-	StringType = New TypeDescription("String", New StringQualifiers(128));
-	NumberType  = New TypeDescription("Number");
-	
-	Result = New ValueTable;
-	Columns = Result.Columns;
-	Columns.Add("Level", NumberType);
-	Columns.Add("Position", NumberType);
-	Columns.Add("Value", StringType);
-	Columns.Add("Description", StringType);
-	Columns.Add("ObjectType", StringType);
-	Columns.Add("Begin", NumberType);
-	Columns.Add("Length", NumberType);
-	Columns.Add("Id", StringType);
-	Return Result;
-	
-EndFunction
-
-Function TextWordsAsTable(Val Text, Val Separators = Undefined)
-	
-	// Deleting special characters (dots and numbers) from the text.
-	Text = StrReplace(Text, "№", "");
-	
-	WordBeginning = 0;
-	State   = 0;
-	
-	Result = FragmentsTables();
-	
-	For Position = 1 To StrLen(Text) Do
-		CurrentChar = Mid(Text, Position, 1);
-		IsSeparator = ?(Separators = Undefined, IsBlankString(CurrentChar), StrFind(Separators, CurrentChar) > 0);
-		
-		If State = 0 And (Not IsSeparator) Then
-			WordBeginning = Position;
-			State   = 1;
-		ElsIf State = 1 And IsSeparator Then
-			String = Result.Add();
-			String.Begin = WordBeginning;
-			String.Length  = Position-WordBeginning;
-			String.Value = Mid(Text, String.Begin, String.Length);
-			State = 0;
-		EndIf;
-	EndDo;
-	
-	If State = 1 Then
-		String = Result.Add();
-		String.Begin = WordBeginning;
-		String.Length  = Position-WordBeginning;
-		String.Value = Mid(Text, String.Begin, String.Length)
-	EndIf;
-	
-	Return Result;
-EndFunction
-
-// A function creating the part table
-// 
-// Returns:
-//  ValueTable:
-//    * Value - String
-//    * Begin - Number
-//    * Length - Number
-//
-Function FragmentsTables()
-		
-	StringType = New TypeDescription("String");
-	NumberType  = New TypeDescription("Number");
-	
-	Result = New ValueTable;
-	Columns = Result.Columns;
-	Columns.Add("Value", StringType);
-	Columns.Add("Begin",   NumberType);
-	Columns.Add("Length",    NumberType);
-	
-	Return Result;
 	
 EndFunction
 
@@ -1622,15 +1593,15 @@ Function ContactInformationPresentation(Val ContactInformation, Transliterate = 
 		
 	EndIf;
 	
-	If IsBlankString(ContactInformation.value) Then
+	If IsBlankString(ContactInformation.Value) Then
 		GenerateContactInformationPresentation(ContactInformation, Undefined);
 	EndIf;
 	
 	If TypeOf(Transliterate) = Type("Boolean") And Transliterate Then
-		Return StringFunctions.LatinString(ContactInformation.value);
+		Return StringFunctions.LatinString(ContactInformation.Value);
 	EndIf;
 	
-	Return ContactInformation.value;
+	Return ContactInformation.Value;
 	
 EndFunction
 
@@ -1645,7 +1616,7 @@ Function AddressEnteredInFreeFormat(Val ContactInformation) Export
 	
 	If TypeOf(ContactInformation) = Type("Structure")
 		And ContactInformation.Property("AddressType") Then
-			Return ContactsManagerClientServer.IsAddressInFreeForm(ContactInformation.addressType);
+			Return ContactsManagerClientServer.IsAddressInFreeForm(ContactInformation.AddressType);
 	EndIf;
 	
 	Return False;
@@ -1661,16 +1632,16 @@ Function GenerateContactInformationPresentation(Val Information, Val Information
 	
 	If TypeOf(Information) = Type("Structure") Then
 		
-		If IsAddressType(Information.type) Then
+		If IsAddressType(Information.Type) Then
 			Return AddressPresentation(Information, InformationKind);
 			
-		ElsIf Information.type = String(Enums.ContactInformationTypes.Phone)
-			Or Information.type = String(Enums.ContactInformationTypes.Fax) Then
+		ElsIf Information.Type = String(Enums.ContactInformationTypes.Phone)
+			Or Information.Type = String(Enums.ContactInformationTypes.Fax) Then
 			PhonePresentation = PhonePresentation(Information);
-			Return ?(IsBlankString(PhonePresentation), Information.value, PhonePresentation);
+			Return ?(IsBlankString(PhonePresentation), Information.Value, PhonePresentation);
 		EndIf;
 		
-		Return Information.value;
+		Return Information.Value;
 	EndIf;
 	
 	Return GenerateContactInformationPresentation(ContactInformationToJSONStructure(Information), InformationKind);
@@ -1693,7 +1664,7 @@ Function IsNationalAddress(Val Address) Export
 			
 			ModuleAddressManagerClientServer = Common.CommonModule("AddressManagerClientServer");
 			CountryDescription = Common.ObjectAttributeValue(ModuleAddressManagerClientServer.MainCountry(), "Description");
-			Return StrCompare(CountryDescription, Address.country) = 0;
+			Return StrCompare(CountryDescription, Address.Country) = 0;
 			
 		EndIf;
 		
@@ -1720,7 +1691,7 @@ Function AddressPresentation(Val Address, Val InformationKind)
 			UpdateAddressPresentation(Address, IncludeCountryInPresentation);
 		EndIf;
 		
-		Return Address.value;
+		Return Address.Value;
 	Else
 		Presentation = TrimAll(Address);
 		
@@ -1746,9 +1717,9 @@ Function PhonePresentation(PhoneData) Export
 		
 		PhonePresentation = ContactsManagerClientServer.GeneratePhonePresentation(
 			RemoveNonDigitCharacters(PhoneData.countryCode),
-			PhoneData.AreaCode,
-			PhoneData.Number,
-			PhoneData.ExtNumber,
+			PhoneData.areaCode,
+			PhoneData.number,
+			PhoneData.extNumber,
 			"");
 			
 	Else
@@ -1995,7 +1966,7 @@ Procedure UpdateContactInformationForLists() Export
 				|	ContactInformation.Presentation TOTALS BY Kind";
 			
 			Query.SetParameter("ContactInformation", ContactInformation);
-			QueryResult = Query.Execute(); // @skip-check query-in-loop - Запросы к разным таблицам.
+			QueryResult = Query.Execute(); // @skip-check query-in-loop - 
 			SelectionKind = QueryResult.Select(QueryResultIteration.ByGroups);
 			
 			While SelectionKind.Next() Do
@@ -2228,7 +2199,7 @@ Procedure AddContactInformation(Object, ValueOrPresentation, ContactInformationK
 				ContactInformationKindProperties.Type);
 			ObjectOfContactInformation = JSONToContactInformationByFields(Value, 
 				ContactInformationKindProperties.Type);
-			Presentation = ObjectOfContactInformation.value;
+			Presentation = ObjectOfContactInformation.Value;
 			
 		ElsIf IsJSONContactInformation Then
 			
@@ -2552,11 +2523,11 @@ Procedure FillTabularSectionAttributesForAddress(LineOfATabularSection, Address)
 	
 	// Default values.
 	LineOfATabularSection.Country = "";
-	LineOfATabularSection.State_SSLym = "";
+	LineOfATabularSection.State = "";
 	LineOfATabularSection.City  = "";
 	
 	If Address.Property("Country") Then
-		LineOfATabularSection.Country =  Address.country;
+		LineOfATabularSection.Country =  Address.Country;
 		
 		If Metadata.DataProcessors.Find("AdvancedContactInformationInput") <> Undefined Then
 			ModuleAdvancedContactInformationInput = Common.CommonModule("DataProcessors.AdvancedContactInformationInput");
@@ -2604,7 +2575,7 @@ Procedure FillTabularSectionAttributesForPhone(LineOfATabularSection, Phone)
 	LineOfATabularSection.PhoneNumberWithoutCodes = "";
 	LineOfATabularSection.PhoneNumber         = "";
 	
-	CountryCode     = Phone.countryCode;
+	CountryCode     = Phone.CountryCode;
 	CityCode     = Phone.AreaCode;
 	PhoneNumber = Phone.Number;
 	
@@ -2785,7 +2756,7 @@ Function FieldsValuesStructure(FieldsString, ContactInformationKind = Undefined)
 			If CharPosition <> 0 Then
 				NameOfField = Left(ReceivedString, CharPosition - 1);
 				Simple = Mid(ReceivedString, CharPosition + 1);
-				If NameOfField = "State_SSLym" Or NameOfField = "District" Or NameOfField = "City" 
+				If NameOfField = "State" Or NameOfField = "District" Or NameOfField = "City" 
 					Or NameOfField = "Locality" Or NameOfField = "Street" Then
 					If StrFind(FieldsString, NameOfField + "Abbr") = 0 Then
 						Result.Insert(NameOfField + "Abbr", AddressShortForm(Simple));
@@ -2840,7 +2811,7 @@ Function PhoneFaxDeserializationInJSON(FieldValues, Presentation = "", ExpectedT
 			Field = Upper(Simple.Presentation);
 			
 			If Field = "COUNTRYCODE" Then
-				Data.countryCode = Simple.Value;
+				Data.CountryCode = Simple.Value;
 				
 			ElsIf Field = "CITYCODE" Then
 				Data.AreaCode = Simple.Value;
@@ -2860,11 +2831,11 @@ Function PhoneFaxDeserializationInJSON(FieldValues, Presentation = "", ExpectedT
 		
 		// Presentation with priorities.
 		If Not IsBlankString(Presentation) Then
-			Data.value = Presentation;
+			Data.Value = Presentation;
 		ElsIf ValueIsFilled(PresentationField) Then
-			Data.value = PresentationField;
+			Data.Value = PresentationField;
 		Else
-			Data.value = PhonePresentation(Data);
+			Data.Value = PhonePresentation(Data);
 		EndIf;
 		
 		Return Data;
@@ -2875,7 +2846,7 @@ Function PhoneFaxDeserializationInJSON(FieldValues, Presentation = "", ExpectedT
 	// Digit groups separated by non-digits: country code, area code, phone number, and extension. 
 	// The extension includes leading and trailing non-whitespace characters.
 	Position = 1;
-	Data.countryCode  = FindDigitSubstring(Presentation, Position);
+	Data.CountryCode  = FindDigitSubstring(Presentation, Position);
 	CityBeginning = Position;
 	
 	Data.AreaCode  = FindDigitSubstring(Presentation, Position);
@@ -2901,14 +2872,14 @@ Function PhoneFaxDeserializationInJSON(FieldValues, Presentation = "", ExpectedT
 			Data.Number      = RemoveNonDigitCharacters(Mid(Presentation, CityBeginning));
 			Data.ExtNumber = "";
 		Else
-			Data.countryCode  = "";
+			Data.CountryCode  = "";
 			Data.AreaCode  = "";
 			Data.Number      = Presentation;
 			Data.ExtNumber = "";
 		EndIf;
 	EndIf;
 	
-	Data.value = Presentation;
+	Data.Value = Presentation;
 	Return Data;
 EndFunction
 
@@ -3270,5 +3241,18 @@ Function MaskCharsToCheck()
 	Return MaskChars;
 	
 EndFunction
+
+// See StandardSubsystemsServer.WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode
+Procedure WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode(Methods) Export
+	
+	Methods.Insert("SessionParametersSetting");
+	Methods.Insert("SetUsageFlagValue");
+	Methods.Insert("UpdatePhoneExtensionSettings");
+	Methods.Insert("UpdateExistingWorldCountries");
+	Methods.Insert("CheckContactInformationKinds");
+	Methods.Insert("CorrectContactInformationKindsInBackground", True);
+	Methods.Insert("ObsoleteAddressesCorrection", True);
+	
+EndProcedure
 
 #EndRegion

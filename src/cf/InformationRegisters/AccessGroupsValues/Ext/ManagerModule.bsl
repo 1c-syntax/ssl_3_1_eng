@@ -1,18 +1,17 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Public
 
-#Region ForCallsFromOtherSubsystems
+#Region InterfaceImplementation
 
 // CloudTechnology.ExportImportData
 
@@ -69,6 +68,14 @@ EndProcedure
 //
 Procedure UpdateRegisterData(AccessGroups = Undefined, HasChanges = Undefined) Export
 	
+	If AccessManagementInternal.IsRecordLevelRestrictionDisabled() Then
+		AccessManagementInternal.ClearInformationRegister(
+			Metadata.InformationRegisters.AccessGroupsValues.FullName(), HasChanges);
+		AccessManagementInternal.ClearInformationRegister(
+			Metadata.InformationRegisters.DefaultAccessGroupsValues.FullName(), HasChanges);
+		Return;
+	EndIf;
+	
 	Block = New DataLock;
 	
 	If AccessGroups = Undefined Then
@@ -112,7 +119,7 @@ Procedure UpdateRegisterData(AccessGroups = Undefined, HasChanges = Undefined) E
 		UsedAccessKinds.Columns.Add("AccessKindUsers",        New TypeDescription("Boolean"));
 		UsedAccessKinds.Columns.Add("AccessKindExternalUsers", New TypeDescription("Boolean"));
 		
-		AccessRestrictionEnabled = Constants.LimitAccessAtRecordLevel.Get();
+		AccessRestrictionEnabled = AccessManagementInternal.ConstantLimitAccessAtRecordLevel();
 		If AccessManagement.LimitAccessAtRecordLevel() <> AccessRestrictionEnabled Then
 			RefreshReusableValues();
 		EndIf;

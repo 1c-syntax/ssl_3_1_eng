@@ -35,6 +35,7 @@
 			<Form>WhatsAppBotCreation</Form>
 			<Form>WebChatBotCreation</Form>
 			<Form>WebhookBotCreation</Form>
+			<Form>CreatingMaxBot</Form>
 			<Template>WebChatDisplayTemplate</Template>
 			<Command uuid="f38bb317-8a59-4786-be76-e1d4e534628d">
 				<Properties>

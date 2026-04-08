@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Variables
@@ -268,7 +267,7 @@ Procedure AfterWriteAtServer(CurrentObject, WriteParameters)
 	FillInCommands();
 	SetVisibilityAvailability();
 	
-	If Object.Publication <> Enums.AdditionalReportsAndDataProcessorsPublicationOptions.isDisabled
+	If Object.Publication <> Enums.AdditionalReportsAndDataProcessorsPublicationOptions.TurnedOff
 		And Object.Kind = Enums.AdditionalReportsAndDataProcessorsKinds.PrintForm
 		And Common.SubsystemExists("StandardSubsystems.Print") Then
 		ModulePrintManager = Common.CommonModule("PrintManagement");
@@ -493,12 +492,12 @@ EndProcedure
 &AtClient
 Procedure SetPrintCommandVisibility(Command)
 	If Modified Then
-		NotifyDescription = New CallbackDescription("SetPrintCommandVisibilityCompletion", ThisObject);
+		CallbackDescription = New CallbackDescription("SetPrintCommandVisibilityCompletion", ThisObject);
 		QueryText = NStr("en = 'To configure the visibility of print commands, save the data processor. Continue?'");
 		Buttons = New ValueList;
 		Buttons.Add("Continue", NStr("en = 'Continue'"));
 		Buttons.Add(DialogReturnCode.Cancel);
-		ShowQueryBox(NotifyDescription, QueryText, Buttons);
+		ShowQueryBox(CallbackDescription, QueryText, Buttons);
 	Else
 		OpenPrintSubmenuSettingsForm();
 	EndIf;
@@ -1120,7 +1119,6 @@ EndFunction
 
 &AtServerNoContext
 Function StartExecuteServerCommandInBackground(CommandToExecute, UUID)
-	ProcedureName = "AdditionalReportsAndDataProcessors.ExecuteCommand";
 	
 	ProcedureParameters = New Structure("AdditionalDataProcessorRef, CommandID, RelatedObjects");
 	ProcedureParameters.AdditionalDataProcessorRef = CommandToExecute.Ref;
@@ -1133,7 +1131,9 @@ Function StartExecuteServerCommandInBackground(CommandToExecute, UUID)
 	StartSettings1.RefinementErrors =
 		NStr("en = 'Cannot execute the command. Reason:'");
 	
-	Return TimeConsumingOperations.ExecuteInBackground(ProcedureName, ProcedureParameters, StartSettings1);
+	Return TimeConsumingOperations.ExecuteInBackground("AdditionalReportsAndDataProcessors.ExecuteCommand",
+		ProcedureParameters, StartSettings1);
+	
 EndFunction
 
 &AtServer
@@ -1148,7 +1148,9 @@ Procedure UpdateFromFileAtServer(RegistrationParameters)
 	
 	If RegistrationParameters.Success Then
 		FillInCommands(SavedCommands);
-		ReportOptionAssignment = RegistrationParameters.ReportOptionAssignment;
+		If RegistrationParameters.Property("ReportOptionAssignment") Then
+			ReportOptionAssignment = RegistrationParameters.ReportOptionAssignment;
+		EndIf;
 	ElsIf RegistrationParameters.ObjectNameUsed Then
 		LockersPresentation = "";
 		For Each ListItem In RegistrationParameters.Conflicting Do

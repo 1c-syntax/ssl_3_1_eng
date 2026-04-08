@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -607,13 +606,13 @@ EndFunction
 // Returns the structure that includes synchronization warning details.
 // 
 // Parameters:
-//   Nodes - Array of ExchangePlanRef - exchange nodes.
+//   Nodes - Array of ExchangePlanRef - Exchange nodes.
 //
 // Returns:
 //   Structure:
-//     * Title - String   - a hyperlink title.
-//     * Picture  - Picture - a picture for the hyperlink.
-//     * Count  - Number - a number of warnings, .
+//     * Title - String   - Hyperlink title.
+//     * Picture  - Picture - Hyperlink picture.
+//     * Count  - Number - Number of warnings.
 //
 Function TheNumberOfWarningsForTheFormElement(Nodes = Undefined) Export
 	

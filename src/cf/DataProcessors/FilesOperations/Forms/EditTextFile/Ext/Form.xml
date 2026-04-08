@@ -50,7 +50,7 @@
 				<Title>
 					<v8:item>
 						<v8:lang>en</v8:lang>
-						<v8:content>Commit</v8:content>
+						<v8:content>Finish editing</v8:content>
 					</v8:item>
 				</Title>
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
@@ -133,10 +133,10 @@
 				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 				<ExtendedTooltip name="FormSelectEncodingExtendedTooltip" id="72"/>
 			</Button>
-			<Button name="FormHelp" id="49">
+			<Button name="FormHelp_SSLyf" id="49">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.StandardCommand.Help</CommandName>
-				<ExtendedTooltip name="FormHelpExtendedTooltip" id="73"/>
+				<ExtendedTooltip name="FormHelp_SSLyfExtendedTooltip" id="73"/>
 			</Button>
 		</ChildItems>
 	</AutoCommandBar>
@@ -245,13 +245,13 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Commit</v8:content>
+					<v8:content>Finish editing</v8:content>
 				</v8:item>
 			</Title>
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Save the file and release it in the infobase.</v8:content>
+					<v8:content>Finalize changes and make the file available for editing.</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Picture>

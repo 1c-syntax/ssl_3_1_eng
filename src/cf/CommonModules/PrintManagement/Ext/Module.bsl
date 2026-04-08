@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -49,7 +48,7 @@ EndFunction
 //
 // Parameters:
 //  FieldList - See PrintDataFieldTable
-//              - ValueTree - See PrintDataFieldTree
+//              - ValueTree  - See PrintDataFieldTree
 // 
 // Returns:
 //  DataCompositionSchema
@@ -557,7 +556,7 @@ Function CreatePrintCommandsCollection() Export
 	// For internal use.
 	Result.Columns.Add("HiddenByFunctionalOptions", New TypeDescription("Boolean"));
 	Result.Columns.Add("UUID", New TypeDescription("String"));
-	Result.Columns.Add("isDisabled", New TypeDescription("Boolean"));
+	Result.Columns.Add("TurnedOff", New TypeDescription("Boolean"));
 	Result.Columns.Add("FormCommandName", New TypeDescription("String"));
 	Result.Columns.Add("VisibilityConditionsByObjectTypes", New TypeDescription("Map"));
 	Result.Columns.Add("ShouldRunInBackgroundJob");
@@ -1001,7 +1000,7 @@ Function PrintToFile(PrintCommands, ListOfObjects, SettingsForSaving) Export
 	For Each Command In ListOfCommands Do
 		PrintCommand = Common.CopyRecursive(CommandDetails);
 		FillPropertyValues(PrintCommand, Command);
-		//@skip-check query-in-loop - запрос используется внутри обработки исключения для заранее неизвестных данных.
+		//@skip-check query-in-loop - The query is used within the exception handler for unforeknown data.
 		ExecutePrintToFileCommand(PrintCommand, SettingsForSaving, ListOfObjects, Result);
 	EndDo;
 	
@@ -1121,36 +1120,36 @@ EndFunction
 ////////////////////////////////////////////////////////////////////////////////
 // Operations with office document templates.
 
-//	
-//	
-//	
+//	This section contains API functions used for creating print forms based on office documents.
+//	Currently, office suites that support the Office Open XML format are supported
+//	(MS Office, Open Office, and Google Docs).
 //
 ////////////////////////////////////////////////////////////////////////////////
 //	
-//	
-//	
-//	
-//						
-//						
-//	
-//	
-//						
+//	Data types used (determined by specific implementations):
+//	RefPrintForm - Reference to the print form.
+//	RefTemplate - Reference to the template.
+//						Area  - Reference to an area within the print form or template (structure).
+//						It is defined in the interface module based on the internal information.
+//	AreaDetails - Details of the template area (see below).
+//	FillingData - Either a structure or an array of structures (used for lists and tables).
+//						AreaDetails - Structure that describes user-prepared areas of the template
 ////////////////////////////////////////////////////////////////////////////////
-//	
-//	
-//	
-//							
-//							
-//							
-//							
-//							
-//							
-//							
-//							
+//	Key AreaName - Name of the area.
+//	Key AreaTypeType -
+//	Header
+//							Footer
+//							FirstHeader
+//							FirstFooter
+//							EvenHeader
+//							EvenFooter
+//							Shared3
+//							TableRow
+//							List
 //
 
 ////////////////////////////////////////////////////////////////////////////////
-// 
+// Functions for initializing and closing references
 
 // ACC:1382-off - Cannot define the type in the return value.
 //
@@ -1537,24 +1536,25 @@ Procedure AddStampsToOfficeDoc(DocumentAddress, DigitalSignatures) Export
 	DocNode = StampTemplateTree.Rows[0];
 	StampNode = DocNode.Rows[0];
 	
-	ArrayOfBookmarks = New Array;
+	FoundNodes = New Array;
 	NodesSearchParameters = PrintManagementInternal.NodesSearchParameters();
 	NodesSearchParameters.AttributeName = "w:name";
 	NodesSearchParameters.ValuesOfAttribute = "V8DSStamp";
-	PrintManagementInternal.FindNodesByContent(DocumentStructure.DocumentTree, "w:bookmarkStart", ArrayOfBookmarks, NodesSearchParameters);
+	PrintManagementInternal.FindNodesByContent(DocumentStructure.DocumentTree, "w:bookmarkStart", FoundNodes, NodesSearchParameters);
 	
-	If Not ArrayOfBookmarks.Count() Then
-		Return;
+	If FoundNodes.Count() > 0 Then
+		StampBookmarkNode = FoundNodes[FoundNodes.UBound()];
+		PrintManagementInternal.MoveFormattingParameters(StampNode, StampBookmarkNode);
+		StampNodeParent = StampBookmarkNode;
+		
+		PuttingIndex = Undefined;
+		PrintManagementInternal.FindStampLocationNode(StampNodeParent, PuttingIndex);
+		
+		StampNodeParent.Rows.Delete(PuttingIndex);
+	Else
+		StampNodeParent = FindStringByTagName(DocumentStructure.DocumentTree.Rows, "w:body");
+		PuttingIndex = StampNodeParent.Rows.Count();
 	EndIf;
-	
-	StampBookmarkNode = ArrayOfBookmarks[ArrayOfBookmarks.UBound()];
-	StampNodeParent = StampBookmarkNode;
-	
-	PrintManagementInternal.MoveFormattingParameters(StampNode, StampBookmarkNode);
-	 
-	PuttingIndex = Undefined;
-	PrintManagementInternal.FindStampLocationNode(StampNodeParent, PuttingIndex);
-	
 	
 	ValuesForPopulation = New Map;
 	ValuesForPopulation.Insert("[Title]", NStr("en = 'DOCUMENT IS DIGITALLY SIGNED'"));
@@ -1562,9 +1562,21 @@ Procedure AddStampsToOfficeDoc(DocumentAddress, DigitalSignatures) Export
 	ValuesForPopulation.Insert("[HeaderOwner]", "Owner");
 	ValuesForPopulation.Insert("[TitleValidityPeriod]", "Valid1");
 	
-	ModuleDigitalSignatureInternal = Common.CommonModule("DigitalSignatureInternal");
+	AddIndentation = False;
 	
 	For Each SignatureData In DigitalSignatures Do
+		If AddIndentation Then
+			NodeIndent = New Structure;
+			NodeIndent.Insert("Attributes", New Structure);
+			NodeIndent.Insert("Rows", New Array);
+			NodeIndent.Insert("NameTag", "w:t");
+			NodeIndent.Insert("Text", "");
+			NodeIndent.Insert("WholeText", "");
+			PrintManagementInternal.AddSectionDetailsNode(StampNodeParent, PuttingIndex, NodeIndent);
+			PuttingIndex = PuttingIndex + 1;
+		Else
+			AddIndentation = True;
+		EndIf;
 		
 		CryptoCertificate = New CryptoCertificate(SignatureData.Certificate);
 		
@@ -1578,24 +1590,14 @@ Procedure AddStampsToOfficeDoc(DocumentAddress, DigitalSignatures) Export
 			
 		ValuesForPopulation.Insert("[ActionPeriod]", ActionPeriod);
 		
-		PuttingIndex = PuttingIndex + 1;
 		StampPlacementNode = PrintManagementInternal.MakeCopyNode(StampNodeParent, PuttingIndex, StampNode);
 		PrintManagementInternal.CreateLowerLevelNodes(StampPlacementNode, StampNode);
 		SetParametersInTree(ValuesForPopulation, StampPlacementNode, TreeOfTemplate);
-		
-		NodeIndent = New Structure;
-		NodeIndent.Insert("Attributes", New Structure);
-		NodeIndent.Insert("Rows", New Array);
-		NodeIndent.Insert("NameTag", "w:t");
-		NodeIndent.Insert("Text", "");
-		NodeIndent.Insert("WholeText", "");
-		PrintManagementInternal.AddSectionDetailsNode(StampPlacementNode, PuttingIndex, NodeIndent);
+		PuttingIndex = PuttingIndex + 1;
 	EndDo;
-	DocumentPath = PrintManagementInternal.CollectOfficeDocumentFile(TreeOfTemplate);
-	BinaryData = New BinaryData(DocumentPath);
-	DeleteFiles(DocumentPath);
-	DeleteFiles(TreeOfTemplate.DirectoryName);
-	PutToTempStorage(BinaryData, DocumentAddress);
+	
+	GetPrintForm(TreeOfTemplate, DocumentAddress);
+	
 EndProcedure
 
 // Converts Office Open XML parameters into text enclosed in square brackets.
@@ -1712,7 +1714,7 @@ Procedure DisablePrintCommands(ListOfObjects, ListOfCommands) Export
 				Filter.Insert("Id", IDOfCommandToReplace);
 				Filter.Insert("SaveFormat", "");
 				Filter.Insert("SkipPreview", False);
-				Filter.Insert("isDisabled", False);
+				Filter.Insert("TurnedOff", False);
 				
 				ListOfCommandsToReplace = ObjectPrintCommands.FindRows(Filter);
 				For Each CommandToReplace In ListOfCommandsToReplace Do
@@ -2088,7 +2090,7 @@ Procedure OnDefineCommandsAttachedToObject(FormSettings, Sources, AttachedReport
 	
 	FormName = FormSettings.FormName;
 	PrintCommands = FormPrintCommands(FormName, ListOfObjects);
-	ShouldSetMarks = ShouldSetMarks(PrintCommands);
+	ShouldSetMarks = (PrintCommands.Count() > 1);
 	
 	If ShouldShowDefaultPrint(FormName, ListOfObjects) Then;
 		DefaultPrintCommand = PrintCommands.Add();
@@ -2106,7 +2108,7 @@ Procedure OnDefineCommandsAttachedToObject(FormSettings, Sources, AttachedReport
 	|FixedSet, AdditionalParameters, ShouldRunInBackgroundJob,
 	|DefaultPrintForm,PrintFormDescription,ReplaceDefaultPrintForm,IDFromSet";
 	For Each PrintCommand In PrintCommands Do
-		If PrintCommand.isDisabled Then
+		If PrintCommand.TurnedOff Then
 			Continue;
 		EndIf;
 		Command = Commands.Add();
@@ -2241,13 +2243,13 @@ Procedure OnFillToDoList(ToDoList) Export
 		Sections.Add(Subsystem);
 	EndIf;
 	
-	OutputToDoItem = True;
+	OutputCaseFile = True;
 	VersionChecked = CommonSettingsStorage.Load("ToDoList", "PrintForms");
 	If VersionChecked <> Undefined Then
 		ArrayVersion  = StrSplit(Metadata.Version, ".");
 		CurrentVersion = ArrayVersion[0] + ArrayVersion[1] + ArrayVersion[2];
 		If VersionChecked = CurrentVersion Then
-			OutputToDoItem = False; // Current version print forms are checked.
+			OutputCaseFile = False; // Current version print forms are checked.
 		EndIf;
 	EndIf;
 	
@@ -2257,32 +2259,32 @@ Procedure OnFillToDoList(ToDoList) Export
 		SectionID = "CheckCompatibilityWithCurrentVersion" + StrReplace(Section.FullName(), ".", "");
 		
 		// Add a to-do item.
-		ToDoItem = ToDoList.Add();
-		ToDoItem.Id = "PrintFormTemplates";
-		ToDoItem.HasToDoItems      = OutputToDoItem And UserTemplatesCount > 0;
-		ToDoItem.Presentation = NStr("en = 'Print form templates'");
-		ToDoItem.Count    = UserTemplatesCount;
-		ToDoItem.Form         = "InformationRegister.UserPrintTemplates.Form.CheckPrintForms";
-		ToDoItem.Owner      = SectionID;
+		CaseFile = ToDoList.Add();
+		CaseFile.Id = "PrintFormTemplates";
+		CaseFile.HasToDoItems      = OutputCaseFile And UserTemplatesCount > 0;
+		CaseFile.Presentation = NStr("en = 'Print form templates'");
+		CaseFile.Count    = UserTemplatesCount;
+		CaseFile.Form         = "InformationRegister.UserPrintTemplates.Form.CheckPrintForms";
+		CaseFile.Owner      = SectionID;
 		
 		// Check for the to-do's group. If the group is missing, add it.
 		ToDoGroup = ToDoList.Find(SectionID, "Id");
 		If ToDoGroup = Undefined Then
 			ToDoGroup = ToDoList.Add();
 			ToDoGroup.Id = SectionID;
-			ToDoGroup.HasToDoItems      = ToDoItem.HasToDoItems;
+			ToDoGroup.HasToDoItems      = CaseFile.HasToDoItems;
 			ToDoGroup.Presentation = NStr("en = 'Check compatibility'");
-			If ToDoItem.HasToDoItems Then
-				ToDoGroup.Count = ToDoItem.Count;
+			If CaseFile.HasToDoItems Then
+				ToDoGroup.Count = CaseFile.Count;
 			EndIf;
 			ToDoGroup.Owner = Section;
 		Else
 			If Not ToDoGroup.HasToDoItems Then
-				ToDoGroup.HasToDoItems = ToDoItem.HasToDoItems;
+				ToDoGroup.HasToDoItems = CaseFile.HasToDoItems;
 			EndIf;
 			
-			If ToDoItem.HasToDoItems Then
-				ToDoGroup.Count = ToDoGroup.Count + ToDoItem.Count;
+			If CaseFile.HasToDoItems Then
+				ToDoGroup.Count = ToDoGroup.Count + CaseFile.Count;
 			EndIf;
 		EndIf;
 	EndDo;
@@ -2351,16 +2353,21 @@ Function CollectionOfDataSourcesFields(DataSources) Export
 	Result = New ValueList;
 	DetailsOfObjects = Common.MetadataObjectsByIDs(DataSources);
 	
-	NameOfDataSource = "CollectionOfAvailableFields";
-	
+	SourcesTypes = New Array; // Array of Type
 	For Each ObjectDetails In DetailsOfObjects Do
 		MetadataObjectName = ObjectDetails.Value.FullName();
 		For Each DataCompositionSchema In FieldsSourceDataCompositionSchemes(MetadataObjectName, False) Do
-			Result.Add(FormulasConstructor.FieldsCollection(DataCompositionSchema.Value), NameOfDataSource);
+			Result.Add(FormulasConstructor.FieldsCollection(DataCompositionSchema.Value), DataCompositionSchema.Presentation);
 		EndDo;
+		
+		Type = StandardSubsystemsServer.MetadataObjectReferenceOrMetadataObjectRecordKeyType(ObjectDetails.Value);
+		If SourcesTypes.Find(Type) = Undefined Then
+			SourcesTypes.Add(Type);
+		EndIf;
+		
 	EndDo;
 
-	Result.Add(CollectionOfFieldsCommonAttributes(), NameOfDataSource);
+	Result.Add(CollectionOfFieldsCommonAttributes(SourcesTypes), "CommonAttributes");
 	
 	Return Result;
 	
@@ -2442,6 +2449,16 @@ Function ListOfOperators(AdditionalFields = Undefined) Export
 		Group.Presentation = NStr("en = 'Other functions'");
 		Group.Order = 7;
 		Group.Picture = PictureLib.TypeFunction;
+		
+	Else
+		
+		StringType = New TypeDescription("String");
+		Prefix = PrintModuleName() + CommandSeparator();
+		MethodName =  Prefix + "IfEmpty";
+		AddAnOperatorToAGroup(Group, MethodName, NStr("en = 'If empty'"),, True);
+		MethodName =  Prefix + "NumberInWordsByParameters";
+		AddAnOperatorToAGroup(Group, MethodName, NStr("en = 'Amount in words'"), StringType, True);
+		
 	EndIf;
 	
 	Return FormulasConstructor.FieldsCollection(ListOfOperators);
@@ -3282,6 +3299,10 @@ EndProcedure
 //
 Procedure OnExecutePrintCommand(Objects, CommandDetails, PrintFormsCollection = Undefined) Export
 	
+	If Users.IsExternalUserSession() Then
+		Return;
+	EndIf;
+	
 	If Not CommandDetails.DefaultPrintForm Or Not CommandDetails.ReplaceDefaultPrintForm Then
 		Return;
 	EndIf;
@@ -3405,6 +3426,14 @@ Function EvalExpression(Val OriginalExpression, PrintData, FieldFormatSettings, 
 		If Not IsFunction Then
 			If StrFind(Upper("And,OR,NOT,TRUE,FALSE"), Upper(Operand)) Then
 				Continue;
+			EndIf;
+			
+			If Upper("PSSymbol") = Upper(Operand) Then
+				
+				Operand = Chars.LF;
+				FormulaElements.AllItems[ItemDetails.Key] = "Chars.LF";
+				Continue;
+				
 			EndIf;
 			
 			Value = DataCollection[ClearSquareBrackets(Operand) + "." + StrSplit(LanguageCode, "_")[0]];
@@ -3560,7 +3589,7 @@ Procedure Print(ObjectsArray, PrintParameters, PrintFormsCollection, PrintObject
 		PrintForm.OutputInOtherLanguagesAvailable = True;
 		PrintForm.FullTemplatePath = PrintForm.TemplateName;
 		PrintForm.TemplateSynonym = TemplatePresentation(PrintForm.FullTemplatePath, LanguageCode);
-		// @skip-check query-in-loop - Небольшое количество итераций цикла с запросом к таблице РегистрСведений.ПользовательскиеМакетыПечати 
+		// @skip-check query-in-loop -  
 		// @skip-check query-in-loop - A few loop iterations that query the table
 // "InformationRegister.UserPrintTemplates", which contains just a handful of records.
 		Template = PrintFormTemplate(PrintForm.FullTemplatePath, LanguageCode); 
@@ -4126,10 +4155,12 @@ EndFunction
 
 // Generate print forms.
 Function GeneratePrintForms(Val PrintManagerName, Val TemplatesNames, Val ObjectsArray, Val PrintParameters, 
-	AllowedPrintObjectsTypes = Undefined, Val LanguageCode = Undefined) Export
+	AllowedPrintObjectsTypes = Undefined, Val LanguageCode = Undefined, Val PrintObjects = Undefined) Export
 	
 	PrintFormsCollection = PreparePrintFormsCollection(New Array);
-	PrintObjects = New ValueList;
+	If PrintObjects = Undefined Then
+		PrintObjects = New ValueList;
+	EndIf;
 	
 	OutputParameters = PrepareOutputParametersStructure();
 	If ValueIsFilled(LanguageCode) Then
@@ -4248,7 +4279,7 @@ Function GeneratePrintForms(Val PrintManagerName, Val TemplatesNames, Val Object
 				If ObjectsCorrespondingToPrintForm <> Undefined Then
 					ThisPrintableFormSKD = UsedPrintManager = PrintModuleName();
 					If ThisPrintableFormSKD Then
-						// @skip-check query-in-loop - Малый цикл
+						// @skip-check query-in-loop - 
 						Print(ObjectsCorrespondingToPrintForm, PrintParameters, TempCollectionForSinglePrintForm, 
 							PrintObjects, OutputParameters); 
 					Else
@@ -4304,7 +4335,19 @@ Function GeneratePrintForms(Val PrintManagerName, Val TemplatesNames, Val Object
 		// A single print form is required but the entire collection is processed for backward compatibility.
 		For Each TempPrintForm In TempCollectionForSinglePrintForm Do 
 			
-			If Not TempPrintForm.OfficeDocuments = Undefined Then
+			If TypeOf(TempPrintForm.OfficeDocuments) = Type("Map") Then
+				FilesCount = 0;
+				
+				For Each OfficeDocument In TempPrintForm.OfficeDocuments Do
+					If IsTempStorageURL(OfficeDocument.Key) Then
+						FilesCount = FilesCount + 1;
+					EndIf;
+				EndDo;
+				
+				If FilesCount = 0 Then
+					TempPrintForm.OfficeDocuments = Undefined;
+				EndIf;
+				
 				TempPrintForm.SpreadsheetDocument = New SpreadsheetDocument;
 			EndIf;
 			
@@ -4507,10 +4550,10 @@ Procedure FillPrintCommandsForObjectsList(ListOfObjects, PrintCommands)
 		If PrintCommandsSources[MetadataObject] = Undefined Then
 			Continue;
 		EndIf;
-		FormPrintCommands = ObjectPrintCommands(MetadataObject); // @skip-check query-in-loop - Малый цикл
+		FormPrintCommands = ObjectPrintCommands(MetadataObject); // @skip-check query-in-loop - 
 		
 		For Each PrintCommandToAdd In FormPrintCommands Do
-			If PrintCommandToAdd.isDisabled Then
+			If PrintCommandToAdd.TurnedOff Then
 				Continue;
 			EndIf;
 			// Search for a similar command that was added earlier.
@@ -4569,7 +4612,7 @@ Procedure SetPrintCommandsSettings(PrintCommands, Owner)
 	For Each PrintCommand In PrintCommands Do
 		PrintCommand.UUID = PrintCommandUUID(PrintCommand);
 		If DisabledCommands[PrintCommand.UUID] <> Undefined Then
-			PrintCommand.isDisabled = True;
+			PrintCommand.TurnedOff = True;
 		EndIf;
 		PrintCommand.SaveFormat = String(PrintCommand.SaveFormat);
 		
@@ -4787,14 +4830,16 @@ Function AreaNamesPrefixesWithSignatureAndSeal() Export
 	
 EndFunction
 
-Function GenerateExternalPrintForm(AdditionalDataProcessorRef, Id, ListOfObjects)
+Function GenerateExternalPrintForm(AdditionalDataProcessorRef, Id, ListOfObjects, PrintObjects = Undefined) Export
 	
 	SourceParameters = New Structure;
 	SourceParameters.Insert("CommandID", Id);
 	SourceParameters.Insert("RelatedObjects", ListOfObjects);
 	
 	PrintFormsCollection = Undefined;
-	PrintObjects = New ValueList;
+	If PrintObjects = Undefined Then
+		PrintObjects = New ValueList;
+	EndIf;
 	OutputParameters = PrepareOutputParametersStructure();
 	
 	PrintByExternalSource(AdditionalDataProcessorRef, SourceParameters, PrintFormsCollection,
@@ -5271,6 +5316,8 @@ Procedure FillDataPrint(PrintData, FieldsDetails, FieldHierarchy, Objects, Langu
 		DataSourceDescriptions.Columns.Add("Name");
 		DataSourceDescriptions.Columns.Add("Value");
 		
+		DescriptionsOfEmptyDataSources = DataSourceDescriptions.Copy();
+		
 		For Each Object In Objects Do
 			If SourceOfFieldsInTablePart Then
 				If ThisTableSectionField(PathToDataOfTablePart, PrintData) Then
@@ -5292,6 +5339,19 @@ Procedure FillDataPrint(PrintData, FieldsDetails, FieldHierarchy, Objects, Langu
 						SourceDetails.Name = FieldName(PathToFieldSourceData);
 						SourceDetails.Value = FieldSourceValue;
 					Else
+						
+						SourceData = New Structure;
+						SourceData.Insert("Object", Object);
+						SourceData.Insert("FieldSourceValue", FieldSourceValue);
+						SourceData.Insert("PathToFieldSourceData", PathToFieldSourceData);
+						SourceData.Insert("SourceOwnerDataPath", SourceOwnerDataPath);
+						AddDescriptionsOfEmptySources(
+							DescriptionsOfEmptyDataSources,
+							PrintData,
+							DataCompositionSchemas,
+							Fields,
+							SourceData);
+						
 						For Each Field In SubordinateFields Do
 							PrintData[Object][PathToDataOfTablePart][LineNumber][PathToFieldDataInTablePart(Field.Key, PrintData)] = Undefined;
 						EndDo;
@@ -5313,6 +5373,19 @@ Procedure FillDataPrint(PrintData, FieldsDetails, FieldHierarchy, Objects, Langu
 					SourceDetails.Name = FieldName(PathToFieldSourceData);
 					SourceDetails.Value = FieldSourceValue;
 				Else
+					
+					SourceData = New Structure;
+					SourceData.Insert("Object", Object);
+					SourceData.Insert("FieldSourceValue", FieldSourceValue);
+					SourceData.Insert("PathToFieldSourceData", PathToFieldSourceData);
+					SourceData.Insert("SourceOwnerDataPath", SourceOwnerDataPath);
+					AddDescriptionsOfEmptySources(
+						DescriptionsOfEmptyDataSources,
+						PrintData,
+						DataCompositionSchemas,
+						Fields,
+						SourceData);
+					
 					For Each Field In SubordinateFields Do
 						PrintData[Object][Field.Key] = Undefined;
 					EndDo;
@@ -5320,8 +5393,17 @@ Procedure FillDataPrint(PrintData, FieldsDetails, FieldHierarchy, Objects, Langu
 			EndIf;
 		EndDo;
 		
+		EmptyValuesAdded = False;
+		
 		For Each Item In Fields Do
 			DataCompositionSchemaId = DataCompositionSchemas[Item.Key];
+			
+			UpdateDescriptionsOfDataSources(
+				EmptyValuesAdded,
+				DataSourceDescriptions,
+				DescriptionsOfEmptyDataSources,
+				DataCompositionSchemaId);
+			
 			DataCompositionSchema = GetFromTempStorage(Item.Key);
 			SchemaFields = Item.Value;
 			
@@ -5470,6 +5552,67 @@ Procedure FillDataPrint(PrintData, FieldsDetails, FieldHierarchy, Objects, Langu
 	
 EndProcedure
 
+Procedure UpdateDescriptionsOfDataSources(EmptyValuesAdded, DataSourceDescriptions, Val DescriptionsOfEmptyDataSources, Val DataCompositionSchemaId)
+	
+	If DataCompositionSchemaId = "DataPredefinedValues" Then
+		
+		If Not EmptyValuesAdded Then
+			
+			For Each SourceDetails In DescriptionsOfEmptyDataSources Do
+				
+				EmptyValuesAdded = True;
+				FillPropertyValues(DataSourceDescriptions.Add(), SourceDetails);
+				
+			EndDo;
+			
+		EndIf;
+		
+	Else
+		
+		CollectionItemsCount = DataSourceDescriptions.Count();
+		For ReverseIndex = 1 To CollectionItemsCount Do
+			
+			IndexOf = CollectionItemsCount - ReverseIndex;
+			TableRow = DataSourceDescriptions[IndexOf];
+			If Not ValueIsFilled(TableRow.Value) Then
+				DataSourceDescriptions.Delete(IndexOf);
+			EndIf;
+			
+		EndDo;
+		EmptyValuesAdded = False;
+		
+	EndIf;
+	
+EndProcedure
+
+Procedure AddDescriptionsOfEmptySources(DescriptionsOfEmptyDataSources, Val PrintData, Val DataCompositionSchemas, Val Fields, SourceData)
+	
+	Object = SourceData.Object;
+	FieldSourceValue = SourceData.FieldSourceValue;
+	PathToFieldSourceData = SourceData.PathToFieldSourceData;
+	SourceOwnerDataPath = SourceData.SourceOwnerDataPath;
+	
+	For Each Item In Fields Do
+		
+		DataCompositionSchemaId = DataCompositionSchemas[Item.Key];
+		If DataCompositionSchemaId = "DataPredefinedValues" Then
+			
+			SourceDetails = DescriptionsOfEmptyDataSources.Add();
+			If ValueIsFilled(SourceOwnerDataPath) Then
+				SourceDetails.Owner = PrintData[Object][SourceOwnerDataPath];
+			ElsIf PathToFieldSourceData <> "Ref" Then
+				SourceDetails.Owner = Object;
+			EndIf;
+			SourceDetails.Name = FieldName(PathToFieldSourceData);
+			SourceDetails.Value = FieldSourceValue;
+			Break;
+			
+		EndIf;
+		
+	EndDo;
+	
+EndProcedure
+
 Function RefsByTypes(References)
 	
 	RefsByTypes = New Map;
@@ -5593,6 +5736,7 @@ Function SourceData_(Parameters)
 	
 	Tables = LayoutResult.Tables;
 	DetailsData = LayoutResult.DetailsData;
+	AvailableFieldsValues = LayoutResult.AvailableFieldsValues;
 	
 	Result = New Map;
 	Result.Insert("ObjectTablePartNames", Tables);
@@ -5656,7 +5800,10 @@ Function SourceData_(Parameters)
 				TableRow = Table[TableRowNumber];
 			EndIf;
 			
-			TableRow.Insert(FieldName, DetailsParameters.FieldList[DetailsParameters.DetailsFieldName1]);
+			Simple = Simple(FieldName, 
+				DetailsParameters.FieldList[DetailsParameters.DetailsFieldName1], AvailableFieldsValues);
+				
+			TableRow.Insert(FieldName, Simple);
 		Else
 			FieldName = DetailsParameters.DetailsFieldName1;
 			If DetailsParameters.FieldList["Period"] <> Undefined And FieldName <> "Ref" And FieldName <> "Period" Then
@@ -5674,9 +5821,9 @@ Function SourceData_(Parameters)
 			If FieldName = "Number" And Common.SubsystemExists("StandardSubsystems.ObjectsPrefixes") Then
 				ModuleObjectsPrefixesClientServer = Common.CommonModule("ObjectsPrefixesClientServer");
 				Value = ModuleObjectsPrefixesClientServer.NumberForPrinting(DetailsParameters.FieldList[FieldName]);
-				PrintData.Insert(FieldName, Value);
+				PrintData.Insert(FieldName, Simple(FieldName, Value, AvailableFieldsValues));
 			Else			
-				PrintData.Insert(FieldName, DetailsParameters.FieldList[FieldName]);
+				PrintData.Insert(FieldName, Simple(FieldName, DetailsParameters.FieldList[FieldName], AvailableFieldsValues));
 			EndIf;
 		EndIf;
 	EndDo;
@@ -5753,6 +5900,19 @@ Function SourceData_(Parameters)
 	
 EndFunction
 
+Function Simple(Val FieldName, Val Value, Val AvailableFieldsValues)
+	
+	If TypeOf(Value) = Type("Number") And TypeOf(AvailableFieldsValues[FieldName]) = Type("ValueList") Then
+		ValueFound = AvailableFieldsValues[FieldName].FindByValue(Value);
+		If ValueFound <> Undefined Then
+			Return ValueFound.Presentation;
+		EndIf;
+	EndIf;
+	
+	Return Value;
+	
+EndFunction
+
 Function FindFieldVIerarchy(Val Field, FieldHierarchy)
 	
 	Result= FieldHierarchy[Field];
@@ -5786,6 +5946,44 @@ Function ComposeData(Parameters)
 	AdditionalParameters = New Structure;
 	AdditionalParameters.Insert("DataSourceDescriptions", DataSourceDescriptions);
 	AdditionalParameters.Insert("SourceDataGroupedByDataSourceOwner", SourceDataGroupedByDataSourceOwner);
+	
+	If DataCompositionSchemaId = "DataPredefinedValues" Then
+		
+		TypesArray = New Array; // Array of Type
+		For Each CurrentField In DataCompositionSchema.DataSets[0].Fields Do
+			
+			If TypeOf(CurrentField) = Type("DataCompositionSchemaDataSetField")
+			   And CurrentField.Field <> "Ref"
+			   And ValueIsFilled(CurrentField.ValueType) Then
+				
+				Types = CurrentField.ValueType.Types();
+				CommonClientServer.SupplementArray(TypesArray, Types);
+				
+			EndIf;
+			
+		EndDo;
+		
+		AdditionalParameters.Insert("FieldsSourceType", New TypeDescription(TypesArray));
+		
+	EndIf;
+	
+	If DataCompositionSchemaId = "CommonAttributes" Then
+		
+		LayoutFields = New Array; // Array of String
+		For Each CurrentField In DataCompositionSchema.DataSets[0].Fields Do
+			
+			If TypeOf(CurrentField) = Type("DataCompositionSchemaDataSetField")
+			   And CurrentField.Field <> "Ref" Then
+				
+				LayoutFields.Add(CurrentField.Field);
+				
+			EndIf;
+			
+		EndDo;
+		
+		AdditionalParameters.Insert("LayoutFieldsForCommonAttributes", LayoutFields);
+		
+	EndIf;
 	
 	TitleText = DataCompositionSchemaId;
 	
@@ -5884,6 +6082,8 @@ Function ComposeData(Parameters)
 		FieldsLayout.Add("Period");
 	EndIf;
 	
+	AvailableFieldsValues = New Map;
+	
 	For Each DataPath In FieldsLayout Do
 		If Tables.Find(StrSplit(DataPath, ".", True)[0]) <> Undefined Then
 			Continue;
@@ -5901,6 +6101,11 @@ Function ComposeData(Parameters)
 		EndIf;
 		Field.Field = New DataCompositionField(DataPath);
 		Field.Use = True;
+		
+		AvailableFieldValues = AvailableFieldValues(DataPath, ComposerSettings);
+		If AvailableFieldValues <> Undefined Then
+			AvailableFieldsValues.Insert(DataPath, AvailableFieldValues);
+		EndIf;
 	EndDo;
 	
 	For Each TabularSectionName In Tables Do
@@ -5933,6 +6138,11 @@ Function ComposeData(Parameters)
 			EndIf;
 			Field.Field = New DataCompositionField(DataPath);
 			Field.Use = True;
+			
+			AvailableFieldValues = AvailableFieldValues(DataPath, ComposerSettings);
+			If AvailableFieldValues <> Undefined Then
+				AvailableFieldsValues.Insert(DataPath, AvailableFieldValues);
+			EndIf;
 		EndDo;
 	EndDo;
 	
@@ -5962,8 +6172,26 @@ Function ComposeData(Parameters)
 	Result = New Structure;
 	Result.Insert("DetailsData", DetailsData);
 	Result.Insert("Tables", Tables);
+	Result.Insert("AvailableFieldsValues", AvailableFieldsValues);
 	
 	Return	Result;
+	
+EndFunction
+
+Function AvailableFieldValues(DataPath, ComposerSettings)
+
+	AvailableField = ComposerSettings.Filter.FilterAvailableFields.FindField(New DataCompositionField(DataPath));
+	
+	If AvailableField <> Undefined Then
+		PropertiesValues = New Structure("AvailableValues");
+		FillPropertyValues(PropertiesValues, AvailableField);
+		
+		If TypeOf(PropertiesValues.AvailableValues) = Type("ValueList") Then
+			Return Common.CopyRecursive(PropertiesValues.AvailableValues);
+		EndIf;
+	EndIf;
+	
+	Return Undefined;
 	
 EndFunction
 
@@ -6067,9 +6295,9 @@ Function FunctionsWithParametersSeparation()
 	FunctionsWithParametersSeparation = New Array();	
 	FunctionsWithParametersSeparation.Add(PrintModuleNameWithSeparator + "SumByColumn");
 	FunctionsWithParametersSeparation.Add(PrintModuleNameWithSeparator + "RowsCount");
-	FunctionsWithParametersSeparation.Add(PrintModuleNameWithSeparator + "Maximum");
-	FunctionsWithParametersSeparation.Add(PrintModuleNameWithSeparator + "Minimum");
-	FunctionsWithParametersSeparation.Add(PrintModuleNameWithSeparator + "Mean");
+	FunctionsWithParametersSeparation.Add(PrintModuleNameWithSeparator + "ColumnMax");
+	FunctionsWithParametersSeparation.Add(PrintModuleNameWithSeparator + "ColumnMin");
+	FunctionsWithParametersSeparation.Add(PrintModuleNameWithSeparator + "ColumnAverage");
 	
 	Return FunctionsWithParametersSeparation;
 	
@@ -6266,6 +6494,29 @@ Function ColumnAverage(Table, ColumnName = Undefined) Export // ACC:299 - Formul
 
 EndFunction
 
+Function IfEmpty(ValueToCheck, ReplacementValue) Export // ACC:299 - Formula wizard function handler.
+	
+	MakeReplacement = False;
+	If TypeOf(ValueToCheck) = Type("String") Then
+		MakeReplacement = IsBlankString(ValueToCheck);
+	Else
+		MakeReplacement = Not ValueIsFilled(ValueToCheck);
+	EndIf;
+	
+	If MakeReplacement Then
+		Return ReplacementValue;
+	Else
+		Return ValueToCheck;
+	EndIf;
+	
+EndFunction
+
+Function NumberInWordsByParameters(Number, FormatString = Undefined, SourceOfRegistrationParameters = Undefined) Export // ACC:299 - Formula wizard function handler.
+	
+	Return NumberInWords(Number, FormatString, SourceOfRegistrationParameters);
+	
+EndFunction
+
 // Returns:
 //   See FormulasConstructorInternal.DescriptionOfFieldLists
 //
@@ -6282,6 +6533,7 @@ Function DescriptionOfFieldLists(PrintDataSources, Operators = Undefined, DataSo
 		SourceOfAvailableFields.DataCompositionSchema = PutToTempStorage(DataCompositionSchema);
 		SourceOfAvailableFields.DataCompositionSchemaId = DataCompositionSchemaId;
 		SourceOfAvailableFields.DataSource = DataSource;
+		SourceOfAvailableFields.Root = True;
 	EndDo;
 	
 	DescriptionOfTheFieldList = DescriptionOfFieldLists.Add();
@@ -6366,9 +6618,21 @@ Function FieldsSourceDataCompositionSchemes(FieldSourceName, AddCommonAttributes
 	EndIf;
 	
 	If AddCommonAttributes Then
-		FieldSources.Add(GetCommonTemplate("PrintDataCommonAttributes"), "CommonAttributes");	
+		
+		DataCompositionSchema = GetCommonTemplate("PrintDataCommonAttributes");
+		If MetadataObject <> Undefined Then
+			
+			ObjectType = StandardSubsystemsServer.MetadataObjectReferenceOrMetadataObjectRecordKeyType(MetadataObject);
+			SourcesTypes = New Array; // Array of Type
+			SourcesTypes.Add(ObjectType);
+			CompleteLayoutSchemeOfCommonFields(SourcesTypes, DataCompositionSchema);
+			
+		EndIf;
+		
+		FieldSources.Add(DataCompositionSchema, "CommonAttributes");
+		
 	EndIf;
-
+	
 	If StrEndsWith(FieldSourceName, ".Description") Or StrEndsWith(FieldSourceName, ".NameForPrinting") Then
 		FieldSources.Add(GetCommonTemplate("PrintDataCharacterCase"), "PrintDataCharacterCase");	
 	EndIf;
@@ -6377,9 +6641,11 @@ Function FieldsSourceDataCompositionSchemes(FieldSourceName, AddCommonAttributes
 		If FieldsSourceType = Metadata.DefinedTypes.MonetaryAmountPositiveNegative.Type
 			Or FieldsSourceType = Metadata.DefinedTypes.MonetaryAmountNonNegative.Type Then
 				ModuleCurrencyExchangeRates = Common.CommonModule("CurrencyRateOperations");
-				ModuleCurrencyExchangeRates.ConnectPrintDataSourceNumberWritten(FieldSources);
+				ModuleCurrencyExchangeRates.ConnectPrintDataSourceNumberWritten(FieldSources, FieldSourceName);
 		EndIf;
 	EndIf;
+	
+	EnablePredefinedValues(FieldSources, MetadataObject, FieldsSourceType);
 	
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport.Print") Then
 		PrintManagementModuleNationalLanguageSupport = Common.CommonModule("PrintManagementNationalLanguageSupport");
@@ -6396,7 +6662,7 @@ EndFunction
 Procedure WhenPreparingPrintData(Objects, ExternalDataSets, DataCompositionSchemaId, LanguageCode, AdditionalParameters)
 	
 	If DataCompositionSchemaId = "CommonAttributes" Then
-		ExternalDataSets.Insert("Data", GeneralDetailsofPrintedForms(Objects));
+		ExternalDataSets.Insert("Data", GeneralDetailsofPrintedForms(Objects, AdditionalParameters));
 		Return;
 	EndIf;
 
@@ -6417,7 +6683,11 @@ Procedure WhenPreparingPrintData(Objects, ExternalDataSets, DataCompositionSchem
 		Return;
 	EndIf;
 	
-		
+	If DataCompositionSchemaId = "DataPredefinedValues" Then
+		ExternalDataSets.Insert("Data", PrintDataPredefinedValues(Objects, AdditionalParameters));
+		Return;
+	EndIf;
+	
 	If Common.SubsystemExists("StandardSubsystems.NationalLanguageSupport.Print") Then
 		PrintManagementModuleNationalLanguageSupport = Common.CommonModule("PrintManagementNationalLanguageSupport");
 		PrintManagementModuleNationalLanguageSupport.WhenPreparingPrintData(
@@ -6429,8 +6699,8 @@ Procedure WhenPreparingPrintData(Objects, ExternalDataSets, DataCompositionSchem
 	
 EndProcedure
 
-Function GeneralDetailsofPrintedForms(Objects)
-
+Function GeneralDetailsofPrintedForms(Objects, AdditionalParameters)
+	
 	CommonAttributes = New Structure;
 	CommonAttributes.Insert("CurrentDate", CurrentSessionDate());
 	CommonAttributes.Insert("CurrentUser", Users.CurrentUser());
@@ -6440,6 +6710,32 @@ Function GeneralDetailsofPrintedForms(Objects)
 	CommonAttributes.Insert("MainCompany", "");
 	CommonAttributes.Insert("ReplyTo", "");
 	CommonAttributes.Insert("DSStamp", "");
+	
+	ArrayOfSourceNames = New Array; // Array of Type
+	For Each CurrentObject In Objects Do
+		
+		ObjectType = TypeOf(CurrentObject);
+		If ArrayOfSourceNames.Find(ObjectType) = Undefined Then
+			
+			TableOfCommonFields = NewTableOfCommonFieldsForPrinting();
+			PrintManagementOverridable.WhenFillingInListOfCommonFields(ObjectType, TableOfCommonFields);
+			For Each TableRow In TableOfCommonFields Do
+				
+				Id = TableRow.Id;
+				Id =
+					StandardSubsystemsServer.TransformStringToValidColumnDescription(Id);
+				If Not CommonAttributes.Property(Id) Then
+					CommonAttributes.Insert(Id, TableRow.Value);
+				EndIf;
+				
+			EndDo;
+			ArrayOfSourceNames.Add(ObjectType);
+			
+		EndIf;
+		
+	EndDo;
+	
+	AddGeneralAttributesForLayoutFields(AdditionalParameters, CommonAttributes);
 	
 	Result = New ValueTable();
 	Result.Columns.Add("Ref");
@@ -6456,6 +6752,23 @@ Function GeneralDetailsofPrintedForms(Objects)
 	Return Result;
 	
 EndFunction
+
+Procedure AddGeneralAttributesForLayoutFields(AdditionalParameters, CommonAttributes)
+	
+	If AdditionalParameters.Property("LayoutFieldsForCommonAttributes") Then
+		
+		LayoutFieldsForCommonAttributes = AdditionalParameters.LayoutFieldsForCommonAttributes;
+		For Each FieldName In LayoutFieldsForCommonAttributes Do
+			
+			If Not CommonAttributes.Property(FieldName) Then
+				CommonAttributes.Insert(FieldName, "");
+			EndIf;
+			
+		EndDo;
+		
+	EndIf;
+	
+EndProcedure
 
 Function DataCompositionSchema(QueryText)
 	
@@ -7388,11 +7701,49 @@ Function CollectionFields(FieldsCollection)
 	
 EndFunction
 
-Function CollectionOfFieldsCommonAttributes()
+Function CollectionOfFieldsCommonAttributes(SourcesTypes)
 	
-	Return FormulasConstructor.FieldsCollection(GetCommonTemplate("PrintDataCommonAttributes"));
+	DataCompositionSchema = GetCommonTemplate("PrintDataCommonAttributes");
+	CompleteLayoutSchemeOfCommonFields(SourcesTypes, DataCompositionSchema);
+	Return FormulasConstructor.FieldsCollection(DataCompositionSchema);
 
 EndFunction
+
+Procedure CompleteLayoutSchemeOfCommonFields(SourcesTypes, DataCompositionSchema)
+	
+	TableOfCommonFields = NewTableOfCommonFieldsForPrinting();
+	
+	For Each ObjectType In SourcesTypes Do
+		
+		TableOfCommonFields = NewTableOfCommonFieldsForPrinting();
+		PrintManagementOverridable.WhenFillingInListOfCommonFields(ObjectType, TableOfCommonFields);
+		
+		For Each TableRow In TableOfCommonFields Do
+			
+			Id = TableRow.Id;
+			Id = StandardSubsystemsServer.TransformStringToValidColumnDescription(Id);
+			DataPath = "CommonAttributes." + Id;
+			
+			Fields = DataCompositionSchema.DataSets.DataSet1.Fields; // DataCompositionSchemaDataSetFields
+			If Fields.Find(DataPath) = Undefined Then
+				
+				NewField = Fields.Add(Type("DataCompositionSchemaDataSetField"));
+				NewField.Field = Id;
+				NewField.DataPath = "CommonAttributes." + Id;
+				NewField.Title = TableRow.Presentation;
+				
+				Type = TypeOf(TableRow.Value);
+				TypesArray = New Array; // Array of Type
+				TypesArray.Add(Type);
+				NewField.ValueType = New TypeDescription(TypesArray);
+				
+			EndIf;
+			
+		EndDo;
+		
+	EndDo;
+	
+EndProcedure
 
 Function GetSkippedParent(AddLine, TreeForOutput)
 	Parents = New Array;
@@ -7500,7 +7851,7 @@ Procedure ClearLastUsedTemplate()
 	SetSafeModeDisabled(True);
 	SetPrivilegedMode(True);
 	
-	Common.CommonSettingsStorageDelete("Print", "LastUsedTemplate", Undefined);
+	Common.CommonSettingsStorageDelete("Print", "LastUsedTemplate", InfoBaseUsers.CurrentUser().Name);
 	
 EndProcedure
 
@@ -7557,7 +7908,7 @@ Procedure PrintDocumentsOnCreateAtServer(Form, Cancel, StandardProcessing) Expor
 	
 EndProcedure
 
-Procedure ProcessSendingCommands(Form)
+Procedure ProcessSendingCommands(Form) Export
 			
 	Items = Form.Items;
 	ButtonSend = SingleSendButton(Items.SubmenuSend.ChildItems);
@@ -7620,16 +7971,20 @@ Function DefaultPrintExecutionParameters(References) Export
 	
 	AllPrintCommands = CreatePrintCommandsCollection();
 	AllPrintCommands.Columns.Add("IDWithoutSpecialChars");
+	AllPrintCommands.Columns.Add("Metadata");
 	
 	For Each RefMetadata In MetadataArray1 Do
-		ObjectPrintCommands = ObjectPrintCommands(RefMetadata); // @skip-check query-in-loop - Малый цикл
+		ObjectPrintCommands = ObjectPrintCommands(RefMetadata); // @skip-check query-in-loop - 
 		
 		For Each PrintCommand In ObjectPrintCommands Do
 			NewCommand = AllPrintCommands.Add();
 			FillPropertyValues(NewCommand, PrintCommand);
 			NewCommand.IDWithoutSpecialChars = PrintManagementClientServer.IDWithoutSpecialChars(PrintCommand.Id);
+			NewCommand.Metadata = RefMetadata;
 		EndDo;
 	EndDo;
+	
+	AttributesValuesWithVisibilityConditions = AttributesValuesWithVisibilityConditions(AllPrintCommands, References); 
 	
 	NewExecutionParameters = New Array;
 	
@@ -7639,11 +7994,27 @@ Function DefaultPrintExecutionParameters(References) Export
 		|PrintFormDescription,DefaultCommand,IDFromSet,CheckPostingBeforePrint";
 	For Each LinkID In RefsByIDs Do
 		PrintCommand = AllPrintCommands.Find(LinkID.Key, "IDWithoutSpecialChars");
+		
+		If PrintCommand = Undefined Then
+			Continue;
+		EndIf;
+		
+		PrintObjects = New Array;
+		For Each Ref In LinkID.Value Do
+			If AttachableCommandsClientServer.ConditionsBeingExecuted(PrintCommand.VisibilityConditions, AttributesValuesWithVisibilityConditions[Ref]) Then
+				PrintObjects.Add(Ref);
+			EndIf;
+		EndDo;
+		
+		If Not ValueIsFilled(PrintObjects) Then
+			Continue;
+		EndIf;
+		
 		CommandDetails = Common.ValueTableRowToStructure(PrintCommand);
 		
 		ExecutionParameters = New Structure("PrintObjects,ReferencesArrray,CommandDetails");
-		ExecutionParameters.PrintObjects = LinkID.Value;
-		ExecutionParameters.ReferencesArrray = LinkID.Value;
+		ExecutionParameters.PrintObjects = PrintObjects;
+		ExecutionParameters.ReferencesArrray = PrintObjects;
 		
 		NewDetails = New Structure(DetailsFieldsToReplace);
 		FillPropertyValues(NewDetails, CommandDetails);
@@ -7656,26 +8027,31 @@ Function DefaultPrintExecutionParameters(References) Export
 		NewExecutionParameters.Add(ExecutionParameters);
 	EndDo;
 	
-	HasExecutionParameters = True;
+	HasExecutionParameters = Boolean(NewExecutionParameters.Count());
 	
 	// This is a first-time printing, prompt commands.
-	If Not NewExecutionParameters.Count() And References.Count() = 1 Then
-		HasExecutionParameters = False;
-		
+	If Not HasExecutionParameters And References.Count() = 1 Then
 		TeamDescriptions = New Structure;
 		BasicCommands = AllPrintCommands.FindRows(New Structure("DefaultPrintForm", True));
 		
 		CommandsForSelection = New ValueList();
-		For Each CommandDetails In BasicCommands Do
-			Id = PrintManagementClientServer.IDWithoutSpecialChars(CommandDetails.Id);
-			
-			CommandsForSelection.Add(Id, CommandDetails.Presentation);
-			
-			NewDetails = New Structure(DetailsFieldsToReplace);
-			FillPropertyValues(NewDetails, CommandDetails);
-			NewDetails.ReplaceDefaultPrintForm = True;
-			TeamDescriptions.Insert(Id, NewDetails);
-		EndDo;
+		If Not Users.IsExternalUserSession() Then
+			For Each CommandDetails In BasicCommands Do
+				Id = PrintManagementClientServer.IDWithoutSpecialChars(CommandDetails.Id);
+				
+				If ValueIsFilled(AttributesValuesWithVisibilityConditions)
+					And Not AttachableCommandsClientServer.ConditionsBeingExecuted(CommandDetails.VisibilityConditions, AttributesValuesWithVisibilityConditions[References[0]]) Then
+					Continue;
+				EndIf;
+				
+				CommandsForSelection.Add(Id, CommandDetails.Presentation);
+				
+				NewDetails = New Structure(DetailsFieldsToReplace);
+				FillPropertyValues(NewDetails, CommandDetails);
+				NewDetails.ReplaceDefaultPrintForm = True;
+				TeamDescriptions.Insert(Id, NewDetails);
+			EndDo;
+		EndIf;
 		
 		ExecutionParameters = New Structure;
 		ExecutionParameters.Insert("CommandsForSelection", CommandsForSelection);
@@ -7687,6 +8063,53 @@ Function DefaultPrintExecutionParameters(References) Export
 	Result = New Structure;
 	Result.Insert("HasExecutionParameters", HasExecutionParameters);
 	Result.Insert("NewExecutionParameters", NewExecutionParameters);
+	
+	Return Result;
+	
+EndFunction
+
+Function AttributesValuesWithVisibilityConditions(AllPrintCommands, References)
+	
+	MetadataInformation = New Map;
+	
+	For Each Ref In References Do
+		RefMetadata = Ref.Metadata();
+		Information = MetadataInformation[RefMetadata];
+		
+		If Information = Undefined Then
+			MetadataInformation.Insert(RefMetadata, New Structure("Attributes,References", New Array, New Array));
+		EndIf;
+		
+		MetadataInformation[RefMetadata].References.Add(Ref);
+	EndDo;
+	
+	For Each PrintCommand In AllPrintCommands Do
+		
+		Attributes = MetadataInformation[PrintCommand.Metadata].Attributes;
+		StandardAttributes = PrintCommand.Metadata.StandardAttributes;
+		
+		For Each Condition In PrintCommand.VisibilityConditions Do
+			PropsExist = PrintCommand.Metadata.Attributes.Find(Condition.Attribute) <> Undefined
+				Or Common.IsStandardAttribute(StandardAttributes, Condition.Attribute);
+			
+			If Attributes.Find(Condition.Attribute) = Undefined And PropsExist Then
+				Attributes.Add(Condition.Attribute);
+			EndIf;
+		EndDo;
+		
+	EndDo;
+	
+	Result = New Map;
+	For Each KeyValue In MetadataInformation Do
+		
+		AttributesWithConditions = KeyValue.Value.Attributes;
+		If Not ValueIsFilled(AttributesWithConditions) Then
+			Continue;
+		EndIf;
+		
+		AttributesValues = Common.ObjectsAttributesValues(KeyValue.Value.References, AttributesWithConditions);
+		CommonClientServer.SupplementMap(Result, AttributesValues, True);
+	EndDo;
 	
 	Return Result;
 	
@@ -7798,30 +8221,19 @@ Function DefaultPrintFormInSet(ObjectsArray, PrintCommand) Export
 	
 EndFunction
 
-Function ShouldSetMarks(PrintCommands)
-	
-	Result = True;
-	
-	If PrintCommands.Count() = 2 Then
-		CommandDefaultPrint = PrintCommands.Find("DefaultPrint", "Id");
-		If CommandDefaultPrint <> Undefined Then
-			Result = False;
-		EndIf;
-	EndIf;
-	
-	Return Result;
-	
-EndFunction
-
 Function ShouldShowDefaultPrint(FormName, ListOfObjects)
 	
 	Result = False;
+	
+	If Users.IsExternalUserSession() Then
+		Return Result;
+	EndIf;
 	
 	MetadataObject = Metadata.FindByFullName(FormName);
 	If MetadataObject <> Undefined And Not Metadata.CommonForms.Contains(MetadataObject) Then
 		MetadataObject = MetadataObject.Parent();
 	EndIf;
-	If Common.IsDocumentJournal(MetadataObject) Then
+	If MetadataObject <> Undefined And Common.IsDocumentJournal(MetadataObject) Then
 		CollectionToCheck = MetadataObject.RegisteredDocuments
 	Else
 		CollectionToCheck = ListOfObjects;
@@ -7858,7 +8270,8 @@ Procedure DeleteParagraphsWithClearedText(PrintFormTree, TreeOfTemplate)
 	For Each PrintFormParagraph In PrintFormParagraphs Do
 		If PrintFormParagraph.WholeText = "" Then
 			TemplateParagraphText = TemplateParagraphsTexts[PrintFormParagraph.IndexOf];
-			If TemplateParagraphText <> "" And Not ParagraphContainsPicture(PrintFormParagraph) Then
+			If TemplateParagraphText <> "" And Not ParagraphContainsPicture(PrintFormParagraph)
+				And Not ParagraphContainsPlaceForStamp(PrintFormParagraph) Then
 				ParagraphsToDelete.Add(PrintFormParagraph);
 			EndIf;
 		EndIf;
@@ -7921,5 +8334,500 @@ Function FragmentContainsPicture(Val Particle)
 	Return False;
 	
 EndFunction
+
+Function ParagraphContainsPlaceForStamp(Val Paragraph)
+	
+	FoundRows = FindRowsByAttribute(Paragraph.Rows, "w:name", "V8DSStamp");
+	Return FoundRows.Count() > 0;
+	
+EndFunction
+
+Function FindRowsByAttribute(Val Rows, Val AttributeName, Val AttributeValue)
+	
+	Result = New Array;
+	
+	For Each String In Rows Do
+		If String.Attributes[AttributeName] = AttributeValue Then
+			Result.Add(String);
+		EndIf;
+		
+		FoundRows = FindRowsByAttribute(String.Rows, AttributeName, AttributeValue);
+		For Each FoundRow In FoundRows Do
+			Result.Add(FoundRow);
+		EndDo;
+	EndDo;
+
+	Return Result;
+
+EndFunction
+
+Function FindStringByTagName(Val Rows, Val NameTag)
+	
+	For Each String In Rows Do
+		If String.NameTag = NameTag Then
+			Return String;
+		EndIf;
+		
+		FoundRow = FindStringByTagName(String.Rows, NameTag);
+		
+		If FoundRow <> Undefined Then
+			Return FoundRow;
+		EndIf;
+	EndDo;
+
+	Return Undefined;
+
+EndFunction
+
+Procedure EnablePredefinedValues(FieldSources, MetadataObject, FieldsSourceType)
+	
+	MetadataObjectsArray = New Array; // Array of MetadataObject
+	If MetadataObject <> Undefined Then
+		
+		If ObjectWithPredefinedValuesToBeProcessed(MetadataObject) Then
+			MetadataObjectsArray.Add(MetadataObject);
+		EndIf;
+		
+	ElsIf TypeOf(FieldsSourceType) = Type("TypeDescription") Then
+		
+		TypesArray = New Array; // Array of Type
+		For Each Type In FieldsSourceType.Types() Do
+			
+			If TypesArray.Find(Type) = Undefined
+			   And ObjectWithPredefinedValuesToBeProcessed(Type)  Then
+				
+				TypesArray.Add(Type);
+				MetadataObjectsArray.Add(Metadata.FindByType(Type));
+				
+			EndIf;
+			
+		EndDo;
+		
+	EndIf;
+	
+	If MetadataObjectsArray.Count() > 0 Then
+		
+		SchemaPredefinedValues = SchemaPredefinedValues(MetadataObjectsArray);
+		If SchemaPredefinedValues <> Undefined Then
+			FieldSources.Add(SchemaPredefinedValues, "DataPredefinedValues");
+		EndIf;
+		
+	EndIf;
+	
+EndProcedure
+
+Function SchemaPredefinedValues(MetadataObjectsArray)
+	
+	FieldList = PrintDataFieldTree();
+	TableOfSourcesWithPredefinedValues = NewTableOfPredefinedSourceValues();
+	TableOfEnumerationSources = NewTableOfPredefinedSourceValues();
+	
+	For Each MetadataObject In MetadataObjectsArray Do
+		
+		Manager = Common.ObjectManagerByFullName(MetadataObject.FullName());
+		ObjectKind = Common.ObjectKindByType(TypeOf(Manager.EmptyRef()));
+		
+		If ObjectKind = "Catalog"
+		 Or ObjectKind = "ChartOfCharacteristicTypes"
+		 Or ObjectKind = "ChartOfCalculationTypes"
+		 Or ObjectKind = "ChartOfAccounts" Then
+			NewRow = TableOfSourcesWithPredefinedValues.Add();
+		Else
+			NewRow = TableOfEnumerationSources.Add();
+		EndIf;
+		
+		SourceName = MetadataObject.Name;
+		NewRow.SourceName = SourceName;
+		NewRow.SourceKind = ObjectKind;
+		NewRow.SourceIdentificator = ObjectKind + "_" + SourceName;
+		NewRow.SynonymOfSource = MetadataObject.Synonym;
+		
+	EndDo;
+	
+	TableOfPredefinedSourceValues =
+		PredefinedSourceValues(TableOfSourcesWithPredefinedValues, TableOfEnumerationSources);
+	
+	If TableOfPredefinedSourceValues.Count() > 0 Then
+		
+		Field = FieldList.Rows.Add();
+		Field.Id = "Ref";
+		Field.Presentation = NStr("en = 'Reference'");
+		Field.ValueType = New TypeDescription();
+		
+		Group = FieldList.Rows.Add();
+		Group.Id = "PredefinedValuesGroup";
+		Group.Presentation = NStr("en = 'Predefined values'");
+		Group.Order = 1;
+		Group.Folder = True;
+		
+		CounterOrder = 0;
+		
+		For Each SourceOfPredefinedValue In TableOfPredefinedSourceValues Do
+			
+			CounterOrder = CounterOrder + 1;
+			
+			TypeGroup = Group.Rows.Add();
+			TypeGroup.Id = SourceOfPredefinedValue.SourceIdentificator;
+			TypeGroup.Presentation = SourceOfPredefinedValue.SynonymOfSource;
+			TypeGroup.Order = CounterOrder;
+		TypeGroup.Folder = True;
+			
+			PredefinedValues = SourceOfPredefinedValue.PredefinedValues;
+			
+			Counter = 0;
+			For Each CurrentValue In PredefinedValues Do
+				
+				Counter = Counter + 1;
+				TypesArray = New Array; // Array of Type
+				TypesArray.Add(TypeOf(CurrentValue.Value));
+				
+				Field = TypeGroup.Rows.Add();
+				Field.Id = CurrentValue.ValueID;
+				Field.Presentation = CurrentValue.Presentation;
+				Field.ValueType = New TypeDescription(TypesArray);
+				Field.Order = Counter;
+				
+			EndDo;
+			
+		EndDo;
+		
+	EndIf;
+	
+	Return SchemaCompositionDataPrint(FieldList);
+	
+EndFunction
+
+Function PrintDataPredefinedValues(Objects, AdditionalParameters)
+	
+	PrintData = New ValueTable();
+	PrintData.Columns.Add("Ref");
+	FieldsSourceType = AdditionalParameters.FieldsSourceType;
+	TypesArray = New Array; // Array of Type
+	
+	For Each Type In FieldsSourceType.Types() Do
+		
+		If TypesArray.Find(Type) = Undefined
+		   And ObjectWithPredefinedValuesToBeProcessed(Type) Then
+			
+			TypesArray.Add(Type);
+			
+		EndIf;
+		
+	EndDo;
+	
+	TableOfSourcesWithPredefinedValues = NewTableOfPredefinedSourceValues();
+	TableOfEnumerationSources = NewTableOfPredefinedSourceValues();
+	
+	FillInSourceTables(
+		TypesArray,
+		TableOfSourcesWithPredefinedValues,
+		TableOfEnumerationSources);
+	
+	TableOfPredefinedSourceValues = PredefinedSourceValues(
+		TableOfSourcesWithPredefinedValues,
+		TableOfEnumerationSources);
+	
+	SupplementPrintDataWithPredefinedValues(PrintData, TableOfPredefinedSourceValues);
+	
+	For Each Object In Objects Do
+		
+		NewRow = PrintData.Add();
+		NewRow.Ref = Object;
+		
+		For Each SourceOfPredefinedValue In TableOfPredefinedSourceValues Do
+			
+			PredefinedValues = SourceOfPredefinedValue.PredefinedValues;
+			For Each CurrentValue In PredefinedValues Do
+				NewRow[CurrentValue.ValueID] = CurrentValue.Value;
+			EndDo;
+			
+		EndDo;
+		
+	EndDo;
+	
+	Return PrintData;
+	
+EndFunction
+
+Procedure SupplementPrintDataWithPredefinedValues(PrintData, TableOfPredefinedSourceValues)
+	
+	For Each SourceOfPredefinedValue In TableOfPredefinedSourceValues Do
+		
+		PredefinedValues = SourceOfPredefinedValue.PredefinedValues;
+		For Each CurrentValue In PredefinedValues Do
+			
+			If PrintData.Columns.Find(CurrentValue.ValueID) = Undefined Then
+				PrintData.Columns.Add(CurrentValue.ValueID);
+			EndIf;
+			
+		EndDo;
+		
+	EndDo;
+	
+EndProcedure
+
+Procedure FillInSourceTables(TypesArray, TableOfSourcesWithPredefinedValues, TableOfEnumerationSources)
+	
+	For Each Type In TypesArray Do
+		
+		ObjectKind = Common.ObjectKindByType(Type);
+		MetadataObject = Metadata.FindByType(Type);
+		SourceName = MetadataObject.Name;
+		
+		If ObjectKind = "Catalog"
+		 Or ObjectKind = "ChartOfCharacteristicTypes"
+		 Or ObjectKind = "ChartOfCalculationTypes"
+		 Or ObjectKind = "ChartOfAccounts" Then
+			NewRow = TableOfSourcesWithPredefinedValues.Add();
+		Else
+			NewRow = TableOfEnumerationSources.Add();
+		EndIf;
+		
+		NewRow.SourceName = SourceName;
+		NewRow.SourceKind = ObjectKind;
+		NewRow.SourceIdentificator = ObjectKind + "_" + SourceName;
+		
+	EndDo;
+	
+EndProcedure
+
+Function ObjectWithPredefinedValuesToBeProcessed(VerificationObject)
+	
+	Result = False;
+	If TypeOf(VerificationObject) = Type("MetadataObject") Then
+		
+		Result = (Common.IsCatalog(VerificationObject)
+			Or Common.IsChartOfCharacteristicTypes(VerificationObject)
+			Or Common.IsEnum(VerificationObject)
+			Or Common.IsChartOfCalculationTypes(VerificationObject)
+			Or Common.IsChartOfAccounts(VerificationObject));
+		
+	Else
+		
+		Result = (Catalogs.AllRefsType().ContainsType(VerificationObject)
+			Or ChartsOfCharacteristicTypes.AllRefsType().ContainsType(VerificationObject)
+			Or Enums.AllRefsType().ContainsType(VerificationObject)
+			Or ChartsOfCalculationTypes.AllRefsType().ContainsType(VerificationObject)
+			Or ChartsOfAccounts.AllRefsType().ContainsType(VerificationObject))
+		
+	EndIf;
+	
+	Return Result;
+	
+EndFunction
+
+Function EnumValues(ObjectKind, SourceName)
+	
+	TableOfPredefinedValues = NewTableOfPredefinedValues();
+	
+	Counter = 0;
+	For Each CollectionValue In Metadata.Enums[SourceName].EnumValues Do
+		
+		NewRow = TableOfPredefinedValues.Add();
+		ValueID = IdOfValueInFullPath(
+			ObjectKind,
+			SourceName,
+			CollectionValue.Name);
+		NewRow.ValueID = ValueID;
+		NewRow.Presentation = CollectionValue.Synonym;
+		NewRow.Value = Enums[SourceName][Counter];
+		Counter = Counter + 1;
+		
+	EndDo;
+	
+	Return TableOfPredefinedValues;
+	
+EndFunction
+
+Function PredefinedValues(TableOfSources)
+	
+	TableOfPredefinedSourceValues = NewTableOfPredefinedSourceValues();
+	
+	If TableOfSources.Count() = 0 Then
+		
+		Return TableOfPredefinedSourceValues;
+		
+	EndIf;
+	
+	QueryTextTemplate =
+	"SELECT
+	|	&SourceIdNumber AS SourceIdNumber,
+	|	DataSource.Ref AS Value,
+	|	DataSource.Presentation AS Presentation,
+	|	DataSource.PredefinedDataName AS ValueID
+	|FROM
+	|	&FullSourceName AS DataSource
+	|WHERE
+	|	DataSource.Predefined
+	|
+	|ORDER BY
+	|	Presentation
+	|TOTALS BY
+	|	SourceIdNumber";
+	
+	QueriesArray = New Array;
+	LineCounter = 0;
+	MatchingSourceIdNumber = New Map;
+	For Each CurSource In TableOfSources Do
+		
+		LineCounter = LineCounter + 1;
+		SourceIdentificator = CurSource.SourceIdentificator;
+		MatchingSourceIdNumber.Insert(LineCounter, SourceIdentificator);
+		FullSourceName = CurSource.SourceKind + "." + CurSource.SourceName;
+		
+		QueryText = StrReplace(QueryTextTemplate, "&FullSourceName", FullSourceName);
+		QueryText = StrReplace(QueryText, "&SourceIdNumber", LineCounter);
+		QueriesArray.Add(QueryText);
+		
+	EndDo;
+	QueryText = StrConcat(QueriesArray, Common.QueryBatchSeparator());
+	
+	Query = New Query;
+	Query.Text = QueryText;
+	Result = Query.ExecuteBatch();
+	Boundary = Result.UBound();
+	
+	For Counter = 0 To Boundary Do
+		
+		SamplingBySource = Result[Counter].Select(QueryResultIteration.ByGroups);
+		If SamplingBySource.Next() Then
+			
+			Selection = SamplingBySource.Select();
+			If Selection.Count() > 0 Then
+				
+				NewRow = TableOfPredefinedSourceValues.Add();
+				SourceIdentificator =
+					MatchingSourceIdNumber[SamplingBySource.SourceIdNumber];
+				SourcesTableRow = TableOfSources.Find(SourceIdentificator, "SourceIdentificator");
+				FillPropertyValues(NewRow, SourcesTableRow);
+				NewRow.PredefinedValues = TableOfPredefinedValues(Selection, NewRow);
+				
+			EndIf;
+			
+		EndIf;
+		
+	EndDo;
+	
+	Return TableOfPredefinedSourceValues;
+	
+EndFunction
+
+Function TableOfPredefinedValues(Selection, NewSourceRow)
+	
+	PredefinedValues = NewTableOfPredefinedValues();
+	While Selection.Next() Do
+		
+		NewRowOfValues = PredefinedValues.Add();
+		FillPropertyValues(NewRowOfValues, NewSourceRow);
+		FillPropertyValues(NewRowOfValues, Selection);
+		ValueID = IdOfValueInFullPath(
+			NewSourceRow.SourceKind,
+			NewSourceRow.SourceName,
+			NewRowOfValues.ValueID);
+			
+		NewRowOfValues.SourceIdentificator = ValueID;
+		
+	EndDo;
+	
+	Return PredefinedValues;
+	
+EndFunction
+
+Function PredefinedSourceValues(TableOfSourcesWithPredefinedValues, TableOfEnumerationSources)
+	
+	TableOfPredefinedSourceValues = PredefinedValues(TableOfSourcesWithPredefinedValues);
+	
+	For Each CurSource In TableOfEnumerationSources Do
+		
+		SourceName = CurSource.SourceName;
+		SourceKind = CurSource.SourceKind;
+		
+		NewRow = TableOfPredefinedSourceValues.Add();
+		NewRow.SourceName = SourceKind;
+		NewRow.SourceName = SourceName;
+		NewRow.SynonymOfSource = CurSource.SynonymOfSource;
+		NewRow.SourceIdentificator = SourceKind + "_" + SourceName;
+		NewRow.PredefinedValues = EnumValues(SourceKind, SourceName);
+		
+	EndDo;
+	
+	Return TableOfPredefinedSourceValues;
+	
+EndFunction
+
+Function IdOfValueInFullPath(Val ObjectKind = "", Val SourceName = "", Val ValueID = "")
+	
+	ArrayOfIdentifiers = New Array; // Array of String
+	If Not IsBlankString(ObjectKind) Then
+		ArrayOfIdentifiers.Add(ObjectKind);
+	EndIf;
+	If  Not IsBlankString(SourceName) Then
+		ArrayOfIdentifiers.Add(SourceName);
+	EndIf;
+	If  Not IsBlankString(ValueID) Then
+		
+		ValueID =
+			StandardSubsystemsServer.TransformStringToValidColumnDescription(ValueID);
+		ArrayOfIdentifiers.Add(ValueID);
+		
+	EndIf;
+	Id = StrConcat(ArrayOfIdentifiers, "_");
+	
+	Return Id;
+	
+EndFunction
+
+Function NewTableOfPredefinedSourceValues()
+	
+	TypesDetailsString = New TypeDescription("String");
+	ValueTable = New ValueTable;
+	ValueTable.Columns.Add("SourceName", TypesDetailsString);
+	ValueTable.Columns.Add("SourceKind", TypesDetailsString); 
+	ValueTable.Columns.Add("SynonymOfSource", TypesDetailsString);
+	ValueTable.Columns.Add("SourceIdentificator", TypesDetailsString);
+	ValueTable.Columns.Add("PredefinedValues", New TypeDescription("ValueTable"));
+	
+	Return ValueTable;
+	
+EndFunction
+
+Function NewTableOfPredefinedValues()
+	
+	TypesDetailsString = New TypeDescription("String");
+	ValueTable = New ValueTable;
+	ValueTable.Columns.Add("SourceIdentificator", TypesDetailsString);
+	ValueTable.Columns.Add("ValueID", TypesDetailsString);
+	ValueTable.Columns.Add("Presentation", TypesDetailsString);
+	ValueTable.Columns.Add("Value", New TypeDescription());
+	
+	Return ValueTable;
+	
+EndFunction
+
+// Returns:
+//  ValueTable - Table with common print fields:
+//   * Id - String - Field name.
+//   * Presentation - String - Field title.
+//   * Value - Arbitrary - Common field value.
+//
+Function NewTableOfCommonFieldsForPrinting()
+	
+	TypesDetailsString = New TypeDescription("String");
+	ValueTable = New ValueTable;
+	ValueTable.Columns.Add("Id", TypesDetailsString);
+	ValueTable.Columns.Add("Presentation", TypesDetailsString);
+	ValueTable.Columns.Add("Value");
+	
+	Return ValueTable;
+	
+EndFunction
+
+// See StandardSubsystemsServer.WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode
+Procedure WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode(Methods) Export
+	
+	Methods.Insert("AddEditPrintFormsRoleToBasicRightsProfiles");
+	Methods.Insert("GeneratePrintFormsInBackground", True);
+	
+EndProcedure
 
 #EndRegion

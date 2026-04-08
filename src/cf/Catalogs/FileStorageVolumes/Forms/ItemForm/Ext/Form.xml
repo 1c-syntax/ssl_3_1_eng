@@ -56,15 +56,16 @@
 				</Title>
 				<ExtendedTooltip name="FormDeleteUnnecessaryFilesExtendedTooltip" id="51"/>
 			</Button>
-			<Button name="FormHelp" id="40">
+			<Button name="FormHelp_SSLyf" id="40">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.StandardCommand.Help</CommandName>
-				<ExtendedTooltip name="FormHelpExtendedTooltip" id="41"/>
+				<ExtendedTooltip name="FormHelp_SSLyfExtendedTooltip" id="41"/>
 			</Button>
 		</ChildItems>
 	</AutoCommandBar>
 	<Events>
 		<Event name="AfterWrite">AfterWrite</Event>
+		<Event name="AfterWriteAtServer">AfterWriteAtServer</Event>
 		<Event name="OnReadAtServer">OnReadAtServer</Event>
 		<Event name="OnOpen">OnOpen</Event>
 		<Event name="BeforeClose">BeforeClose</Event>
@@ -120,6 +121,59 @@
 					</Title>
 					<ExtendedTooltip name="PropertiesMainExtendedTooltip" id="45"/>
 					<ChildItems>
+						<UsualGroup name="FilesStorageMethodGroup" id="52">
+							<Title>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>File storage method</v8:content>
+								</v8:item>
+							</Title>
+							<Group>AlwaysHorizontal</Group>
+							<ShowTitle>false</ShowTitle>
+							<ExtendedTooltip name="FilesStorageMethodGroupExtendedTooltip" id="53"/>
+							<ChildItems>
+								<InputField name="FilesStorageMethod" id="54">
+									<DataPath>Object.FilesStorageMethod</DataPath>
+									<TitleLocation>Top</TitleLocation>
+									<WarningOnEditRepresentation>Show</WarningOnEditRepresentation>
+									<WarningOnEdit>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>If you change the volume storage method, you will lose access to the files created on this volume.</v8:content>
+										</v8:item>
+									</WarningOnEdit>
+									<ListChoiceMode>true</ListChoiceMode>
+									<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
+									<AutoMarkIncomplete>true</AutoMarkIncomplete>
+									<ChooseType>false</ChooseType>
+									<TextEdit>false</TextEdit>
+									<ContextMenu name="FilesStorageMethodContextMenu" id="55"/>
+									<ExtendedTooltip name="FilesStorageMethodExtendedTooltip" id="56"/>
+									<Events>
+										<Event name="OnChange">FilesStorageMethodOnChange</Event>
+									</Events>
+								</InputField>
+								<InputField name="NameOfBinaryDataStore" id="57">
+									<DataPath>Object.NameOfBinaryDataStore</DataPath>
+									<TitleLocation>Top</TitleLocation>
+									<WarningOnEditRepresentation>Show</WarningOnEditRepresentation>
+									<WarningOnEdit>
+										<v8:item>
+											<v8:lang>en</v8:lang>
+											<v8:content>If you rename the volume's external storage, you will lose access to the files created on this volume.</v8:content>
+										</v8:item>
+									</WarningOnEdit>
+									<ChoiceButton>false</ChoiceButton>
+									<ListChoiceMode>true</ListChoiceMode>
+									<ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
+									<AutoMarkIncomplete>true</AutoMarkIncomplete>
+									<ChooseType>false</ChooseType>
+									<TextEdit>false</TextEdit>
+									<ContextMenu name="NameOfBinaryDataStoreContextMenu" id="58"/>
+									<ExtendedTooltip name="NameOfBinaryDataStoreExtendedTooltip" id="59"/>
+								</InputField>
+							</ChildItems>
+						</UsualGroup>
 						<UsualGroup name="PathGroup" id="11">
 							<Title>
 								<v8:item>
@@ -336,4 +390,16 @@
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>
 	</Commands>
+	<CommandInterface>
+		<NavigationPanel>
+			<Item>
+				<Command>0</Command>
+				<Type>Auto</Type>
+				<DefaultVisible>false</DefaultVisible>
+				<Visible>
+					<xr:Common>false</xr:Common>
+				</Visible>
+			</Item>
+		</NavigationPanel>
+	</CommandInterface>
 </Form>

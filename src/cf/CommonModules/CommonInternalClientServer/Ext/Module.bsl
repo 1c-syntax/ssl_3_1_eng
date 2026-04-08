@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Internal
@@ -20,33 +19,37 @@
 // Returns:
 //  String
 //
-Function SafeCommandString(StartupCommand) Export
+Function SafeCommandString(StartupCommand, Val ThisIsTheAdministrator = False) Export
 	
-	Result = "";
+	If TypeOf(StartupCommand) = Type("String") Then
+		CheckContainsUnsafeActions(StartupCommand, ThisIsTheAdministrator);
+		Return StartupCommand;
+	EndIf;
 	
-	If TypeOf(StartupCommand) = Type("String") Then 
-		
-		CheckContainsUnsafeActions(StartupCommand);
-		Result = StartupCommand;
-		
-	ElsIf TypeOf(StartupCommand) = Type("Array") Then
-		
-		If StartupCommand.Count() > 0 Then
-			CheckContainsUnsafeActions(StartupCommand[0]);
-			Result = ArrayToCommandString(StartupCommand);
-		Else
-			Raise StringFunctionsClientServer.SubstituteParametersToString(
-				NStr("en = 'The first element of array %1 must be either a command or a path to a file to be executed.'"),
-				"StartupCommand");
-		EndIf;
-		
-	Else
+	If TypeOf(StartupCommand) <> Type("Array") Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Expected type of value %1: %2 or %3.'"), 
 			"StartupCommand", "String", "Array");
 	EndIf;
-		
-	Return Result
+	
+	If StartupCommand.Count() = 0 Then
+		Raise StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'The first element of array %1 must be either a command or a path to a file to be executed.'"),
+			"StartupCommand");
+	EndIf;
+	
+	// ACC:547-off - The preprocessor directive is allowed because the executing code does not access any modules.
+#If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
+	//@skip-check bsl-legacy-check-for-each-statetement-collection
+	For Each Item In StartupCommand Do
+		CheckContainsUnsafeActions(Item, ThisIsTheAdministrator);
+	EndDo;
+#Else
+	CheckContainsUnsafeActions(StartupCommand[0], ThisIsTheAdministrator);
+#EndIf
+	// ACC:547-on
+	
+	Return ArrayToCommandString(StartupCommand);
 	
 EndFunction
 
@@ -491,19 +494,16 @@ EndFunction
 
 #Region SafeCommandString
 
-Function ContainsUnsafeActions(Val CommandString)
+Procedure CheckContainsUnsafeActions(Val StartupCommand, ThisIsTheAdministrator)
 	
-	Return StrFind(CommandString, "${") <> 0
-		Or StrFind(CommandString, "$(") <> 0
-		Or StrFind(CommandString, "`") <> 0
-		Or StrFind(CommandString, "|") <> 0
-		Or StrFind(CommandString, ";") <> 0
-		Or StrFind(CommandString, "&") <> 0;
+	ThereAreUnsafeActions = StrFind(StartupCommand, "${") <> 0
+		Or StrFind(StartupCommand, "$(") <> 0
+		Or StrFind(StartupCommand, "`") <> 0
+		Or StrFind(StartupCommand, "|") <> 0
+		Or (StrFind(StartupCommand, ";") <> 0 And Not ThisIsTheAdministrator)
+		Or StrFind(StartupCommand, "&") <> 0;
 	
-EndFunction
-
-Procedure CheckContainsUnsafeActions(Val StartupCommand)
-	If ContainsUnsafeActions(StartupCommand) Then 
+	If ThereAreUnsafeActions Then
 		Raise StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'Cannot start the application. Invalid command line:
 			           |%1
@@ -747,6 +747,19 @@ Function TheTextOfACellOfTheFormForScientificNotation(Val CellText)
 EndFunction
 
 #EndRegion
+
+// ACC:547-off - The preprocessor directive is allowed because the executing code does not access any modules.
+#If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
+
+// See StandardSubsystemsServer.WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode
+Procedure WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode(Methods) Export
+	
+	Methods.Insert("CalculationCellsIndicators", True);
+	
+EndProcedure
+// 
+
+#EndIf
 
 #EndIf
 

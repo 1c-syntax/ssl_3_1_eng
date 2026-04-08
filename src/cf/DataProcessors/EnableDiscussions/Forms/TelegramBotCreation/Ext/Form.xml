@@ -28,7 +28,7 @@
 			<Button name="Close" id="35">
 				<Type>CommandBarButton</Type>
 				<DefaultButton>true</DefaultButton>
-				<CommandName>Form.Command.Activate</CommandName>
+				<CommandName>Form.Command.SetAsActive</CommandName>
 				<Title>
 					<v8:item>
 						<v8:lang>en</v8:lang>
@@ -286,7 +286,7 @@ Remember to specify bot details and a picture.</v8:content>
 			</Title>
 			<Action>Pick</Action>
 		</Command>
-		<Command name="Activate" id="2">
+		<Command name="SetAsActive" id="2">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>

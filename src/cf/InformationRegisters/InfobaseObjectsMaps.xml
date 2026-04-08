@@ -43,7 +43,7 @@
 			<UseStandardCommands>false</UseStandardCommands>
 			<EditType>InList</EditType>
 			<DefaultRecordForm/>
-			<DefaultListForm/>
+			<DefaultListForm>InformationRegister.InfobaseObjectsMaps.Form.ListForm</DefaultListForm>
 			<AuxiliaryRecordForm/>
 			<AuxiliaryListForm/>
 			<StandardAttributes>
@@ -530,6 +530,7 @@ It is a string UUID of a reference-type object of this infobase (based on a valu
 					<TypeReductionMode>TransformValues</TypeReductionMode>
 				</Properties>
 			</Dimension>
+			<Form>ListForm</Form>
 		</ChildObjects>
 	</InformationRegister>
 </MetaDataObject>

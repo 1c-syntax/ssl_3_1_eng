@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -420,7 +419,9 @@ Procedure RunScheduledJobNotInBackground(JobID)
 	SetPrivilegedMode(True);
 	
 	Job = ScheduledJobsServer.GetScheduledJob(JobID);
-	MethodName = Job.Metadata.MethodName;
+	JobMetadata = Job.Metadata;
+	MethodName = JobMetadata.MethodName;
+	JobName = JobMetadata.Name;
 	
 	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
 		ModuleAccessManagementInternal = Common.CommonModule("AccessManagementInternal");
@@ -428,7 +429,7 @@ Procedure RunScheduledJobNotInBackground(JobID)
 	EndIf;
 	
 	Common.SystemSettingsStorageSave("ScheduledJobs", MethodName, True);
-	Common.ExecuteConfigurationMethod(MethodName, Job.Parameters);
+	Common.ExecuteConfigurationMethod(Metadata.ScheduledJobs[JobName].MethodName, Job.Parameters);
 	Common.SystemSettingsStorageSave("ScheduledJobs", MethodName, Undefined);
 	
 EndProcedure

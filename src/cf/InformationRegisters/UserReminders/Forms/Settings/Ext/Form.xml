@@ -70,7 +70,7 @@
 			<ShowTitle>false</ShowTitle>
 			<ExtendedTooltip name="GroupNotificationMethodExtendedTooltip" id="8"/>
 			<ChildItems>
-				<UsualGroup name="GroupInNotificationCenter_" id="17">
+				<UsualGroup name="GroupInNotificationCenter_SSLyf" id="17">
 					<Title>
 						<v8:item>
 							<v8:lang>en</v8:lang>
@@ -82,9 +82,9 @@
 					<VerticalAlign>Center</VerticalAlign>
 					<Representation>None</Representation>
 					<ShowTitle>false</ShowTitle>
-					<ExtendedTooltip name="GroupInNotificationCenter_ExtendedTooltip" id="18"/>
+					<ExtendedTooltip name="GroupInNotificationCenterExtendedTooltip" id="18"/>
 					<ChildItems>
-						<UsualGroup name="GroupInNotificationCenterMenuItem_" id="25">
+						<UsualGroup name="GroupInNotificationCenterMenuItem_SSLyf" id="25">
 							<Title>
 								<v8:item>
 									<v8:lang>en</v8:lang>
@@ -94,9 +94,9 @@
 							<Group>AlwaysHorizontal</Group>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="GroupInNotificationCenterMenuItem_ExtendedTooltip" id="26"/>
+							<ExtendedTooltip name="GroupInNotificationCenterMenuItemExtendedTooltip" id="26"/>
 							<ChildItems>
-								<RadioButtonField name="RemindInNotificationCenter_" id="9">
+								<RadioButtonField name="RemindInNotificationCenter_SSLyf" id="9">
 									<DataPath>ReminderMethod</DataPath>
 									<Title>
 										<v8:item>
@@ -121,10 +121,10 @@
 											</xr:Value>
 										</xr:Item>
 									</ChoiceList>
-									<ContextMenu name="RemindInNotificationCenter_ContextMenu" id="10"/>
-									<ExtendedTooltip name="RemindInNotificationCenter_ExtendedTooltip" id="11"/>
+									<ContextMenu name="RemindInNotificationCenterContextMenu" id="10"/>
+									<ExtendedTooltip name="RemindInNotificationCenterExtendedTooltip" id="11"/>
 									<Events>
-										<Event name="OnChange">RemindInNotificationCenter_OnChange</Event>
+										<Event name="OnChange">RemindInNotificationCenterOnChange</Event>
 									</Events>
 								</RadioButtonField>
 								<PictureDecoration name="PictureInNotificationCenter" id="27">
@@ -145,7 +145,7 @@
 								</PictureDecoration>
 							</ChildItems>
 						</UsualGroup>
-						<LabelDecoration name="DecorationInNotificationCenter_" id="22">
+						<LabelDecoration name="DecorationInNotificationCenter_SSLyf" id="22">
 							<HorizontalStretch>true</HorizontalStretch>
 							<TextColor>style:NoteText</TextColor>
 							<Title formatted="false">
@@ -155,8 +155,8 @@
 								</v8:item>
 							</Title>
 							<GroupHorizontalAlign>Right</GroupHorizontalAlign>
-							<ContextMenu name="DecorationInNotificationCenter_ContextMenu" id="23"/>
-							<ExtendedTooltip name="DecorationInNotificationCenter_ExtendedTooltip" id="24"/>
+							<ContextMenu name="DecorationInNotificationCenterContextMenu" id="23"/>
+							<ExtendedTooltip name="DecorationInNotificationCenterExtendedTooltip" id="24"/>
 						</LabelDecoration>
 					</ChildItems>
 				</UsualGroup>

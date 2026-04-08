@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Variables
@@ -39,6 +38,12 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	EndIf;
 	
 	If Common.SubsystemExists("StandardSubsystems.DigitalSignature") Then
+		
+		If Common.SubsystemExists("StandardSubsystems.MobileSignatureService") Then
+			Items.MobileSignatureGroup.Visible = True;
+		Else
+			Items.MobileSignatureGroup.Visible = False;
+		EndIf;
 
 		Items.GenerateDigitalSignaturesAtServer.Visible = Not Common.DataSeparationEnabled();
 		
@@ -334,35 +339,28 @@ Procedure DecorationCheckCryptoProviderInstallationURLProcessing(
 EndProcedure
 
 &AtClient
-Procedure CheckDigitalSignaturesAtServerExtendedTooltipURLProcessing(
+Procedure VerifyDigitalSignaturesOnTheServerExtendedTooltipURLProcessing(
 	Item, FormattedStringURL, StandardProcessing)
 	ProcessingNavigationLinkOpeningSettingsES(
 		Item, FormattedStringURL, StandardProcessing);
 EndProcedure
 
 &AtClient
-Procedure CreateDigitalSignaturesAtServerExtendedTooltipURLProcessing(
+Procedure GenerateDigitalSignaturesAtServerExtendedTooltipURLProcessing(
 	Item, FormattedStringURL, StandardProcessing)
 	ProcessingNavigationLinkOpeningSettingsES(
 		Item, FormattedStringURL, StandardProcessing);
 EndProcedure
 
 &AtClient
-Procedure DefaultCryptoSignatureTypeExtendedTooltipURLProcessing(
+Procedure CryptoSignatureTypeDefaultExtendedTooltipURLProcessing(
 	Item, FormattedStringURL, StandardProcessing)
 	ProcessingNavigationLinkOpeningSettingsES(
 		Item, FormattedStringURL, StandardProcessing);
 EndProcedure
 
 &AtClient
-Procedure DefaultCryptoSignatureType1ExtendedTooltipURLProcessing(
-	Item, FormattedStringURL, StandardProcessing)
-	ProcessingNavigationLinkOpeningSettingsES(
-		Item, FormattedStringURL, StandardProcessing);
-EndProcedure
-
-&AtClient
-Procedure RefineSignaturesAutomaticallyExtendedTooltipURLProcessing(
+Procedure AutoRefineSignaturesExtendedTooltipURLProcessing(
 	Item, FormattedStringURL, StandardProcessing)
 	
 	StandardProcessing = False;
@@ -434,7 +432,6 @@ Procedure TimestampServersAddressesStartChoice(Item, ChoiceData, StandardProcess
 	AttachIdleHandler("TimestampServerAddressesStartChoiceFollowUp", 0.1, True);
 	
 EndProcedure
-
 
 #EndRegion
 

@@ -1,14 +1,33 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//
 
 #Region Internal
+
+// Attachable command clarifying handler.
+//
+// Parameters:
+//   ReferencesArrray - Array of AnyRef - references to the selected objects for which a command is being executed.
+//   ExecutionParameters - See AttachableCommandsClient.CommandExecuteParameters
+//
+Procedure BeforeExecutingCommand(ReferencesArrray, ExecutionParameters) Export
+	
+	If ExecutionParameters.CommandDetails.Handler <> "PrintManagementInternalClient.HandlerCommands"
+	 Or ExecutionParameters.CommandDetails.AdditionalParameters.PrintManager <> "StandardSubsystems.AdditionalReportsAndDataProcessors"
+	 Or TypeOf(ReferencesArrray) <> Type("Array")
+	 Or Not CommonClient.SubsystemExists("StandardSubsystems.AdditionalReportsAndDataProcessors") Then
+		Return;
+	EndIf;
+	
+	ModuleAdditionalReportsAndDataProcessorsClient = CommonClient.CommonModule("AdditionalReportsAndDataProcessorsClient");
+	ModuleAdditionalReportsAndDataProcessorsClient.BeforeExecutingPrintCommands(ReferencesArrray, ExecutionParameters);
+	
+EndProcedure
 
 // The attached command handler.
 //
@@ -29,7 +48,13 @@ Procedure HandlerCommands(Val ReferencesArrray, Val ExecutionParameters) Export
 				RunConnectedPrintCommandCompletion(True, ExecutionParameters);
 			EndDo;
 		Else
-			NewParameters = DefaultPrintOptions.NewExecutionParameters[0];
+			NewExecutionParameters = DefaultPrintOptions.NewExecutionParameters;
+			If NewExecutionParameters.Count() = 0 Then
+				ShowMessageBox( , NStr("en = 'The object does not support this type of operations.'"));
+				Return;
+			EndIf;
+			
+			NewParameters = NewExecutionParameters[0];
 			ListOfCommands = NewParameters.CommandsForSelection;
 			
 			NotificationParameters = New Structure;
@@ -37,7 +62,13 @@ Procedure HandlerCommands(Val ReferencesArrray, Val ExecutionParameters) Export
 			NotificationParameters.Insert("ExecutionParameters", ExecutionParameters);
 			
 			Notification = New CallbackDescription("AfterSelectDefaultCommand", ThisObject, NotificationParameters);
-			ListOfCommands.ShowChooseItem(Notification, NStr("en = 'Select print form'"));
+			If ListOfCommands.Count() = 1 Then
+				RunCallback(Notification, ListOfCommands[0]);
+			ElsIf ListOfCommands.Count() = 0 Then
+				ShowMessageBox( , NStr("en = 'The object does not support this type of operation.'"));
+			Else
+				ListOfCommands.ShowChooseItem(Notification, NStr("en = 'Select print form'"));
+			EndIf;
 		EndIf;
 	Else
 		Notification = New CallbackDescription("ContinueExecutionCommandHandler", ThisObject, ExecutionParameters);
@@ -53,7 +84,12 @@ Procedure ExecutePrintFormOpening(DataSource, CommandID, RelatedObjects, Form, S
 	Parameters.Insert("DataSource",       DataSource);
 	Parameters.Insert("CommandID", CommandID);
 	
-	ExecutePrintFormOpeningCompletion(RelatedObjects, Parameters);
+	If StandardProcessing Then
+		CallbackDescription = New CallbackDescription("ExecutePrintFormOpeningCompletion", ThisObject, Parameters);
+		PrintManagementClient.CheckDocumentsPosting(CallbackDescription, RelatedObjects, Form);
+	Else
+		ExecutePrintFormOpeningCompletion(RelatedObjects, Parameters);
+	EndIf;
 	
 EndProcedure
 
@@ -92,10 +128,10 @@ EndProcedure
 //                     ** Address                        - String - Recipient's address.
 //                     ** Presentation                - String - Recipient's presentation.
 //                     ** ContactInformationSource - CatalogRef - Contact information owner. 
-//  NotifyDescriptionOnCompletion - CallbackDescription
+//  CallbackDescriptionOnCompletion - CallbackDescription
 //
-Procedure OpenNewMailPreparationForm(OwnerForm, FormParameters, NotifyDescriptionOnCompletion) Export
-	OpenForm("CommonForm.ComposeNewMessage", FormParameters, OwnerForm,,,, NotifyDescriptionOnCompletion);
+Procedure OpenNewMailPreparationForm(OwnerForm, FormParameters, CallbackDescriptionOnCompletion) Export
+	OpenForm("CommonForm.ComposeNewMessage", FormParameters, OwnerForm,,,, CallbackDescriptionOnCompletion);
 EndProcedure
 
 Function ParametersForOpeningPrintForm() Export
@@ -192,9 +228,9 @@ Procedure CheckDocumentsPostedPostingDialog(Parameters) Export
 	Else
 		QueryText = NStr("en = 'To print the documents, you must first post them. Do you want to post the documents and continue?'");
 	EndIf;
-	NotifyDescription = New CallbackDescription("CheckDocumentsPostedDocumentsPosting", 
+	CallbackDescription = New CallbackDescription("CheckDocumentsPostedDocumentsPosting", 
 		ThisObject, Parameters);
-	ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.YesNo);
+	ShowQueryBox(CallbackDescription, QueryText, QuestionDialogMode.YesNo);
 	
 EndProcedure
 
@@ -248,8 +284,8 @@ Procedure CheckDocumentsPostedDocumentsPosting(QuestionResult, AdditionalParamet
 			DialogButtons.Add(DialogReturnCode.OK);
 		EndIf;
 		
-		NotifyDescription = New CallbackDescription("CheckDocumentsPostingCompletion", ThisObject, AdditionalParameters);
-		ShowQueryBox(NotifyDescription, DialogText, DialogButtons);
+		CallbackDescription = New CallbackDescription("CheckDocumentsPostingCompletion", ThisObject, AdditionalParameters);
+		ShowQueryBox(CallbackDescription, DialogText, DialogButtons);
 		Return;
 	EndIf;
 	
@@ -279,7 +315,7 @@ Function IsReportOrDataProcessor(PrintManager)
 	Return Kind = "REPORT" Or Kind = "DATAPROCESSOR";
 EndFunction
 
-Procedure ExecutePrintFormOpeningCompletion(RelatedObjects, AdditionalParameters)
+Procedure ExecutePrintFormOpeningCompletion(RelatedObjects, AdditionalParameters) Export
 	
 	Form = AdditionalParameters.Form;
 	

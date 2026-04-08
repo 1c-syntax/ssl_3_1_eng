@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -165,6 +164,16 @@ Procedure RunDataExport(DataProcessorForDataImport = Undefined) Export
 	DataImportDataProcessorField = DataProcessorForDataImport;
 	
 	ExchangeComponents = DataExchangeXDTOServer.InitializeExchangeComponents("Send");
+	
+	AdditionalConversionParameters = New Structure("ChangeSelectionFilter,UseHandshake");
+	FillPropertyValues(AdditionalConversionParameters, Parameters);
+	
+	If AdditionalConversionParameters.ChangeSelectionFilter <> Undefined Then
+		ExchangeComponents.ChangeSelectionFilter = Common.CopyRecursive(AdditionalConversionParameters.ChangeSelectionFilter);
+	EndIf;
+	If AdditionalConversionParameters.UseHandshake <> Undefined Then
+		ExchangeComponents.UseHandshake = AdditionalConversionParameters.UseHandshake;
+	EndIf;
 		
 #Region SettingExchangeComponentsForNodeOperations
 	ExchangeComponents.CorrespondentNode = NodeForExchange;
@@ -253,7 +262,9 @@ Procedure RunDataExport(DataProcessorForDataImport = Undefined) Export
 	EndTry;
 	
 	If ExchangeComponents.IsExchangeViaExchangePlan Then
-		UnlockDataForEdit(ExchangeComponents.CorrespondentNode);
+		If ExchangeComponents.UseHandshake Then
+			UnlockDataForEdit(ExchangeComponents.CorrespondentNode);
+		EndIf;
 	EndIf;
 	
 	If ExchangeComponents.FlagErrors Then
@@ -439,26 +450,28 @@ Procedure RunDataImport(ImportParameters = Undefined) Export
 		// Checking data From / NewFrom.
 		CheckNodesCodes(DataAnalysisResultToExport, ExchangeComponents.CorrespondentNode);
 		
-		// Writing information on the incoming message number.
-		BeginTransaction();
-		Try
-			DataLock = New DataLock;
-			
-			DataLockItem = DataLock.Add("ExchangePlan." + DataExchangeCached.GetExchangePlanName(ExchangeComponents.CorrespondentNode));
-			DataLockItem.SetValue("Ref", ExchangeComponents.CorrespondentNode);
-			
-			DataLock.Lock();
-	
-			NodeObject = ExchangeComponents.CorrespondentNode.GetObject();
-			NodeObject.ReceivedNo = ExchangeComponents.IncomingMessageNumber;
-			NodeObject.AdditionalProperties.Insert("GettingExchangeMessage");
-			NodeObject.Write();
-			
-			CommitTransaction();
-		Except
-			RollbackTransaction();
-			Raise;
-		EndTry;
+		If ExchangeComponents.UseHandshake Then
+			// Writing information on the incoming message number.
+			BeginTransaction();
+			Try
+				DataLock = New DataLock;
+				
+				DataLockItem = DataLock.Add("ExchangePlan." + DataExchangeCached.GetExchangePlanName(ExchangeComponents.CorrespondentNode));
+				DataLockItem.SetValue("Ref", ExchangeComponents.CorrespondentNode);
+				
+				DataLock.Lock();
+		
+				NodeObject = ExchangeComponents.CorrespondentNode.GetObject();
+				NodeObject.ReceivedNo = ExchangeComponents.IncomingMessageNumber;
+				NodeObject.AdditionalProperties.Insert("GettingExchangeMessage");
+				NodeObject.Write();
+				
+				CommitTransaction();
+			Except
+				RollbackTransaction();
+				Raise;
+			EndTry;
+		EndIf;
 		
 	EndIf;
 	

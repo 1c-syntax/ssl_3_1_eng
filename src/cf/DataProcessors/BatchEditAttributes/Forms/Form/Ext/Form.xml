@@ -41,7 +41,7 @@
 							<Behavior>Usual</Behavior>
 							<Representation>NormalSeparation</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="FilterObjects_ExtendedTooltip" id="111"/>
+							<ExtendedTooltip name="ObjectsFilterExtendedTooltip" id="111"/>
 							<ChildItems>
 								<InputField name="PresentationOfObjectsToChange" id="167">
 									<DataPath>PresentationOfObjectsToChange</DataPath>
@@ -952,7 +952,7 @@ Edit failed: 0</v8:content>
 													<ContextMenu name="ReasonInscriptionContextMenu" id="372"/>
 													<ExtendedTooltip name="ReasonInscriptionExtendedTooltip" id="373"/>
 												</LabelDecoration>
-												<LabelDecoration name="GenerateErrorReport" id="362">
+												<LabelDecoration name="GenerateErrorReport_SSLyf" id="362">
 													<Title formatted="false">
 														<v8:item>
 															<v8:lang>en</v8:lang>
@@ -962,10 +962,10 @@ Edit failed: 0</v8:content>
 													<GroupHorizontalAlign>Right</GroupHorizontalAlign>
 													<Hyperlink>true</Hyperlink>
 													<HorizontalAlign>Auto</HorizontalAlign>
-													<ContextMenu name="GenerateErrorReportContextMenu" id="363"/>
-													<ExtendedTooltip name="GenerateErrorReportExtendedTooltip" id="364"/>
+													<ContextMenu name="GenerateErrorReport_SSLyfContextMenu" id="363"/>
+													<ExtendedTooltip name="GenerateErrorReport_SSLyfExtendedTooltip" id="364"/>
 													<Events>
-														<Event name="Click">GenerateErrorReportClick</Event>
+														<Event name="Click">GenerateErrorReport_SSLyfClick</Event>
 													</Events>
 												</LabelDecoration>
 											</ChildItems>
@@ -1035,7 +1035,7 @@ Edit failed: 0</v8:content>
 									<Title formatted="false">
 										<v8:item>
 											<v8:lang>en</v8:lang>
-											<v8:content>Edition in progress…</v8:content>
+											<v8:content>Edit in progress…</v8:content>
 										</v8:item>
 									</Title>
 									<VerticalAlign>Center</VerticalAlign>
@@ -1152,10 +1152,10 @@ Total items edited: %1.</v8:content>
 							</Title>
 							<ExtendedTooltip name="FormChangeExtendedTooltip" id="71"/>
 						</Button>
-						<Button name="FormHelp" id="63">
+						<Button name="FormHelp_SSLyf" id="63">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.StandardCommand.Help</CommandName>
-							<ExtendedTooltip name="FormHelpExtendedTooltip" id="73"/>
+							<ExtendedTooltip name="FormHelp_SSLyfExtendedTooltip" id="73"/>
 						</Button>
 					</ChildItems>
 				</CommandBar>

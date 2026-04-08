@@ -33,7 +33,7 @@
 			<title xsi:type="v8:LocalStringType">
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Recommendations label [ЗаголовокСкрыт]</v8:content>
+					<v8:content>Recommendations label [TheTitleIsHidden]</v8:content>
 				</v8:item>
 			</title>
 		</field>
@@ -43,7 +43,7 @@
 			<title xsi:type="v8:LocalStringType">
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Check rule [ЗаголовокСкрыт]</v8:content>
+					<v8:content>Check rule [TheTitleIsHidden]</v8:content>
 				</v8:item>
 			</title>
 			<role>
@@ -66,7 +66,7 @@
 			<title xsi:type="v8:LocalStringType">
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Recommendations label [ЗаголовокСкрыт]</v8:content>
+					<v8:content>Recommendations label [TheTitleIsHidden]</v8:content>
 				</v8:item>
 			</title>
 		</field>
@@ -76,7 +76,7 @@
 			<title xsi:type="v8:LocalStringType">
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Possible causes label [ЗаголовокСкрыт]</v8:content>
+					<v8:content>Possible causes label [TheTitleIsHidden]</v8:content>
 				</v8:item>
 			</title>
 		</field>
@@ -104,7 +104,7 @@
 			<title xsi:type="v8:LocalStringType">
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Object with issues [ЗаголовокСкрыт]</v8:content>
+					<v8:content>Object with issues [TheTitleIsHidden]</v8:content>
 				</v8:item>
 			</title>
 			<role>
@@ -137,7 +137,7 @@
 			<title xsi:type="v8:LocalStringType">
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Solution label [ЗаголовокСкрыт]</v8:content>
+					<v8:content>Solution label [TheTitleIsHidden]</v8:content>
 				</v8:item>
 			</title>
 		</field>
@@ -151,7 +151,7 @@
 			<title xsi:type="v8:LocalStringType">
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Recommendations label [ЗаголовокСкрыт]</v8:content>
+					<v8:content>Recommendations label [TheTitleIsHidden]</v8:content>
 				</v8:item>
 			</title>
 		</field>
@@ -295,7 +295,7 @@ FROM
 	</calculatedField>
 	<calculatedField>
 		<dataPath>DetailsField</dataPath>
-		<expression>AccountingAuditInternal.DetailsCell(ObjectWithIssue, CheckRule, CheckKind, IssueSummary)</expression>
+		<expression>AccountingAuditInternal.DetailsCell(ObjectWithIssue, CheckRule, CheckKind, IssueSummary, UniqueKey)</expression>
 		<title xsi:type="v8:LocalStringType">
 			<v8:item>
 				<v8:lang>en</v8:lang>
@@ -309,7 +309,7 @@ FROM
 		<title xsi:type="v8:LocalStringType">
 			<v8:item>
 				<v8:lang>en</v8:lang>
-				<v8:content>Object with issues [ЗаголовокСкрыт]</v8:content>
+				<v8:content>Object with issues [TheTitleIsHidden]</v8:content>
 			</v8:item>
 		</title>
 	</calculatedField>

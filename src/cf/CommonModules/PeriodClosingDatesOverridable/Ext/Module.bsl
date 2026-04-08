@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -73,11 +72,11 @@ Procedure FillDataSourcesForPeriodClosingCheck(DataSources) Export
 	
 EndProcedure
 
-// "Allows overriding the execution of the change restriction check in an arbitrary way.<plch id="1">
+// "Allows overriding the execution of the change restriction check in an arbitrary way.
 //
-// If the check is performed during the document write process, the "AdditionalProperties" of<plch id="1">
-// the document "Object" includes the "WriteMode" ("DocumentWriteMode") property.<plch id="1">
-// If the check is performed on a record set, the "AdditionalProperties" of the record set "Object" contains the "Replacing" property ("Boolean, ReplacementMode).<plch id="1">
+// If the check is performed during the document write process, the "AdditionalProperties" of
+// the document "Object" includes the "WriteMode" ("DocumentWriteMode") property.
+// If the check is performed on a record set, the "AdditionalProperties" of the record set "Object" contains the "Replacing" property ("Boolean, ReplacementMode).
 // In the case of record replacement, the Filter property is configured to retrieve existing records from the database.
 // 
 //  

@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 // Form parameterization:
@@ -357,10 +356,10 @@ Function SelectionResult()
 	
 	Result.Insert("Kind", ContactInformationKind);
 	Result.Insert("Type", ContactInformationType);
-	Result.Insert("ContactInformation", ContactsManager.ContactInformationToXML(ChoiceData, ContactInformation.value, ContactInformationType));
+	Result.Insert("ContactInformation", ContactsManager.ContactInformationToXML(ChoiceData, ContactInformation.Value, ContactInformationType));
 	Result.Insert("Value", ChoiceData);
-	Result.Insert("Presentation", ContactInformation.value);
-	Result.Insert("Comment", ContactInformation.comment);
+	Result.Insert("Presentation", ContactInformation.Value);
+	Result.Insert("Comment", ContactInformation.Comment);
 	Result.Insert("AsHyperlink", False);
 	Result.Insert("ContactInformationAdditionalAttributesDetails",
 		ContactInformationAdditionalAttributesDetails);
@@ -396,16 +395,16 @@ EndFunction
 Procedure ContactInformationAttibutesValues(InformationToEdit)
 	
 	// Common attributes.
-	Presentation = InformationToEdit.value;
-	Comment   = InformationToEdit.comment;
+	Presentation = InformationToEdit.Value;
+	Comment   = InformationToEdit.Comment;
 	
 	// Comment copy used to analyze changes.
 	CommentCopy = Comment;
 	
 	If EnterNumberByMask Then 
-		PhoneNumberByMask = InformationToEdit.value;	
+		PhoneNumberByMask = InformationToEdit.Value;	
 	Else	
-		CountryCode     = InformationToEdit.countryCode;
+		CountryCode     = InformationToEdit.CountryCode;
 		CityCode     = InformationToEdit.AreaCode;
 		PhoneNumber = InformationToEdit.Number;
 		PhoneExtension    = InformationToEdit.ExtNumber;
@@ -421,20 +420,20 @@ Function ContactInformationByAttributesValues()
 	
 	If EnterNumberByMask Then   
 		ContactInformation = ContactsManagerInternal.ContactsByPresentation(PhoneNumberByMask, ContactInformationKind);
-		Result.countryCode = ContactInformation.countryCode;
+		Result.CountryCode = ContactInformation.CountryCode;
 		Result.AreaCode    = ContactInformation.AreaCode;
 		Result.Number      = ContactInformation.Number;
 		Result.ExtNumber   = ContactInformation.ExtNumber;
-		Result.value       = PhoneNumberByMask;		
+		Result.Value       = PhoneNumberByMask;		
 	Else	
-		Result.countryCode = CountryCode;
+		Result.CountryCode = CountryCode;
 		Result.AreaCode    = CityCode;
 		Result.Number      = PhoneNumber;
 		Result.ExtNumber   = PhoneExtension;
-		Result.value       = ContactsManagerClientServer.GeneratePhonePresentation(CountryCode, CityCode, PhoneNumber, PhoneExtension, "");
+		Result.Value       = ContactsManagerClientServer.GeneratePhonePresentation(CountryCode, CityCode, PhoneNumber, PhoneExtension, "");
 	EndIf;    
 	
-	Result.comment     = Comment;
+	Result.Comment     = Comment;
 	
 	Return Result;
 	

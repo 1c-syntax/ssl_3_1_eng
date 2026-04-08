@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Variables
@@ -426,7 +425,7 @@ EndProcedure
 #Region FormHeaderItemsEventHandlers
 
 &AtClient
-Procedure PropertyKindOnChange(Item)
+Procedure PropertiesKindOnChange(Item)
 	
 	Object.PropertyKind1 = PropertyKind1;
 	If Object.PropertyKind1 = PredefinedValue("Enum.PropertiesKinds.AdditionalInfo") Then
@@ -1434,7 +1433,16 @@ Procedure SetsAdjustmentCommentClickCompletion(SelectedElement, SelectedSet) Exp
 		SelectionValue = New Structure;
 		SelectionValue.Insert("Set", SelectedSet);
 		SelectionValue.Insert("Property", Object.Ref);
-		SelectionValue.Insert("PropertyKind1", Object.PropertyKind1);
+		If Not ValueIsFilled(Object.PropertyKind1)
+			And Object.IsAdditionalInfo Then
+			SelectionValue.Insert("PropertyKind1", PredefinedValue("Enum.PropertiesKinds.AdditionalInfo"));
+		ElsIf Not ValueIsFilled(Object.PropertyKind1)
+			And Not Object.IsAdditionalInfo Then
+			SelectionValue.Insert("PropertyKind1", PredefinedValue("Enum.PropertiesKinds.AdditionalAttributes"));
+		Else
+			SelectionValue.Insert("PropertyKind1", Object.PropertyKind1);
+		EndIf;
+		
 		NotifyChoice(SelectionValue);
 	EndIf;
 	

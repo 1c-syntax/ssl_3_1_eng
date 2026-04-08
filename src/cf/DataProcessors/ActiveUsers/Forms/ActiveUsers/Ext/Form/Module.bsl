@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Variables
@@ -128,11 +127,11 @@ Procedure TerminateSession(Command)
 		
 	Else
 		If PromptForIBAdministrationParameters Then
-			NotifyDescription = New CallbackDescription("TerminateSessionContinuation", ThisObject, SessionsNumbers);
+			CallbackDescription = New CallbackDescription("TerminateSessionContinuation", ThisObject, SessionsNumbers);
 			FormCaption = NStr("en = 'Close session'");
 			NoteLabel = NStr("en = 'To end the session, enter
 				|the server cluster administration parameters'");
-			IBConnectionsClient.ShowAdministrationParameters(NotifyDescription, False, True, AdministrationParameters, FormCaption, NoteLabel);
+			IBConnectionsClient.ShowAdministrationParameters(CallbackDescription, False, True, AdministrationParameters, FormCaption, NoteLabel);
 		Else
 			TerminateSessionContinuation(AdministrationParameters, SessionsNumbers);
 		EndIf;
@@ -311,7 +310,7 @@ Procedure FillUserList()
 		
 		UserLine = UsersList.Add();
 		
-		UserLine.Package   = ApplicationPresentation(IBSession.ApplicationName);
+		UserLine.Application   = ApplicationPresentation(IBSession.ApplicationName);
 		UserLine.WorkStart = IBSession.SessionStarted;
 		UserLine.Computer    = IBSession.ComputerName;
 		UserLine.Session        = IBSession.SessionNumber;

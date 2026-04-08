@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -29,6 +28,42 @@ EndProcedure
 
 #EndRegion
 
+#Region FormHeaderItemsEventHandlers
+
+&AtClient
+Procedure SearchStringTextEditEnd(Item, Text, ChoiceData, DataGetParameters, StandardProcessing)
+	FindAndSelectLine(Text);
+EndProcedure
+
+&AtClient
+Procedure ReportTableOnActivate(Item)
+	
+	RowsSelected = New Array;
+	
+	SelectedAreas = Items.ReportTable.GetSelectedAreas();
+	
+	For Each SelectedArea1 In SelectedAreas Do 
+		
+		If TypeOf(SelectedArea1) <> Type("SpreadsheetDocumentRange") Then
+			Continue;
+		EndIf;
+		
+		NewArea = ReportTable.Area(SelectedArea1.Top, ,SelectedArea1.Bottom);
+		RowsSelected.Add(NewArea);
+	EndDo;
+	
+	If RowsSelected.Count() = 0 Then
+		Return;
+	EndIf;
+	
+	RowsSelected = CommonClientServer.CollapseArray(RowsSelected);
+	
+	Items.ReportTable.SetSelectedAreas(RowsSelected);
+	
+EndProcedure
+
+#EndRegion
+
 #Region FormCommandsEventHandlers
 
 &AtClient
@@ -41,7 +76,13 @@ EndProcedure
 &AtClient
 Procedure OutputForCurrentDocument(Command)
 	
-	CurrentObject = Items.ReportTable.CurrentArea.Details;
+	CurrentArea = Items.ReportTable.CurrentArea;
+	
+	If CurrentArea = Undefined Then
+		Return;
+	EndIf;
+	
+	CurrentObject = FirstRowFieldDrilldown(CurrentArea.Top);
 	
 	If Not ValueIsFilled(CurrentObject) Then
 		Return;
@@ -68,6 +109,8 @@ Procedure ChangeDeletionMark(Command)
 	
 	Scenario = DeletionMarkEditScenario(SelectedItems, Statistics);
 	Scenario.Insert("SelectedItems", SelectedItems);
+	ViewsOfSelectedItems = ?(Scenario.Check, Statistics.NoDeletionMark, Statistics.WithDeletionMark);
+	Scenario.Insert("ViewsOfSelectedItems", ViewsOfSelectedItems);
 	
 	Handler = New CallbackDescription("ExecuteDeletionMarkChangeScenario", ThisObject, Scenario);
 	ShowQueryBox(Handler, Scenario.DoQueryBox, QuestionDialogMode.YesNo);
@@ -86,6 +129,23 @@ Procedure CancelPosting(Command)
 	
 	ChangeDocumentsPosting(DocumentWriteMode.UndoPosting);
 	
+EndProcedure
+
+&AtClient
+Procedure FindNextLine(Command)
+	SearchStart = Undefined;
+	SelectedAreas = Items.ReportTable.GetSelectedAreas();
+	For Each SelectedArea1 In SelectedAreas Do 
+		If TypeOf(SelectedArea1) = Type("SpreadsheetDocumentRange") Then
+			NextLineIsTop = SelectedArea1.Top + 1;
+			NextLineIsBottom = SelectedArea1.Bottom + 1;
+			SearchStart = ReportTable.Area(NextLineIsTop, 1,NextLineIsBottom, 1);
+			Break;
+		EndIf;
+	EndDo;
+	SearchStart = ?(SearchStart <> Undefined, SearchStart, Undefined);
+	
+	FindAndSelectLine(SearchString, SearchStart);
 EndProcedure
 
 #EndRegion
@@ -660,14 +720,14 @@ Procedure OutputParentObjects(CurrentObject, ParentTree, DisplayedObjects,
 			If NewRow <> Undefined
 				And Not ObjectToAddIsAmongParents(ParentTree, ObjectToOutput.Ref) Then
 				
-				// @skip-check query-in-loop - Рекурсивный алгоритм обработки дерева.
+				// @skip-check query-in-loop - 
 				OutputParentObjects(ObjectToOutput.Ref, NewRow, DisplayedObjects,
 					ServiceObjects, IndexOfObjectRelationships);
 				
 			ElsIf ServiceObjects[ObjectToOutput.Ref] = Undefined Then 
 				
 				ServiceObjects[ObjectToOutput.Ref] = True;
-				// @skip-check query-in-loop - Рекурсивный алгоритм обработки дерева.
+				// @skip-check query-in-loop - 
 				OutputParentObjects(ObjectToOutput.Ref, ParentTree, DisplayedObjects,
 					ServiceObjects, IndexOfObjectRelationships);
 				
@@ -873,14 +933,14 @@ Procedure OutputSubordinateObjects(CurrentObject, ParentTree, DisplayedObjects,
 		If NewRow <> Undefined
 			And Not ObjectToAddIsAmongParents(ParentTree, ObjectToOutput.Ref) Then
 			
-			// @skip-check query-in-loop - Рекурсивный алгоритм обработки дерева.
+			// @skip-check query-in-loop - 
 			OutputSubordinateObjects(ObjectToOutput.Ref, NewRow, DisplayedObjects,
 				ServiceObjects, IndexOfObjectRelationships);
 			
 		ElsIf ServiceObjects[ObjectToOutput.Ref] = Undefined Then 
 			
 			ServiceObjects.Insert(ObjectToOutput.Ref, True);
-			// @skip-check query-in-loop - Рекурсивный алгоритм обработки дерева.
+			// @skip-check query-in-loop - 
 			OutputSubordinateObjects(ObjectToOutput.Ref, ParentTree, DisplayedObjects,
 				ServiceObjects, IndexOfObjectRelationships);
 			
@@ -1019,7 +1079,7 @@ Function DocumentAttributeName(Val ObjectMetadata, Val Var_AttributeName)
 	EndIf;	
 	
 	// For backward compatibility purposes.
-	DocumentAttributeName = SubordinationStructureOverridable.DocumentAttributeName(ObjectMetadata.Name, Var_AttributeName); // ACC:223
+	DocumentAttributeName = SubordinationStructureOverridable.DocumentAttributeName(ObjectMetadata.Name, Var_AttributeName); // ACC:222
 	If Var_AttributeName = "DocumentAmount" Then
 		Return ?(DocumentAttributeName = Undefined, "DocumentAmount", DocumentAttributeName);
 	ElsIf Var_AttributeName = "Currency" Then
@@ -1049,7 +1109,7 @@ Function AttributesForPresentation(Val FullMetadataObjectName, Val MetadataObjec
 	EndIf;
 	
 	// For backward compatibility purposes.
-	Return SubordinationStructureOverridable.ObjectAttributesArrayForPresentationGeneration(MetadataObjectName); // ACC:223
+	Return SubordinationStructureOverridable.ObjectAttributesArrayForPresentationGeneration(MetadataObjectName); // ACC:222
 	
 EndFunction
 
@@ -1064,7 +1124,7 @@ Function ObjectPresentationForOutput(Data)
 	EndIf;
 	
 	// For backward compatibility purposes.
-	Return SubordinationStructureOverridable.ObjectPresentationForReportOutput(Data); // ACC:223
+	Return SubordinationStructureOverridable.ObjectPresentationForReportOutput(Data); // ACC:222
 	
 EndFunction
 
@@ -1093,8 +1153,14 @@ Function SelectedItems()
 				
 				Cell = ReportTable.Area(LineNumber, ColumnNumber, LineNumber, ColumnNumber);
 				
-				If ValueIsFilled(Cell.Details) Then 
-					SelectedItems.Add(Cell.Details);
+				Details = Cell.Details;
+				
+				If Not ValueIsFilled(Details) Then 
+					Details = FirstRowFieldDrilldown(Cell.Top);
+				EndIf;
+				
+				If ValueIsFilled(Details) Then 
+					SelectedItems.Add(Details);
 				EndIf;
 				
 			EndDo;
@@ -1102,6 +1168,8 @@ Function SelectedItems()
 		EndDo;
 		
 	EndDo;
+	
+	SelectedItems = CommonClientServer.CollapseArray(SelectedItems);
 	
 	Return SelectedItems;
 	
@@ -1254,7 +1322,7 @@ Procedure ExecuteDeletionMarkChangeScenario(Response, Scenario) Export
 		Return;
 	EndIf;
 	
-	Errors = ChangeItemsDeletionMark(Scenario.SelectedItems, Scenario.Check);
+	Errors = ChangeItemsDeletionMark(Scenario.ViewsOfSelectedItems, Scenario.Check);
 	If Errors.Count() > 0 Then 
 		WarnAboutAnErrorWhenChangingElements(Errors, "DeletionMark");
 	Else
@@ -1271,8 +1339,28 @@ EndProcedure
 &AtServer
 Function ChangeItemsDeletionMark(SelectedItems, Check)
 	
+	ErrorTemplate = ?(Check, 
+		NStr("en = 'Insufficient rights to mark the ""%1"" for deletion.'"), 
+		NStr("en = 'Insufficient rights to unmark the ""%1"" for deletion.'"));
+	
 	Errors = New Array;
-	For Each Item In SelectedItems Do 
+	For Each ItemProperties In SelectedItems Do
+		
+		Item = ItemProperties.Key;
+			
+		AvailableUpdate = False;
+		If Check Then
+			AvailableUpdate = AccessRight("InteractiveSetDeletionMark", Item.Metadata());
+		Else
+			AvailableUpdate = AccessRight("InteractiveClearDeletionMark", Item.Metadata());
+		EndIf;
+
+		If Not AvailableUpdate Then
+			ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorTemplate,
+				ItemProperties.Value);
+			Errors.Add(ErrorText);
+			Continue;
+		EndIf;
 		
 		BeginTransaction();
 		
@@ -1351,6 +1439,7 @@ Function ProcessedDocuments(SelectedDocuments, Mode, Errors)
 	
 	ProcessedDocuments = New Map;
 	IndexOf = SelectedDocuments.UBound();
+	DocumentsProhibitedFromChangingConduct = New Array;
 	While IndexOf >= 0 Do 
 		
 		ObjectMetadata = SelectedDocuments[IndexOf].Metadata();
@@ -1360,9 +1449,28 @@ Function ProcessedDocuments(SelectedDocuments, Mode, Errors)
 			Or ObjectMetadata.Posting <> HoldingIsAllowed Then 
 			
 			SelectedDocuments.Delete(IndexOf);
+		Else
+			If Mode = DocumentWriteMode.Posting Then
+				InteractiveLaw = "InteractivePosting";
+			ElsIf Mode = DocumentWriteMode.UndoPosting Then
+				InteractiveLaw = "InteractiveUndoPosting";
+			Else
+				InteractiveLaw = Undefined;
+			EndIf;
+			If ValueIsFilled(InteractiveLaw) And Not AccessRight(InteractiveLaw, ObjectMetadata) Then
+				DocumentsProhibitedFromChangingConduct.Add(SelectedDocuments[IndexOf]);
+				SelectedDocuments.Delete(IndexOf);
+			EndIf;
 		EndIf;
-		
 		IndexOf = IndexOf - 1;
+	EndDo;
+	
+	DocumentsProperties = Common.ObjectsAttributesValues(DocumentsProhibitedFromChangingConduct, "Presentation");
+	ErrorTemplate = ?(Mode = DocumentWriteMode.Posting, NStr("en = 'Insufficient rights to post ""%1"".'"), NStr("en = 'Insufficient rights to cancel posting of ""%1"".'"));
+	For Each DocumentProperty In DocumentsProperties Do
+		PresentationOfDocument = DocumentProperty.Value.Presentation;
+		ErrorText = StringFunctionsClientServer.SubstituteParametersToString(ErrorTemplate, PresentationOfDocument);
+		Errors.Add(ErrorText);
 	EndDo;
 	
 	If SelectedDocuments.Count() = 0 Then 
@@ -1438,6 +1546,57 @@ Procedure WarnAboutAnErrorWhenChangingElements(Errors, Scenario)
 	
 EndProcedure
 
+&AtClient
+Function FirstRowFieldDrilldown(LineNumber)
+	
+	If LineNumber  = Undefined Then
+		Return Undefined;
+	EndIf;
+	
+	Details = Undefined;
+	
+	CurrentColumnNumber = 1;
+	MaximumColumnNumber = 100;
+	While CurrentColumnNumber <> MaximumColumnNumber Do
+		Cell = ReportTable.Area(LineNumber, CurrentColumnNumber, LineNumber, CurrentColumnNumber);
+		CurrentColumnNumber = CurrentColumnNumber + 1;
+		If Cell = Undefined Then
+			Continue;
+		EndIf;
+		Details = Cell.Details;
+		
+		If Details <> Undefined Then
+			Break;
+		EndIf;
+	EndDo;
+	
+	Return Details;
+	
+EndFunction
+
 #EndRegion
+
+&AtClient
+Procedure FindAndSelectLine(SearchText, SearchStart = Undefined)
+	
+	If Not ValueIsFilled(SearchText) Then
+		Return;
+	EndIf;
+	
+	SearchResult = ReportTable.FindText(SearchText, SearchStart,,True,,,True);
+	If SearchResult = Undefined And SearchStart <> Undefined Then
+		SearchResult = ReportTable.FindText(SearchText,,,True,,,True);
+	EndIf;
+	
+	If SearchResult <> Undefined Then
+		RowsSelected = New Array;
+		RowsSelected.Add(SearchResult);
+		Items.ReportTable.SetSelectedAreas(RowsSelected);
+		CurrentItem = Items.ReportTable;
+	Else
+		ShowMessageBox(, NStr("en = 'The line is not found.'"));
+	EndIf;
+	
+EndProcedure
 
 #EndRegion

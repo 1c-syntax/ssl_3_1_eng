@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -152,7 +151,7 @@ Procedure RestoreMissingPredefinedItems(CheckID)
 			Query.Text = StrReplace(Query.Text,
 				"ISNULL(SpecifiedTableAlias.Parent.PredefinedDataName, """")", """""");
 		EndIf;
-		NameTable = Query.Execute().Unload(); // @skip-check query-in-loop - запрос к разным таблицам.
+		NameTable = Query.Execute().Unload(); // @skip-check query-in-loop 
 		
 		If NameTable.Count() = 0 Then
 			Continue; // All predefined items are missing, restoration in a regular way.
@@ -185,7 +184,7 @@ Procedure RestoreMissingPredefinedItems(CheckID)
 			|WHERE
 			|	NOT SpecifiedTableAlias.Predefined";
 		Query.Text = StrReplace(Query.Text, "&CurrentTable", FullName);
-		AllNonPredefinedItems = Query.Execute().Unload(); // @skip-check query-in-loop - запрос к разным таблицам.
+		AllNonPredefinedItems = Query.Execute().Unload(); // @skip-check query-in-loop 
 		AllNonPredefinedItems.Indexes.Add("Description, Parent");
 		
 		If PredefinedItemsInMetadata.Count() > 0 Then

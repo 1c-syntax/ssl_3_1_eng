@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Variables
@@ -191,18 +190,18 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.AssistanceRequiredGroup.Behavior = UsualGroupBehavior.Collapsible;
 	EndIf;
 	
-	// 
-	If Common.SubsystemExists("StandardSubsystems.ContactingTechnicalSupport") Then
+	// StandardSubsystems.SupportRequests
+	If Common.SubsystemExists("StandardSubsystems.SupportRequests") Then
 		
-		ModuleForContactingTechnicalSupportService = Common.CommonModule(
-			"ContactingTechnicalSupportInternal");
+		ModuleSupportRequestsInternal = Common.CommonModule(
+			"SupportRequestsInternal");
 		
-		ModuleForContactingTechnicalSupportService.OnCreateAtServer(ThisObject);
+		ModuleSupportRequestsInternal.OnCreateAtServer(ThisObject);
 		
 	Else
 		Items.AssistanceRequiredGroup.Visible = False;
 	EndIf;
-	// End StandardSubsystems.ContactingTechnicalSupport
+	// End StandardSubsystems.SupportRequests
 	
 	StandardSubsystemsServer.ResetWindowLocationAndSize(ThisObject);
 	
@@ -362,23 +361,19 @@ EndProcedure
 &AtClient
 Procedure Validate(Command)
 	
-	AreChecksPassed = True;
-	Items.GroupPages.Visible = True;
-	Items.FormValidate.Enabled = False;
-	Items.GroupPages.CurrentPage = Items.PageVerificationInProgress;
 	CheckCertificate(New CallbackDescription("ValidateCompletion", ThisObject));
 	
 EndProcedure
 
 &AtClient
-Procedure QuestionInSupport(Command)
+Procedure SupportTicket(Command)
 	
 	ExportTechnicalInfo(False);
 	
 EndProcedure
 
 &AtClient
-Procedure InformationToSendToSupport(Command)
+Procedure InfoForSupport(Command)
 	
 	Items.AssistanceRequiredGroup.Hide();
 	ExportTechnicalInfo(True);
@@ -388,6 +383,12 @@ EndProcedure
 #EndRegion
 
 #Region Private
+
+&AtClient
+Procedure VisibilityAtEndOfVerification()
+	Items.FormValidate.Enabled = True;
+	PagesVisibility(ThisObject);
+EndProcedure
 
 &AtClientAtServerNoContext
 Function GroupsNamesByCheckNames(FormItems)
@@ -457,10 +458,8 @@ EndProcedure
 // Continues the Check procedure.
 &AtClient
 Procedure ValidateCompletion(NotDefined, Context) Export
-		
-	Items.FormValidate.Enabled = True;
 	
-	PagesVisibility(ThisObject);
+	VisibilityAtEndOfVerification();
 	
 	If TimestampCertificates.Count() = 0 Then
 		Items.DecorationTimestampCertificate.Visible = False;
@@ -553,6 +552,7 @@ Procedure ContinueOpening(Notification, CommonInternalData, IncomingClientParame
 		EndIf;
 		
 		Context = New Structure("Notification", Notification);
+		
 		CheckCertificate(New CallbackDescription(
 			"ContinueOpeningAfterCertificateCheck", ThisObject, Context));
 		
@@ -574,6 +574,8 @@ Procedure ContinueOpeningAfterCertificateCheck(Result, Context) Export
 		RunCallback(Context.Notification, True);
 		Return;
 	EndIf;
+	
+	VisibilityAtEndOfVerification();
 	
 	If Not IsOpen()
 		And Not (ClientParameters.Property("DontShowResults")
@@ -615,6 +617,11 @@ Procedure CheckCertificate(Notification)
 	AdditionalDataChecksOnServer = New Structure;
 	TimestampCertificates.Clear();
 	Items.DecorationTimestampCertificate.Visible = False;
+	
+	AreChecksPassed = True;
+	Items.GroupPages.Visible = True;
+	Items.FormValidate.Enabled = False;
+	Items.GroupPages.CurrentPage = Items.PageVerificationInProgress;
 	
 	// Clearing the previous check results.
 	If StandardChecks Then
@@ -951,7 +958,7 @@ EndProcedure
 
 // Continues the CheckAtClientSide procedure.
 &AtClient
-Async Procedure CheckAtClientSideAfterCreateAnyCryptoManager(Result, Context) Export
+Procedure CheckAtClientSideAfterCreateAnyCryptoManager(Result, Context) Export
 	
 	If TypeOf(Result) = Type("CryptoManager") Then
 		AdditionalInspectionParameters = DigitalSignatureInternalClient.AdditionalCertificateVerificationParameters();
@@ -963,24 +970,42 @@ Async Procedure CheckAtClientSideAfterCreateAnyCryptoManager(Result, Context) Ex
 			Context.CryptoCertificate, Result,,AdditionalInspectionParameters);
 		Return;
 	EndIf;
-	
-	Token = Await DigitalSignatureInternalClient.GetTokenByCertificate(Context.CryptoCertificate);
-	
-	If Token = Undefined Then
-		CheckAtClientSideAfterCertificateCheck(Result, Context);
+		
+	StandardProcessing = True;
+	DigitalSignatureClientLocalization.OnGettingTokenByCertificate(
+		New CallbackDescription("AfterGettingTokenByCertificate", ThisObject, 
+			New Structure("Context, Result", Context, Result)),
+		Context.CryptoCertificate, StandardProcessing, True, True);
+		
+	If Not StandardProcessing Then
 		Return;
 	EndIf;
+	
+	CheckAtClientSideAfterCertificateCheck(Result, Context);
+
+EndProcedure
+
+// Continues the CheckAtClientSide procedure.
+&AtClient
+Async Procedure AfterGettingTokenByCertificate(Token, AdditionalParameters) Export
+	
+	If Not ValueIsFilled(Token) Then
+		CheckAtClientSideAfterCertificateCheck(AdditionalParameters.Result, AdditionalParameters.Context);
+		Return;
+	EndIf;
+	
+	Context = AdditionalParameters.Context;
 	
 	Context.Insert("CryptoManager", Undefined);
 	Token.Insert("Password", PasswordProperties.Value);
 	Context.Insert("Token", Token);
-		
-	If Result = True Then
+	
+	If AdditionalParameters.Result = True Then
 		ErrorDetailsAtClient = "";
-	ElsIf TypeOf(Result) = Type("Structure") Then
-		ErrorDetailsAtClient = Result.ErrorDetailsAtClient;
+	ElsIf TypeOf(AdditionalParameters.Result) = Type("Structure") Then
+		ErrorDetailsAtClient = AdditionalParameters.Result.ErrorDetailsAtClient;
 	Else
-		ErrorDetailsAtClient = Result;
+		ErrorDetailsAtClient = AdditionalParameters.Result;
 	EndIf;
 	
 	SetItem(ThisObject, "CertificateData", False,
@@ -996,25 +1021,60 @@ Async Procedure CheckAtClientSideAfterCreateAnyCryptoManager(Result, Context) Ex
 	If Not ValueIsFilled(ErrorDescription) Then
 		SignatureParameters = DigitalSignatureInternalClient.ParametersOfSignatureOnToken(Token, 
 			Context.CryptoCertificate, PredefinedValue("Enum.CryptographySignatureTypes.BasicCAdESBES"));
-		SignatureData = Await DigitalSignatureInternalClient.SignatureOnToken(SignatureParameters, Context.CertificateData);
-		If TypeOf(SignatureData) = Type("String") Then
-			ErrorDescription = SignatureData;
-		Else
-			If ValueIsFilled(SignatureType) And SignatureType <> PredefinedValue(
-				"Enum.CryptographySignatureTypes.BasicCAdESBES") And SignatureType <> PredefinedValue(
-				"Enum.CryptographySignatureTypes.NormalCMS") Then
-				SignatureParameters.SignatureType = SignatureType;
-				SignatureData = Await DigitalSignatureInternalClient.SignatureOnToken(SignatureParameters, Context.CertificateData);
-				If TypeOf(SignatureData) = Type("String") Then
-					ErrorDescription = SignatureData;
-				EndIf;
-			EndIf;
+		
+		StandardProcessing = True;
+		NotificationAfterOperationOnToken = New CallbackDescription("AfterSigningOnToken", ThisObject, Context);
+		DigitalSignatureClientLocalization.OnSigningOnToken(NotificationAfterOperationOnToken, SignatureParameters,
+			Context.CertificateData, StandardProcessing);
+		If Not StandardProcessing Then
+			Return;
+		EndIf;
+		
+		SetItem(ThisObject, "Signing", False, NStr("en = 'Signing procedure for the token not found.'"), True, MergeResults);
+	Else
+		SetItem(ThisObject, "Signing", False, ErrorDescription, True, MergeResults);
+	EndIf;
+	
+	AfterSignatureInTokenChecked(Undefined, Context);
+	
+EndProcedure
+
+// Continues the CheckAtClientSide procedure.
+&AtClient
+Async Procedure AfterSigningOnToken(SignatureData, Context) Export
+
+	If TypeOf(SignatureData) <> Type("String") And ValueIsFilled(SignatureType) And SignatureType <> PredefinedValue(
+			"Enum.CryptographySignatureTypes.BasicCAdESBES") And SignatureType <> PredefinedValue(
+			"Enum.CryptographySignatureTypes.NormalCMS") Then
+		SignatureParameters = DigitalSignatureInternalClient.ParametersOfSignatureOnToken(Context.Token,
+			Context.CryptoCertificate, SignatureType);
+
+		StandardProcessing = True;
+		NotificationAfterOperationOnToken = New CallbackDescription("AfterSigningOnTokenWithSignatureType", ThisObject,
+			Context);
+		DigitalSignatureClientLocalization.OnSigningOnToken(NotificationAfterOperationOnToken, SignatureParameters,
+			Context.CertificateData, StandardProcessing);
+		If Not StandardProcessing Then
+			Return;
 		EndIf;
 	EndIf;
 	
-	SetItem(ThisObject, "Signing", False, ErrorDescription, True, MergeResults);
+	AfterSigningOnTokenWithSignatureType(SignatureData, Context);
+	
+EndProcedure
+
+// Continues the CheckAtClientSide procedure.
+&AtClient
+Async Procedure AfterSigningOnTokenWithSignatureType(SignatureData, Context) Export
+	
+	ErrorDescription = "";
+	
+	If TypeOf(SignatureData) = Type("String") Then
+		ErrorDescription = SignatureData;
+	EndIf;
 	
 	If TypeOf(SignatureData) = Type("BinaryData") Then
+		PasswordAccepted = True;
 		SignatureVerificationParameters = New Structure;
 		SignatureVerificationParameters.Insert("Signature", SignatureData);
 		SignatureVerificationParameters.Insert("SignAlgorithm", Context.SignAlgorithm);
@@ -1028,6 +1088,8 @@ Async Procedure CheckAtClientSideAfterCreateAnyCryptoManager(Result, Context) Ex
 		AfterSignatureInTokenChecked(Undefined, Context);
 	EndIf;
 	
+	SetItem(ThisObject, "Signing", False, ErrorDescription, True, MergeResults);
+	
 EndProcedure
 
 // Continues the "CheckAtClientSide" procedure.
@@ -1035,7 +1097,7 @@ EndProcedure
 Async Procedure AfterSignatureInTokenChecked(Result, Context) Export
 	
 	If Result <> Undefined Then
-		If Not Result.SignatureCorrect Then
+		If Result.SignatureCorrect <> True Then
 			ErrorDescription = ?(ValueIsFilled(Result.SignatureMathValidationError),
 				Result.SignatureMathValidationError, Result.AdditionalAttributesCheckError);
 			SetItem(ThisObject, "CheckSignature", False, ErrorDescription, True, MergeResults);
@@ -1043,33 +1105,67 @@ Async Procedure AfterSignatureInTokenChecked(Result, Context) Export
 			SetItem(ThisObject, "CheckSignature", False, "", False, MergeResults);
 		EndIf;
 	EndIf;
-		
+	
 	EncryptionParameters = DigitalSignatureInternalClient.EncryptionOnTokenParameters(Context.Token,
 		Context.CryptoCertificate);
-	EncryptedData = Await DigitalSignatureClientLocalization.EncryptionOnToken(EncryptionParameters, Context.CertificateData);
+	StandardProcessing = True;
+	NotificationAfterOperationOnToken = New CallbackDescription("AfterEncryptionOnToken", ThisObject, Context);
+	DigitalSignatureClientLocalization.OnEncryptionOnToken(NotificationAfterOperationOnToken,
+		EncryptionParameters, Context.CertificateData, StandardProcessing);
+	If Not StandardProcessing Then
+		Return;
+	EndIf;
+	
+	RunCallback(NotificationAfterOperationOnToken, NStr("en = 'Encryption procedure for the token not found.'"));
+		
+EndProcedure
+
+// Continues the CheckAtClientSide procedure.
+&AtClient
+Procedure AfterEncryptionOnToken(EncryptedData, Context) Export
+	
 	If TypeOf(EncryptedData) = Type("String") Then
 		SetItem(ThisObject, "Encryption", False, EncryptedData, True, MergeResults);
+		CheckAtClientSideAdditionalChecks(Context);
 	Else
 		
 		If TypeOf(EncryptedData) <> Type("BinaryData") Then
 			SetItem(ThisObject, "Encryption", False, NStr(
 				"en = 'Couldn''t encrypt data using the token.'"), True, MergeResults);
+			CheckAtClientSideAdditionalChecks(Context);
 		Else
 			SetItem(ThisObject, "Encryption", False, "", False, MergeResults);
-			DetailsParameters = DigitalSignatureInternalClient.DecryptionOnTokenParameters(Context.Token,
-				Context.CryptoCertificate);
-			DecryptedData = Await DigitalSignatureClientLocalization.DecryptionOnToken(DetailsParameters, EncryptedData);
-			If TypeOf(DecryptedData) = Type("String") Then
-				SetItem(ThisObject, "Details", False, DecryptedData, True, MergeResults);
 			
-			Else
-				SetItem(ThisObject, "Details", False, "", False, MergeResults);
+			DetailsParameters = DigitalSignatureInternalClient.DecryptionOnTokenParameters(Context.Token, 
+						Context.CryptoCertificate);
+			NotificationAfterOperationOnToken = New CallbackDescription("AfterDecryptionOnToken",
+				ThisObject, Context);
+			StandardProcessing = True;
+			DigitalSignatureClientLocalization.OnDecryptionOnToken(NotificationAfterOperationOnToken,
+				DetailsParameters, EncryptedData, StandardProcessing);
+			If Not StandardProcessing Then
+				Return;
 			EndIf;
+					
+			RunCallback(NotificationAfterOperationOnToken, 
+				NStr("en = 'Decryption procedure for the token not found.'"));
+			
 		EndIf;
 	EndIf;
 	
-	CheckAtClientSideAdditionalChecks(Context);
+EndProcedure
+
+// Continues the CheckAtClientSide procedure.
+&AtClient
+Procedure AfterDecryptionOnToken(DecryptedData, Context) Export
+	If TypeOf(DecryptedData) = Type("String") Then
+		SetItem(ThisObject, "Details", False, DecryptedData, True, MergeResults);
+
+	Else
+		SetItem(ThisObject, "Details", False, "", False, MergeResults);
+	EndIf;
 	
+	CheckAtClientSideAdditionalChecks(Context);
 EndProcedure
 
 // Continues the CheckAtClientSide procedure.
@@ -1976,7 +2072,7 @@ Procedure CheckAtServerSide(Val PasswordValue)
 	CreationParameters = DigitalSignatureInternal.CryptoManagerCreationParameters();
 	If DigitalSignatureInternalClientServer.AreCertificateAdditionalPropertiesAvailable() Then
 		CreationParameters.SignAlgorithm = DigitalSignatureInternalClientServer.SignAlgorithmPresentation(
-			CryptoCertificate.AlgorithmOfPublicKey, True, False);
+			CryptoCertificate.PublicKeyAlgorithm, True, False);
 	Else
 		CreationParameters.SignAlgorithm = DigitalSignatureInternalClientServer.CertificateSignAlgorithm(CertificateData);
 	EndIf;
@@ -2047,7 +2143,7 @@ Procedure CheckAtServerSide(Val PasswordValue)
 			
 			ResultCheckCA = DigitalSignatureInternal.ResultofCertificateAuthorityVerification(
 				CryptoCertificate,, CheckParameters);
-			If Not ResultCheckCA.Valid_SSLyf Then
+			If Not ResultCheckCA.Valid Then
 				
 				If  PerformCAVerification = DigitalSignatureInternalClientServer.QualifiedOnly() Then
 					SigningAllowed = False;
@@ -2733,7 +2829,7 @@ Async Function AdditionalCheckOnthePossibilityofSigning(CryptoCertificate, Execu
 		ResultofCertificateAuthorityVerification = Await DigitalSignatureInternalClient.ResultofCertificateAuthorityVerification(
 			CryptoCertificate,, CheckParameters);
 
-		If Not ResultofCertificateAuthorityVerification.Valid_SSLyf Then
+		If Not ResultofCertificateAuthorityVerification.Valid Then
 
 			If PerformCAVerification = DigitalSignatureInternalClientServer.QualifiedOnly() Then
 				SigningAllowed = False;

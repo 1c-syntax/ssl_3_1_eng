@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Private
@@ -50,7 +49,7 @@ Procedure RemoveFileInfobaseLock() Export
 	
 EndProcedure
 
-Function ReportDetailsData(DetailsData, DetailsIndex, Cache = Undefined, CachePriorities = Undefined) Export
+Function ReportDetailsData(DetailsData, DetailsIndex, Cache_SSLyf = Undefined, CachePriorities = Undefined) Export
 	If Not ValueIsFilled(DetailsData) Then
 		Return Undefined;
 	EndIf;
@@ -72,7 +71,7 @@ Function ReportDetailsData(DetailsData, DetailsIndex, Cache = Undefined, CachePr
 	Result.Insert("FieldName", DetailsValue.Field);
 	Result.Insert("Value", DetailsValue.Value);
 	Result.Insert("StartUpdates", StartUpdates);
-	Result.Insert("Cache", Cache);
+	Result.Insert("Cache_SSLyf", Cache_SSLyf);
 	Result.Insert("CachePriorities", CachePriorities);
 	
 	Return Result;

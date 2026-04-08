@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -462,7 +461,7 @@ EndProcedure
 //   NameOfAProcedureOrAFunction - String - name of the procedure or function that contains the parameter to check.
 //   ParameterName - String - name of the parameter to check.
 //   ParameterValue - Arbitrary - actual value of the parameter.
-//   ExpectedTypes - TypeDescription
+//   ExpectedTypes - TypeDescription - The Undefined type is excluded from the list of specified types.
 //                 - Type
 //                 - Array
 //                 - FixedArray
@@ -2070,9 +2069,9 @@ Function ParseStringWithEmailAddresses(Val Addresses, RaiseException1 = True) Ex
 	
 	Result = New Array;
 	ErrorsDetails = New Array;
-	SMSMessageRecipients = EmailsFromString(Addresses);
+	Recipients = EmailsFromString(Addresses);
 	
-	For Each Addressee In SMSMessageRecipients Do
+	For Each Addressee In Recipients Do
 		If ValueIsFilled(Addressee.ErrorDescription) Then
 			ErrorsDetails.Add(Addressee.ErrorDescription);
 		EndIf;
@@ -2212,21 +2211,27 @@ Function DistributeAmountInProportionToCoefficients(Val AmountToDistribute, Val 
 	MaxCoefficientIndex = 0;
 	MaxCoefficient = 0;
 	CoefficientsSum = 0;
-	NegativeCoefficients = (AbsoluteCoefficients[0] < 0);
+	ThereAreNegativeCoefficients = False;
+	ThereArePositiveCoefficients = False;
 	
-	For IndexOf = 0 To AbsoluteCoefficients.Count() - 1 Do
+	Dimensions = AbsoluteCoefficients.Count();
+	For IndexOf = 0 To Dimensions - 1 Do
 		ZoomRatio = AbsoluteCoefficients[IndexOf];
-		
-		If NegativeCoefficients And ZoomRatio > 0 Then 
-			// Invalid "Coefficient" parameter value.
-			// Expected that all the numbers are either negative or positive.
-			Return Undefined;
-		EndIf;
 		
 		If ZoomRatio < 0 Then 
 			// If the coefficient is less than zero, its absolute value is a negative number.
 			ZoomRatio = -ZoomRatio; // Abs(Coefficient).
 			AbsoluteCoefficients[IndexOf] = ZoomRatio; // Replace the coefficient in the array.
+			
+			ThereAreNegativeCoefficients = True;
+		ElsIf ZoomRatio > 0 Then 
+			ThereArePositiveCoefficients = True;
+		EndIf;
+		
+		If ThereAreNegativeCoefficients And ThereArePositiveCoefficients Then
+			// Invalid "Coefficient" parameter value.
+			// Expected that all the numbers are either negative or positive.
+			Return Undefined;
 		EndIf;
 		
 		If MaxCoefficient < ZoomRatio Then
@@ -2261,13 +2266,27 @@ Function DistributeAmountInProportionToCoefficients(Val AmountToDistribute, Val 
 	
 	CombinedInaccuracy = AmountToDistribute - DistributedAmount;
 	
-	If CombinedInaccuracy > 0 Then 
+	If CombinedInaccuracy > 1 Then
+		
+		//  
+		IndexesInOrderOfWeight = IndexesInOrderOfWeight(AbsoluteCoefficients);
+		Counter = 1;
+		While ValueIsFilled(CombinedInaccuracy) Do
+			IndexOfElementWithMaximumWeight = IndexesInOrderOfWeight[Counter - 1];
+			RedeemablePart = ?(CombinedInaccuracy > 1, 1, CombinedInaccuracy);
+			Result[IndexOfElementWithMaximumWeight] = Result[IndexOfElementWithMaximumWeight] + RedeemablePart;
+			CombinedInaccuracy = CombinedInaccuracy - RedeemablePart;
+			
+			Counter = Counter + 1;
+			If Counter = Dimensions Then
+				Counter = 1;
+			EndIf;
+		EndDo;
+	ElsIf CombinedInaccuracy > 0 Then
 		
 		// Adding the round-off error to the ratio with the maximum weight.
-		If Not DistributedAmount = AmountToDistribute Then
-			Result[MaxCoefficientIndex] = Result[MaxCoefficientIndex] + CombinedInaccuracy;
-		EndIf;
-		
+		Result[MaxCoefficientIndex] = Result[MaxCoefficientIndex] + CombinedInaccuracy;
+	 
 	ElsIf CombinedInaccuracy < 0 Then 
 		
 		// Spreading the inaccuracy to the nearest maximum weights if the distributed amount is too large.
@@ -2695,7 +2714,11 @@ EndFunction
 //
 // Parameters:
 //  ClientCertificate - FileClientCertificate
+//                    - OSClientCertificate
 //                    - WindowsClientCertificate
+//                    - LinuxClientCertificate
+//                    - MacOSClientCertificate
+//                    - CryptoCertificate
 //                    - Undefined - the OpenSSL client certificate.
 //  CertificationAuthorityCertificates - FileCertificationAuthorityCertificates
 //                                   - WindowsCertificationAuthorityCertificates
@@ -2752,9 +2775,17 @@ Function NewSecureConnection(Val ClientCertificate = Undefined, Val Certificatio
 	If ConnectType = "CryptoPro" Then
 		SystemInfo = New SystemInfo;
 		CryptoProSecureConnection = Undefined;
+		// ACC:547-off - The preprocessor directive is allowed because the executing code does not access any modules.
+#If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
+		SetSafeMode(True);
+#EndIf
 		// ACC:487-off - Support of new 1C:Enterprise methods (the executable code is safe)
 		Execute("CryptoProSecureConnection = New CryptoProSecureConnection(ClientCertificate, CertificationAuthorityCertificates, ServerTLSCertificateRevocationCheckMode.Strict)");
 		// ACC:487-on
+#If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
+		SetSafeMode(False);
+#EndIf
+		// ACC:547-on
 		Return CryptoProSecureConnection;
 	EndIf;
 	
@@ -3151,9 +3182,10 @@ Function ReduceArray(Array, SubtractionArray) Export
 	
 EndFunction
 
-// ACC:547-off An obsolete API can call obsolete procedures and functions.
+// ACC:222-off -  The legacy API may invoke deprecated procedures and functions.
+// ACC:547-off - The legacy API may invoke deprecated procedures and functions.
 
-// Deprecated. Instead, use CommonClient.MessageToUser or Common.MessageToUser.
+// Deprecated. Obsolete. Instead, use CommonClient.MessageToUser or Common.MessageToUser.
 // Generates and displays the message that can relate to a form item. 
 // 
 //
@@ -3390,8 +3422,8 @@ EndProcedure
 
 // Deprecated. Instead, use CommonClient.EstablishExternalConnectionWithInfobase or 
 // Common.EstablishExternalConnectionWithInfobase.
-// Establishes an external infobase connection with the passed parameters and returns the pointer to the connection.
-// 
+// Establishes an external infobase connection using the passed parameters
+// and returns the pointer to the connection.
 // 
 // Parameters:
 //  Parameters - Structure - external connection parameters.
@@ -3424,10 +3456,10 @@ Function EstablishExternalConnection(Parameters, ErrorMessageString = "", AddInA
 	Return Result.Join;
 EndFunction
 
-// Deprecated. Instead, use CommonClient.EstablishExternalConnectionWithInfobase 
-//  or Common.EstablishExternalConnectionWithInfobase
-// Establishes an external infobase connection with the passed parameters and returns a pointer
-// to the connection.
+// Deprecated. Instead, use CommonClient.EstablishExternalConnectionWithInfobase or 
+//  Common.EstablishExternalConnectionWithInfobase.
+// Establishes an external infobase connection using the passed parameters
+// and returns the pointer to the connection.
 // 
 // Parameters:
 //  Parameters - Structure - external connection parameters.
@@ -4343,6 +4375,7 @@ Function ConnectionDiagnostics(URL) Export
 EndFunction
 
 // ACC:547-on
+// ACC:222-on
 
 #EndRegion
 
@@ -4383,7 +4416,7 @@ Function ArrayOfValues(Val Value1, Val Value2 = Undefined, Val Value3 = Undefine
 EndFunction
 
 Function NameMeetPropertyNamingRequirements(Name) Export
-	Letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"; // @Non-NLS, ACC:163 В данных буква допустима
+	Letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"; // @Non-NLS, 
 	Digits = "1234567890"; // @Non-NLS
 	
 	If Name = "" Or StrFind(Letters + "_", Upper(Left(Name, 1))) = 0 Then
@@ -4633,13 +4666,42 @@ Function MaxValueInArray(Array)
 	
 EndFunction
 
+// 
+// 
+// 
+// Parameters:
+//  Array - Array of Number
+// 
+// Returns:
+//  Array of Number
+//
+Function IndexesInOrderOfWeight(Array)
+	// 
+	Result = New Array;
+	For IndexOf = 0 To Array.UBound() Do
+		Result.Add(IndexOf);
+	EndDo;
+    
+    // 
+	For Index1 = 0 To Result.UBound() - 1 Do
+		For IndexOf2 = 0 To Result.UBound() - Index1 - 1 Do
+			If Array[Result[IndexOf2]] < Array[Result[IndexOf2 + 1]] Then
+				Displaced = Result[IndexOf2];
+				Result[IndexOf2] = Result[IndexOf2 + 1];
+				Result[IndexOf2 + 1] = Displaced;
+			EndIf;
+		EndDo;
+	EndDo;
+	Return Result;
+EndFunction
+
 #EndRegion
 
 #EndRegion
 
 #Region ObsoleteProceduresAndFunctions
 
-// ACC:223-off This code is required for backward compatibility. It is used in an obsolete API.
+// ACC:222-off This code is required for backward compatibility. It is used in an obsolete API.
 
 #Region StartApplication
 
@@ -4675,8 +4737,6 @@ Procedure DeleteTempFile(FullFileName)
 		DeleteFiles(FullFileName);
 	Except
 		
-		// ACC:547-off This code is required for backward compatibility. It is used in an obsolete API.
-		
 #If Server Then
 		WriteLogEvent(NStr("en = 'Core'", DefaultLanguageCode()),
 			EventLogLevel.Warning,,, 
@@ -4686,8 +4746,6 @@ Procedure DeleteTempFile(FullFileName)
 				FullFileName, 
 				ErrorProcessing.BriefErrorDescription(ErrorInfo())));
 #EndIf
-		
-		// ACC:547-on
 		
 	EndTry;
 	
@@ -4702,8 +4760,6 @@ EndProcedure
 #If Not WebClient Then
 
 Function DiagnosticsLocationPresentation()
-	
-	// ACC:547-off This code is required for backward compatibility. It is used in an obsolete API.
 	
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 	If Common.DataSeparationEnabled() Then
@@ -4726,8 +4782,6 @@ Function DiagnosticsLocationPresentation()
 	Return StringFunctionsClientServer.SubstituteParametersToString(
 		NStr("en = 'Connecting from computer <%1> (client).'"), ComputerName());
 #EndIf
-	
-	// ACC:547-on
 	
 EndFunction
 
@@ -4832,7 +4886,7 @@ EndFunction
 
 #EndRegion
 
-// ACC:223-on
+// ACC:222-on
 
 #EndRegion
 

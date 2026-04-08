@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -259,14 +258,14 @@ Procedure OnFillToDoList(ToDoList) Export
 		HasToDoItems = Result.ClassifierIsExpired 
 			Or Result.UpdateAvailable <> Undefined And Result.UpdateAvailable;
 		
-		ToDoItem = ToDoList.Add();
-		ToDoItem.Id  = IdentifierBanks;
-		ToDoItem.HasToDoItems       = HasToDoItems;
-		ToDoItem.Important         = Result.ClassifierIsExpired;
-		ToDoItem.Presentation  = NStr("en = 'Bank codes catalog is outdated'");
-		ToDoItem.ToolTip      = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'The last update was %1 ago.'"), Result.AmountOfDelayByLine);
-		ToDoItem.Form          = "DataProcessor.ImportBankClassifier.Form";
-		ToDoItem.Owner       = Section;
+		CaseFile = ToDoList.Add();
+		CaseFile.Id  = IdentifierBanks;
+		CaseFile.HasToDoItems       = HasToDoItems;
+		CaseFile.Important         = Result.ClassifierIsExpired;
+		CaseFile.Presentation  = NStr("en = 'Bank codes catalog is outdated'");
+		CaseFile.ToolTip      = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'The last update was %1 ago.'"), Result.AmountOfDelayByLine);
+		CaseFile.Form          = "DataProcessor.ImportBankClassifier.Form";
+		CaseFile.Owner       = Section;
 		
 	EndDo;
 	

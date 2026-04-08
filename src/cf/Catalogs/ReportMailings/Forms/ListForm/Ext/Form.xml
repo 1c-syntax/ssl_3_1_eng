@@ -431,7 +431,7 @@
 										<Button name="FormTree" id="111">
 											<Type>CommandBarButton</Type>
 											<CommandName>Form.StandardCommand.Tree</CommandName>
-											<ExtendedTooltip name="FormTree_ExtendedTooltip" id="112"/>
+											<ExtendedTooltip name="FormTreeExtendedTooltip" id="112"/>
 										</Button>
 									</ChildItems>
 								</Popup>

@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -217,7 +216,11 @@ EndProcedure
 Function ModelOfDataToProvideForStandardODataInterface() Export
 	
 	ToExclude = New Map();
+	ObjectsIncludedInStandardODataInterface = ObjectsIncludedInStandardODataInterface();
 	For Each ObjectToExclude In ObjectsToExcludeFromStandardODataInterface() Do
+		If ObjectsIncludedInStandardODataInterface.Find(ObjectToExclude) <> Undefined Then
+			Continue;
+		EndIf;
 		If TypeOf(ObjectToExclude) = Type("Structure")
 			Or TypeOf(ObjectToExclude) = Type("FixedStructure") Then
 			ToExclude[ObjectToExclude.Type.FullName()] = True;
@@ -388,17 +391,13 @@ Function IsSeparatedObject(Val ObjectDetails, DataSeparationProperties = Undefin
 	If Common.SubsystemExists("CloudTechnology.ExportImportData") Then
 		If DataSeparationProperties = Undefined Then
 			ModuleSaaSOperations = Common.CommonModule("SaaSOperations"); // ACC:1386 - Core CTL functionality
-			ModuleExportImportDataInternalEvents = Common.CommonModule("ExportImportDataInternalEvents");
 
-			DataSeparationProperties = New Structure("MainDataSeparator,AuxiliaryDataSeparator,ServiceData");
+			DataSeparationProperties = New Structure("MainDataSeparator,AuxiliaryDataSeparator");
 			DataSeparationProperties.MainDataSeparator = ModuleSaaSOperations.MainDataSeparator();
 			DataSeparationProperties.AuxiliaryDataSeparator = ModuleSaaSOperations.AuxiliaryDataSeparator();
-			DataSeparationProperties.ServiceData = FullTypeNames(
-				ModuleExportImportDataInternalEvents.GetTypesExcludedFromUploadUpload());
 		EndIf;
 		
-		Return DataSeparationProperties.ServiceData[ObjectDetails.FullName] = Undefined 
-			And (ObjectDetails.DataSeparation.Property(DataSeparationProperties.MainDataSeparator)
+		Return (ObjectDetails.DataSeparation.Property(DataSeparationProperties.MainDataSeparator)
 				Or ObjectDetails.DataSeparation.Property(DataSeparationProperties.AuxiliaryDataSeparator));
 	EndIf;
 
@@ -420,12 +419,26 @@ Function IsSeparatedObject(Val ObjectDetails, DataSeparationProperties = Undefin
 	
 EndFunction
 
-Function FullTypeNames(Types)
-	Result = New Map();
-	For Each Type In Types Do
-		Result[Type.FullName()] = True;
+Function TypesFromTypeDescriptions(TypeDescriptions)
+	
+	Types = New Array; // Array of Type
+	
+	TypeFixedStructure = Type("FixedStructure");
+	StructureType = Type("Structure");
+	
+	For Each LongDesc In TypeDescriptions Do
+		DescriptionType = TypeOf(LongDesc);
+		If DescriptionType = TypeFixedStructure Or DescriptionType = StructureType Then
+			Type = LongDesc.Type;
+		Else
+			Type = LongDesc;
+		EndIf;
+		
+		Types.Add(Type);
 	EndDo;
-	Return Result;
+		
+	Return Types;
+	
 EndFunction
 
 Function StandardODataInterfaceCompositionSetupParameters() Export
@@ -524,6 +537,7 @@ Procedure FillModelOfDataToProvideForStandardODataInterface(Val Result, Val Full
 		ConfigurationDataModelDetails, FullName);
 	
 	IsSeparatedMetadataObject = IsSeparatedObject(MetadataObjectProperties, DataSeparationProperties);
+	ObjectMetadataIsReadOnlyObject = ObjectMetadataIsReadOnlyObject(MetadataObject);
 	
 	String.Read = True;
 	String.FullName = FullName;
@@ -532,7 +546,7 @@ Procedure FillModelOfDataToProvideForStandardODataInterface(Val Result, Val Full
 	ElsIf Common.IsDocumentJournal(MetadataObject) Then
 		String.Update = False;
 	Else
-		String.Update = IsSeparatedMetadataObject;
+		String.Update = IsSeparatedMetadataObject And Not ObjectMetadataIsReadOnlyObject;
 	EndIf;
 	
 	For Each KeyAndValue In MetadataObjectProperties.Dependencies Do
@@ -541,13 +555,12 @@ Procedure FillModelOfDataToProvideForStandardODataInterface(Val Result, Val Full
 		If FullDependencyName = FullName Or ToExclude[FullDependencyName] <> Undefined Then
 			Continue;
 		EndIf;
-		
 		String.Dependencies.Add(FullDependencyName);
 		DependentMetadataObject = ODataInterfaceInternal.ConfigurationModelObjectProperties(
 			ConfigurationDataModelDetails, FullDependencyName);
 		MetadataObject = Common.MetadataObjectByFullName(FullDependencyName);
 		If DependentMetadataObject <> Undefined And IsSeparatedObject(DependentMetadataObject) 
-			And Not Common.IsEnum(MetadataObject) Then
+			And Not Common.IsEnum(MetadataObject) And Not ObjectMetadataIsReadOnlyObject(MetadataObject) Then
 			Continue;
 		EndIf;
 
@@ -615,6 +628,28 @@ EndFunction
 Function ObjectsToExcludeFromStandardODataInterface()
 	
 	TypesToExclude = New Array;
+	
+	If Common.SubsystemExists("CloudTechnology.ExportImportData") Then
+		ModuleExportImportDataInternalEvents = Common.CommonModule("ExportImportDataInternalEvents");
+		TypesExcludedFromExportImport = ModuleExportImportDataInternalEvents.GetTypesExcludedFromUploadUpload();
+		CommonClientServer.SupplementArray(TypesToExclude, TypesExcludedFromExportImport);
+		
+		If Common.SubsystemExists("StandardSubsystems.SaaSOperations.FilesOperationsSaaS") Then
+			ModuleFilesOperationsInternalSaaSCached = Common.CommonModule("FilesOperationsInternalSaaSCached");
+			StorageObjects = ModuleFilesOperationsInternalSaaSCached.FilesCatalogsAndStorageOptionObjects().StorageObjects;
+			ModuleExportImportData = Common.CommonModule("ExportImportData");
+			TypesToDeleteFromException = New Array;
+			For Each StorageObject In StorageObjects Do
+				ModuleExportImportData.AddTypeExcludedFromUploadingUploads(
+					TypesToDeleteFromException,
+					Common.MetadataObjectByFullName(StorageObject.Key),
+					ModuleExportImportData.ActionWithLinksDoNotChange());
+			EndDo;
+			TypesToDeleteFromException = TypesFromTypeDescriptions(TypesToDeleteFromException);
+			TypesToExclude = CommonClientServer.ArraysDifference(TypesToExclude, TypesToDeleteFromException);
+		EndIf;
+	EndIf;
+	
 	SSLSubsystemsIntegration.OnFillTypesExcludedFromExportImportOData(TypesToExclude);
 	Return TypesToExclude;
 	
@@ -676,6 +711,22 @@ Function DependantTablesForODataImportExport()
 	SSLSubsystemsIntegration.OnPopulateDependantTablesForODataImportExport(Tables);
 	
 	Return Tables;
+	
+EndFunction
+
+Function ObjectsIncludedInStandardODataInterface()
+	
+	IncludedTypes = New Array;
+	IncludedTypes.Add(Metadata.Catalogs.ExtensionObjectIDs);
+	IncludedTypes.Add(Metadata.InformationRegisters.ExtensionVersionObjectIDs);
+	
+	Return IncludedTypes;
+	
+EndFunction
+
+Function ObjectMetadataIsReadOnlyObject(MetadataObject)
+	
+	Return ObjectsIncludedInStandardODataInterface().Find(MetadataObject) <> Undefined;
 	
 EndFunction
 
@@ -1126,6 +1177,13 @@ Function IsRecordSetSupportingTotals(Val MetadataObject)
 EndFunction
 
 #EndRegion
+
+// See StandardSubsystemsServer.WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode
+Procedure WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode(Methods) Export
+	
+	Methods.Insert("PrepareStandardODataInterfaceContentSetupParameters", True);
+	
+EndProcedure
 
 #EndRegion
 

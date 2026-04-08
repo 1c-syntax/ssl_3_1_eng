@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -78,7 +77,7 @@ Procedure HandlerCommands(Val ReferencesArrray, Val ExecutionParameters) Export
 	StartEditSelectedItems(CommandParameters);
 EndProcedure
 
-Procedure StartChangingTheSelectedOnesWithAnAlert(BulkEditParameters, NotifyDescription) Export
+Procedure StartChangingTheSelectedOnesWithAnAlert(BulkEditParameters, CallbackDescription) Export
 	
 	If BulkEditParameters.ObjectsArray.Count() = 0 Then
 		
@@ -86,7 +85,7 @@ Procedure StartChangingTheSelectedOnesWithAnAlert(BulkEditParameters, NotifyDesc
 		
 	Else
 		
-		OpenForm("DataProcessor.BatchEditAttributes.Form", BulkEditParameters,,,,, NotifyDescription);
+		OpenForm("DataProcessor.BatchEditAttributes.Form", BulkEditParameters,,,,, CallbackDescription);
 		
 	EndIf;
 	

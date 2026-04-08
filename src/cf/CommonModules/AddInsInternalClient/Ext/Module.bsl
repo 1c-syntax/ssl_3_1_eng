@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Internal
@@ -46,7 +45,9 @@ Procedure CheckAddInAvailability(Notification, Context) Export
 	
 	Information = AddInsInternalServerCall.SavedAddInInformation(
 		Context.Id, Context.Version, ThePathToTheLayoutToSearchForTheLatestVersion);
-	Context.Version = Information.Attributes.Version;
+	If Not ValueIsFilled(Context.Version) Then
+		Context.Version = Information.Attributes.Version;
+	EndIf;
 	Context.Location = Information.Location;
 	
 	// Information.State:
@@ -279,7 +280,7 @@ Procedure CheckTemplateAddInForCompatibility(Notification, AddInAttachmentContex
 		Context.ErrorDescription = AddInCompatibilityErrorDetails();
 		
 		If AddInAttachmentContext.SuggestInstall Then
-			NotifyDescription = New CallbackDescription("AfterCompatibilityInfoDisplayed", ThisObject, Context);
+			CallbackDescription = New CallbackDescription("AfterCompatibilityInfoDisplayed", ThisObject, Context);
 			
 			FormParameters = New Structure;
 			FormParameters.Insert("ExplanationText", AddInAttachmentContext.ExplanationText);
@@ -287,7 +288,7 @@ Procedure CheckTemplateAddInForCompatibility(Notification, AddInAttachmentContex
 			FormParameters.Insert("AfterConnectionErrorOccurred", True);
 			
 			OpenForm("CommonForm.CannotInstallAddIn",
-				FormParameters,,,,, NotifyDescription);
+				FormParameters,,,,, CallbackDescription);
 			Return;
 		EndIf;
 	EndIf;
@@ -632,17 +633,17 @@ Function PresentationOfCurrentClient()
 		Browser = NStr("en = 'Firefox'");
 	EndIf;
 	
-	Package = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'web client %1'"), Browser);
+	Application = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'web client %1'"), Browser);
 #ElsIf MobileAppClient Then
-	Package = NStr("en = 'mobile application'");
+	Application = NStr("en = 'mobile application'");
 #ElsIf MobileClient Then
-	Package = NStr("en = 'mobile client'");
+	Application = NStr("en = 'mobile client'");
 #ElsIf ThinClient Then
-	Package = NStr("en = 'thin client'");
+	Application = NStr("en = 'thin client'");
 #ElsIf ThickClientOrdinaryApplication Then
-	Package = NStr("en = 'thick client (ordinary application)'");
+	Application = NStr("en = 'thick client (ordinary application)'");
 #ElsIf ThickClientManagedApplication Then
-	Package = NStr("en = 'thick client'");
+	Application = NStr("en = 'thick client'");
 #EndIf
 
 	NameOfThePlatformType = CommonClientServer.NameOfThePlatformType(SystemInfo.PlatformType);
@@ -685,7 +686,7 @@ Function PresentationOfCurrentClient()
 	// Example:
 	// Firefox Windows x86 web client
 	// Windows x86-64 thin client
-	Return StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 %2'"), Package, Platform);
+	Return StringFunctionsClientServer.SubstituteParametersToString(NStr("en = '%1 %2'"), Application, Platform);
 	
 EndFunction
 

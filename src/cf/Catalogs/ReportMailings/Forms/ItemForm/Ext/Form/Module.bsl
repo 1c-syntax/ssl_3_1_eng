@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -21,7 +20,7 @@ Procedure OnReadAtServer(CurrentObject)
 		EndIf;
 	// End StandardSubsystems.AttachableCommands
 
-	// Read value storage .
+	// Read value storage.
 	If CurrentObject.HTMLFormatEmail Then
 		EmailAttachmentsStructureInHTMLFormat = CurrentObject.EmailPicturesInHTMLFormat.Get();
 		If EmailAttachmentsStructureInHTMLFormat = Undefined Then
@@ -1531,8 +1530,8 @@ Procedure Redistribution(Command)
 	
 	FormParameters = New Structure;
 	FormParameters.Insert("Ref", Object.Ref);
-	NotifyDescription = New CallbackDescription("AfterCloseRedistribution", ThisObject);
-	OpenForm("Catalog.ReportMailings.Form.ResendReports", FormParameters, ThisObject, , , , NotifyDescription,
+	CallbackDescription = New CallbackDescription("AfterCloseRedistribution", ThisObject);
+	OpenForm("Catalog.ReportMailings.Form.ResendReports", FormParameters, ThisObject, , , , CallbackDescription,
 		FormWindowOpeningMode.LockOwnerWindow);
 
 EndProcedure
@@ -1671,7 +1670,7 @@ Procedure SpecifyMailingRecipient(Command)
 	
 	// Get the main type of recipients.
 	TypesCount = MailingRecipientType.Types().Count();
-	If TypesCount <> 1 And TypesCount <> 2 Then
+	If TypesCount < 1 Then
 		CommonClient.MessageToUser(NStr("en = 'The ""Recipients"" field is required.'"), , "MailingRecipientType");
 		Return;
 	EndIf;
@@ -2439,7 +2438,7 @@ Procedure CheckMailingAfterRecipientsChoice(SelectionResult, DeliveryParameters)
 	
 	ExecutionResult = CheckTransportMethod(Object.Ref, DeliveryParameters);
 	
-	WarningParameters = New Structure("Title, Text, More, Ref, UseEmail");
+	WarningParameters = New Structure("Title, Text, ShowMoreDetails, Ref, UseEmail");
 	FillPropertyValues(WarningParameters, DeliveryParameters);
 	FillPropertyValues(WarningParameters, ExecutionResult);
 	WarningParameters.Title = NStr("en = 'Check result'");
@@ -3527,8 +3526,8 @@ Function SchedulePresentation(Schedule)
 	SchedulePresentation = Upper(Left(SchedulePresentation, 1)) + Mid(SchedulePresentation, 2);
 	SchedulePresentation = StrReplace(StrReplace(SchedulePresentation, "  ", " "), " ]", "]") + ".";
 	If ValueIsFilled(Schedule.BeginTime) Or ValueIsFilled(Schedule.EndTime) Then
-		AddOn = AdditionOfSaaSSchedulePresentation();
-		SchedulePresentation = ?(ValueIsFilled(AddOn), SchedulePresentation + Chars.LF + AddOn,
+		Supplement = AdditionOfSaaSSchedulePresentation();
+		SchedulePresentation = ?(ValueIsFilled(Supplement), SchedulePresentation + Chars.LF + Supplement,
 			SchedulePresentation);
 	EndIf;
 	Return SchedulePresentation;
@@ -3710,8 +3709,6 @@ Function CreatePassword()
 	
 	PasswordProperties = Users.PasswordProperties();
 	PasswordProperties.MinLength = 8;
-	PasswordProperties.Complicated = True;
-	PasswordProperties.ConsiderSettings = "ForUsers";
 	
 	Return Users.CreatePassword(PasswordProperties);
 	
@@ -4066,13 +4063,13 @@ Function CheckTransportMethod(BulkEmail, Val DeliveryParameters)
 	
 	DeleteFiles(FullFileName);
 	
-	ExecutionResult = New Structure("Text, More", "", "");
+	ExecutionResult = New Structure("Text, ShowMoreDetails", "", "");
 	
 	If LogParameters.ErrorsArray.Count() = 0 Then 
 		ExecutionResult.Text = NStr("en = 'Delivery verification completed successfully.'");
 	Else
 		ExecutionResult.Text = NStr("en = 'Delivery verification failed.'");
-		ExecutionResult.More = ReportMailing.MessagesToUserString(LogParameters.ErrorsArray, False);
+		ExecutionResult.ShowMoreDetails = ReportMailing.MessagesToUserString(LogParameters.ErrorsArray, False);
 	EndIf;
 	
 	Return ExecutionResult;

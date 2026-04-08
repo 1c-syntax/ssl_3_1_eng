@@ -290,10 +290,7 @@
 									</Title>
 									<Representation>None</Representation>
 									<ShowTitle>false</ShowTitle>
-									<ExtendedTooltip name="AddressByFieldsExtendedTooltip" id="531">
-										<Visible>false</Visible>
-										<Enabled>false</Enabled>
-									</ExtendedTooltip>
+									<ExtendedTooltip name="AddressByFieldsExtendedTooltip" id="531"/>
 									<ChildItems>
 										<InputField name="Street" id="501">
 											<DataPath>Street</DataPath>
@@ -338,18 +335,18 @@
 												<Event name="OnChange">CityOnChange</Event>
 											</Events>
 										</InputField>
-										<InputField name="State_SSLym" id="513">
-											<DataPath>State_SSLym</DataPath>
+										<InputField name="State" id="513">
+											<DataPath>State</DataPath>
 											<Title>
 												<v8:item>
 													<v8:lang>en</v8:lang>
 													<v8:content>State/region</v8:content>
 												</v8:item>
 											</Title>
-											<ContextMenu name="State_SSLymContextMenu" id="514"/>
-											<ExtendedTooltip name="State_SSLymExtendedTooltip" id="515"/>
+											<ContextMenu name="StateContextMenu" id="514"/>
+											<ExtendedTooltip name="StateExtendedTooltip" id="515"/>
 											<Events>
-												<Event name="OnChange">State_SSLymOnChange</Event>
+												<Event name="OnChange">StateOnChange</Event>
 											</Events>
 										</InputField>
 										<InputField name="IndexOf" id="504">
@@ -377,10 +374,7 @@
 									</Title>
 									<Representation>None</Representation>
 									<ShowTitle>false</ShowTitle>
-									<ExtendedTooltip name="FreeFormExtendedTooltip" id="533">
-										<Visible>false</Visible>
-										<Enabled>false</Enabled>
-									</ExtendedTooltip>
+									<ExtendedTooltip name="FreeFormExtendedTooltip" id="533"/>
 									<ChildItems>
 										<InputField name="ForeignAddressPresentation" id="21">
 											<DataPath>AddressPresentation</DataPath>
@@ -451,10 +445,7 @@
 							<Group>AlwaysHorizontal</Group>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="GroupAddressRepresentationExtendedTooltip" id="527">
-								<Visible>false</Visible>
-								<Enabled>false</Enabled>
-							</ExtendedTooltip>
+							<ExtendedTooltip name="GroupAddressRepresentationExtendedTooltip" id="527"/>
 							<ChildItems>
 								<InputField name="AddressPresentation" id="523">
 									<DataPath>AddressPresentation</DataPath>
@@ -487,10 +478,7 @@
 										</v8:item>
 									</Title>
 									<ShapeRepresentation>WhenActive</ShapeRepresentation>
-									<ExtendedTooltip name="CopyAddressToClipboardExtendedTooltip" id="529">
-										<Visible>false</Visible>
-										<Enabled>false</Enabled>
-									</ExtendedTooltip>
+									<ExtendedTooltip name="CopyAddressToClipboardExtendedTooltip" id="529"/>
 								</Button>
 							</ChildItems>
 						</UsualGroup>
@@ -578,7 +566,7 @@
 					<HorizontalLocation>Right</HorizontalLocation>
 					<ExtendedTooltip name="OKCancelGroupExtendedTooltip" id="372"/>
 					<ChildItems>
-						<Button name="FormOkCommand" id="56">
+						<Button name="FormOKCommand" id="56">
 							<Type>CommandBarButton</Type>
 							<DefaultButton>true</DefaultButton>
 							<CommandName>Form.Command.OkCommand</CommandName>
@@ -709,7 +697,7 @@
 			</Type>
 			<MainAttribute>true</MainAttribute>
 		</Attribute>
-		<Attribute name="State_SSLym" id="11">
+		<Attribute name="State" id="11">
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>

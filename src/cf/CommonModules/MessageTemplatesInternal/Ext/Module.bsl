@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Internal
@@ -1248,7 +1247,7 @@ Procedure DefinePrintFormsList(MetadataObject3, Val TemplateParameters, Paramete
 			CheckForDuplicates      = New Map;
 			
 			For Each Attachment In ObjectPrintCommands Do
-				If Not Attachment.isDisabled
+				If Not Attachment.TurnedOff
 					And StrFind(Attachment.Id, ",") = 0
 					And Not IsBlankString(Attachment.PrintManager)
 					And Not Attachment.SkipPreview
@@ -1317,7 +1316,7 @@ EndProcedure
 
 Function ShouldAddExportCommandToAttachment(Attachment, CheckForDuplicates)
 	
-	Return Not Attachment.isDisabled
+	Return Not Attachment.TurnedOff
 		And StrFind(Attachment.Id, ",") = 0
 		And Not IsBlankString(Attachment.PrintManager)
 		And Not Attachment.HiddenByFunctionalOptions
@@ -3276,6 +3275,14 @@ Procedure ProcessDataForMigrationToAttachableCommands() Export
 		InfobaseUpdate.WriteErrorToEventLog(Object, ObjectPresentation, ErrorInfo());
 	EndTry;
 
+EndProcedure
+
+// See StandardSubsystemsServer.WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode
+Procedure WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode(Methods) Export
+	
+	Methods.Insert("AddAddEditPersonalTemplatesRoleToBasicRightsProfiles");
+	Methods.Insert("ProcessDataForMigrationToAttachableCommands");
+	
 EndProcedure
 
 #EndRegion

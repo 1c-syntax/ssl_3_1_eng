@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Private
@@ -1127,19 +1126,19 @@ Procedure ExtractRefs(TreeOfTemplate, RefsMap, RefsForSearching)
 	EndDo;
 EndProcedure
 
-
-
 // Parameters:
 //  NodeOfParent - See DocumentTree
 //  IndexOf - Number 
 //  Node - See DocumentTree
 //
 Procedure AddSectionDetailsNode(NodeOfParent, IndexOf, Node) Export
+	
 	If NodeOfParent.Rows.Count() <= IndexOf Then
 		NewPara = NodeOfParent.Rows.Add();
 	Else
 		NewPara = NodeOfParent.Rows.Insert(IndexOf);
-	EndIf; 
+	EndIf;
+	
 	NewPara.NameTag = "w:p";
 	NewFormattingProperties = NewPara.Rows.Add();
 	NewFormattingProperties.NameTag = "w:pPr";
@@ -2204,7 +2203,7 @@ EndFunction
 // Returns:
 //  String - 
 //
-Function CollectOfficeDocumentFile(TreeOfTemplate, Encoding = "UTF-8") Export
+Function CollectOfficeDocumentFile(TreeOfTemplate, Encoding = "UTF-8")
 	DocumentStructure = TreeOfTemplate.DocumentStructure;
 	Tree = DocumentStructure.DocumentTree;
 	
@@ -3208,10 +3207,12 @@ Procedure FillAreaParameters(PrintForm, Area, ObjectData)
 	
 	TableOpen       = False; 
 	TableCellOpen = False;
+	StringPropertiesAreOpen = True;
 	IsPreserveSpaceAttributeSpecified = False;
 	
-	TableWidth         = 0;
-	TableCellWidth   = 0;
+	TableWidth       = 0;
+	TableCellWidth = 0;
+	TableRowHeight = 0;
 	
 	MainDisplayResolotion = StandardSubsystemsServer.ClientParametersAtServer().Get("MainDisplayResolotion");
 	MainDisplayResolotion = ?(MainDisplayResolotion = Undefined, 72, MainDisplayResolotion);
@@ -3236,6 +3237,22 @@ Procedure FillAreaParameters(PrintForm, Area, ObjectData)
 		
 		If TableOpen And ReadTableWidthStart(XMLParseStructure, XMLReader) Then
 			SetFieldWidth(XMLReader, TableWidth);
+		EndIf;
+		
+		If TableOpen And ReadingBeginningOfPropertiesOfTableRow(XMLParseStructure, XMLReader) Then
+			StringPropertiesAreOpen = True;
+		EndIf;
+		
+		If StringPropertiesAreOpen And ReadingTableRowHeight(XMLParseStructure, XMLReader) Then
+			SetRowHeight(XMLReader, TableRowHeight);
+		EndIf;
+		
+		If ReadingEndOfPropertiesOfTableRow(XMLParseStructure, XMLReader) Then
+			StringPropertiesAreOpen = False;
+		EndIf;
+		
+		If ReadingEndOfTableRow(XMLParseStructure, XMLReader) Then
+			TableRowHeight = 0;
 		EndIf;
 		
 		If TableOpen And ReadTableCellStart(XMLParseStructure, XMLReader) Then
@@ -3347,6 +3364,15 @@ Procedure FillAreaParameters(PrintForm, Area, ObjectData)
 						
 						PictureWidth = ProportionsRatio * PictureParameters.Width;
 						PictureHeight = ProportionsRatio * PictureParameters.Height;
+					EndIf;
+				EndIf;
+				
+				If TableRowHeight <> 0 Then
+					MaximumImageHeight = TableRowHeight * 914400 / MainDisplayResolotion / 20;
+					If PictureHeight > MaximumImageHeight Then
+						ScaleRatio = MaximumImageHeight / PictureHeight;
+						PictureWidth = PictureWidth * ScaleRatio;
+						PictureHeight = MaximumImageHeight;
 					EndIf;
 				EndIf;
 				
@@ -3512,6 +3538,20 @@ Procedure SetFieldWidth(XMLReader, Width, Val TableWidth = 0)
 	
 EndProcedure
 
+Procedure SetRowHeight(XMLReader, RowHeight)
+	
+	TypeOfHeight = XMLReader.GetAttribute("w:hRule");
+	
+	RowHeight = 0;
+	If TypeOfHeight = "exact" Then
+		HeightValue = XMLReader.GetAttribute("w:val");
+		If ValueIsFilled(HeightValue) Then
+			RowHeight = StringFunctionsClientServer.StringToNumber(HeightValue);
+		EndIf;
+	EndIf;
+	
+EndProcedure
+
 Function GetPictureTemplate()
 	
 	PictureXMLTemplate =
@@ -3592,6 +3632,10 @@ Procedure PreparePictureTemplate(TemplatePicture, StructurePicture)
 EndProcedure
 
 Procedure IncludePictureToDocumentLibrary(DocumentStructure, StructurePicture)
+	
+	If SafeMode() <> False Then
+		SetSafeModeDisabled(True);
+	EndIf;
 	
 	MediaDirectory = New File(StructurePicture.PicturesDirectory);
 	TypePicture = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/image";
@@ -4426,6 +4470,46 @@ Function ReadTableCellEnd(XMLParseStructure, XMLReader)
 	EndIf;
 	
 	Return XMLReader.NodeType = XMLNodeType.EndElement And XMLReader.Name = "w:tc";
+	
+EndFunction
+
+Function ReadingBeginningOfPropertiesOfTableRow(XMLParseStructure, XMLReader)
+	
+	If Not IsBlankString(XMLParseStructure.LockingStream) Then
+		Return False;
+	EndIf;
+	
+	Return XMLReader.NodeType = XMLNodeType.StartElement And XMLReader.Name = "w:trPr";
+	
+EndFunction
+
+Function ReadingTableRowHeight(XMLParseStructure, XMLReader)
+	
+	If Not IsBlankString(XMLParseStructure.LockingStream) Then
+		Return False;
+	EndIf;
+	
+	Return XMLReader.NodeType = XMLNodeType.StartElement And XMLReader.Name = "w:trHeight";
+	
+EndFunction
+
+Function ReadingEndOfPropertiesOfTableRow(XMLParseStructure, XMLReader)
+	
+	If Not IsBlankString(XMLParseStructure.LockingStream) Then
+		Return False;
+	EndIf;
+	
+	Return XMLReader.NodeType = XMLNodeType.EndElement And XMLReader.Name = "w:trPr";
+	
+EndFunction
+
+Function ReadingEndOfTableRow(XMLParseStructure, XMLReader)
+	
+	If Not IsBlankString(XMLParseStructure.LockingStream) Then
+		Return False;
+	EndIf;
+	
+	Return XMLReader.NodeType = XMLNodeType.EndElement And XMLReader.Name = "w:tr";
 	
 EndFunction
 
@@ -5400,26 +5484,26 @@ Function EventLogEvent()
 	
 EndFunction
 
-Procedure CopyDirectoryContent(From_, Where) Export
+Procedure CopyDirectoryContent(From, Var_To) Export
 	
-	PurposeDirectory = New File(Where);
+	PurposeDirectory = New File(Var_To);
 	
 	If PurposeDirectory.Exists() Then
 		If PurposeDirectory.IsFile() Then
 			DeleteFiles(PurposeDirectory.FullName);
-			CreateDirectory(Where);
+			CreateDirectory(Var_To);
 		EndIf;
 	Else
-		CreateDirectory(Where);
+		CreateDirectory(Var_To);
 	EndIf;
 	
-	Files = FindFiles(From_, GetAllFilesMask());
+	Files = FindFiles(From, GetAllFilesMask());
 	
 	For Each File In Files Do
 		If File.IsDirectory() Then
-			CopyDirectoryContent(File.FullName, SetPathSeparator(Where + "\" + File.Name));
+			CopyDirectoryContent(File.FullName, SetPathSeparator(Var_To + "\" + File.Name));
 		Else
-			CopyFile(File.FullName, SetPathSeparator(Where + "\" + File.Name));
+			CopyFile(File.FullName, SetPathSeparator(Var_To + "\" + File.Name));
 		EndIf;
 	EndDo;
 	
@@ -5528,5 +5612,12 @@ EndFunction
 #EndRegion
 
 #EndRegion
+
+// See StandardSubsystemsServer.WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode
+Procedure WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode(Methods) Export
+	
+	Methods.Insert("GeneratePrintForms", True);
+	
+EndProcedure
 
 #EndRegion

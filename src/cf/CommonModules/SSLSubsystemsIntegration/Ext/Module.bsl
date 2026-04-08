@@ -1,16 +1,15 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//
 
 #Region Public
 
-#Region ForCallsFromOtherSubsystems
+#Region InterfaceImplementation
 
 // Defines events, to which other libraries can subscribe.
 //
@@ -42,6 +41,7 @@ Function SSLEvents() Export
 	Events.Insert("BeforeStartApplication", False);
 	Events.Insert("OnAddServerNotifications", False);
 	Events.Insert("OnReceiptRecurringClientDataOnServer", False);
+	Events.Insert("WhenSettingUpVerificationOfMethodsCalledAsArbitraryCode", False);
 	
 	// Banks
 	Events.Insert("OnDefineBankClassifiersImportSettings");
@@ -416,6 +416,11 @@ Procedure OnRegisterDataExportHandlers(HandlersTable) Export
 		ModuleAccessManagementInternal = Common.CommonModule("AccessManagementInternal");
 		ModuleAccessManagementInternal.OnRegisterDataExportHandlers(HandlersTable);
 	EndIf;
+	
+	If Common.SubsystemExists("StandardSubsystems.AccountingAudit") Then
+		ModuleAccountingAuditInternal = Common.CommonModule("AccountingAuditInternal");
+		ModuleAccountingAuditInternal.OnRegisterDataExportHandlers(HandlersTable);
+	EndIf;
 
 EndProcedure
 
@@ -764,6 +769,11 @@ Procedure OnDefineHandlerAliases(NamesAndAliasesMap) Export
 		ModuleFilesOperationsInternalSaaS.OnDefineHandlerAliases(NamesAndAliasesMap);
 	EndIf;
 	
+	If Common.SubsystemExists("StandardSubsystems.MobileSignatureService") Then
+		ModuleMobileSignatureServiceInternal = Common.CommonModule("MobileSignatureServiceInternal");
+		ModuleMobileSignatureServiceInternal.OnDefineHandlerAliases(NamesAndAliasesMap);
+	EndIf;
+	
 	If Common.SubsystemExists("StandardSubsystems.MarkedObjectsDeletion") Then
 		ModuleMarkedObjectsDeletionInternal = Common.CommonModule("MarkedObjectsDeletionInternal");
 		ModuleMarkedObjectsDeletionInternal.OnDefineHandlerAliases(NamesAndAliasesMap);
@@ -953,6 +963,11 @@ Procedure OnAddSessionParameterSettingHandlers(Handlers) Export
 		ModulePropertyManagerInternal = Common.CommonModule("PropertyManagerInternal");
 		ModulePropertyManagerInternal.OnAddSessionParameterSettingHandlers(Handlers);
 	EndIf;
+	
+	If Common.SubsystemExists("StandardSubsystems.MobileSignatureService") Then
+		ModuleMobileSignatureServiceInternal = Common.CommonModule("MobileSignatureServiceInternal");
+		ModuleMobileSignatureServiceInternal.OnAddSessionParameterSettingHandlers(Handlers);
+	EndIf;
 
 	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
 		ModuleAccessManagementInternal = Common.CommonModule("AccessManagementInternal");
@@ -1089,13 +1104,13 @@ EndProcedure
 //
 // Parameters:
 //  ReplacementPairs		 - See Common.ReplaceReferences.ReplacementPairs
-//  ReplacementParameters - See Common.RefsReplacementParameters
+//  ReplacementParameters	 - See Common.RefsReplacementParameters
 //
-Procedure BeforeSearchForUsageInstances(ReplacementPairs, ExecutionParameters) Export
+Procedure BeforeSearchForUsageInstances(ReplacementPairs, ReplacementParameters) Export
 
 	If Common.SubsystemExists("StandardSubsystems.DuplicateObjectsDetection") Then
 		ModuleDuplicateObjectsDetection = Common.CommonModule("DuplicateObjectsDetection");
-		ModuleDuplicateObjectsDetection.SupplementDuplicatesWithLinkedSubordinateObjects(ReplacementPairs, ExecutionParameters);
+		ModuleDuplicateObjectsDetection.SupplementDuplicatesWithLinkedSubordinateObjects(ReplacementPairs, ReplacementParameters);
 	EndIf;
 
 EndProcedure
@@ -2115,6 +2130,16 @@ Procedure OnAddServerNotifications(Notifications) Export
 		ModuleMachineReadableLettersOfAuthorityFTSInternal.OnAddServerNotifications(Notifications);
 	EndIf;
 	
+	If Common.SubsystemExists("StandardSubsystems.EmailOperations") Then
+		ModuleEmailOperationsInternal = Common.CommonModule("EmailOperationsInternal");
+		ModuleEmailOperationsInternal.OnAddServerNotifications(Notifications);
+	EndIf;
+	
+	If Common.SubsystemExists("StandardSubsystems.MobileSignatureService") Then
+		ModuleMobileSignatureServiceInternal = Common.CommonModule("MobileSignatureServiceInternal");
+		ModuleMobileSignatureServiceInternal.OnAddServerNotifications(Notifications);
+	EndIf;
+	
 	If SSLSubsystemsIntegrationCached.SubscriptionsCTL().OnAddServerNotifications Then
 		ModuleCTLSubsystemsIntegration = Common.CommonModule("CTLSubsystemsIntegration");
 		ModuleCTLSubsystemsIntegration.OnAddServerNotifications(Notifications);
@@ -2192,6 +2217,60 @@ Procedure OnReceiptRecurringClientDataOnServer(Parameters, Results) Export
 	EndTry;
 	ServerNotifications.AddIndicator(Results, StartMoment,
 		"EDLSubsystemsIntegration.OnReceiptRecurringClientDataOnServer");
+	
+EndProcedure
+
+// See CommonOverridable.WhenSettingUpVerificationOfMethodsCalledAsArbitraryCode.
+Procedure WhenSettingUpVerificationOfMethodsCalledAsArbitraryCode(Settings) Export
+	
+	StandardSubsystemsServer.WhenSettingUpVerificationOfMethodsCalledAsArbitraryCode(Settings);
+	TimeConsumingOperations.WhenSettingUpVerificationOfMethodsCalledAsArbitraryCode(Settings);
+	InfobaseUpdateInternal.WhenSettingUpVerificationOfMethodsCalledAsArbitraryCode(Settings);
+	
+	If Common.SubsystemExists("StandardSubsystems.AdditionalReportsAndDataProcessors") Then
+		ModuleAdditionalReportsAndDataProcessors = Common.CommonModule("AdditionalReportsAndDataProcessors");
+		ModuleAdditionalReportsAndDataProcessors.WhenSettingUpVerificationOfMethodsCalledAsArbitraryCode(Settings);
+	EndIf;
+	
+	If Common.SubsystemExists("StandardSubsystems.AccountingAudit") Then
+		ModuleAccountingAuditInternal = Common.CommonModule("AccountingAuditInternal");
+		ModuleAccountingAuditInternal.WhenSettingUpVerificationOfMethodsCalledAsArbitraryCode(Settings);
+	EndIf;
+	
+	If Common.SubsystemExists("StandardSubsystems.ItemOrderSetup") Then
+		ModuleItemOrdering = Common.CommonModule("ItemOrderSetup");
+		ModuleItemOrdering.WhenSettingUpVerificationOfMethodsCalledAsArbitraryCode(Settings);
+	EndIf;
+	
+	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
+		ModuleAttachableCommands = Common.CommonModule("AttachableCommands");
+		ModuleAttachableCommands.WhenSettingUpVerificationOfMethodsCalledAsArbitraryCode(Settings);
+	EndIf;
+	
+	If Common.SubsystemExists("StandardSubsystems.DSSElectronicSignatureService") Then
+		TheDSSCryptographyServiceModuleInternal = Common.CommonModule("DSSCryptographyServiceInternal");
+		TheDSSCryptographyServiceModuleInternal.WhenSettingUpVerificationOfMethodsCalledAsArbitraryCode(Settings);
+	EndIf;
+	
+	If SSLSubsystemsIntegrationCached.SubscriptionsCTL().WhenSettingUpVerificationOfMethodsCalledAsArbitraryCode Then
+		ModuleCTLSubsystemsIntegration = Common.CommonModule("CTLSubsystemsIntegration");
+		ModuleCTLSubsystemsIntegration.WhenSettingUpVerificationOfMethodsCalledAsArbitraryCode(Settings);
+	EndIf;
+	
+	If SSLSubsystemsIntegrationCached.SubscriptionsOSL().WhenSettingUpVerificationOfMethodsCalledAsArbitraryCode Then
+		ModuleOSLSubsystemsIntegration = Common.CommonModule("OSLSubsystemsIntegration");
+		ModuleOSLSubsystemsIntegration.WhenSettingUpVerificationOfMethodsCalledAsArbitraryCode(Settings);
+	EndIf;
+	
+	If SSLSubsystemsIntegrationCached.PlusSubscriptions().WhenSettingUpVerificationOfMethodsCalledAsArbitraryCode Then
+		ModulePlusSubsystemsIntegration = ModulePlusSubsystemsIntegration();
+		ModulePlusSubsystemsIntegration.WhenSettingUpVerificationOfMethodsCalledAsArbitraryCode(Settings);
+	EndIf;
+		
+	If SSLSubsystemsIntegrationCached.EDLSubscriptions().WhenSettingUpVerificationOfMethodsCalledAsArbitraryCode Then
+		ModuleEDLSubsystemsIntegration = Common.CommonModule("EDLSubsystemsIntegration");
+		ModuleEDLSubsystemsIntegration.WhenSettingUpVerificationOfMethodsCalledAsArbitraryCode(Settings);
+	EndIf;
 	
 EndProcedure
 
@@ -3103,12 +3182,50 @@ EndProcedure
 
 #EndRegion
 
+#Region PersonalDataProtection
+
+// See PersonalDataProtectionOverridable.OnFillInfoAboutPersonalDataToDestroy
+Procedure OnFillInfoAboutPersonalDataToDestroy(InformationTable_) Export
+	
+	If Common.SubsystemExists("StandardSubsystems.MobileSignatureService") Then
+		ModuleMobileSignatureServiceInternal = Common.CommonModule("MobileSignatureServiceInternal");
+		ModuleMobileSignatureServiceInternal.OnFillInfoAboutPersonalDataToDestroy(InformationTable_);
+	EndIf;
+	
+EndProcedure
+
+// See PersonalDataProtectionOverridable.FillInAreasOfPersonalData.
+Procedure FillInAreasOfPersonalData(DataCategories) Export
+	
+	If Common.SubsystemExists("StandardSubsystems.MobileSignatureService") Then
+		ModuleMobileSignatureServiceInternal = Common.CommonModule("MobileSignatureServiceInternal");
+		ModuleMobileSignatureServiceInternal.FillInAreasOfPersonalData(DataCategories);
+	EndIf;
+		
+EndProcedure
+
+// See PersonalDataProtectionOverridable.FillInInformationAboutPersonalData.
+Procedure FillInInformationAboutPersonalData(InformationTable_) Export
+	
+	If Common.SubsystemExists("StandardSubsystems.MobileSignatureService") Then
+		ModuleMobileSignatureServiceInternal = Common.CommonModule("MobileSignatureServiceInternal");
+		ModuleMobileSignatureServiceInternal.FillInInformationAboutPersonalData(InformationTable_);
+	EndIf;
+	
+EndProcedure
+
+#EndRegion
+
 #Region ODataInterface
 
-// See ExportImportDataOverridable.OnFillTypesExcludedFromExportImport.
+// Fills an array of types excluded from external OData access.
+//
+// Parameters:
+//  TypesToExclude - Array of MetadataObject, FixedStructure: 
+//    * Type - MetadataObject
+//    * Action - String
+//
 Procedure OnFillTypesExcludedFromExportImportOData(TypesToExclude) Export
-
-	OnFillTypesExcludedFromExportImport(TypesToExclude);
 
 	If SSLSubsystemsIntegrationCached.SubscriptionsCTL().OnFillTypesExcludedFromExportImportOData Then
 		ModuleCTLSubsystemsIntegration = Common.CommonModule("CTLSubsystemsIntegration");
@@ -3480,6 +3597,9 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	If Common.SubsystemExists("StandardSubsystems.FilesOperations") Then
 		ModuleFilesOperationsInternal = Common.CommonModule("FilesOperationsInternal");
 		ModuleFilesOperationsInternal.OnAddUpdateHandlers(Handlers);
+		
+		ServerFileArchiveWorkModule = Common.CommonModule("WorkingWithServerFileArchive");
+		ServerFileArchiveWorkModule.OnAddUpdateHandlers(Handlers);
 	EndIf;
 	
 	If Common.SubsystemExists("StandardSubsystems.ReportMailing") Then
@@ -3495,6 +3615,11 @@ Procedure OnAddUpdateHandlers(Handlers) Export
 	If Common.SubsystemExists("StandardSubsystems.Properties") Then
 		ModulePropertyManagerInternal = Common.CommonModule("PropertyManagerInternal");
 		ModulePropertyManagerInternal.OnAddUpdateHandlers(Handlers);
+	EndIf;
+	
+	If Common.SubsystemExists("StandardSubsystems.MobileSignatureService") Then
+		ModuleMobileSignatureServiceInternal = Common.CommonModule("MobileSignatureServiceInternal");
+		ModuleMobileSignatureServiceInternal.OnAddUpdateHandlers(Handlers);
 	EndIf;
 
 	StandardSubsystemsServer.OnAddUpdateHandlers(Handlers);
@@ -4876,24 +5001,24 @@ EndProcedure
 
 // See SafeModeManagerOverridable.OnRequestPermissionsToUseExternalResources.
 Procedure OnRequestPermissionsToUseExternalResources(Val ProgramModule, Val Owner,
-	Val ReplacementMode, Val PermissionsToAdd, Val PermissionsToDelete, StandardProcessing, Result) Export
+	Val Var_ReplacementMode, Val PermissionsToAdd, Val PermissionsToDelete, StandardProcessing, Result) Export
 
 	If SSLSubsystemsIntegrationCached.SubscriptionsCTL().OnRequestPermissionsToUseExternalResources Then
 		ModuleCTLSubsystemsIntegration = Common.CommonModule("CTLSubsystemsIntegration");
 		ModuleCTLSubsystemsIntegration.OnRequestPermissionsToUseExternalResources(ProgramModule, Owner,
-			ReplacementMode, PermissionsToAdd, PermissionsToDelete, StandardProcessing, Result);
+			Var_ReplacementMode, PermissionsToAdd, PermissionsToDelete, StandardProcessing, Result);
 	EndIf;
 
 	If SSLSubsystemsIntegrationCached.SubscriptionsOSL().OnRequestPermissionsToUseExternalResources Then
 		ModuleOSLSubsystemsIntegration = Common.CommonModule("OSLSubsystemsIntegration");
 		ModuleOSLSubsystemsIntegration.OnRequestPermissionsToUseExternalResources(ProgramModule, Owner,
-			ReplacementMode, PermissionsToAdd, PermissionsToDelete, StandardProcessing, Result);
+			Var_ReplacementMode, PermissionsToAdd, PermissionsToDelete, StandardProcessing, Result);
 	EndIf;
 
 	If SSLSubsystemsIntegrationCached.PlusSubscriptions().OnRequestPermissionsToUseExternalResources Then
 		ModulePlusSubsystemsIntegration = ModulePlusSubsystemsIntegration();
 		ModulePlusSubsystemsIntegration.OnRequestPermissionsToUseExternalResources(ProgramModule, Owner,
-			ReplacementMode, PermissionsToAdd, PermissionsToDelete, StandardProcessing, Result);
+			Var_ReplacementMode, PermissionsToAdd, PermissionsToDelete, StandardProcessing, Result);
 	EndIf;
 	
 EndProcedure
@@ -5053,6 +5178,11 @@ Procedure OnFillPermissionsToAccessExternalResources(PermissionsRequests) Export
 	If Common.SubsystemExists("StandardSubsystems.ReportMailing") Then
 		ModuleReportDistribution = Common.CommonModule("ReportMailing");
 		ModuleReportDistribution.OnFillPermissionsToAccessExternalResources(PermissionsRequests);
+	EndIf;
+	
+	If Common.SubsystemExists("StandardSubsystems.MobileSignatureService") Then
+		ModuleMobileSignatureServiceInternal = Common.CommonModule("MobileSignatureServiceInternal");
+		ModuleMobileSignatureServiceInternal.OnFillPermissionsToAccessExternalResources(PermissionsRequests);
 	EndIf;
 
 	StandardSubsystemsServer.OnFillPermissionsToAccessExternalResources(PermissionsRequests);
@@ -5324,6 +5454,11 @@ Procedure OnDefineScheduledJobSettings(Settings) Export
 	If Common.SubsystemExists("StandardSubsystems.ReportMailing") Then
 		ModuleReportDistribution = Common.CommonModule("ReportMailing");
 		ModuleReportDistribution.OnDefineScheduledJobSettings(Settings);
+	EndIf;
+	
+	If Common.SubsystemExists("StandardSubsystems.MobileSignatureService") Then
+		ModuleMobileSignatureServiceInternal = Common.CommonModule("MobileSignatureServiceInternal");
+		ModuleMobileSignatureServiceInternal.OnDefineScheduledJobSettings(Settings);
 	EndIf;
 	
 	If Common.SubsystemExists("StandardSubsystems.AccessManagement") Then
@@ -5704,7 +5839,7 @@ Procedure OnFillAccessKinds(AccessKinds) Export
 		ModulePropertyManagerInternal = Common.CommonModule("PropertyManagerInternal");
 		ModulePropertyManagerInternal.OnFillAccessKinds(AccessKinds);
 	EndIf;
-
+	
 	If SSLSubsystemsIntegrationCached.SubscriptionsCTL().OnFillAccessKinds Then
 		ModuleCTLSubsystemsIntegration = Common.CommonModule("CTLSubsystemsIntegration");
 		ModuleCTLSubsystemsIntegration.OnFillAccessKinds(AccessKinds);
@@ -5790,6 +5925,11 @@ Procedure OnFillListsWithAccessRestriction(Lists) Export
 		ModuleReportDistribution = Common.CommonModule("ReportMailing");
 		ModuleReportDistribution.OnFillListsWithAccessRestriction(Lists);
 	EndIf;
+	
+	If Common.SubsystemExists("StandardSubsystems.MobileSignatureService") Then
+		ModuleMobileSignatureServiceInternal = Common.CommonModule("MobileSignatureServiceInternal");
+		ModuleMobileSignatureServiceInternal.OnFillListsWithAccessRestriction(Lists);
+	EndIf;
 
 	If Common.SubsystemExists("StandardSubsystems.Properties") Then
 		ModulePropertyManagerInternal = Common.CommonModule("PropertyManagerInternal");
@@ -5816,6 +5956,11 @@ Procedure OnFillListsWithAccessRestriction(Lists) Export
 		ModuleOSLSubsystemsIntegration.OnFillListsWithAccessRestriction(Lists);
 	EndIf;
 
+	If Common.SubsystemExists("StandardSubsystems.DigitalSignature") Then
+		ModuleDigitalSignatureInternal = Common.CommonModule("DigitalSignatureInternal");
+		ModuleDigitalSignatureInternal.OnFillListsWithAccessRestriction(Lists);
+	EndIf;
+	
 	If Common.SubsystemExists("StandardSubsystems.DSSElectronicSignatureService") Then
 		TheDSSCryptographyServiceModuleInternal = Common.CommonModule("DSSCryptographyServiceInternal");
 		TheDSSCryptographyServiceModuleInternal.OnFillListsWithAccessRestriction(Lists);
@@ -5971,10 +6116,15 @@ Procedure OnFillMetadataObjectsAccessRestrictionKinds(LongDesc) Export
 		ModulePropertyManagerInternal = Common.CommonModule("PropertyManagerInternal");
 		ModulePropertyManagerInternal.OnFillMetadataObjectsAccessRestrictionKinds(LongDesc);
 	EndIf;
-
+	
 	If Common.SubsystemExists("StandardSubsystems.MessageTemplates") Then
 		ModuleMessageTemplatesInternal = Common.CommonModule("MessageTemplatesInternal");
 		ModuleMessageTemplatesInternal.OnFillMetadataObjectsAccessRestrictionKinds(LongDesc);
+	EndIf;
+
+	If Common.SubsystemExists("StandardSubsystems.DigitalSignature") Then
+		ModuleDigitalSignatureInternal = Common.CommonModule("DigitalSignatureInternal");
+		ModuleDigitalSignatureInternal.OnFillMetadataObjectsAccessRestrictionKinds(LongDesc);
 	EndIf;
 
 	If SSLSubsystemsIntegrationCached.SubscriptionsCTL().OnFillMetadataObjectsAccessRestrictionKinds Then
@@ -6243,7 +6393,7 @@ EndProcedure
 
 #Region ObsoleteProceduresAndFunctions
 
-// Deprecated. Obsolete. Use SSLSubsystemsIntegration.OnDefinePrintSettings instead.
+// Deprecated. Instead, use SSLSubsystemsIntegration.OnDefinePrintSettings.
 // See PrintManagementOverridable.OnDefineObjectsWithPrintCommands.
 //
 Procedure OnDefineObjectsWithPrintCommands(ListOfObjects) Export

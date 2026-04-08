@@ -1,5 +1,5 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
@@ -478,11 +478,11 @@ Procedure SavePrintFormsToDirectory(FilesListInTempStorage, Val DirectoryName = 
 		
 	EndIf;
 	
-	NotifyDescription = New CallbackDescription("WhenPreparingFileNames", ThisObject, DirectoryName);
+	CallbackDescription = New CallbackDescription("WhenPreparingFileNames", ThisObject, DirectoryName);
 	PreparationParameters = PrintManagementClient.FileNamePreparationOptions(
 		FilesListInTempStorage,
 		DirectoryName,
-		NotifyDescription);
+		CallbackDescription);
 	PrepareFileNamesToSaveToADirectory(PreparationParameters);
 	
 EndProcedure
@@ -516,13 +516,13 @@ Procedure WhenPreparingFileNames(FilesListInTempStorage, DirectoryName) Export
 	
 	If ValueIsFilled(DirectoryName) Then
 		
-		NotifyDescription = New CallbackDescription("OpenFolderSaveTo", ThisObject, DirectoryName);
+		CallbackDescription = New CallbackDescription("OpenFolderSaveTo", ThisObject, DirectoryName);
 		Template = NStr("en = 'into %1'");
 		SavingPath = StringFunctionsClientServer.SubstituteParametersToString(Template, DirectoryName);
 		Text = NStr("en = 'Saved'");
 		ShowUserNotification(
 			Text,
-			NotifyDescription,
+			CallbackDescription,
 			SavingPath,
 			PictureLib.DialogInformation);
 		
@@ -582,7 +582,9 @@ Function PutFilesToArchive(DocsPrintForms, PresentationToArchive)
 		
 		FileData = GetFromTempStorage(FileStructure.AddressInTempStorage);
 		DeleteFromTempStorage(FileStructure.AddressInTempStorage);
-		FullFileName = TempDirectoryName + FileStructure.Presentation;
+		
+		FileName = CommonClientServer.ReplaceProhibitedCharsInFileName(FileStructure.Presentation);
+		FullFileName = TempDirectoryName + FileName;
 		FullFileName = FileSystem.UniqueFileName(FullFileName);
 		FileData.Write(FullFileName);
 		

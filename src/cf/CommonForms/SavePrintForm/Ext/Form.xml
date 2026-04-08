@@ -46,6 +46,7 @@
 	</AutoCommandBar>
 	<Events>
 		<Event name="OnSaveDataInSettingsAtServer">OnSaveDataInSettingsAtServer</Event>
+		<Event name="OnLoadDataFromSettingsAtServer">OnLoadDataFromSettingsAtServer</Event>
 		<Event name="OnCreateAtServer">OnCreateAtServer</Event>
 		<Event name="BeforeLoadDataFromSettingsAtServer">BeforeLoadDataFromSettingsAtServer</Event>
 	</Events>
@@ -72,7 +73,12 @@
 							<xr:Presentation/>
 							<xr:CheckState>0</xr:CheckState>
 							<xr:Value xsi:type="FormChoiceListDesTimeValue">
-								<Presentation/>
+								<Presentation>
+									<v8:item>
+										<v8:lang>en</v8:lang>
+										<v8:content>Save to local folder</v8:content>
+									</v8:item>
+								</Presentation>
 								<Value xsi:type="xs:string">SaveToFolder</Value>
 							</xr:Value>
 						</xr:Item>
@@ -326,6 +332,9 @@
 					<v8:AllowedLength>Variable</v8:AllowedLength>
 				</v8:StringQualifiers>
 			</Type>
+			<Save>
+				<Field>SavingOption</Field>
+			</Save>
 		</Attribute>
 		<Attribute name="SelectedSaveFormats" id="12">
 			<Title>

@@ -36,6 +36,45 @@
 		<Event name="OnCreateAtServer">OnCreateAtServer</Event>
 	</Events>
 	<ChildItems>
+		<UsualGroup name="TwoFactorAuthenticationWarningGroup" id="40">
+			<Title>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>2FA notification</v8:content>
+				</v8:item>
+			</Title>
+			<HorizontalStretch>true</HorizontalStretch>
+			<Representation>None</Representation>
+			<ShowTitle>false</ShowTitle>
+			<BackColor>style:ToolTipBackColor</BackColor>
+			<ExtendedTooltip name="TwoFactorAuthenticationWarningGroupExtendedTooltip" id="41"/>
+			<ChildItems>
+				<PictureDecoration name="ImageGroupWarningAboutTwoFactorAuthentication" id="42">
+					<Title formatted="false">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>2FA notification</v8:content>
+						</v8:item>
+					</Title>
+					<Picture>
+						<xr:Ref>CommonPicture.Warning32</xr:Ref>
+						<xr:LoadTransparent>false</xr:LoadTransparent>
+					</Picture>
+					<ContextMenu name="ImageGroupWarningAboutTwoFactorAuthenticationContextMenu" id="43"/>
+					<ExtendedTooltip name="ImageGroupWarningAboutTwoFactorAuthenticationExtendedTooltip" id="44"/>
+				</PictureDecoration>
+				<LabelDecoration name="GroupLabelIsWarningAboutTwoFactorAuthentication" id="45">
+					<Title formatted="false">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Cannot sync if the user has two-factor authentication enabled.</v8:content>
+						</v8:item>
+					</Title>
+					<ContextMenu name="GroupLabelIsWarningAboutTwoFactorAuthenticationContextMenu" id="46"/>
+					<ExtendedTooltip name="GroupLabelIsWarningAboutTwoFactorAuthenticationExtendedTooltip" id="47"/>
+				</LabelDecoration>
+			</ChildItems>
+		</UsualGroup>
 		<InputField name="DataExchangeDirectory" id="12">
 			<TitleLocation>Top</TitleLocation>
 			<ToolTipRepresentation>ShowBottom</ToolTipRepresentation>

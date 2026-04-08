@@ -1,18 +1,17 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Public
 
-#Region ForCallsFromOtherSubsystems
+#Region InterfaceImplementation
 
 // StandardSubsystems.ReportsOptions
 
@@ -234,7 +233,7 @@ Function TextOfQueryByMetadata(ReportParameters)
 	
 	FilterSource1 = "";
 	If ReportParameters.TableName = "BalanceAndTurnovers" Then
-		FilterSource1 = "({&BeginOfPeriod}, {&EndOfPeriod}, Auto, RegisterRecords)";
+		FilterSource1 = "({&BeginOfPeriod}, {&EndOfPeriod}, Auto, RegisterRecordsAndPeriodBoundaries)";
 	ElsIf ReportParameters.TableName = "Turnovers" Then
 		FilterSource1 = "({&BeginOfPeriod}, {&EndOfPeriod}, Auto)";
 	ElsIf ReportParameters.TableName = "Balance"
@@ -279,16 +278,20 @@ Function TextOfQueryByMetadata(ReportParameters)
 	"SELECT ALLOWED
 	|	*
 	|FROM
-	|	&SourceName AS Table";
+	|	&SourceName AS SpecifiedTableAlias";
 	
-	QueryText = StrReplace(QueryText, "AS Table", "");
-	QueryText = StrReplace(QueryText, "&SourceName", SourceName);
-	
-	If ValueIsFilled(FilterSource1) Then 
-		QueryText = QueryText + FilterSource1;
+	If StrStartsWith(FilterSource1, "({") Then
+		SourceNameWithFilter = SourceName + " " + FilterSource1; 
+		QueryText = StrReplace(QueryText, "&SourceName", SourceNameWithFilter);
+	Else
+		QueryText = StrReplace(QueryText, "&SourceName", SourceName);
+		If ValueIsFilled(FilterSource1) Then 
+			QueryText = QueryText + FilterSource1;
+		EndIf;
 	EndIf;
 	
 	Return QueryText;
+
 EndFunction
 
 Function AvailableMetadataObjectsTypes()
@@ -530,7 +533,7 @@ Procedure AddRegisterTotals(Val ReportParameters, Val DataCompositionSchema)
 		DataSetField.Role.IgnoreNULLValues = True;
 		
 		Order_Period = DataSetField.OrderExpressions.Add();
-		Order_Period.Expression = "TimeIntervals_.SecondPeriod";
+		Order_Period.Expression = "TimeIntervals.SecondPeriod";
 		Order_Period.OrderType = DataCompositionSortDirection.Asc;
 		
 		OrderRegistrar = DataSetField.OrderExpressions.Add();
@@ -816,7 +819,7 @@ Function AddPeriodFieldsInDataSet(DataSet, ThereIsFieldLogger)
 	PeriodsList.Add("HalfYearPeriod", NStr("en = 'Period half-year'"));
 	PeriodsList.Add("YearPeriod",       NStr("en = 'Period year'"));
 	
-	FolderName = "TimeIntervals_";
+	FolderName = "TimeIntervals";
 	DataSetFieldsList = New ValueList;
 	DataSetFieldsFolder = DataSet.Fields.Add(Type("DataCompositionSchemaDataSetFieldFolder"));
 	DataSetFieldsFolder.Title   = NStr("en = 'Periods'");
@@ -1718,8 +1721,8 @@ Procedure HideRecordsCountInDetailedRecords(DetailedRecords)
 	RecordsCountAppearance.Appearance.SetParameterValue("Text", "");
 	
 	UsageOptions = UseCasesForTheDesign();
-	For Each UsageOption In UsageOptions Do 
-		RecordsCountAppearance[UsageOption] = DataCompositionConditionalAppearanceUse.DontUse;
+	For Each UseVariant In UsageOptions Do 
+		RecordsCountAppearance[UseVariant] = DataCompositionConditionalAppearanceUse.DontUse;
 	EndDo;
 	
 EndProcedure

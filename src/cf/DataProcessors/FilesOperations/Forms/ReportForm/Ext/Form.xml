@@ -18,10 +18,10 @@
 				<CommandName>Form.StandardCommand.Close</CommandName>
 				<ExtendedTooltip name="CloseExtendedTooltip" id="7"/>
 			</Button>
-			<Button name="FormHelp" id="8">
+			<Button name="FormHelp_SSLyf" id="8">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.StandardCommand.Help</CommandName>
-				<ExtendedTooltip name="FormHelpExtendedTooltip" id="9"/>
+				<ExtendedTooltip name="FormHelp_SSLyfExtendedTooltip" id="9"/>
 			</Button>
 		</ChildItems>
 	</AutoCommandBar>

@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -555,12 +554,16 @@ EndFunction
 
 Function ModuleCommon()
 	
+#If Not MobileAppServer Then
+	SetSafeMode(True);
+#EndIf
+	
 	If Metadata.Subsystems.Find("EquipmentSupport") = Undefined Then
 		// Call SSL
-		Return Eval("Common");
+		Return Eval("Common"); // ACC:488 - Code is executed in safe mode.
 		// End Call SSL
 	Else
-		Return Eval("CommonCEL");
+		Return Eval("CommonCEL"); // ACC:488 - Code is executed in safe mode.
 	EndIf;
 	
 EndFunction

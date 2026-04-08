@@ -1,5 +1,5 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
@@ -9,8 +9,8 @@
 
 #Region Public
 
-// Returns the metadata object selection parameters for the procedure  
-// "StandardSubsystemsClient.SelectMetadataObjects".
+// Returns the metadata object selection parameters for 
+// the StandardSubsystemsClient.ChooseMetadataObjects procedure.
 // 
 // Returns:
 //  Structure:
@@ -98,12 +98,12 @@ EndFunction
 //    * RAM - Undefined
 //    * UserAgentInformation - Undefined
 //    * COMConnectorName - Undefined
-//    * ThisIsBasicConfiguration - Undefined
+//    * IsBaseConfiguration - Undefined
 //    * IsFullUser - Undefined
 //    * IsTrainingPlatform - Undefined
 //    * ConfigurationChanged - Undefined
 //
-Function NewInformationForSupport() Export
+Function NewInfoForSupport() Export
 	
 	Result = New Structure;
 	
@@ -119,7 +119,7 @@ Function NewInformationForSupport() Export
 	Result.Insert("UserAgentInformation", Undefined);
 	
 	Result.Insert("COMConnectorName", Undefined);
-	Result.Insert("ThisIsBasicConfiguration", Undefined);
+	Result.Insert("IsBaseConfiguration", Undefined);
 	Result.Insert("IsFullUser", Undefined);
 	Result.Insert("IsTrainingPlatform", Undefined);
 	Result.Insert("ConfigurationChanged", Undefined);
@@ -133,29 +133,29 @@ EndFunction
 // , "StandardSubsystemsClient.SupportInformation".
 //
 // Parameters:
-//  SupportInformation - See StandardSubsystemsClientServer.NewInformationForSupport.
+//  SupportInformation - See StandardSubsystemsClientServer.NewInfoForSupport.
 //
 // Returns:
 //  String - Information for technical support.
 //
-Function TextOfInformationForSupport(SupportInformation) Export
+Function SupportInformationText(SupportInformation) Export
 	
 	Result = New Array;
 	
-	BasicInformationTemplate = NStr(
+	MainInformationTemplate = NStr(
 		"en = '%1, %2
 		|1C:Enterprise: %3 %4
 		|Standard Subsystem Library: %5'");
 	
-	BasicInformation = StringFunctionsClientServer.SubstituteParametersToString(
-		BasicInformationTemplate,
+	MainInformation = StringFunctionsClientServer.SubstituteParametersToString(
+		MainInformationTemplate,
 		SupportInformation.ApplicationName1,
 		SupportInformation.ApplicationVersion,
 		SupportInformation.AppVersion,
 		SupportInformation.PlatformType,
 		SupportInformation.SSLVersion);
 	
-	Result.Add(BasicInformation);
+	Result.Add(MainInformation);
 	Result.Add("");
 	
 	SystemInformationTemplate = NStr(
@@ -183,7 +183,7 @@ Function TextOfInformationForSupport(SupportInformation) Export
 	
 	Result.Add("");
 	
-	TemplateForAdditionalInformation = NStr(
+	AdditionalInformationTemplate = NStr(
 		"en = 'Additional info
 		|COM connector: %1
 		|Base configuration: %2
@@ -192,9 +192,9 @@ Function TextOfInformationForSupport(SupportInformation) Export
 		|Modified configuration: %5'");
 	
 	AdditionalInformation = StringFunctionsClientServer.SubstituteParametersToString(
-		TemplateForAdditionalInformation,
+		AdditionalInformationTemplate,
 		SupportInformation.COMConnectorName,
-		SupportInformation.ThisIsBasicConfiguration,
+		SupportInformation.IsBaseConfiguration,
 		SupportInformation.IsFullUser,
 		SupportInformation.IsTrainingPlatform,
 		SupportInformation.ConfigurationChanged);

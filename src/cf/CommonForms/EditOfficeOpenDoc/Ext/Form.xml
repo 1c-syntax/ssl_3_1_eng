@@ -277,7 +277,7 @@
 													<Title>
 														<v8:item>
 															<v8:lang>en</v8:lang>
-															<v8:content>Save to file…</v8:content>
+															<v8:content>Save to file...</v8:content>
 														</v8:item>
 													</Title>
 													<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
@@ -1110,7 +1110,7 @@
 			<Title>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Save to file…</v8:content>
+					<v8:content>Save to file...</v8:content>
 				</v8:item>
 			</Title>
 			<Action>SaveToFile</Action>

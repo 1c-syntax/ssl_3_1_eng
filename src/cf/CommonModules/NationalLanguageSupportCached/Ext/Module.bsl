@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Private
@@ -218,6 +217,45 @@ Function TabularSectionMultilingualAttributes(FullMetadataObjectName) Export
 	EndDo;
 	
 	Return New FixedArray(Result);
+	
+EndFunction
+
+Function QueryTextForReceivingSelectionData(FullMetadataObjectName, TypeOfSelectionOfGroupsAndElements) Export
+	
+	MetadataObject = Metadata.FindByFullName(FullMetadataObjectName);
+	FilterConditions = NationalLanguageSupportServer.SearchCriteriaForLocalizedFieldsForRequestingSelectionData(MetadataObject);
+	
+	QueryTemplate = 
+	"SELECT ALLOWED TOP 20
+	|	Table.Ref AS Ref
+	|FROM
+	|	&ObjectName AS Table
+	|WHERE
+	|	&GroupConditions
+	|	AND (&FilterConditions)";
+	
+	TheConditionForTheGroup = "TRUE";
+	
+	SupportsHierarchy = (Metadata.Catalogs.Contains(MetadataObject)
+		Or Metadata.ChartsOfCharacteristicTypes.Contains(MetadataObject));
+	
+	ObjectIsHierarchical = SupportsHierarchy And MetadataObject.Hierarchical;
+	
+	If ObjectIsHierarchical And ValueIsFilled(TypeOfSelectionOfGroupsAndElements)  Then
+		
+		If TypeOfSelectionOfGroupsAndElements = "Items" Then
+			TheConditionForTheGroup = "NOT Table.IsFolder";
+		ElsIf TypeOfSelectionOfGroupsAndElements = "Groups" Then
+			TheConditionForTheGroup = "Table.IsFolder";
+		EndIf;
+		
+	EndIf;
+	
+	QueryText = StrReplace(QueryTemplate, "&ObjectName",    MetadataObject.FullName());
+	QueryText = StrReplace(QueryText,  "&GroupConditions", TheConditionForTheGroup);
+	QueryText = StrReplace(QueryText,  "&FilterConditions", FilterConditions);
+	
+	Return QueryText;
 	
 EndFunction
 

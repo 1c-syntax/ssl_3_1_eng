@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -97,7 +96,7 @@ Function GenerateAmountInWords(AmountAsNumber, Currency, OmitFractionalPart = Fa
 	EndIf;
 	
 	Sum = ?(AmountAsNumber < 0, -AmountAsNumber, AmountAsNumber);
-	Format = StrTemplate("L=%1;DP=%2", LanguageCode, ?(IsFractionalPartInWords, "True", "False"));
+	Format = StrTemplate("L=%1;DE=%2", LanguageCode, ?(IsFractionalPartInWords, "True", "False"));
 	Result = NumberInWords(Sum, Format, AmountInWordsParameters); // ACC:1297 ACC:1357
 	If OmitFractionalPart And Int(Sum) = Sum Then
 		Result = Left(Result, StrFind(Result, "0") - 1);
@@ -153,10 +152,16 @@ EndFunction
 // 
 // Parameters:
 //  PrintDataSources - See PrintManagementOverridable.OnDefinePrintDataSources.PrintDataSources
+//  FieldSourceName - String - Full name of the metadata object used to calculate currency fields for spelled-out amounts.
+//                               If not specified, add the default field and the first currency attribute in the list of print object metadata.
+//                               
 //
-Procedure ConnectPrintDataSourceNumberWritten(PrintDataSources) Export
+Procedure ConnectPrintDataSourceNumberWritten(PrintDataSources, FieldSourceName = "") Export
 	
-	PrintDataSources.Add(SchemaDataPrintAmountWords(), "DataPrintAmountWords");	
+	CompositionSchema = SchemaDataPrintAmountWords(FieldSourceName);
+	If CompositionSchema <> Undefined Then
+		PrintDataSources.Add(CompositionSchema, "DataPrintAmountWords");
+	EndIf;
 	
 EndProcedure
 
@@ -526,30 +531,87 @@ Function ShouldNotifyWhenExchageRatesOutdated()
 	
 EndFunction
 
-Function SchemaDataPrintAmountWords()
+#EndRegion
+
+#Region Print
+
+Function SchemaDataPrintAmountWords(FieldSourceName)
 	
-	If Common.SubsystemExists("StandardSubsystems.Print") Then
-		ModulePrintManager = Common.CommonModule("PrintManagement");
-	
-		FieldList = ModulePrintManager.PrintDataFieldTable();
+	If Not Common.SubsystemExists("StandardSubsystems.Print") Then
 		
-		Field = FieldList.Add();
-		Field.Id = "Ref";
-		Field.Presentation = NStr("en = 'Ref'");
-		Field.ValueType = New TypeDescription();	
-	
-		Field = FieldList.Add();
-		Field.Id = "Currency";
-		Field.Presentation = NStr("en = 'Currency'");
-		Field.ValueType = New TypeDescription();	
-	
-		Field = FieldList.Add();
-		Field.Id = "NumberInWords";
-		Field.Presentation = NStr("en = 'Amount in words'");
-		Field.ValueType = New TypeDescription("String");
+		Return Undefined;
 		
-		Return ModulePrintManager.SchemaCompositionDataPrint(FieldList);
 	EndIf;
+	
+	ModulePrintManager = Common.CommonModule("PrintManagement");
+	
+	FieldList = ModulePrintManager.PrintDataFieldTable();
+	
+	Field = FieldList.Add();
+	Field.Id = "Ref";
+	Field.Presentation = NStr("en = 'Ref'");
+	Field.ValueType = New TypeDescription();
+	
+	Field = FieldList.Add();
+	Field.Id = "Currency";
+	Field.Presentation = NStr("en = 'Default value'");
+	Field.ValueType = New TypeDescription();
+	
+	Field = FieldList.Add();
+	Field.Id = "NumberInWords";
+	Field.Presentation = NStr("en = 'In words (with default value)'");
+	Field.ValueType = New TypeDescription("String");
+	
+	If Not IsBlankString(FieldSourceName) Then
+		
+		SubstringsArray = StringFunctionsClientServer.SplitStringIntoSubstringsArray(FieldSourceName, ".");
+		ArrayOfTwoLines = 2;
+		
+		If SubstringsArray.Count() >= ArrayOfTwoLines Then
+			
+			ArrayOfSubstringsOfObjectName = New Array;
+			ArrayOfSubstringsOfObjectName.Add(SubstringsArray[0]);
+			ArrayOfSubstringsOfObjectName.Add(SubstringsArray[1]);
+			ObjectName = StrConcat(ArrayOfSubstringsOfObjectName, ".");
+			MetadataObject = Common.MetadataObjectByFullName(ObjectName);
+			
+			If MetadataObject <> Undefined Then
+				
+				TableOfCurrencyAttributes = TableOfCurrencyAttributesOfObject(MetadataObject);
+				ObjectType = StandardSubsystemsServer.MetadataObjectReferenceOrMetadataObjectRecordKeyType(MetadataObject);
+				DefaultCurrencyData = CurrencyData();
+				GetDefaultCurrencyFieldForItem(ObjectType, TableOfCurrencyAttributes, DefaultCurrencyData);
+				
+				If Not IsBlankString(DefaultCurrencyData.FieldPresentation)
+				   And DefaultCurrencyData.Redefined Then
+					
+					FieldPresentation = DefaultCurrencyData.FieldPresentation;
+					TableRow = FieldList.Find("Currency", "Id");
+					TableRow.Presentation = TableRow.Presentation + " (" + FieldPresentation + ")";
+					
+				EndIf;
+				
+				For Each Attribute In TableOfCurrencyAttributes Do
+					
+					Id = IdOfNumberFieldInWords(Attribute.Id);
+					If FieldList.Find(Id, "Id") = Undefined Then
+						
+						Field = FieldList.Add();
+						Field.Id = Id;
+						Field.Presentation = PresentationOfNumberFieldInWords(Attribute.Presentation);
+						Field.ValueType = New TypeDescription("String");
+						
+					EndIf;
+					
+				EndDo;
+				
+			EndIf;
+			
+		EndIf;
+		
+	EndIf;
+	
+	Return ModulePrintManager.SchemaCompositionDataPrint(FieldList);
 	
 EndFunction
 
@@ -560,29 +622,354 @@ Function DataPrintAmountWords(DataSourceDescriptions, LanguageCode)
 	PrintData.Columns.Add("Currency");
 	PrintData.Columns.Add("NumberInWords");
 	
-	For Each SourceDetails In DataSourceDescriptions Do
-		TableRow = PrintData.Add();
-		TableRow.Ref = SourceDetails.Value;
-		If Common.IsReference(TypeOf(SourceDetails.Owner)) Then
-			MetadataObject = Metadata.FindByType(TypeOf(SourceDetails.Owner));
-			For Each Attribute In MetadataObject.Attributes Do
-				If Attribute.Type.ContainsType(Type("CatalogRef.Currencies")) Then
-					Currency = Common.ObjectAttributeValue(SourceDetails.Owner, Attribute.Name);
-					If ValueIsFilled(Currency) Then
-						TableRow.Currency = Currency;
-						TableRow.NumberInWords = GenerateAmountInWords(
-							SourceDetails.Value, Currency, , LanguageCode);
-						Break;
-					EndIf;
-				EndIf;
-			EndDo;
+	Result = DescriptionsOfDataSourcesByMetadata(DataSourceDescriptions);
+	MetadataObjects = Result.MetadataObjects;
+	MetadataLinks = Result.MetadataLinks;
+	
+	MetadataObjects = CommonClientServer.CollapseArray(MetadataObjects);
+	
+	For Each MetadataObject In MetadataObjects Do
+		
+		ObjectType = StandardSubsystemsServer.MetadataObjectReferenceOrMetadataObjectRecordKeyType(MetadataObject);
+		TableOfCurrencyAttributes = TableOfCurrencyAttributesOfObject(MetadataObject);
+		
+		For Each Attribute In TableOfCurrencyAttributes Do
+			
+			ColumnName = IdOfNumberFieldInWords(Attribute.Id);
+			If PrintData.Columns.Find(ColumnName) = Undefined Then
+				PrintData.Columns.Add(ColumnName);
+			EndIf;
+			
+		EndDo;
+		
+		ReferencesArrray = CommonClientServer.CollapseArray(MetadataLinks[MetadataObject]);
+		FieldArray = TableOfCurrencyAttributes.UnloadColumn("Id");
+		ValuesOfCurrencyAttributes = New Map;
+		If FieldArray.Count() > 0 Then
+			ValuesOfCurrencyAttributes = Common.ObjectsAttributesValues(ReferencesArrray, FieldArray);
 		EndIf;
+		
+		DefaultCurrencyData = CurrencyData();
+		GetDefaultCurrencyFieldForItem(ObjectType, TableOfCurrencyAttributes, DefaultCurrencyData, True);
+		
+		For Each CurrentRef In ReferencesArrray Do
+			
+			CurrencyAttributesOfLink = ValuesOfCurrencyAttributes[CurrentRef];
+			If Not IsBlankString(DefaultCurrencyData.FieldName)
+			   And Not ValueIsFilled(DefaultCurrencyData.CurrencyValue) Then
+				
+				FieldName = DefaultCurrencyData.FieldName;
+				If CurrencyAttributesOfLink.Property(FieldName) Then
+					DefaultCurrencyData.CurrencyValue = CurrencyAttributesOfLink[FieldName];
+				EndIf;
+				
+			EndIf;
+			
+			Filter = New Structure;
+			Filter.Insert("Owner", CurrentRef);
+			DescriptionsOfDataSourcesByLink = DataSourceDescriptions.FindRows(Filter);
+			
+			ParametersForFillingInCurrency = New Structure;
+			ParametersForFillingInCurrency.Insert("TableOfCurrencyAttributes", TableOfCurrencyAttributes);
+			ParametersForFillingInCurrency.Insert("CurrencyAttributesOfLink", CurrencyAttributesOfLink);
+			ParametersForFillingInCurrency.Insert("DefaultCurrency", DefaultCurrencyData);
+			
+			FillInFieldsWithAmountInWords(
+				DescriptionsOfDataSourcesByLink,
+				PrintData,
+				ParametersForFillingInCurrency,
+				LanguageCode);
+			
+		EndDo;
+		
 	EndDo;
 	
 	Return PrintData;
 	
 EndFunction
 
+// Parameters:
+//  DataSourceDescriptions - ValueTable:
+//  * Owner - AnyRef
+//  * Name - String
+//  * Value - Arbitrary 
+// 
+// Returns:
+//  Structure:
+//  * MetadataObjects - Array of MetadataObject
+//  * MetadataLinks - Map of KeyAndValue:
+//   ** Key - MetadataObject
+//   ** Value - AnyRef  
+//
+Function DescriptionsOfDataSourcesByMetadata(Val DataSourceDescriptions)
+	
+	MetadataObjects = New Array; // Array of MetadataObject
+	MetadataLinks = New Map;
+	
+	For Each SourceDetails In DataSourceDescriptions Do
+		
+		If Common.IsReference(TypeOf(SourceDetails.Owner)) Then
+			
+			MetadataObject = Metadata.FindByType(TypeOf(SourceDetails.Owner));
+			
+			If MetadataObjects.Find(MetadataObject) = Undefined Then
+				
+				ReferencesArrray = New Array; // Array of AnyRef
+				MetadataLinks.Insert(MetadataObject, ReferencesArrray);
+				
+			EndIf;
+			
+			MetadataLinks[MetadataObject].Add(SourceDetails.Owner);
+			MetadataObjects.Add(MetadataObject);
+			
+		EndIf;
+		
+	EndDo;
+	
+	Result = New Structure;
+	Result.Insert("MetadataObjects", MetadataObjects);
+	Result.Insert("MetadataLinks", MetadataLinks);
+	
+	Return Result;
+	
+EndFunction
+
+Procedure GetDefaultCurrencyFieldForItem(ObjectType, TableOfCurrencyAttributes, DefaultCurrencyData, PrintData = False)
+	
+	FullPathToCurrencyField = "";
+	NameOfCurrencyField = "";
+	CurrencyFieldIsDefined = False;
+	
+	If TableOfCurrencyAttributes.Count() > 0 Then
+		
+		FullPathToCurrencyField = TableOfCurrencyAttributes[0].Id;
+		
+	EndIf;
+	
+	FullPathToCurrencyFieldIsOld = FullPathToCurrencyField;
+	CurrencyRateOperationsOverridable.WhenDeterminingDefaultCurrencyOfObject(ObjectType, FullPathToCurrencyField);
+	SubstringsArray = New Array; // Array of String
+	If Not IsBlankString(FullPathToCurrencyField) Then
+		
+		SubstringsArray = StringFunctionsClientServer.SplitStringIntoSubstringsArray(FullPathToCurrencyField, ".");
+		NameOfCurrencyField = SubstringsArray[SubstringsArray.UBound()];
+		
+	EndIf;
+	
+	// If SubstringsArray contains more than one string, pass the name of the common list field as the field name
+	MaximumNumberOfSubstrings = 2;
+	PathToCommonField = "CommonField";
+	If SubstringsArray.Count() = 1 Then
+		
+		TableRow = TableOfCurrencyAttributes.Find(NameOfCurrencyField, "Id");
+		If TableRow <> Undefined Then
+			
+			DefaultCurrencyData.FieldName = NameOfCurrencyField;
+			DefaultCurrencyData.FieldPresentation = TableRow.Presentation;
+			DefaultCurrencyData.Redefined = (FullPathToCurrencyFieldIsOld <> NameOfCurrencyField);
+			CurrencyFieldIsDefined = True;
+			
+		EndIf;
+		
+	ElsIf SubstringsArray.Count() = MaximumNumberOfSubstrings
+	   And SubstringsArray[0] = PathToCommonField 
+	   And Common.SubsystemExists("StandardSubsystems.Print") Then
+		
+		TableOfCommonFields = TableOfCommonFieldsForPrinting();
+		ModulePrintManagerOverridable = Common.CommonModule("PrintManagementOverridable");
+		ModulePrintManagerOverridable.WhenFillingInListOfCommonFields(ObjectType, TableOfCommonFields);
+		TableRow = TableOfCommonFields.Find(NameOfCurrencyField, "Id");
+		
+		If TableRow <> Undefined Then
+			
+			DefaultCurrencyData.FieldName = NameOfCurrencyField;
+			DefaultCurrencyData.FieldPresentation = TableRow.Presentation;
+			DefaultCurrencyData.CurrencyValue = TableRow.Value;
+			DefaultCurrencyData.Redefined = True;
+			CurrencyFieldIsDefined = True;
+			
+		EndIf;
+		
+	EndIf;
+	
+	If Not CurrencyFieldIsDefined
+	   And Not IsBlankString(FullPathToCurrencyField)
+	   And PrintData Then
+		
+		MessageTemplate = NStr("en = 'The ""%2"" field name for the object type ""%1"" for determining the default currency is incorrect.'");
+		MessagesText = StringFunctionsClientServer.SubstituteParametersToString(
+			MessageTemplate,
+			String(ObjectType),
+		FullPathToCurrencyField);
+		Common.MessageToUser(MessagesText);
+		
+	EndIf;
+	
+EndProcedure
+
+Procedure FillInFieldsWithAmountInWords(DataSourceDescriptions, PrintData, ParametersForFillingInCurrency, LanguageCode)
+	
+	TableOfCurrencyAttributes = ParametersForFillingInCurrency.TableOfCurrencyAttributes;
+	CurrencyAttributesOfLink = ParametersForFillingInCurrency.CurrencyAttributesOfLink;
+	DefaultCurrency = ParametersForFillingInCurrency.DefaultCurrency;
+	
+	If IsBlankString(DefaultCurrency.FieldPresentation)
+	   And CurrencyAttributesOfLink = Undefined Then
+		Return;
+	EndIf;
+	
+	For Each SourceDetails In DataSourceDescriptions Do
+		
+		TableRow = PrintData.Add();
+		TableRow.Ref = SourceDetails.Value;
+		
+		DefaultCurrencyHasBeenAdded =
+			AddDefaultCurrency(TableRow, DefaultCurrency, SourceDetails, LanguageCode);
+		
+		If CurrencyAttributesOfLink = Undefined Then
+			Continue;
+		EndIf;
+		
+		AttributeTag = 0;
+		For Each Attribute In TableOfCurrencyAttributes Do
+			
+			AttributeTag = AttributeTag + 1;
+			Currency = CurrencyAttributesOfLink[Attribute.Id];
+			
+			If Not ValueIsFilled(Currency) Then
+				Continue;
+			EndIf;
+			
+			If AttributeTag = 1
+			   And Not DefaultCurrencyHasBeenAdded  Then
+				
+				TableRow.Currency = Currency;
+				TableRow.NumberInWords =
+					GenerateAmountInWords(SourceDetails.Value, Currency,, LanguageCode);
+				
+			EndIf;
+			
+			ColumnName = IdOfNumberFieldInWords(Attribute.Id);
+			TableRow[ColumnName] = GenerateAmountInWords(SourceDetails.Value, Currency,, LanguageCode);
+			
+		EndDo;
+		
+	EndDo;
+	
+EndProcedure
+
+Function AddDefaultCurrency(TableRow, DefaultCurrency, SourceDetails, LanguageCode)
+	
+	DefaultCurrencyHasBeenAdded = False;
+	
+	If Not IsBlankString(DefaultCurrency.FieldPresentation) Then
+		
+		DefaultCurrencyHasBeenAdded = True;
+		
+		If ValueIsFilled(DefaultCurrency.CurrencyValue) Then
+			
+			TableRow.Currency = DefaultCurrency.CurrencyValue;
+			TableRow.NumberInWords = 
+				GenerateAmountInWords(SourceDetails.Value, DefaultCurrency.CurrencyValue,, LanguageCode);
+			
+		EndIf;
+		
+	EndIf;
+	
+	Return DefaultCurrencyHasBeenAdded;
+	
+EndFunction
+
+Function TableOfCurrencyAttributesOfObject(MetadataObject)
+	
+	TableOfCurrencyFields = TableOfCurrencyFieldsForPrinting();
+	
+	For Each Attribute In MetadataObject.Attributes Do
+		
+		If Attribute.Type.ContainsType(Type("CatalogRef.Currencies")) Then
+			
+			NewRow = TableOfCurrencyFields.Add();
+			NewRow.Id = Attribute.Name;
+			NewRow.Presentation = Attribute.Synonym;
+			
+		EndIf;
+		
+	EndDo;
+	
+	Return TableOfCurrencyFields;
+	
+EndFunction
+
+// Returns:
+//  Structure - Default currency data:
+// * CurrencyValue - CatalogRef.Currencies 
+// * FieldName - String 
+// * FieldPresentation - String
+// * Redefined - Boolean
+//
+Function CurrencyData()
+	
+	CurrencyData = New Structure;
+	CurrencyData.Insert("CurrencyValue", Catalogs.Currencies.EmptyRef());
+	CurrencyData.Insert("FieldName", "");
+	CurrencyData.Insert("FieldPresentation", "");
+	CurrencyData.Insert("Redefined", False);
+	
+	Return CurrencyData;
+	
+EndFunction
+
+// Returns:
+//  ValueTable - Table with currency to print out:
+// * Id - String
+// * Presentation - String
+//
+Function TableOfCurrencyFieldsForPrinting()
+	
+	ValueTable = New ValueTable;
+	ValueTable.Columns.Add("Id", New TypeDescription("String"));
+	ValueTable.Columns.Add("Presentation", New TypeDescription("String"));
+	
+	Return ValueTable;
+	
+EndFunction
+
+// Returns:
+//  ValueTable - New table with common fields:
+// * Id - String
+// * Presentation - String
+// * Value -AnyRef
+// 
+Function TableOfCommonFieldsForPrinting()
+	
+	TableOfCommonFields = New ValueTable;
+	TableOfCommonFields.Columns.Add("Id", New TypeDescription("String"));
+	TableOfCommonFields.Columns.Add("Presentation", New TypeDescription("String"));
+	TableOfCommonFields.Columns.Add("Value");
+	
+	Return TableOfCommonFields;
+	
+EndFunction
+
+Function IdOfNumberFieldInWords(Id)
+	
+	Return "NumberInWords" + "_" + StrReplace(Id, ".", "_");
+	
+EndFunction
+
+Function PresentationOfNumberFieldInWords(Presentation)
+	
+	Return NStr("en = 'In words'" )  + " (" + Presentation + ")";
+	
+EndFunction
+
 #EndRegion
+
+// See StandardSubsystemsServer.WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode
+Procedure WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode(Methods) Export
+	
+	Methods.Insert("UpdateCurrencyRate", True);
+	
+EndProcedure
 
 #EndRegion

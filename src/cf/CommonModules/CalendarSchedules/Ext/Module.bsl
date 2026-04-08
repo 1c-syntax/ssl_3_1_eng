@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -457,21 +456,21 @@ EndFunction
 //
 Function NonWorkDaysPeriods(BusinessCalendar, PeriodFilter) Export
 
-	TimeIntervals_ = New Array;
+	TimeIntervals = New Array;
 	If Metadata.DataProcessors.Find("FillCalendarSchedules") = Undefined Then
-		Return TimeIntervals_;
+		Return TimeIntervals;
 	EndIf;
 	
 	ModuleFillingInCalendarSchedules = Common.CommonModule("DataProcessors.FillCalendarSchedules");
-	TimeIntervals_ = ModuleFillingInCalendarSchedules.NonWorkDaysPeriods(BusinessCalendar, PeriodFilter);
+	TimeIntervals = ModuleFillingInCalendarSchedules.NonWorkDaysPeriods(BusinessCalendar, PeriodFilter);
 	
-	DeletePeriodsThatDoNotMatchFilter(TimeIntervals_, PeriodFilter);
+	DeletePeriodsThatDoNotMatchFilter(TimeIntervals, PeriodFilter);
 	
-	Return TimeIntervals_;
+	Return TimeIntervals;
 
 EndFunction
 
-#Region ForCallsFromOtherSubsystems
+#Region InterfaceImplementation
 
 // OnlineUserSupport.ClassifiersOperations
 
@@ -509,7 +508,6 @@ Procedure OnImportClassifier(Id, Version, Address, Processed, AdditionalParamete
 		Return;
 	EndIf;
 	
-	LoadBusinessCalendarsData(Version, Address, Processed, AdditionalParameters);
 	
 EndProcedure
 
@@ -876,40 +874,7 @@ Function StateBusinessCalendar(CRTR)
 	
 EndFunction
 
-Procedure LoadBusinessCalendarsData(Version, Address, Processed, AdditionalParameters)
-	
-	ClassifierData = ClassifierFileData(Address);
-	
-	// Update the list of business calendars.
-	CalendarsTable = ClassifierData["BusinessCalendars"].Data;
-	Catalogs.BusinessCalendars.UpdateBusinessCalendars(CalendarsTable);
-	
-	// Update business calendar data.
-	XMLData1 = ClassifierData["BusinessCalendarsData"];
-	DataTable = Catalogs.BusinessCalendars.BusinessCalendarsDataFromXML(XMLData1, CalendarsTable);
-	ChangesTable = Catalogs.BusinessCalendars.UpdateBusinessCalendarsData(DataTable);
-	
-	XMLPeriods = ClassifierData["NonWorkDaysPeriods"];
-	PeriodsTable = Catalogs.BusinessCalendars.NonWorkDaysPeriodsFromXML(XMLPeriods, CalendarsTable);
-	CommonClientServer.SupplementTable(
-		Catalogs.BusinessCalendars.UpdateNonWorkDaysPeriods(PeriodsTable), ChangesTable);
-	
-	ChangesTable.GroupBy("BusinessCalendarCode, Year");
-	
-	CalendarSchedulesOverridable.OnUpdateBusinessCalendars(ChangesTable);
-	
-	If Not Common.DataSeparationEnabled() Then
-		FillDataDependentOnBusinessCalendars(ChangesTable);
-	Else
-		// Include changes table in additional parameters to update data areas.
-		ParametersOfUpdate = New Structure("ChangesTable");
-		ParametersOfUpdate.ChangesTable = ChangesTable;
-		AdditionalParameters.Insert(ClassifierID(), ParametersOfUpdate);
-	EndIf;
-	
-	Processed = True;
-	
-EndProcedure
+
 
 Function ClassifierFileData(Address) Export
 	
@@ -1246,14 +1211,14 @@ Procedure AddHandlerOfDataDependentOnBusinessCalendars(Handlers)
 	
 EndProcedure
 
-Procedure DeletePeriodsThatDoNotMatchFilter(TimeIntervals_, PeriodFilter)
+Procedure DeletePeriodsThatDoNotMatchFilter(TimeIntervals, PeriodFilter)
 	
 	IndexOf = 0;
-	While IndexOf < TimeIntervals_.Count() Do
-		PeriodDetails = TimeIntervals_[IndexOf];
+	While IndexOf < TimeIntervals.Count() Do
+		PeriodDetails = TimeIntervals[IndexOf];
 		If PeriodFilter.StartDate > PeriodDetails.Period.EndDate 
 			Or (ValueIsFilled(PeriodFilter.EndDate) And PeriodFilter.EndDate < PeriodDetails.Period.StartDate) Then
-			TimeIntervals_.Delete(IndexOf);
+			TimeIntervals.Delete(IndexOf);
 		Else
 			IndexOf = IndexOf + 1;
 		EndIf; 
@@ -1515,5 +1480,19 @@ Procedure SupplementDefaultCalendarData(DefaultCalendarData, Year, SortInDescend
 EndProcedure
 
 #EndRegion
+
+// See StandardSubsystemsServer.WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode
+Procedure WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode(Methods) Export
+	
+	Methods.Insert("UpdateMultipleBusinessCalendarsUsage");
+	Methods.Insert("UpdateBusinessCalendarsData");
+	Methods.Insert("FillBusinessCalendarDependentDataUpdateData");
+	Methods.Insert("UpdateDataDependentOnBusinessCalendars");
+	Methods.Insert("ResetClassifierVersion");
+	Methods.Insert("UpdateBusinessCalendars");
+	Methods.Insert("FixTheDataOfDependentCalendars");
+	Methods.Insert("UpdateDependentBusinessCalendarsData");
+	
+EndProcedure
 
 #EndRegion

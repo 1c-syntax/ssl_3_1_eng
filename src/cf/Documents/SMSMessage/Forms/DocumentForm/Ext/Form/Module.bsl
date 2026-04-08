@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Variables
@@ -171,7 +170,7 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 	InteractionsClient.DoProcessNotification(ThisObject, EventName, Parameter, Source);
 	InteractionsClientServer.CheckContactsFilling(Object, ThisObject, "SMSMessage");
 	CheckContactCreationAvailability();
-	AddresseesCount = Object.SMSMessageRecipients.Count();
+	AddresseesCount = Object.Recipients.Count();
 	
 	// StandardSubsystems.FilesOperations
 	If CommonClient.SubsystemExists("StandardSubsystems.FilesOperations") Then
@@ -344,13 +343,13 @@ EndProcedure
 
 #EndRegion
 
-#Region FormTableItemsEventHandlersSMSMessageRecipients
+#Region FormTableItemsEventHandlersRecipients
 
 &AtClient
 Procedure SMSMessageRecipientsOnChange(Item)
 	
 	InteractionsClientServer.CheckContactsFilling(Object, ThisObject, "SMSMessage");
-	AddresseesCount = Object.SMSMessageRecipients.Count();
+	AddresseesCount = Object.Recipients.Count();
 	ContactsChanged = True;
 	
 EndProcedure
@@ -366,7 +365,7 @@ EndProcedure
 Procedure ContactPresentationStartChoice(Item, ChoiceData, StandardProcessing)
 	
 	StandardProcessing = False;
-	CurrentData = Items.SMSMessageRecipients.CurrentData;
+	CurrentData = Items.Recipients.CurrentData;
 	OpeningParameters = InteractionsClient.ContactChoiceParameters(UUID);
 	OpeningParameters.PhoneOnly = True;
 	InteractionsClient.SelectContact(SubjectOf, CurrentData.HowToContact, 
@@ -400,7 +399,7 @@ Procedure ContactPresentationChoiceProcessing(Item, ValueSelected, StandardProce
 	StandardProcessing = False;
 	
 	If TypeOf(ValueSelected) = Type("Structure") Then
-		CurrentData = Items.SMSMessageRecipients.CurrentData;
+		CurrentData = Items.Recipients.CurrentData;
 		CurrentData.ContactPresentation = ValueSelected.ContactPresentation;
 		CurrentData.Contact               = ValueSelected.Contact;
 		ContactPresentationOnChange(Item);
@@ -411,7 +410,7 @@ EndProcedure
 &AtClient
 Procedure ContactPresentationOnChange(Item)
 	
-	CurrentData = Items.SMSMessageRecipients.CurrentData;
+	CurrentData = Items.Recipients.CurrentData;
 	If CurrentData <> Undefined And ValueIsFilled(CurrentData.Contact) Then
 		InteractionsServerCall.PresentationAndAllContactInformationOfContact(CurrentData.Contact,
 			CurrentData.ContactPresentation, CurrentData.HowToContact, 
@@ -425,7 +424,7 @@ EndProcedure
 &AtClient
 Procedure ContactPresentationOpening(Item, StandardProcessing)
 	
-	CurrentData = Items.SMSMessageRecipients.CurrentData;
+	CurrentData = Items.Recipients.CurrentData;
 	If CurrentData = Undefined Then
 		Return;
 	EndIf;	
@@ -438,7 +437,7 @@ EndProcedure
 &AtClient
 Procedure SMSMessageRecipientsOnEditEnd(Item, NewRow, CancelEdit)
 	
-	CurrentData = Items.SMSMessageRecipients.CurrentData;
+	CurrentData = Items.Recipients.CurrentData;
 	If CurrentData = Undefined Then
 		Return;
 	EndIf;
@@ -456,7 +455,7 @@ EndProcedure
 &AtClient
 Procedure CreateContactExecute()
 	
-	CurrentData = Items.SMSMessageRecipients.CurrentData;
+	CurrentData = Items.Recipients.CurrentData;
 	If CurrentData = Undefined Then
 		Return;
 	EndIf;
@@ -547,7 +546,7 @@ Procedure SetConditionalAppearance()
 	ItemField.Field = New DataCompositionField(Items.ContactPresentation.Name);
 
 	ItemFilter = Item.Filter.Items.Add(Type("DataCompositionFilterItem"));
-	ItemFilter.LeftValue = New DataCompositionField("Object.SMSMessageRecipients.Contact");
+	ItemFilter.LeftValue = New DataCompositionField("Object.Recipients.Contact");
 	ItemFilter.ComparisonType = DataCompositionComparisonType.NotFilled;
 
 	Item.Appearance.SetParameterValue("TextColor", StyleColors.FieldSelectionBackColor);
@@ -605,7 +604,7 @@ EndProcedure
 &AtClient
 Procedure CheckContactCreationAvailability()
 	
-	CurrentData = Items.SMSMessageRecipients.CurrentData;
+	CurrentData = Items.Recipients.CurrentData;
 	Items.CreateContact.Enabled = (CurrentData <> Undefined) 
 	    And (Not ValueIsFilled(CurrentData.Contact));
 		
@@ -631,7 +630,7 @@ Procedure OnCreatReadAtServer()
 	Items.CommentPage.Picture = CommonClientServer.CommentPicture(Object.Comment);
 	UnderControl = Not Reviewed;
 	AvailabilityControl(ThisObject);
-	AddresseesCount = Object.SMSMessageRecipients.Count();
+	AddresseesCount = Object.Recipients.Count();
 	
 EndProcedure
 
@@ -651,7 +650,7 @@ EndProcedure
 &AtServer
 Procedure CheckAddresseesListFilling(Cancel)
 
-	For Each Addressee In Object.SMSMessageRecipients Do
+	For Each Addressee In Object.Recipients Do
 		CheckPhoneFilling(Addressee, Cancel);
 	EndDo;
 	
@@ -664,7 +663,7 @@ Procedure CheckPhoneFilling(Addressee, Cancel)
 		Common.MessageToUser(
 			NStr("en = 'Phone number is required.'"),
 			,
-			CommonClientServer.PathToTabularSection("Object.SMSMessageRecipients", Addressee.LineNumber, "HowToContact"),
+			CommonClientServer.PathToTabularSection("Object.Recipients", Addressee.LineNumber, "HowToContact"),
 			,
 			Cancel);
 			Return;
@@ -674,7 +673,7 @@ Procedure CheckPhoneFilling(Addressee, Cancel)
 		Common.MessageToUser(
 			StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Line %1 contains more than one phone number.'"), Addressee.LineNumber),
 			,
-			CommonClientServer.PathToTabularSection("Object.SMSMessageRecipients", Addressee.LineNumber, "HowToContact"),
+			CommonClientServer.PathToTabularSection("Object.Recipients", Addressee.LineNumber, "HowToContact"),
 			,
 			Cancel);
 			Return;
@@ -686,7 +685,7 @@ Procedure CheckPhoneFilling(Addressee, Cancel)
 			|You can use spaces, brackets, and hyphens.
 			|For example: +1 (123) 456-78-90.'"),
 			,
-			CommonClientServer.PathToTabularSection("Object.SMSMessageRecipients", Addressee.LineNumber, "HowToContact"),
+			CommonClientServer.PathToTabularSection("Object.Recipients", Addressee.LineNumber, "HowToContact"),
 			,
 			Cancel);
 			Return;
@@ -780,7 +779,7 @@ Procedure AvailabilityControl(Form)
 	EndIf;
 	
 	Form.Items.FormSend.Enabled                 = SendingAvailable;
-	Form.Items.SMSMessageRecipients.ReadOnly                    = StatusUpperOutgoing;
+	Form.Items.Recipients.ReadOnly                    = StatusUpperOutgoing;
 	Form.Items.SendInTransliteration.Enabled           = Not StatusUpperOutgoing;
 	Form.Items.MessageText.ReadOnly              = StatusUpperOutgoing;
 	Form.Items.ReviewAfter.Enabled               = Form.UnderControl;
@@ -818,28 +817,28 @@ Procedure ProcessPassedParameters(PassedParameters)
 			
 		EndIf;
 		
-		If PassedParameters.SMSMessageRecipients <> Undefined Then
+		If PassedParameters.Recipients <> Undefined Then
 			
-			If TypeOf(PassedParameters.SMSMessageRecipients) = Type("String") And Not IsBlankString(PassedParameters.SMSMessageRecipients) Then
+			If TypeOf(PassedParameters.Recipients) = Type("String") And Not IsBlankString(PassedParameters.Recipients) Then
 				
-				NewRow = Object.SMSMessageRecipients.Add();
+				NewRow = Object.Recipients.Add();
 				NewRow.Address = PassedParameters.Whom;
 				NewRow.MessageState = Enums.SMSMessagesState.Draft;
 				
-			ElsIf TypeOf(PassedParameters.SMSMessageRecipients) = Type("ValueList") Then
+			ElsIf TypeOf(PassedParameters.Recipients) = Type("ValueList") Then
 				
-				For Each ListItem In PassedParameters.SMSMessageRecipients Do
-					NewRow = Object.SMSMessageRecipients.Add();
+				For Each ListItem In PassedParameters.Recipients Do
+					NewRow = Object.Recipients.Add();
 					NewRow.HowToContact  = ListItem.Value;
 					NewRow.Presentation = ListItem.Presentation;
 					NewRow.MessageState = Enums.SMSMessagesState.Draft;
 				EndDo;
 				
-			ElsIf TypeOf(PassedParameters.SMSMessageRecipients) = Type("Array") Then
+			ElsIf TypeOf(PassedParameters.Recipients) = Type("Array") Then
 				
-				For Each ArrayElement In PassedParameters.SMSMessageRecipients Do
+				For Each ArrayElement In PassedParameters.Recipients Do
 					
-					NewRow = Object.SMSMessageRecipients.Add();
+					NewRow = Object.Recipients.Add();
 					NewRow.HowToContact          = ArrayElement.Phone;
 					NewRow.ContactPresentation = ArrayElement.Presentation;
 					NewRow.Contact               = ArrayElement.ContactInformationSource;

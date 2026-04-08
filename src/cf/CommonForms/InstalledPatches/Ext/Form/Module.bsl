@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Variables
@@ -395,7 +394,7 @@ Procedure SavePatches(OnlyAttachedOnes = False)
 		SelectedRows = Items.InstalledPatches.SelectedRows;
 	EndIf;
 	
-	NotifyDescription = New CallbackDescription("SaveAsCompletion", ThisObject, SelectedRows);
+	CallbackDescription = New CallbackDescription("SaveAsCompletion", ThisObject, SelectedRows);
 	
 	If SelectedRows.Count() = 0 Then
 		If OnlyAttachedOnes Then
@@ -406,7 +405,7 @@ Procedure SavePatches(OnlyAttachedOnes = False)
 		FilesToSave = SaveAtServer(SelectedRows);
 	Else
 		Title = NStr("en = 'Choose a directory to save the patch'");
-		FileSystemClient.SelectDirectory(NotifyDescription, Title);
+		FileSystemClient.SelectDirectory(CallbackDescription, Title);
 		Return;
 	EndIf;
 	

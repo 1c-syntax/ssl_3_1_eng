@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -73,11 +72,12 @@ EndFunction
 //             Try to make the size of serialized values as small as possible.
 //             The recommended size is less than 1 KB.
 //
-//  SMSMessageRecipients - Undefined - All users (all sessions).
+//  Recipients - Undefined - All users (all sessions).
 //               If an empty map is passed, then return.
 //           - Map of KeyAndValue:
 //              * Key - UUID - infobase user ID.
 //              * Value - Array of See ServerNotifications.SessionKey
+//                         - Array of String - if the array contains "*", then it's for all the user sessions.
 //
 //  SendImmediately - Boolean - If True, tries to send a message immediately via the
 //               Collaboration System, and it fails, adds it to the queue.
@@ -85,9 +85,9 @@ EndFunction
 //               Note: A failed request to the Collaboration System takes about (3–5 sec)*2,
 //               a successful one takes about (50 msec)*2. This is particularly important when developing transactions.
 //
-Procedure SendServerNotification(NameOfAlert, Result, SMSMessageRecipients, SendImmediately = False) Export
+Procedure SendServerNotification(NameOfAlert, Result, Recipients, SendImmediately = False) Export
 	
-	SendServerNotificationWithGroupID(NameOfAlert, Result, SMSMessageRecipients, SendImmediately);
+	SendServerNotificationWithGroupID(NameOfAlert, Result, Recipients, SendImmediately);
 	
 EndProcedure
 
@@ -148,7 +148,7 @@ Procedure AddIndicator(Results, StartMoment, ProcedureName) Export
 	
 EndProcedure
 
-#Region ForCallsFromOtherSubsystems
+#Region InterfaceImplementation
 
 // Returns the session's UUID obtained from
 // the session properties SessionStart and SessionNumber.
@@ -254,22 +254,22 @@ EndFunction
 // Parameters:
 //  NameOfAlert  - See SendServerNotification.NameOfAlert
 //  Result      - See SendServerNotification.Result
-//  SMSMessageRecipients       - See SendServerNotification.SMSMessageRecipients
+//  Recipients       - See SendServerNotification.Recipients
 //  SendImmediately - See SendServerNotification.SendImmediately
 //
 //  AdditionalParameters - See AdditionalSendingParameters
 //
-Procedure SendServerNotificationWithGroupID(NameOfAlert, Result, SMSMessageRecipients,
+Procedure SendServerNotificationWithGroupID(NameOfAlert, Result, Recipients,
 			SendImmediately, AdditionalSendingParameters = Undefined) Export
 	
-	If SMSMessageRecipients <> Undefined And Not ValueIsFilled(SMSMessageRecipients) Then
+	If Recipients <> Undefined And Not ValueIsFilled(Recipients) Then
 		Return;
 	EndIf;
 	
 	NotificationContent = NotificationNewContent();
 	NotificationContent.NameOfAlert = NameOfAlert;
 	NotificationContent.Result     = Result;
-	NotificationContent.SMSMessageRecipients      = SMSMessageRecipients;
+	NotificationContent.Recipients      = Recipients;
 	
 	If TimeConsumingOperations.ShouldSkipNotification(NotificationContent) Then
 		Return;
@@ -302,12 +302,12 @@ Procedure SendServerNotificationWithGroupID(NameOfAlert, Result, SMSMessageRecip
 			AddedOn, DateAddedMilliseconds);
 	EndIf;
 	
-	If Not ValueIsFilled(SMSMessageRecipients)
-	 Or SMSMessageRecipients.Count() > 27 Then
+	If Not ValueIsFilled(Recipients)
+	 Or Recipients.Count() > 27 Then
 		AddresseesIDs = "";
 	Else
 		List = New Array;
-		For Each KeyAndValue In SMSMessageRecipients Do
+		For Each KeyAndValue In Recipients Do
 			List.Add(Lower(KeyAndValue.Key));
 		EndDo;
 		AddresseesIDs = StrConcat(List, Chars.LF);
@@ -319,7 +319,7 @@ Procedure SendServerNotificationWithGroupID(NameOfAlert, Result, SMSMessageRecip
 	NewRecord.NotificationID = NotificationID;
 	NewRecord.AddedOn = AddedOn;
 	NewRecord.DateAddedMilliseconds = DateAddedMilliseconds;
-	NewRecord.SMSMessageRecipients = AddresseesIDs;
+	NewRecord.Recipients = AddresseesIDs;
 	NewRecord.NotificationContent = New ValueStorage(NotificationContent, New Deflation(9));
 	NewRecord.GroupID = Lower(AdditionalParameters.GroupID);
 	NewRecord.NotificationTypeInGroup = Lower(AdditionalParameters.NotificationTypeInGroup);
@@ -379,10 +379,10 @@ Procedure SendServerNotificationWithGroupID(NameOfAlert, Result, SMSMessageRecip
 			Try
 				Raise NStr("en = 'Call stack:'");
 			Except
-				CallStack = ErrorProcessing.DetailErrorDescription(ErrorInfo());
+				CallsStack = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 			EndTry;
 			Comment = AdditionalParameters.LogCommentOnDeliveryDeferral;
-			Comment = Comment + ?(ValueIsFilled(Comment), Chars.LF, "") + CallStack;
+			Comment = Comment + ?(ValueIsFilled(Comment), Chars.LF, "") + CallsStack;
 			WriteLogEvent(AdditionalParameters.LogEventOnDeliveryDeferral,
 				EventLogLevel.Information,,, Comment);
 		EndIf;
@@ -451,7 +451,7 @@ Function SendMessageImmediately(NotificationID, AddedOn, NotificationContent)
 	Data = MessageNewData();
 	Data.NameOfAlert           = NotificationContent.NameOfAlert;
 	Data.Result               = NotificationContent.Result;
-	Data.SMSMessageRecipients                = NotificationContent.SMSMessageRecipients;
+	Data.Recipients                = NotificationContent.Recipients;
 	Data.NotificationID = NotificationID;
 	Data.AddedOn          = AddedOn;
 	Data.WasSentFromQueue     = False;
@@ -460,8 +460,8 @@ Function SendMessageImmediately(NotificationID, AddedOn, NotificationContent)
 		Return SendNotification(Data);
 	EndIf;
 	
-	If ValueIsFilled(Data.SMSMessageRecipients) And Data.SMSMessageRecipients.Count() = 1 Then
-		For Each KeyAndValue In Data.SMSMessageRecipients Do
+	If ValueIsFilled(Data.Recipients) And Data.Recipients.Count() = 1 Then
+		For Each KeyAndValue In Data.Recipients Do
 			Break;
 		EndDo;
 		ConversationID = PersonalChatID(KeyAndValue.Key);
@@ -601,14 +601,14 @@ EndFunction
 //  Structure:
 //   * NameOfAlert - See SendServerNotification.NameOfAlert
 //   * Result     - See SendServerNotification.Result
-//   * SMSMessageRecipients      - See SendServerNotification.SMSMessageRecipients
+//   * Recipients      - See SendServerNotification.Recipients
 //
 Function NotificationNewContent(Storage = Undefined)
 	
 	Content = New Structure;
 	Content.Insert("NameOfAlert", "");
 	Content.Insert("Result");
-	Content.Insert("SMSMessageRecipients", New Map);
+	Content.Insert("Recipients", New Map);
 	
 	If TypeOf(Storage) <> Type("ValueStorage") Then
 		Return Content;
@@ -835,8 +835,8 @@ Function SessionUndeliveredServerNotifications(Val Parameters) Export
 				EndIf;
 				Continue;
 			EndIf;
-			If TypeOf(Content.SMSMessageRecipients) = Type("Map") Then
-				SessionsKeys = Content.SMSMessageRecipients.Get(IBUserID);
+			If TypeOf(Content.Recipients) = Type("Map") Then
+				SessionsKeys = Content.Recipients.Get(IBUserID);
 				If TypeOf(SessionsKeys) <> Type("Array")
 				 Or SessionsKeys.Find(ThisSessionKey) = Undefined
 				   And SessionsKeys.Find("*") = Undefined Then
@@ -1123,9 +1123,9 @@ Procedure SendPreparedServerNotifications(SendStatus, MaxIntervalByUser)
 			Data.NotificationID = Selection.NotificationID;
 			Data.AddedOn          = Selection.AddedOn;
 			
-			If TypeOf(Content.SMSMessageRecipients) <> Type("Map") Then
+			If TypeOf(Content.Recipients) <> Type("Map") Then
 				If Not MessageAlreadyDelivered(SendStatus, Selection, "AllUsers") Then
-					Data.SMSMessageRecipients = Undefined;
+					Data.Recipients = Undefined;
 					Data.Errors = Context.FailedNotificationsDatesByUsers;
 					MessageSent = ?(AreClientNotificationsAvailable, SendNotification(Data),
 						SendMessage(Data, GlobalChatID));
@@ -1138,13 +1138,13 @@ Procedure SendPreparedServerNotifications(SendStatus, MaxIntervalByUser)
 					EndIf;
 				EndIf;
 			Else
-				SMSMessageRecipients = New Map;
-				For Each AddresseeDetails In Content.SMSMessageRecipients Do
+				Recipients = New Map;
+				For Each AddresseeDetails In Content.Recipients Do
 					If Not MessageAlreadyDelivered(SendStatus, Selection, AddresseeDetails.Key) Then
-						SMSMessageRecipients.Insert(AddresseeDetails.Key, AddresseeDetails.Value);
+						Recipients.Insert(AddresseeDetails.Key, AddresseeDetails.Value);
 					EndIf;
 				EndDo;
-				SendTargetedMessage(Data, SMSMessageRecipients, Context);
+				SendTargetedMessage(Data, Recipients, Context);
 			EndIf;
 		EndIf;
 		LastNotificationDate = Data.AddedOn;
@@ -1171,32 +1171,32 @@ Procedure SendPreparedServerNotifications(SendStatus, MaxIntervalByUser)
 	
 EndProcedure
 
-Procedure SendTargetedMessage(Data, SMSMessageRecipients, Context)
+Procedure SendTargetedMessage(Data, Recipients, Context)
 	
 	AreClientNotificationsAvailable = ServerNotificationsInternalCached.AreClientNotificationsAvailable();
 	
-	If AreClientNotificationsAvailable Or SMSMessageRecipients.Count() > 20 Then
-		Data.SMSMessageRecipients = SMSMessageRecipients;
+	If AreClientNotificationsAvailable Or Recipients.Count() > 20 Then
+		Data.Recipients = Recipients;
 		IdentifyFailedNotificationsDates(Data, Context.FailedNotificationsDatesByUsers);
 		MessageSent = ?(AreClientNotificationsAvailable, SendNotification(Data),
 			SendMessage(Data, Context.GlobalChatID));
 		
 		If MessageSent Then
-			For Each AddresseeDetails In SMSMessageRecipients Do
+			For Each AddresseeDetails In Recipients Do
 				Context.SuccessfullNotificationsDatesByUsers.Insert(AddresseeDetails.Key, CurrentSessionDate());
 			EndDo;
 		Else
-			For Each AddresseeDetails In SMSMessageRecipients Do
+			For Each AddresseeDetails In Recipients Do
 				If Context.FailedNotificationsDatesByUsers.Get(AddresseeDetails.Key) = Undefined Then
 					Context.FailedNotificationsDatesByUsers.Insert(AddresseeDetails.Key, Data.AddedOn);
 				EndIf;
 			EndDo;
 		EndIf;
 	Else
-		For Each AddresseeDetails In SMSMessageRecipients Do
+		For Each AddresseeDetails In Recipients Do
 			IBUserID = AddresseeDetails.Key;
-			Data.SMSMessageRecipients = New Map;
-			Data.SMSMessageRecipients.Insert(IBUserID, AddresseeDetails.Value);
+			Data.Recipients = New Map;
+			Data.Recipients.Insert(IBUserID, AddresseeDetails.Value);
 			IdentifyFailedNotificationsDates(Data, Context.FailedNotificationsDatesByUsers);
 			ConversationID = Context.PersonalChatsIDs.Get(IBUserID);
 			If ConversationID = Undefined Then
@@ -1255,7 +1255,7 @@ EndProcedure
 //  Structure:
 //   * NameOfAlert           - See SendServerNotification.NameOfAlert
 //   * Result               - See SendServerNotification.Result
-//   * SMSMessageRecipients                - See SendServerNotification.SMSMessageRecipients
+//   * Recipients                - See SendServerNotification.Recipients
 //   * NotificationID - String - UUID string.
 //   * AddedOn          - Date - Date the notification was added.
 //   * Errors - Map of KeyAndValue:
@@ -1269,7 +1269,7 @@ Function MessageNewData() Export
 	Data = New Structure;
 	Data.Insert("NameOfAlert", "");
 	Data.Insert("Result");
-	Data.Insert("SMSMessageRecipients", New Map);
+	Data.Insert("Recipients", New Map);
 	Data.Insert("NotificationID", "");
 	Data.Insert("AddedOn", '00010101');
 	Data.Insert("Errors", New Map);
@@ -1303,7 +1303,7 @@ Procedure IdentifyFailedNotificationsDates(Data, FailedNotificationsDatesByUsers
 	
 	If IBUserID = Undefined Then
 		For Each KeyAndValue In FailedNotificationsDatesByUsers Do
-			If Data.SMSMessageRecipients.Get(KeyAndValue.Key) <> Undefined Then
+			If Data.Recipients.Get(KeyAndValue.Key) <> Undefined Then
 				Data.Errors.Insert(KeyAndValue.Key, KeyAndValue.Value);
 			EndIf;
 		EndDo;
@@ -1344,8 +1344,8 @@ Function NewServerNotifications(LastNotificationDate)
 	|	InformationRegister.SentServerNotifications AS SentServerNotifications
 	|WHERE
 	|	SentServerNotifications.AddedOn >= &LastNotificationDate
-	|	AND (SentServerNotifications.SMSMessageRecipients = """"
-	|		OR SentServerNotifications.SMSMessageRecipients LIKE &AddresseeSearchTemplate)
+	|	AND (SentServerNotifications.Recipients = """"
+	|		OR SentServerNotifications.Recipients LIKE &AddresseeSearchTemplate)
 	|	AND &Filter
 	|
 	|ORDER BY
@@ -1371,7 +1371,7 @@ EndFunction
 // Returns:
 //  Structure:
 //   * Parameters - Arbitrary - See NewServerNotification.Parameters.
-//   * SMSMessageRecipients - Map of KeyAndValue:
+//   * Recipients - Map of KeyAndValue:
 //      ** Key - UUID - infobase user ID.
 //      ** Value - Array of See ServerNotifications.SessionKey
 //
@@ -1379,7 +1379,7 @@ Function ServerNotificationNewParametersVariant()
 	
 	ParametersVariant = New Structure;
 	ParametersVariant.Insert("Parameters");
-	ParametersVariant.Insert("SMSMessageRecipients", New Map);
+	ParametersVariant.Insert("Recipients", New Map);
 	
 	Return ParametersVariant;
 	
@@ -1452,10 +1452,10 @@ Function PeriodicServerNotifications(MaxIntervalByUser, ActiveSessionsByKeys)
 				ParametersVariant.Parameters = NotificationParameters;
 				Notification.ParametersVariants.Add(ParametersVariant);
 			EndIf;
-			SessionsKeys = ParametersVariant.SMSMessageRecipients.Get(Selection.IBUserID);
+			SessionsKeys = ParametersVariant.Recipients.Get(Selection.IBUserID);
 			If SessionsKeys = Undefined Then
 				SessionsKeys = New Array;
-				ParametersVariant.SMSMessageRecipients.Insert(Selection.IBUserID, SessionsKeys);
+				ParametersVariant.Recipients.Insert(Selection.IBUserID, SessionsKeys);
 			EndIf;
 			If SessionsKeys.Find(Selection.SessionKey) = Undefined Then
 				SessionsKeys.Add(Selection.SessionKey);
@@ -1759,7 +1759,8 @@ Procedure StartDeliverDeferredServerNotifications(Launched = False)
 			Format(CurrentSession.SessionNumber, "NG="),
 			Format(CurrentSession.SessionStarted, "DLF=DT")) + ")";
 	
-	BackgroundJobs.Execute(NameOfJobMethodServerNotificationsDeferredDelivery(),,, JobDescription);
+	// The procedure name must be as specified in the NameOfJobMethodServerNotificationsDeferredDelivery function.
+	BackgroundJobs.Execute("ServerNotifications.ServerNotificationsDeferredDelivery",,, JobDescription);
 	
 	Launched = True;
 	
@@ -1781,6 +1782,9 @@ Procedure ServerNotificationsDeferredDelivery() Export
 	If CurrentBackgroundJob = Undefined Then
 		Return;
 	EndIf;
+	
+	SetSafeModeDisabled(True);
+	SetPrivilegedMode(True);
 	
 	If IsDeferredServerAlertsDeliveryRunning(CurrentBackgroundJob)
 	 Or Not ServerNotificationsInternalCached.AreClientNotificationsAvailable()
@@ -2430,7 +2434,7 @@ Function IsCurrentUserRegisteredInInteractionSystem(UserIDCollaborationSystem = 
 	
 EndFunction
 
-Function IsInteractionSystemTemporarilyUnavailable(CheckAvailability = False)
+Function IsInteractionSystemTemporarilyUnavailable(CheckAvailability_SSLyf = False)
 	
 	SetSafeModeDisabled(True);
 	SetPrivilegedMode(True);
@@ -2445,7 +2449,7 @@ Function IsInteractionSystemTemporarilyUnavailable(CheckAvailability = False)
 		Return True;
 	EndIf;
 	
-	If Not CheckAvailability Then
+	If Not CheckAvailability_SSLyf Then
 		Return False;
 	EndIf;
 	
@@ -2785,10 +2789,10 @@ EndFunction
 //
 Function SendNotification(Data)
 	
-	If ValueIsFilled(Data.SMSMessageRecipients) Then
+	If ValueIsFilled(Data.Recipients) Then
 		SessionsNumbers = New Array;
 		NumberDetails = New TypeDescription("Number");
-		For Each KeyAndValue In Data.SMSMessageRecipients Do
+		For Each KeyAndValue In Data.Recipients Do
 			If TypeOf(KeyAndValue.Value) <> Type("Array") Then
 				SessionsNumbers = Undefined;
 				Break;
@@ -2894,10 +2898,20 @@ EndFunction
 
 Function ClientNotificationManager()
 	
+	SetSafeMode(True);
+	
 	// ACC:488-off - Support of new 1C:Enterprise opportunities (the executable code is safe)
 	Return Eval("ClientNotifications")
 	// ACC:488-on
 	
 EndFunction
+
+// See StandardSubsystemsServer.WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode
+Procedure WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode(Methods) Export
+	
+	Methods.Insert("SendServerNotificationsToClients", True);
+	Methods.Insert("ServerNotificationsDeferredDelivery", True);
+	
+EndProcedure
 
 #EndRegion

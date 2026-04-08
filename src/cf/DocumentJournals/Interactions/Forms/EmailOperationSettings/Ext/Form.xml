@@ -24,10 +24,10 @@
 				</Title>
 				<ExtendedTooltip name="WriteAndCloseExtendedTooltip" id="54"/>
 			</Button>
-			<Button name="FormHelp" id="49">
+			<Button name="FormHelp_SSLyf" id="49">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.StandardCommand.Help</CommandName>
-				<ExtendedTooltip name="FormHelpExtendedTooltip" id="55"/>
+				<ExtendedTooltip name="FormHelp_SSLyfExtendedTooltip" id="55"/>
 			</Button>
 		</ChildItems>
 	</AutoCommandBar>

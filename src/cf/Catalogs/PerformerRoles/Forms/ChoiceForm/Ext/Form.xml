@@ -142,6 +142,14 @@ FROM
 		ON (TaskPerformersOverridable.PerformerRole = CatalogPerformerRolesOverridable.Ref)
 ;
 
+SELECT DISTINCT
+	ExecutorRolesAssignmentOverridable.Ref AS Ref,
+	ExecutorRolesAssignmentOverridable.UsersType AS UsersType
+INTO ExecutorRolesAssignment
+FROM
+	Catalog.PerformerRoles.Purpose AS ExecutorRolesAssignmentOverridable	
+;
+
 SELECT
 	CatalogPerformerRolesOverridable.Ref,
 	CatalogPerformerRolesOverridable.DeletionMark,
@@ -169,9 +177,99 @@ SELECT
 	CatalogPerformerRolesOverridable.ExternalRole,
 	CatalogPerformerRolesOverridable.BriefPresentation
 	FROM
-	Catalog.PerformerRoles.Purpose AS ExecutorRolesAssignmentOverridable
+	ExecutorRolesAssignment AS ExecutorRolesAssignmentOverridable
 		LEFT JOIN Catalog.PerformerRoles AS CatalogPerformerRolesOverridable
 		ON ExecutorRolesAssignmentOverridable.Ref = CatalogPerformerRolesOverridable.Ref</QueryText>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Ref</dcssch:dataPath>
+					<dcssch:field>Ref</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>DeletionMark</dcssch:dataPath>
+					<dcssch:field>DeletionMark</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Code</dcssch:dataPath>
+					<dcssch:field>Code</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Description</dcssch:dataPath>
+					<dcssch:field>Description</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Predefined</dcssch:dataPath>
+					<dcssch:field>Predefined</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>UsedWithoutAddressingObjects</dcssch:dataPath>
+					<dcssch:field>UsedWithoutAddressingObjects</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>UsedByAddressingObjects</dcssch:dataPath>
+					<dcssch:field>UsedByAddressingObjects</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>MainAddressingObjectTypes</dcssch:dataPath>
+					<dcssch:field>MainAddressingObjectTypes</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>AdditionalAddressingObjectTypes</dcssch:dataPath>
+					<dcssch:field>AdditionalAddressingObjectTypes</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Comment</dcssch:dataPath>
+					<dcssch:field>Comment</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>HasPerformers</dcssch:dataPath>
+					<dcssch:field>HasPerformers</dcssch:field>
+					<dcssch:title xsi:type="v8:LocalStringType">
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Assigned</v8:content>
+						</v8:item>
+					</dcssch:title>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>ExternalRole</dcssch:dataPath>
+					<dcssch:field>ExternalRole</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>BriefPresentation</dcssch:dataPath>
+					<dcssch:field>BriefPresentation</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>ExchangeNode</dcssch:dataPath>
+					<dcssch:field>ExchangeNode</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>Purpose</dcssch:dataPath>
+					<dcssch:field>Purpose</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>PredefinedDataName</dcssch:dataPath>
+					<dcssch:field>PredefinedDataName</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>CommentLanguage2</dcssch:dataPath>
+					<dcssch:field>CommentLanguage2</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>EditedPredefinedAttributes</dcssch:dataPath>
+					<dcssch:field>EditedPredefinedAttributes</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>CommentLanguage1</dcssch:dataPath>
+					<dcssch:field>CommentLanguage1</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>DescriptionLanguage1</dcssch:dataPath>
+					<dcssch:field>DescriptionLanguage1</dcssch:field>
+				</Field>
+				<Field xsi:type="dcssch:DataSetFieldField">
+					<dcssch:dataPath>DescriptionLanguage2</dcssch:dataPath>
+					<dcssch:field>DescriptionLanguage2</dcssch:field>
+				</Field>
 				<MainTable>Catalog.PerformerRoles</MainTable>
 				<ListSettings>
 					<dcsset:filter>

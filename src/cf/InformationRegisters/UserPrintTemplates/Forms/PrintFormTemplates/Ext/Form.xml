@@ -998,7 +998,7 @@ The newly translated template is ready to go!</v8:content>
 						<v8:Type>xs:boolean</v8:Type>
 					</Type>
 				</Column>
-				<Column name="AvailableCreate" id="27">
+				<Column name="AvailableCreating" id="27">
 					<Type>
 						<v8:Type>xs:boolean</v8:Type>
 					</Type>

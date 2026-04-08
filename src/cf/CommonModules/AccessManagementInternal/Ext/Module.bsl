@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Internal
@@ -52,7 +51,8 @@ EndProcedure
 //
 Procedure UpdatePerformersGroupsUsers(PerformersGroups = Undefined) Export
 	
-	If TypeOf(PerformersGroups) = Type("Array") And PerformersGroups.Count() = 0 Then
+	If TypeOf(PerformersGroups) = Type("Array") And PerformersGroups.Count() = 0
+	 Or IsRecordLevelRestrictionDisabled() Then
 		Return;
 	EndIf;
 	
@@ -766,12 +766,47 @@ Function ParametersForReports() Export
 	
 EndFunction
 
+// Returns True if the access-level restriction
+// is disabled in the overriding module.
+//
+// Returns:
+//  Boolean
+//
+Function IsRecordLevelRestrictionDisabled() Export
+	
+	SetSafeModeDisabled(True);
+	SetPrivilegedMode(True);
+	
+	Return SessionParameters.AccessRestrictionParameters.IsRecordLevelRestrictionDisabled;
+	
+EndFunction
+
+// Returns True if the standard access restriction
+// is disabled in the overriding module.
+//
+// Returns:
+//  Boolean
+//
+Function IsStandardOptionDisabled() Export
+	
+	SetSafeModeDisabled(True);
+	SetPrivilegedMode(True);
+	
+	Return SessionParameters.AccessRestrictionParameters.IsStandardOptionDisabled;
+	
+EndFunction
+
 #EndRegion
 
 #Region UniversalRestriction
 
 Function LimitAccessAtRecordLevelUniversally(WithConstantAccessRestrictionAtRecordLevel = True,
 			WhenFirstAccessUpdateCompleted = False, UpdateSessionParametersWhenRequired = True) Export
+	
+	If IsRecordLevelRestrictionDisabled()
+	 Or IsStandardOptionDisabled() Then
+		Return AccessManagementInternalCached.ConstantLimitAccessAtRecordLevelUniversally();
+	EndIf;
 	
 	If WithConstantAccessRestrictionAtRecordLevel Then
 		Value = ConstantLimitAccessAtRecordLevelUniversally();
@@ -822,7 +857,10 @@ Function ConstantLimitAccessAtRecordLevelUniversally() Export
 	
 	Value = Constants.LimitAccessAtRecordLevelUniversally.Get();
 	
-	If Not Value And Not ScriptVariantRussian() Then
+	If Not Value And Not ScriptVariantRussian()
+	 Or IsRecordLevelRestrictionDisabled()
+	 Or IsStandardOptionDisabled() Then
+		
 		Value = True;
 		SetSafeModeDisabled(True);
 		SetPrivilegedMode(True);
@@ -860,12 +898,15 @@ Procedure SetAccessUpdate(Use, WithoutCheckingIBUpdateExecution = False) Export
 		EndIf;
 	EndIf;
 	
-	If Use Then
+	If Not Use Then
+		EnableJob = False;
+		
+	ElsIf IsRecordLevelRestrictionDisabled() Then
+		EnableJob = Not AccessRestrictionRegistersEmpty();
+	Else
 		EnableJob = ?(Common.FileInfobase(),
 			LimitAccessAtRecordLevelUniversally(False, False, False),
 			LimitAccessAtRecordLevelUniversally());
-	Else
-		EnableJob = False;
 	EndIf;
 	
 	Filter = New Structure("Metadata", Metadata.ScheduledJobs.AccessUpdateOnRecordsLevel);
@@ -1191,6 +1232,10 @@ EndFunction
 //
 Procedure ScheduleAccessUpdate(Lists = Undefined, PlanningParameters = Undefined) Export
 	
+	If IsRecordLevelRestrictionDisabled() Then
+		Return;
+	EndIf;
+	
 	If PlanningParameters = Undefined Then
 		PlanningParameters = AccessUpdatePlanningParameters();
 	EndIf;
@@ -1212,7 +1257,8 @@ Procedure ScheduleAccessUpdate(Lists = Undefined, PlanningParameters = Undefined
 			ActiveParameters = ActiveAccessRestrictionParameters(Undefined, Undefined, False);
 			ListsRestrictionsVersions = New Map(ActiveParameters.ListsRestrictionsVersions);
 		Else
-			ListsRestrictionsVersions = PlanningParameters.ListsRestrictionsVersions;
+			ListsRestrictionsVersions = New Map(New FixedMap(
+				PlanningParameters.ListsRestrictionsVersions));
 		EndIf;
 		Query = New Query;
 		Query.SetParameter("AllowedAccessKey",
@@ -1289,14 +1335,22 @@ Procedure ScheduleAccessUpdate(Lists = Undefined, PlanningParameters = Undefined
 		Return;
 	EndIf;
 	
+	ListsByIDs = New Map;
 	If TypeOf(ListsToUpdate[0]) = Type("String") Then
-		IDs = Common.MetadataObjectIDs(ListsToUpdate, Lists <> Undefined);
-		ListsByIDs = New Map;
-		For Each IDDetails In IDs Do
-			ListsByIDs.Insert(IDDetails.Value, IDDetails.Key);
+		ListsIDs = ?(PlanningParameters.AllListsIDs = Undefined,
+			Common.MetadataObjectIDs(ListsToUpdate, Lists <> Undefined),
+			PlanningParameters.AllListsIDs);
+		For Each FullName In ListsToUpdate Do
+			Id = ListsIDs.Get(FullName);
+			If Id <> Undefined And Id <> Null Then
+				ListsByIDs.Insert(Id, FullName);
+			ElsIf Lists <> Undefined Then
+				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+					NStr("en = 'ID for metadata object ""%1"" not found.'"), FullName);
+				Raise(ErrorText, ErrorCategory.ConfigurationError);
+			EndIf;
 		EndDo;
 	Else
-		ListsByIDs = New Map;
 		For Each Id In ListsToUpdate Do
 			ListsByIDs.Insert(Id, "");
 		EndDo;
@@ -1464,6 +1518,7 @@ Function AccessUpdatePlanningParameters(CalculateForExternalUsers = True) Export
 	Result.Insert("ForExternalUsers", ForExternalUsers);
 	Result.Insert("LeadingObject", Undefined);
 	Result.Insert("ListsRestrictionsVersions", Undefined);
+	Result.Insert("AllListsIDs", Undefined);
 	Result.Insert("LongDesc", "");
 	Result.Insert("IsUpdateContinuation", False);
 	Result.Insert("IsObsoleteItemsDataProcessor", False);
@@ -1481,7 +1536,8 @@ EndFunction
 //
 Procedure ScheduleAccessRestrictionParametersUpdate(LongDesc, StartUpdate = False) Export
 	
-	If Not LimitAccessAtRecordLevelUniversally() Then
+	If Not LimitAccessAtRecordLevelUniversally()
+	 Or IsRecordLevelRestrictionDisabled() Then
 		Return;
 	EndIf;
 	
@@ -1525,10 +1581,11 @@ EndProcedure
 // Starts access update if it is scheduled and not started yet.
 Procedure StartAccessUpdate() Export
 	
-	If Not LimitAccessAtRecordLevelUniversally(False)
+	If IsRecordLevelRestrictionDisabled()
+	 Or Not LimitAccessAtRecordLevelUniversally(False)
 	 Or ExclusiveMode()
-	 Or LaunchAccessUpdatesToSpeedUpOnlyPointJobs(True)
-	   And Not ThereAreScheduledPointTasks() Then
+	 Or ShouldRunAccessUpdateToAccelerateSpotJobsOnly(True)
+	   And Not HasScheduledSpotJobs() Then
 		Return;
 	EndIf;
 	
@@ -1583,13 +1640,6 @@ Procedure SetARecordOfAccessRestrictionParametersInTheCurrentSession(Enable) Exp
 	SessionParameters.AccessRestrictionParameters = New FixedStructure(NewParameters);
 	
 	SetPrivilegedMode(False);
-	
-EndProcedure
-
-// For internal use only.
-Procedure LockRegistersBeforeWritingAccessConfigurationObjectToFileInformationSystem() Export
-	
-	LockRegistersSchedulingUpdateAccessKeysInFileIB(,, True);
 	
 EndProcedure
 
@@ -1734,6 +1784,15 @@ Procedure UpdateAccessKindsPropertiesDetails(HasChanges = False) Export
 	
 	SetPrivilegedMode(True);
 	
+	PropertiesParameterName = "StandardSubsystems.AccessManagement.AccessKindsProperties";
+	TypesParameterName   = "StandardSubsystems.AccessManagement.GroupAndAccessValueTypes";
+	
+	If IsRecordLevelRestrictionDisabled() Then
+		StandardSubsystemsServer.DeleteApplicationOperationParameter(PropertiesParameterName, HasChanges);
+		StandardSubsystemsServer.DeleteApplicationOperationParameter(TypesParameterName, HasChanges);
+		Return;
+	EndIf;
+	
 	Cache = AccessManagementInternalCached.DescriptionPropertiesAccessTypesSession();
 	NewValue = Cache.HashAmounts;
 	
@@ -1742,8 +1801,7 @@ Procedure UpdateAccessKindsPropertiesDetails(HasChanges = False) Export
 		HasCurrentChanges = False;
 		PreviousValue2 = Undefined;
 		
-		StandardSubsystemsServer.UpdateApplicationParameter(
-			"StandardSubsystems.AccessManagement.AccessKindsProperties",
+		StandardSubsystemsServer.UpdateApplicationParameter(PropertiesParameterName,
 			NewValue, HasCurrentChanges, PreviousValue2);
 		
 		PreviousValue2 = NewHashSumAccessTypeProperties(PreviousValue2);
@@ -1752,8 +1810,7 @@ Procedure UpdateAccessKindsPropertiesDetails(HasChanges = False) Export
 			NewValue.HashSumGroupTypesFromAccessValues
 			 <> PreviousValue2.HashSumGroupTypesFromAccessValues;
 		
-		StandardSubsystemsServer.AddApplicationParameterChanges(
-			"StandardSubsystems.AccessManagement.GroupAndAccessValueTypes",
+		StandardSubsystemsServer.AddApplicationParameterChanges(TypesParameterName,
 			?(HasChangesOfGroupsTypesAndAccessValues,
 			  New FixedStructure("HasChanges", True),
 			  New FixedStructure()) );
@@ -1882,6 +1939,10 @@ EndProcedure
 
 // See InfobaseUpdateOverridable.OnPopulateObjectsPlannedForDeletion.
 Procedure OnPopulateObjectsPlannedForDeletion(Objects) Export
+	
+	If IsRecordLevelRestrictionDisabled() Then
+		Return;
+	EndIf;
 	
 	// InformationRegister.AccessRightsDependencies.LeadingTableType
 	AccessRightsDependencies = InformationRegisters.AccessRightsDependencies.AccessRightsDependencies();
@@ -2394,6 +2455,10 @@ Procedure AfterSetIBUser(Ref, ServiceUserPassword) Export
 	
 	UpdateUserRoles(Ref, ServiceUserPassword);
 	
+	If IsRecordLevelRestrictionDisabled() Then
+		Return;
+	EndIf;
+	
 	If LimitAccessAtRecordLevelUniversally() Then
 		If Common.FileInfobase() Then
 			PreliminaryLockBeforeNewRecordToFileInfobase();
@@ -2490,13 +2555,17 @@ EndProcedure
 // See SSLSubsystemsIntegration.AfterUserGroupsUpdate.
 Procedure AfterUserGroupsUpdate(ItemsToChange, ModifiedGroups) Export
 	
+	UpdateUserRoles(ItemsToChange);
+	
+	If IsRecordLevelRestrictionDisabled() Then
+		Return;
+	EndIf;
+	
 	Parameters = New Structure;
 	Parameters.Insert("Users",        ItemsToChange);
 	Parameters.Insert("UserGroups", ModifiedGroups);
 	
 	InformationRegisters.AccessValuesGroups.UpdateUsersGroups(Parameters);
-	
-	UpdateUserRoles(ItemsToChange);
 	
 	If LimitAccessAtRecordLevelUniversally() Then
 		ScheduleAccessUpdateOnIndirectChangeOfAccessGroupMembers(ItemsToChange);
@@ -2513,6 +2582,10 @@ EndProcedure
 //                     - Undefined - All authorization objects.
 //
 Procedure AfterChangeExternalUserAuthorizationObject(AuthorizationObjects) Export
+	
+	If IsRecordLevelRestrictionDisabled() Then
+		Return;
+	EndIf;
 	
 	Parameters = New Structure;
 	Parameters.Insert("AuthorizationObjects", AuthorizationObjects);
@@ -2881,12 +2954,12 @@ Function RolesUsageQueryText() Export
 	|			WHEN Nested.TabularSectionUser REFS Catalog.UserGroups
 	|				THEN 1
 	|			ELSE 0
-	|		END) AS UserGroups,
+	|		END) AS UserGroupsCount,
 	|	SUM(CASE
 	|			WHEN Nested.TabularSectionUser REFS Catalog.ExternalUsersGroups
 	|				THEN 1
 	|			ELSE 0
-	|		END) AS GroupsOfExternalUsers
+	|		END) AS ExternalUsersGroupsCount
 	|INTO UserGroups
 	|FROM
 	|	(SELECT
@@ -2950,8 +3023,8 @@ Function RolesUsageQueryText() Export
 	|	Profiles.SuppliedProfileChanged AS SuppliedProfileChanged,
 	|	ISNULL(AccessGroups.AccessGroup, 0) AS AccessGroup,
 	|	ISNULL(AccessGroups.PersonalGroup, 0) AS PersonalGroup,
-	|	ISNULL(UserGroups.UserGroups, 0) AS UserGroups,
-	|	ISNULL(UserGroups.GroupsOfExternalUsers, 0) AS GroupsOfExternalUsers,
+	|	ISNULL(UserGroups.UserGroupsCount, 0) AS UserGroupsCount,
+	|	ISNULL(UserGroups.ExternalUsersGroupsCount, 0) AS ExternalUsersGroupsCount,
 	|	ISNULL(ProfileUsers.Users, 0) AS Users,
 	|	ISNULL(ProfileUsers.ExternalUsers, 0) AS ExternalUsers,
 	|	ISNULL(ProfileUsers.ActiveWeekly, 0) AS ActiveWeekly,
@@ -3000,6 +3073,101 @@ EndFunction
 #EndRegion
 
 #Region Private
+
+Function ConstantLimitAccessAtRecordLevel() Export
+	
+	Value = Constants.LimitAccessAtRecordLevel.Get();
+	
+	If Value And IsRecordLevelRestrictionDisabled() Then
+		Value = False;
+		SetSafeModeDisabled(True);
+		SetPrivilegedMode(True);
+		ValueManager = ServiceValueManager(
+			Constants.LimitAccessAtRecordLevel);
+		ValueManager.Value = Value;
+		ValueManager.Write();
+		SetPrivilegedMode(False);
+		SetSafeModeDisabled(False);
+	EndIf;
+	
+	Return Value;
+	
+EndFunction
+
+Procedure CheckIsAccessRestrictionDisabled() Export
+	
+	If Not IsRecordLevelRestrictionDisabled() Then
+		Return;
+	EndIf;
+	
+	ErrorText = NStr("en = 'Access-level restriction is not supported (disabled) in the application.'");
+	Raise ErrorText;
+	
+EndProcedure
+
+// Clears data in the service register.
+//
+// Parameters:
+//  FullRegisterName - String
+//  HasChanges - Boolean - (return value) - if recorded,
+//                  True is set, otherwise, it does not change.
+//
+Procedure ClearInformationRegister(FullRegisterName, HasChanges = Undefined) Export
+	
+	Query = New Query;
+	Query.Text =
+	"SELECT TOP 1
+	|	TRUE AS TrueValue
+	|FROM
+	|	&CurrentTable AS CurrentTable";
+	Query.Text = StrReplace(Query.Text, "&CurrentTable", FullRegisterName);
+	
+	If Query.Execute().IsEmpty() Then
+		Return;
+	EndIf;
+	
+	RegisterManager = Common.ObjectManagerByFullName(FullRegisterName);
+	RecordSet = ServiceRecordSet(RegisterManager);
+	RecordSet.Write();
+	
+	HasChanges = True;
+	
+EndProcedure
+
+// Clears data in the service catalog.
+//
+// Parameters:
+//  FullCatalogName - String
+//  HasChanges - Boolean - (return value) - if recorded,
+//                  True is set, otherwise, it does not change.
+//
+Procedure ClearCatalog(FullCatalogName, HasChanges = Undefined)
+	
+	Query = New Query;
+	Query.Text =
+	"SELECT TOP 1
+	|	TRUE AS TrueValue
+	|FROM
+	|	&CurrentTable AS CurrentTable";
+	Query.Text = StrReplace(Query.Text, "&CurrentTable", FullCatalogName);
+	
+	If Query.Execute().IsEmpty() Then
+		Return;
+	EndIf;
+	
+	CatalogManager = Common.ObjectManagerByFullName(FullCatalogName);
+	Selection = CatalogManager.Select();
+	While Selection.Next() Do
+		Object = ServiceItem(Undefined, Selection.Ref);
+		If Object = Undefined Then
+			Continue;
+		EndIf;
+		Object.Delete();
+		HasChanges = True;
+	EndDo;
+	
+EndProcedure
+
 
 // See ExportImportDataOverridable.OnRegisterDataExportHandlers.
 Procedure BeforeExportObject(Container, ObjectExportManager, Serializer, Object, Artifacts, Cancel) Export
@@ -3057,13 +3225,22 @@ EndProcedure
 //
 Procedure SessionParametersSetting(ParameterName, SpecifiedParameters) Export
 	
-#Region UniversalRestriction
 	If ParameterName = "AccessRestrictionParameters" Then
-		SessionParameters.AccessRestrictionParameters = New FixedStructure(New Structure);
+		Settings = New Structure;
+		Settings.Insert("CaptionsLevelRestrictions", True);
+		Settings.Insert("StandardOption", True);
+		AccessManagementOverridable.OnDefineSettings(Settings);
+		PermanentParameters = New Structure;
+		PermanentParameters.Insert("IsRecordLevelRestrictionDisabled",
+			Settings.CaptionsLevelRestrictions = False);
+		PermanentParameters.Insert("IsStandardOptionDisabled",
+			Settings.StandardOption = False);
+		SessionParameters.AccessRestrictionParameters = New FixedStructure(PermanentParameters);
 		SpecifiedParameters.Add("AccessRestrictionParameters");
 		Return;
 	EndIf;
 	
+#Region UniversalRestriction
 	If ParameterName = "DIsableAccessKeysUpdate" Then
 		SessionParameters.DIsableAccessKeysUpdate = NewDisableOfAccessKeysUpdate();
 		SpecifiedParameters.Add("DIsableAccessKeysUpdate");
@@ -3090,18 +3267,21 @@ Procedure SessionParametersSetting(ParameterName, SpecifiedParameters) Export
 	
 	// With access restrictions, the preprocessor requires all necessary session parameters to be initialized.
 	// 
-	LimitAccessAtRecordLevel = Constants.LimitAccessAtRecordLevel.Get();
+	LimitAccessAtRecordLevel = ConstantLimitAccessAtRecordLevel();
+	IsRecordLevelRestrictionDisabled = IsRecordLevelRestrictionDisabled();
 	InfobaseLockedForUpdate = ValueIsFilled(
 		InfobaseUpdateInternal.InfobaseLockedForUpdate(False));
 	
 #Region UniversalRestriction
 	If Not LimitAccessAtRecordLevel
+	 Or IsRecordLevelRestrictionDisabled
 	 Or Not UniversalRestriction
 	 Or InfobaseLockedForUpdate Then
 		
 		SessionParameters.ListsWithReadRestrictionDisabled =
-			?(InfobaseLockedForUpdate
-				Or Not UniversalRestriction, "Undefined", "All");
+			?(Not IsRecordLevelRestrictionDisabled
+			  And (InfobaseLockedForUpdate
+				 Or Not UniversalRestriction), "Undefined", "All");
 		
 		BlankAccessGroupsSet = Catalogs.SetsOfAccessGroups.EmptyRef();
 		
@@ -3129,11 +3309,13 @@ Procedure SessionParametersSetting(ParameterName, SpecifiedParameters) Export
 #EndRegion
 	
 	If Not LimitAccessAtRecordLevel
+	 Or IsRecordLevelRestrictionDisabled
 	 Or UniversalRestriction
 	 Or InfobaseLockedForUpdate Then
 		
 		SessionParameters.RecordLevelAccessRestrictionInUse =
-			?(InfobaseLockedForUpdate
+			?(IsRecordLevelRestrictionDisabled
+				Or InfobaseLockedForUpdate
 				Or UniversalRestriction, "", False);
 		
 		SessionParameters.AllAccessKindsExceptSpecialOnes             = "";
@@ -3166,7 +3348,8 @@ Procedure SessionParametersSetting(ParameterName, SpecifiedParameters) Export
 		SpecifiedParameters.Add("TableOfExtensionsWithAccessRestriction");
 	EndIf;
 	
-	If InfobaseLockedForUpdate Then
+	If IsRecordLevelRestrictionDisabled
+	 Or InfobaseLockedForUpdate Then
 		Return;
 	EndIf;
 	
@@ -3535,18 +3718,17 @@ Procedure UpdateAccessValuesGroupsBeforeWrite(Val Source, Cancel) Export
 	
 	// ACC:75-off - The DataExchange.Load check must follow the logging of changes.
 	If StandardSubsystemsServer.IsMetadataObjectID(Source)
+	 Or IsRecordLevelRestrictionDisabled()
 	 Or Source.DataExchange.Load
 	   And Not Common.SeparatedDataUsageAvailable() Then
 		Return;
 	EndIf;
 	
-	If UsersInternalCached.ShouldRegisterChangesInAccessRights()
+	If UsersInternal.ShouldRegisterChangesInAccessRights()
 	 Or Not Source.DataExchange.Load Then
 		
-		If Common.FileInfobase()
-		   And Not SkipAccessCheck(Cancel, Source) Then
-			
-			LockRegistersBeforeWritingAccessConfigurationObjectToFileInformationSystem();
+		If Not SkipAccessCheck(Cancel, Source) Then
+			AccessManagement.SetLockBeforeWriteToFileIB(, True);
 		EndIf;
 		
 		AccessKindsProperties = AccessKindsProperties();
@@ -3557,7 +3739,7 @@ Procedure UpdateAccessValuesGroupsBeforeWrite(Val Source, Cancel) Export
 		Properties = AccessKindsProperties.AccessValuesWithGroups.ByTypesForUpdate.Get(TypeOf(Source));
 		If Properties <> Undefined
 		   And Properties.ValuesGroupsType <> Type("Undefined")
-		   And UsersInternalCached.ShouldRegisterChangesInAccessRights() Then
+		   And UsersInternal.ShouldRegisterChangesInAccessRights() Then
 			
 			FieldName = ?(Properties.MultipleValuesGroups, "AccessGroups", "AccessGroup");
 			Try
@@ -3595,12 +3777,13 @@ Procedure UpdateAccessValuesGroupsOnWrite(Source) Export
 	
 	// ACC:75-off - The DataExchange.Load check must follow the logging of changes.
 	If StandardSubsystemsServer.IsMetadataObjectID(Source)
+	 Or IsRecordLevelRestrictionDisabled()
 	 Or Source.DataExchange.Load
 	   And Not Common.SeparatedDataUsageAvailable() Then
 		Return;
 	EndIf;
 	
-	If UsersInternalCached.ShouldRegisterChangesInAccessRights()
+	If UsersInternal.ShouldRegisterChangesInAccessRights()
 	   And Source.AdditionalProperties.Property("AccessManagementOldValues") Then
 		
 		SetSafeModeDisabled(True);
@@ -3638,7 +3821,8 @@ Procedure UpdateRightsSettingsOwnersGroups(Val Object, Cancel) Export
 		Return;
 	EndIf;
 	
-	If StandardSubsystemsServer.IsMetadataObjectID(Object) Then
+	If StandardSubsystemsServer.IsMetadataObjectID(Object)
+	 Or IsRecordLevelRestrictionDisabled() Then
 		Return;
 	EndIf;
 	
@@ -3668,7 +3852,8 @@ Procedure RecordSetsOfWriteAccessValues(Val Object, Cancel) Export
 		Return;
 	EndIf;
 	
-	If StandardSubsystemsServer.IsMetadataObjectID(Object) Then
+	If StandardSubsystemsServer.IsMetadataObjectID(Object)
+	 Or IsRecordLevelRestrictionDisabled() Then
 		Return;
 	EndIf;
 	
@@ -3695,7 +3880,8 @@ Procedure WriteDependentSetsOfWriteAccessValues(Val Object, Cancel) Export
 		Return;
 	EndIf;
 	
-	If StandardSubsystemsServer.IsMetadataObjectID(Object) Then
+	If StandardSubsystemsServer.IsMetadataObjectID(Object)
+	 Or IsRecordLevelRestrictionDisabled() Then
 		Return;
 	EndIf;
 	
@@ -3739,7 +3925,8 @@ Procedure FillAccessValuesSetsForTabularSections(Source, Cancel = Undefined, Wri
 		Return;
 	EndIf;
 	
-	If StandardSubsystemsServer.IsMetadataObjectID(Source) Then
+	If StandardSubsystemsServer.IsMetadataObjectID(Source)
+	 Or IsRecordLevelRestrictionDisabled() Then
 		Return;
 	EndIf;
 	
@@ -3803,10 +3990,15 @@ Procedure DataFillingForAccessRestriction(DataVolume = 0, OnlyCacheAttributes = 
 	
 	SetPrivilegedMode(True);
 	
+	If IsRecordLevelRestrictionDisabled() Then
+		SetDataFillingForAccessRestriction(False);
+		Return;
+	EndIf;
+	
 	AccessKindsProperties = AccessKindsProperties();
 	AccessValuesWithGroups = AccessKindsProperties.AccessValuesWithGroups;
 	
-	If Constants.LimitAccessAtRecordLevel.Get() And Not OnlyCacheAttributes Then
+	If ConstantLimitAccessAtRecordLevel() And Not OnlyCacheAttributes Then
 		
 		// Filling access value groups in the AccessValuesGroups information register.
 		For Each TableName In AccessValuesWithGroups.NamesOfTablesToUpdate Do
@@ -3827,12 +4019,12 @@ Procedure DataFillingForAccessRestriction(DataVolume = 0, OnlyCacheAttributes = 
 				
 				Query.Text = StrReplace(Query.Text, "Catalog.Users", TableName);
 				Query.Text = StrReplace(Query.Text, "&CurrentTable", TableName);
-				// @skip-check query-in-loop 
+				// @skip-check query-in-loop - Batch-wise data processing
 				Values = Query.Execute().Unload().UnloadColumn("Ref");
 				If Not ValueIsFilled(Values) Then
 					Break;
 				EndIf;
-				// @skip-check query-in-loop 
+				// @skip-check query-in-loop - Batch-wise data processing
 				InformationRegisters.AccessValuesGroups.UpdateAccessValuesGroups(Values, HasChanges);
 				DataVolume = DataVolume + Values.Count();
 				If Values.Count() < 1000 Then
@@ -3875,12 +4067,12 @@ Procedure DataFillingForAccessRestriction(DataVolume = 0, OnlyCacheAttributes = 
 					|WHERE
 					|	InformationRegisterAccessValuesSets.Object IS NULL ";
 					Query.Text = StrReplace(Query.Text, "&CurrentTable", Metadata.FindByType(Type).FullName());
-					// @skip-check query-in-loop 
+					// @skip-check query-in-loop - Batch-wise data processing
 					Selection = Query.Execute().Select();
 					DataVolume = DataVolume + Selection.Count();
 					
 					While Selection.Next() Do
-						// @skip-check query-in-loop 
+						// @skip-check query-in-loop - Batch-wise data processing
 						UpdateAccessValuesSets(Selection.Ref, HasChanges);
 					EndDo;
 				EndIf;
@@ -4201,6 +4393,10 @@ EndFunction
 //                            See InfobaseUpdate.WriteData.
 //
 Procedure UpdateAccessValuesSets(ReferenceOrObject, HasChanges = Undefined, IBUpdate = False) Export
+	
+	If IsRecordLevelRestrictionDisabled() Then
+		Return;
+	EndIf;
 	
 	SetPrivilegedMode(True);
 	
@@ -4982,7 +5178,7 @@ Procedure UpdateRecordSets(Val Data, HasChanges)
 					If Data.ThirdDimensionName = Undefined Then
 						RecordByMultipleSets = False;
 					Else
-						// @skip-check query-in-loop 
+						// @skip-check query-in-loop - Batch-wise data processing
 						RecordByMultipleSets = RecordByMultipleSets(Data,
 							Filter, Data.SecondDimensionName, Data.SecondDimensionValues);
 					EndIf;
@@ -5151,6 +5347,16 @@ Procedure UpdateInformationRegister(Val Data, HasChanges = Undefined) Export
 	RegisterMetadata = Metadata.FindByType(TypeOf(Data.RegisterManager.EmptyKey()));
 	RecordKeyDetails = StandardSubsystemsServer.RecordKeyDetails(RegisterMetadata.FullName());
 	
+	MergeMode  = Common.RecordSetMergeMode();
+	DeletionMode = Common.RecordSetDeletionMode();
+	BatchMode = DeletionMode <> Undefined And MergeMode <> Undefined;
+	
+	If BatchMode And Not Data.IsCheckOnly Then
+		UpdateInformationRegisterInBatchMode(Data, RecordKeyDetails);
+		HasChanges = True;
+		Return;
+	EndIf;
+	
 	If Data.FilterDimensions <> Undefined Then
 		Data.FilterDimensions = New Structure(Data.FilterDimensions);
 	EndIf;
@@ -5217,6 +5423,66 @@ Procedure UpdateInformationRegister(Val Data, HasChanges = Undefined) Export
 	Data.Delete("FilterDimensions");
 	
 	UpdateRecordSets(Data, HasChanges);
+	
+EndProcedure
+
+// For procedure UpdateInformationRegister.
+Procedure UpdateInformationRegisterInBatchMode(Data, RecordKeyDetails)
+	
+	// Delete.
+	Changes = Data.EditStringContent.Copy();
+	Changes.GroupBy(RecordKeyDetails.ListOfUpdateFields, "LineChangeType");
+	Filter = New Structure("LineChangeType", -1);
+	RowsForDeletion = Changes.FindRows(Filter);
+	DataPortionsForDeletion = DataPortions(Changes, RowsForDeletion);
+	ProcessDataPortions(Data, DataPortionsForDeletion,
+		Common.RecordSetDeletionMode());
+	
+	// Merge.
+	Filter = New Structure("LineChangeType", 1);
+	RowsToMerge = Data.EditStringContent.FindRows(Filter);
+	DataPortionsForMerging = DataPortions(Data.EditStringContent, RowsToMerge);
+	ProcessDataPortions(Data, DataPortionsForMerging,
+		Common.RecordSetMergeMode());
+	
+EndProcedure
+
+// Used in UpdateInformationRegisterInBatchMode().
+Function DataPortions(DataTable, DataRows, PortionSize = 10000)
+	
+	Portions = New Array;
+	CurPortion = New Array;
+	
+	For Each DataString1 In DataRows Do
+		CurPortion.Add(DataString1);
+		If CurPortion.Count() < PortionSize Then
+			Continue;
+		EndIf;
+		Portions.Add(DataTable.Copy(CurPortion));
+		CurPortion = New Array;
+	EndDo;
+	
+	If ValueIsFilled(CurPortion) Then
+		Portions.Add(DataTable.Copy(CurPortion));
+	EndIf;
+	
+	Return Portions;
+	
+EndFunction
+
+// Used in UpdateInformationRegisterInBatchMode().
+Procedure ProcessDataPortions(Data, DataPortions, WriteMode)
+	
+	For Each DataPortion In DataPortions Do
+		RecordSet = Data.RegisterManager.CreateRecordSet();
+		RecordSet.Load(DataPortion);
+		
+		If Data.IBUpdate Then
+			InfobaseUpdate.WriteRecordSet(RecordSet, WriteMode);
+		Else
+			RecordSet.Write(WriteMode);
+		EndIf;
+	EndDo;
 	
 EndProcedure
 
@@ -5430,6 +5696,26 @@ Function ChangesSelectionQueryText(NewDataSelectionQueryText,
 	
 EndFunction
 
+Function IsAccessManagementSaaSSupported() Export
+	
+	Return Common.SubsystemExists(
+		"StandardSubsystems.SaaSOperations.AccessManagementSaaS");
+	
+EndFunction
+
+Function IsCTLUserRightsSetupSupported() Export
+	
+	If Not IsAccessManagementSaaSSupported() Then
+		Return False;
+	EndIf;
+	
+	ModuleAccessManagementInternalSaaS = Common.CommonModule(
+		"AccessManagementInternalSaaS");
+	
+	Return ModuleAccessManagementInternalSaaS.IsCTLUserRightsSetupSupported();
+	
+EndFunction
+
 #EndRegion
 
 #Region InfobaseUpdate
@@ -5484,7 +5770,7 @@ EndProcedure
 // Updates settings and enables a scheduled job.
 Procedure EnableDataFillingForAccessRestriction() Export
 	
-	Use = Constants.LimitAccessAtRecordLevel.Get();
+	Use = ConstantLimitAccessAtRecordLevel();
 	
 	If Common.DataSeparationEnabled() Then
 		SetDataFillingForAccessRestriction(Use);
@@ -5818,7 +6104,7 @@ Procedure OnChangeAccessValuesSets(Val ObjectReference, IBUpdate = False)
 		If DependentObjectRef.Metadata().TabularSections.Find("AccessValuesSets") = Undefined Then
 			// No object change is required.
 // @skip-check query-in-loop - Batch-wise data processing
-			// @skip-check query-in-loop 
+			// @skip-check query-in-loop - Batch-wise data processing
 			WriteAccessValuesSets(DependentObjectRef, , IBUpdate);
 		Else
 			// Object change is required.
@@ -6705,11 +6991,14 @@ Function HasChangesOfAccessRestrictionParameters()
 	
 	Parameters = New Array;
 	Parameters.Add("StandardSubsystems.AccessManagement.RoleRightMetadataObjects");
-	Parameters.Add("StandardSubsystems.AccessManagement.RightsForObjectsRightsSettingsAvailable");
 	Parameters.Add("StandardSubsystems.AccessManagement.SuppliedProfilesDescription");
 	Parameters.Add("StandardSubsystems.AccessManagement.AccessGroupPredefinedProfiles");
-	Parameters.Add("StandardSubsystems.AccessManagement.GroupAndAccessValueTypes");
-	Parameters.Add("StandardSubsystems.AccessManagement.AccessRestrictionTextsVersion");
+	
+	If Not IsRecordLevelRestrictionDisabled() Then
+		Parameters.Add("StandardSubsystems.AccessManagement.RightsForObjectsRightsSettingsAvailable");
+		Parameters.Add("StandardSubsystems.AccessManagement.GroupAndAccessValueTypes");
+		Parameters.Add("StandardSubsystems.AccessManagement.AccessRestrictionTextsVersion");
+	EndIf;
 	
 	For Each Parameter In Parameters Do
 		
@@ -7270,6 +7559,8 @@ EndProcedure
 
 Procedure UpdateIBUsersRoles(IBUsersToUpdate, ServiceUserPassword)
 	
+	IsExternalTransactionActive = TransactionActive();
+	ChangedUsers = New Array;
 	ShouldNotifyServiceManager = Common.DataSeparationEnabled()
 		And Common.SubsystemExists("StandardSubsystems.SaaSOperations.UsersSaaS");
 	
@@ -7278,6 +7569,7 @@ Procedure UpdateIBUsersRoles(IBUsersToUpdate, ServiceUserPassword)
 		RolesForDeletion    = KeyAndValue.Value.RolesForDeletion;
 		IBUser     = KeyAndValue.Value.IBUser;
 		UserRef = KeyAndValue.Value.UserRef;
+		ChangedUsers.Add(UserRef);
 		
 		If ShouldNotifyServiceManager Then
 			HadFullRights = IBUser.Roles.Contains(Metadata.Roles.FullAccess);
@@ -7295,7 +7587,7 @@ Procedure UpdateIBUsersRoles(IBUsersToUpdate, ServiceUserPassword)
 		BeginTransaction();
 		Try
 			WriteUserOnRolesUpdate(UserRef,
-				IBUser, HadFullRights, HadLogonRights, ServiceUserPassword);
+				IBUser, HadFullRights, HadLogonRights, ServiceUserPassword, IsExternalTransactionActive);
 			
 			CommitTransaction();
 		Except
@@ -7303,6 +7595,10 @@ Procedure UpdateIBUsersRoles(IBUsersToUpdate, ServiceUserPassword)
 			Raise;
 		EndTry;
 	EndDo;
+	
+	If IsExternalTransactionActive Then
+		InformationRegisters.UsersInfo.UpdateRegisterData(ChangedUsers);
+	EndIf;
 	
 EndProcedure
 
@@ -7391,12 +7687,12 @@ EndFunction
 
 // This method is required by UpdateIBUsersRoles procedure.
 Procedure WriteUserOnRolesUpdate(UserRef, IBUser,
-			HadFullRights, HadLogonRights, ServiceUserPassword)
+			HadFullRights, HadLogonRights, ServiceUserPassword, IsExternalTransactionActive)
 	
 	UsersInternal.WriteInfobaseUser(IBUser,
 		TypeOf(UserRef) = Type("CatalogRef.ExternalUsers"),
 		UserRef,
-		False);
+		?(IsExternalTransactionActive, Null, False));
 	
 	If HadFullRights = Undefined Then
 		Return;
@@ -8468,8 +8764,8 @@ EndProcedure
 
 // Updating access kind properties.
 
-// Intended for functions "CheckedSessionAccessKindsProperties" and "AccessKindsPresentation".
-// See also "AccessManagementOverridable.OnFillAccessKinds".
+// For the CheckedSessionAccessViewProperties and AccessKindsPresentation functions.
+// See also AccessManagementOverridable.OnFillAccessKinds.
 //
 // Returns:
 //   ValueTable:
@@ -8524,10 +8820,16 @@ EndFunction
 //
 Procedure UpdateGroupsAndSetsOfAccessValuesWhenGroupTypesAndValuesChange()
 	
+	ParameterName = "StandardSubsystems.AccessManagement.GroupAndAccessValueTypes";
+	
+	If IsRecordLevelRestrictionDisabled() Then
+		StandardSubsystemsServer.DeleteExtensionParameter(ParameterName, Undefined);
+		Return;
+	EndIf;
+	
 	Cache = AccessManagementInternalCached.DescriptionPropertiesAccessTypesSession();
 	NewValue = Cache.HashAmounts;
 	
-	ParameterName = "StandardSubsystems.AccessManagement.GroupAndAccessValueTypes";
 	PreviousValue2 = StandardSubsystemsServer.ExtensionParameter(ParameterName, True);
 	PreviousValue2 = NewHashSumAccessTypeProperties(PreviousValue2);
 	
@@ -8564,8 +8866,8 @@ Procedure UpdateGroupsAndSetsOfAccessValuesWhenGroupTypesAndValuesChange()
 	
 EndProcedure
 
-// See "AccessManagementOverridable.OnFillAccessKinds".
-// See also filling in function "CheckedSessionAccessKindsProperties".
+// See AccessManagementOverridable.OnFillAccessKinds.
+// See also filling in the CheckedSessionAccessViewProperties function.
 //
 // Returns:
 //   FixedStructure:
@@ -8597,9 +8899,11 @@ EndProcedure
 Function AccessKindsProperties() Export
 	
 	Cache = AccessManagementInternalCached.DescriptionPropertiesAccessTypesSession();
-	
 	CurrentSessionDate = CurrentSessionDate();
-	If Cache.Validation.Date + 3 > CurrentSessionDate Then
+	
+	If Cache.Validation.Date + 3 > CurrentSessionDate
+	 Or IsRecordLevelRestrictionDisabled() Then
+		
 		Return Cache.SessionProperties;
 	EndIf;
 	
@@ -9241,7 +9545,7 @@ Function NewHashSumAccessTypeProperties(Value = Undefined) Export
 	
 EndFunction
 
-// Intended for procedure "CheckedSessionAccessKindsProperties".
+// For the CheckedSessionAccessViewProperties procedure.
 Function HashSumGroupTypesFromAccessValues(AccessKindsProperties)
 	
 	Data = New Array;
@@ -9372,7 +9676,7 @@ EndFunction
 //   * Right          - String - Read, Update.
 //   * AccessKind     - DefinedType.AccessValue - An empty reference of the main value type for the access type.
 //                        "Undefined" if the restriction is applied using the standard "BySetsOfValues" template.
-//                        "Enumeration.AdditionalAccessValues.Undefined" for special restrictions "Object" and "PermissionSettings".
+//                        "Enum.AdditionalAccessValues.Undefined" for special restrictions "Object" and "PermissionSettings".
 //                          
 //   * IsAuthorizedUser - Boolean - "True" if the access kind is "Users" or "ExternalUsers".
 //                        Verification uses only the "FunctionIsAuthorizedUser" restriction.
@@ -9828,7 +10132,7 @@ EndProcedure
 //                                             event subscription.
 //
 //  Cancel           - Boolean - a parameter passed to the BeforeWrite event subscription.
-//  Replacing       - РежимЗамещения, Boolean - a parameter passed to the BeforeWrite event subscription.
+//  Replacing       - ReplacementMode, Boolean - a parameter passed to the BeforeWrite event subscription.
 //
 //  WriteOnly    - Boolean - a parameter passed to the BeforeWrite event subscription
 //                    when the Source is CalculationRegisterRecordSet.
@@ -9885,7 +10189,7 @@ EndProcedure
 //                                             event subscription.
 //
 //  Cancel           - Boolean - a parameter passed to the OnWrite event subscription.
-//  Replacing       - РежимЗамещения, Boolean - a parameter passed to the OnWrite event subscription.
+//  Replacing       - ReplacementMode, Boolean - a parameter passed to the OnWrite event subscription.
 //
 //  WriteOnly    - Boolean - a parameter passed to the OnWrite event subscription
 //                    when the Source is CalculationRegisterRecordSet.
@@ -10090,7 +10394,8 @@ Function AccessAllowed(DataDetails, RightUpdate, RaiseException1 = False,
 		Return True;
 	EndIf;
 	
-	If AccessManagementInternalCached.IsUserWithUnlimitedAccess(User) Then
+	If IsRecordLevelRestrictionDisabled()
+	 Or AccessManagementInternalCached.IsUserWithUnlimitedAccess(User) Then
 		Return True;
 	EndIf;
 	
@@ -10380,9 +10685,20 @@ Function AccessRightsToData(DataDetails, ForExternalUsers, UsersContent) Export
 		Raise(ErrorText, ErrorCategory.ConfigurationError);
 	EndIf;
 	
+	IsRecordLevelRestrictionDisabled = IsRecordLevelRestrictionDisabled();
 	FullName = MetadataObject.FullName();
-	RestrictionParameters = RestrictionParameters(FullName,
-		New UUID, ForExternalUsers);
+	
+	If IsRecordLevelRestrictionDisabled Then
+		RestrictionParameters = New Structure;
+		RestrictionParameters.Insert("List", FullName);
+		RestrictionParameters.Insert("ForExternalUsers", ForExternalUsers);
+		RestrictionParameters.Insert("AccessDenied", False);
+		RestrictionParameters.Insert("IsReferenceType",
+			Not Common.IsRegister(MetadataObject))
+	Else
+		RestrictionParameters = RestrictionParameters(FullName,
+			New UUID, ForExternalUsers);
+	EndIf;
 	
 	If ForExternalUsers
 	   And Not Constants.UseExternalUsers.Get() Then
@@ -10397,7 +10713,8 @@ Function AccessRightsToData(DataDetails, ForExternalUsers, UsersContent) Export
 	Query.SetParameter("MetadataObjectID",
 		Common.MetadataObjectID(MetadataObject));
 	
-	If RestrictionParameters.AccessDenied
+	If IsRecordLevelRestrictionDisabled
+	 Or RestrictionParameters.AccessDenied
 	 Or RestrictionParameters.RestrictionDisabled Then
 		
 		AddUsersRightsQueryForTable(Query, RestrictionParameters,
@@ -11348,6 +11665,10 @@ Function SkipAccessCheck(Cancel, Source)
 		Return True;
 	EndIf;
 	
+	If IsRecordLevelRestrictionDisabled() Then
+		Return True;
+	EndIf;
+	
 	If Not LimitAccessAtRecordLevelUniversally(False) Then
 		Return True;
 	EndIf;
@@ -12241,7 +12562,7 @@ Procedure ScheduleUpdateOfDependentObsoleteAccessKeys(Source, IsRecordSet, Delet
 			QueryResult = ?(QueryResults = Undefined, Undefined, QueryResults[IndexOf]);
 			ChangesByFieldsValues.ChangedTable = FullName + "." + TabularSectionDetails.Name;
 			NewValues = NewTabularSectionValues(Source, TabularSectionDetails, Delete);
-			// @skip-check query-in-loop - В вызываемом варианте ветка с запросом не используется
+			// @skip-check query-in-loop - 
 			ScheduleUpdateOfDependentObsoleteAccessKeysByFieldsValues(QueryResult,
 				NewValues, TabularSectionDetails.FieldsSets, PlanningParameters);
 			IndexOf = IndexOf + 1;
@@ -12335,7 +12656,7 @@ Procedure ScheduleUpdateOfDependentObsoleteAccessKeysByFieldsValues(QueryResult,
 					CurrentChangesContent.GroupBy(DependentTablesDetails.Key);
 				EndIf;
 				PlanningParameters.LeadingObject.ByFieldsValues.ChangesContent = CurrentChangesContent;
-				// @skip-check query-in-loop - В вызываемом варианте ветка с запросом не используется
+				// @skip-check query-in-loop - 
 				ScheduleAccessUpdate(DependentTablesDetails.Value, PlanningParameters);
 			EndDo;
 		EndDo;
@@ -12429,6 +12750,20 @@ Procedure SetSeparatedLock(TableName)
 	
 EndProcedure
 
+// See AccessManagement.SetLockBeforeWriteToFileIB
+Procedure SetLockBeforeWriteToFileIB(BeforeWriteNewObject = False,
+			BeforeWriteAccessSettings = False) Export
+	
+	If BeforeWriteAccessSettings Then
+		LockRegistersSchedulingUpdateAccessKeysInFileIB(,, True);
+	ElsIf BeforeWriteNewObject Then
+		PreliminaryLockBeforeNewRecordToFileInfobase();
+	Else
+		PreliminaryLockBeforeWriteExistingObjectInFileInfobase();
+	EndIf;
+	
+EndProcedure
+
 Procedure LockRegistersSchedulingUpdateAccessKeysInFileIB(IsLockError = False,
 			ParametersUpdate = False, ThisIsRecordOfAccessSettingsObject = False)
 	
@@ -12484,7 +12819,8 @@ Procedure ScheduleAccessUpdateOnChangeAccessGroupMembers(AccessGroups,
 			ChangedMembersTypes, OnImport = False) Export
 	
 	If Not ChangedMembersTypes.Users
-	   And Not ChangedMembersTypes.ExternalUsers Then
+	   And Not ChangedMembersTypes.ExternalUsers
+	 Or IsRecordLevelRestrictionDisabled() Then
 		Return;
 	EndIf;
 	
@@ -12610,6 +12946,10 @@ EndProcedure
 // For calling the AccessGroupsTables register from manager module.
 Procedure ScheduleAccessUpdateOnChangeAccessGroupsTables(Tables) Export
 	
+	If IsRecordLevelRestrictionDisabled() Then
+		Return;
+	EndIf;
+	
 	LongDesc = "ScheduleAccessUpdateOnChangeAccessGroupsTables";
 	
 	ScheduleAnUpdateOfTheRightsCalculationCache(LongDesc, "AccessGroupsTables");
@@ -12620,6 +12960,10 @@ EndProcedure
 
 // For calling the AccessGroupProfiles catalog from the object module and manager module.
 Procedure ScheduleAccessUpdatesWhenProfileRolesChange(LongDesc, ModifiedRoles) Export
+	
+	If IsRecordLevelRestrictionDisabled() Then
+		Return;
+	EndIf;
 	
 	ScheduleAnUpdateOfTheRightsCalculationCache(LongDesc, "RolesOfAccessGroupProfiles");
 	
@@ -12633,6 +12977,10 @@ EndProcedure
 
 // For calling the AccessGroups catalog from the object module and manager module.
 Procedure ScheduleAnAccessUpdateWhenTheAccessGroupProfileChanges(LongDesc, ModifiedRoles, ProfileChanged) Export
+	
+	If IsRecordLevelRestrictionDisabled() Then
+		Return;
+	EndIf;
 	
 	If ProfileChanged Then
 		ScheduleAnUpdateOfTheRightsCalculationCache(LongDesc, "ProfilesAccessGroups");
@@ -12714,6 +13062,10 @@ EndProcedure
 
 // For calling the AccessGroupsValues register from the manager module.
 Procedure ScheduleAccessUpdateOnChangeAllowedValues(AccessGroupsAndValuesTypes) Export
+	
+	If IsRecordLevelRestrictionDisabled() Then
+		Return;
+	EndIf;
 	
 	LongDesc = "ScheduleAccessUpdateOnChangeAllowedValues";
 	
@@ -12905,7 +13257,8 @@ EndFunction
 //
 Procedure ScheduleAccessGroupsSetsUpdate(LongDesc, ForUsers = True, ForExternalUsers = True) Export
 	
-	If Not ForUsers And Not ForExternalUsers Then
+	If Not ForUsers And Not ForExternalUsers
+	 Or IsRecordLevelRestrictionDisabled() Then
 		Return;
 	EndIf;
 	
@@ -13030,8 +13383,8 @@ EndFunction
 
 #Region AccessUpdate
 
-// 
-Function ThereAreScheduledPointTasks()
+// For the StartAccessUpdate procedure.
+Function HasScheduledSpotJobs()
 	
 	SetSafeModeDisabled(True);
 	SetPrivilegedMode(True);
@@ -13071,9 +13424,9 @@ EndFunction
 //                              execution will continue until the full completion.
 //  ThisIsARestart    - Boolean - if True, the current session of background job will not
 //                              be considered incomplete.
-//  ToSpeedUp     - Boolean - 
-//                              
-//                              
+//  IsForAcceleration     - Boolean - If True is passed, the flag is passed to the access update procedure to stop
+//                              the update when there are no targeted jobs and the function
+//                              ShouldRunAccessUpdateToAccelerateSpotJobsOnly returns True.
 //
 // Returns:
 //  - Undefined - an access update is not required or prohibited.
@@ -13093,7 +13446,7 @@ EndFunction
 //   * WarningText - Undefined - if a background job never started or a new background job was started.
 //                         - String - a description showing that access update is already started.
 //
-Function StartAccessUpdateAtRecordLevel(IsManualStart = False, ThisIsARestart = False, ToSpeedUp = False) Export
+Function StartAccessUpdateAtRecordLevel(IsManualStart = False, ThisIsARestart = False, IsForAcceleration = False) Export
 	
 	SetSafeModeDisabled(True);
 	SetPrivilegedMode(True);
@@ -13147,10 +13500,10 @@ Function StartAccessUpdateAtRecordLevel(IsManualStart = False, ThisIsARestart = 
 			DenyAccessUpdate(False);
 			JobParameters = New Array;
 			JobParameters.Add(True);
-		ElsIf ThisIsARestart Or ToSpeedUp Then
-			AdditionalParameters = NewAdvancedAccessUpdateOptions();
+		ElsIf ThisIsARestart Or IsForAcceleration Then
+			AdditionalParameters = NewAdditionalAccessUpdateParameters();
 			AdditionalParameters.ThisIsARestart = ThisIsARestart;
-			AdditionalParameters.ToSpeedUp = ToSpeedUp;
+			AdditionalParameters.IsForAcceleration = IsForAcceleration;
 			JobParameters = New Array;
 			JobParameters.Add(False);
 			JobParameters.Add(False);
@@ -13170,8 +13523,9 @@ Function StartAccessUpdateAtRecordLevel(IsManualStart = False, ThisIsARestart = 
 				Format(CurrentSession.SessionNumber, "NG="),
 				Format(CurrentSession.SessionStarted, "DLF=DT")) + ")";
 		
+		// The procedure name must be as specified in the NameOfTheAccessUpdateTaskMethod function.
 		BackgroundJob = ConfigurationExtensions.ExecuteBackgroundJobWithDatabaseExtensions(
-			NameOfTheAccessUpdateTaskMethod(), JobParameters,, JobDescription);
+			Metadata.ScheduledJobs.AccessUpdateOnRecordsLevel.MethodName, JobParameters,, JobDescription);
 		
 		Result.BackgroundJobIdentifier = BackgroundJob.UUID;
 		
@@ -13413,13 +13767,13 @@ EndProcedure
 //
 // Returns:
 //  Structure:
-//   * ToSpeedUp - Boolean
+//   * IsForAcceleration - Boolean
 //   * ThisIsARestart - Boolean
 //
-Function NewAdvancedAccessUpdateOptions()
+Function NewAdditionalAccessUpdateParameters()
 	
 	Result = New Structure;
-	Result.Insert("ToSpeedUp", False);
+	Result.Insert("IsForAcceleration", False);
 	Result.Insert("ThisIsARestart", False);
 	
 	Return Result;
@@ -13434,7 +13788,7 @@ Procedure ExecuteAccessUpdateAtRecordLevel(UpdateAll, RaiseExceptiopnInsteadErro
 		SecondsNotMore = 0;
 	EndIf;
 	
-	NewAdditionalParameters = NewAdvancedAccessUpdateOptions();
+	NewAdditionalParameters = NewAdditionalAccessUpdateParameters();
 	If TypeOf(AdditionalParameters) = Type("Structure") Then
 		FillPropertyValues(NewAdditionalParameters, AdditionalParameters);
 	EndIf;
@@ -13487,7 +13841,7 @@ Procedure ExecuteAccessUpdateAtRecordLevel(UpdateAll, RaiseExceptiopnInsteadErro
 			
 			If Performer = Undefined Then
 				LastAccessUpdate.RefreshEnabledCanceled   = False;
-				LastAccessUpdate.ToSpeedUp         = AdditionalParameters.ToSpeedUp;
+				LastAccessUpdate.IsForAcceleration         = AdditionalParameters.IsForAcceleration;
 				LastAccessUpdate.StartDateAtServer = CurrentDateAtServer();
 				LastAccessUpdate.SessionNumber          = CurrentSession.SessionNumber;
 				LastAccessUpdate.SessionStarted         = CurrentSession.SessionStarted;
@@ -13498,8 +13852,8 @@ Procedure ExecuteAccessUpdateAtRecordLevel(UpdateAll, RaiseExceptiopnInsteadErro
 			EndIf;
 		EndIf;
 		
-		If LastAccessUpdate.ToSpeedUp And Not AdditionalParameters.ToSpeedUp Then
-			LastAccessUpdate.ToSpeedUp = False;
+		If LastAccessUpdate.IsForAcceleration And Not AdditionalParameters.IsForAcceleration Then
+			LastAccessUpdate.IsForAcceleration = False;
 			InstallTheLatestAccessUpdate(LastAccessUpdate, HasExternalTransaction);
 		EndIf;
 		CommitTransaction();
@@ -13508,7 +13862,12 @@ Procedure ExecuteAccessUpdateAtRecordLevel(UpdateAll, RaiseExceptiopnInsteadErro
 		Raise;
 	EndTry;
 	
-	If Not UpdateAll And LastAccessUpdate.AccessUpdateProhibited Then
+	IsRecordLevelRestrictionDisabled = IsRecordLevelRestrictionDisabled();
+	
+	If Not UpdateAll
+	   And LastAccessUpdate.AccessUpdateProhibited
+	   And Not IsRecordLevelRestrictionDisabled Then
+		
 		If CurrentBackgroundJob.ScheduledJob <> Undefined Then
 			SetAccessUpdate(False);
 		EndIf;
@@ -13568,7 +13927,11 @@ Procedure ExecuteAccessUpdateAtRecordLevel(UpdateAll, RaiseExceptiopnInsteadErro
 	ExecutionParameters.Insert("CompletionErrorText", "");
 	ExecutionParameters.Insert("MainSessionDetails", MainSessionDetails);
 	Try
-		If LimitAccessAtRecordLevelUniversally() Then
+		If IsRecordLevelRestrictionDisabled Then
+			ClearAllAccessRestrictionRegisters();
+			SetAccessUpdate(False);
+			
+		ElsIf LimitAccessAtRecordLevelUniversally() Then
 			ExecuteAccessUpdate(UpdateAll, ExecutionParameters, LastAccessUpdate);
 			If Not RestartIsPossible Then
 				StandardSubsystemsServer.SessionRestartRequired(AllErrorsText);
@@ -13640,7 +14003,7 @@ Procedure ExecuteAccessUpdateAtRecordLevel(UpdateAll, RaiseExceptiopnInsteadErro
 	EndTry;
 	
 	If RestartIsPossible And StandardSubsystemsServer.SessionRestartRequired() Then
-		StartAccessUpdateAtRecordLevel(, True, LastAccessUpdate.ToSpeedUp);
+		StartAccessUpdateAtRecordLevel(, True, LastAccessUpdate.IsForAcceleration);
 	EndIf;
 	
 	If Not ValueIsFilled(AllErrorsText) Then
@@ -13744,7 +14107,7 @@ Function LastAccessUpdate(CurrentValue = Undefined) Export
 	Properties.Insert("BackgroundJobIdentifier",
 		CommonClientServer.BlankUUID());
 	Properties.Insert("LastObsoleteItemsProcessingPlanning", '00010101');
-	Properties.Insert("ToSpeedUp", False);
+	Properties.Insert("IsForAcceleration", False);
 	
 	If TypeOf(CurrentValue) <> Type("ValueStorage") Then
 		Return Properties;
@@ -13848,8 +14211,98 @@ Function ArbitrarySessionID()
 	
 EndFunction
 
-// 
-// 
+// Used in ScheduleAccessUpdate().
+Function AccessRestrictionRegistersEmpty()
+	
+	FullNames = New Array;
+	
+	FullNames.Add(Metadata.InformationRegisters.AccessRightsDependencies.FullName());
+	FullNames.Add(Metadata.InformationRegisters.UsedAccessKinds.FullName());
+	FullNames.Add(Metadata.InformationRegisters.UsedAccessKindsByTables.FullName());
+	FullNames.Add(Metadata.InformationRegisters.AccessValuesGroups.FullName());
+	FullNames.Add(Metadata.InformationRegisters.ObjectsRightsSettings.FullName());
+	FullNames.Add(Metadata.InformationRegisters.ObjectRightsSettingsInheritance.FullName());
+	FullNames.Add(Metadata.InformationRegisters.AccessGroupsValues.FullName());
+	FullNames.Add(Metadata.InformationRegisters.DefaultAccessGroupsValues.FullName());
+	FullNames.Add(Metadata.InformationRegisters.AccessValuesSets.FullName());
+	
+	FullNames.Add(Metadata.InformationRegisters.AccessRestrictionParameters.FullName());
+	FullNames.Add(Metadata.InformationRegisters.AccessKeysForObjects.FullName());
+	FullNames.Add(Metadata.InformationRegisters.AccessKeysForRegisters.FullName());
+	FullNames.Add(Metadata.InformationRegisters.AccessGroupsAccessKeys.FullName());
+	FullNames.Add(Metadata.InformationRegisters.AccessGroupSetsAccessKeys.FullName());
+	FullNames.Add(Metadata.InformationRegisters.UsersAccessKeys.FullName());
+	FullNames.Add(Metadata.InformationRegisters.ExternalUsersAccessKeys.FullName());
+	FullNames.Add(Metadata.InformationRegisters.DataAccessKeysUpdate.FullName());
+	FullNames.Add(Metadata.InformationRegisters.UsersAccessKeysUpdate.FullName());
+	FullNames.Add(Metadata.InformationRegisters.UsersAccessKeysCurrentJobs.FullName());
+	FullNames.Add(Metadata.Catalogs.AccessKeys.FullName());
+	FullNames.Add(Metadata.Catalogs.SetsOfAccessGroups.FullName());
+	
+	QueryText =
+	"SELECT TOP 1
+	|	TRUE AS TrueValue
+	|FROM
+	|	&CurrentTable AS CurrentTable";
+	QueryTexts = New Array;
+	
+	For Each FullName In FullNames Do
+		QueryTexts.Add(StrReplace(QueryText, "&CurrentTable", FullName));
+	EndDo;
+	
+	Query = New Query;
+	Query.Text = StrConcat(QueryTexts, Common.UnionAllText());
+	
+	Return Query.Execute().IsEmpty();
+	
+EndFunction
+
+// Used in ExecuteAccessUpdateAtRecordLevel().
+Procedure ClearAllAccessRestrictionRegisters()
+	
+	ClearInformationRegister(Metadata.InformationRegisters.AccessRightsDependencies.FullName());
+	ClearInformationRegister(Metadata.InformationRegisters.UsedAccessKinds.FullName());
+	ClearInformationRegister(Metadata.InformationRegisters.UsedAccessKindsByTables.FullName());
+	ClearInformationRegister(Metadata.InformationRegisters.AccessValuesGroups.FullName());
+	ClearInformationRegister(Metadata.InformationRegisters.ObjectsRightsSettings.FullName());
+	ClearInformationRegister(Metadata.InformationRegisters.ObjectRightsSettingsInheritance.FullName());
+	ClearInformationRegister(Metadata.InformationRegisters.AccessGroupsValues.FullName());
+	ClearInformationRegister(Metadata.InformationRegisters.DefaultAccessGroupsValues.FullName());
+	ClearInformationRegister(Metadata.InformationRegisters.AccessValuesSets.FullName());
+	
+	ClearInformationRegister(Metadata.InformationRegisters.AccessRestrictionParameters.FullName());
+	ClearInformationRegister(Metadata.InformationRegisters.AccessKeysForObjects.FullName());
+	ClearInformationRegister(Metadata.InformationRegisters.AccessKeysForRegisters.FullName());
+	ClearInformationRegister(Metadata.InformationRegisters.AccessGroupsAccessKeys.FullName());
+	ClearInformationRegister(Metadata.InformationRegisters.AccessGroupSetsAccessKeys.FullName());
+	ClearInformationRegister(Metadata.InformationRegisters.UsersAccessKeys.FullName());
+	ClearInformationRegister(Metadata.InformationRegisters.ExternalUsersAccessKeys.FullName());
+	ClearInformationRegister(Metadata.InformationRegisters.DataAccessKeysUpdate.FullName());
+	ClearInformationRegister(Metadata.InformationRegisters.UsersAccessKeysUpdate.FullName());
+	ClearInformationRegister(Metadata.InformationRegisters.UsersAccessKeysCurrentJobs.FullName());
+	
+	ClearCatalog(Metadata.Catalogs.AccessKeys.FullName());
+	ClearCatalog(Metadata.Catalogs.SetsOfAccessGroups.FullName());
+	
+	StandardSubsystemsServer.DeleteExtensionParameter(
+		NameOfTheDataVersionParameterForTheRightsCalculationCache(), Undefined);
+	
+	StandardSubsystemsServer.DeleteExtensionParameter(
+		"StandardSubsystems.AccessManagement.AccessRestrictionTextsVersion", Undefined);
+	
+	StandardSubsystemsServer.DeleteExtensionParameter(
+		"StandardSubsystems.AccessManagement.AccessKindsProperties", Undefined);
+	
+	StandardSubsystemsServer.DeleteExtensionParameter(
+		"StandardSubsystems.AccessManagement.RightsForObjectsRightsSettingsAvailable", Undefined);
+	
+	StandardSubsystemsServer.DeleteExtensionParameter(
+		"StandardSubsystems.AccessManagement.AccessRestrictionParametersCheckDate", Undefined);
+	
+EndProcedure
+
+// For the ExecuteAccessUpdate, AddAccessUpdateJobs,
+// and UpdateTheListOfUsedVersionsOfTemplateParameters procedures.
 //
 // Parameters:
 //  Context - See AccessUpdateNewContext
@@ -13859,7 +14312,7 @@ Procedure CheckUpdateActiveAccessRestrictionParameters(Context, OnStart = False)
 	
 	Indicators = Context.Indicators;
 	If Indicators <> Undefined Then
-		StartOfVerification = CurrentUniversalDateInMilliseconds();
+		CheckStart = CurrentUniversalDateInMilliseconds();
 	EndIf;
 	
 	SetSafeModeDisabled(True);
@@ -13982,7 +14435,7 @@ Procedure CheckUpdateActiveAccessRestrictionParameters(Context, OnStart = False)
 			EndTry;
 		EndIf;
 		If Indicators <> Undefined Then
-			Indicators.TimeToUpdateRestrictionParameters = Indicators.TimeToUpdateRestrictionParameters
+			Indicators.RestrictionParametersUpdateTime = Indicators.RestrictionParametersUpdateTime
 				+ (CurrentUniversalDateInMilliseconds() - StartUpdates);
 		EndIf;
 	EndIf;
@@ -14033,8 +14486,8 @@ Procedure CheckUpdateActiveAccessRestrictionParameters(Context, OnStart = False)
 	SetSafeModeDisabled(False);
 	
 	If Indicators <> Undefined Then
-		Indicators.TimeToCheckAndUpdateRestrictionParameters = Indicators.TimeToCheckAndUpdateRestrictionParameters
-			+ (CurrentUniversalDateInMilliseconds() - StartOfVerification);
+		Indicators.RestrictionParametersCheckAndUpdateTime = Indicators.RestrictionParametersCheckAndUpdateTime
+			+ (CurrentUniversalDateInMilliseconds() - CheckStart);
 	EndIf;
 	
 EndProcedure
@@ -14107,7 +14560,7 @@ Function AccessKindsUsageChanged(ActiveParameters)
 	If ActiveParameters.ExternalUsersEnabled
 	        <> Constants.UseExternalUsers.Get()
 	 Or ActiveParameters.AccessRestrictionEnabled
-	        <> Constants.LimitAccessAtRecordLevel.Get() Then
+	        <> ConstantLimitAccessAtRecordLevel() Then
 		Return True;
 	EndIf;
 	
@@ -14126,7 +14579,7 @@ Function AccessKindsUsageChanged(ActiveParameters)
 	
 EndFunction
 
-// For the AccessUpdateOnRecordsLevel, RunAccessUpdate,
+// For the AccessUpdateOnRecordsLevel, ExecuteAccessUpdate,
 // CancelAccessUpdateAtRecordLevel, CompleteAccessUpdate procedures.
 //
 Procedure CompleteAccessUpdateThreads(CancelUpdate = False)
@@ -14152,14 +14605,14 @@ Procedure CompleteAccessUpdateThreads(CancelUpdate = False)
 	
 EndProcedure
 
-// For the ProcessCompletedJob, CompleteAccessUpdateThreads procedures.
+// For the ProcessExecutedJobs, CompleteAccessUpdateThreads procedures.
 Function CancelUpdateAtRecordLevelID()
 	
 	Return New UUID("06cc4b5f-a2f9-4622-bef0-df4870ab5dd5");
 	
 EndFunction
 
-// For the AccessUpdateOnRecordsLevel, RunAccessUpdate,
+// For the AccessUpdateOnRecordsLevel, ExecuteAccessUpdate,
 // CancelAccessUpdateAtRecordLevel, CompleteAccessUpdate procedures.
 //
 Procedure CancelAccessUpdateThreadsBackgroundJobs(WaitSeconds = 5)
@@ -14198,7 +14651,7 @@ EndProcedure
 Procedure ExecuteAccessUpdate(UpdateAll, ExecutionParameters, LastAccessUpdate)
 	
 	Context = AccessUpdateNewContext();
-	Context.Insert("Indicators",               MainSessionUpdateMetrics());
+	Context.Insert("Indicators",               MainSessionUpdateIndicators());
 	Context.Insert("MainSessionDetails",  ExecutionParameters.MainSessionDetails);
 	Context.Insert("CurrentBackgroundJob",    ExecutionParameters.MainSessionDetails.BackgroundJob);
 	Context.Insert("Jobs",                  UpdateJobsTable());
@@ -14250,7 +14703,7 @@ Procedure ExecuteAccessUpdate(UpdateAll, ExecutionParameters, LastAccessUpdate)
 	EndIf;
 	
 	FillThreadsCount(Context);
-	AddIndicatorsForUpdatingControlThread(Context);
+	AddLeadingThreadUpdateIndicators(Context);
 	RepeatedStart = False;
 	
 	While True Do
@@ -14261,7 +14714,7 @@ Procedure ExecuteAccessUpdate(UpdateAll, ExecutionParameters, LastAccessUpdate)
 		Context.ProcessingCompleted = True;
 		
 		FillThreadsCount(Context);
-		// @skip-check query-in-loop 
+		// @skip-check query-in-loop - Batch-wise data processing
 		ProcessExecutedJobs(Context);
 		
 		If Context.RefreshEnabledCanceled Or Context.SessionRestartRequired Then
@@ -14307,7 +14760,7 @@ Procedure ExecuteAccessUpdate(UpdateAll, ExecutionParameters, LastAccessUpdate)
 			For Each Job In JobsForStartup Do
 				
 				While LockedThreads.Count() >= Context.ThreadsCount Do
-					// @skip-check query-in-loop 
+					// @skip-check query-in-loop - Batch-wise data processing
 					ProcessExecutedJobs(Context);
 					
 					If Context.RefreshEnabledCanceled Or Context.SessionRestartRequired Then
@@ -14321,7 +14774,7 @@ Procedure ExecuteAccessUpdate(UpdateAll, ExecutionParameters, LastAccessUpdate)
 							AbortPass = True;
 							Break;
 						EndIf;
-						// @skip-check query-in-loop 
+						// @skip-check query-in-loop - Batch-wise data processing
 						WaitForThreadToUnlock(Context, True);
 						If Not Context.FirstPass
 						   And CurrentUniversalDateInMilliseconds() > PassAbortionMoment Then
@@ -14334,7 +14787,7 @@ Procedure ExecuteAccessUpdate(UpdateAll, ExecutionParameters, LastAccessUpdate)
 					Break;
 				EndIf;
 				If LockedThreads.Count() < Context.ThreadsCount Then
-					// @skip-check query-in-loop 
+					// @skip-check query-in-loop - Batch-wise data processing
 					StartListAccessUpdate(Job, Context);
 					RepeatedStart = True;
 					If ValueIsFilled(Context.CompletionErrorText)
@@ -14347,23 +14800,23 @@ Procedure ExecuteAccessUpdate(UpdateAll, ExecutionParameters, LastAccessUpdate)
 			If Not Context.HasStartedJob
 			   And (LockedThreads.Count() >= Context.ThreadsCount
 			      Or Not Context.HasDeferredJobs) Then
-				// @skip-check query-in-loop 
+				// @skip-check query-in-loop - Batch-wise data processing
 				WaitForThreadToUnlock(Context, True);
 			EndIf;
-			// @skip-check query-in-loop 
+			// @skip-check query-in-loop - Batch-wise data processing
 			ProcessExecutedJobs(Context);
 			Context.FirstPass = False;
 		EndDo;
 		
 		If Not UpdateAll
-		   And LastAccessUpdate.ToSpeedUp
-		   And LaunchAccessUpdatesToSpeedUpOnlyPointJobs(False)
+		   And LastAccessUpdate.IsForAcceleration
+		   And ShouldRunAccessUpdateToAccelerateSpotJobsOnly(False)
 		   And Jobs.Find(True, "HasSpotJob") = Undefined Then
 			
-			If LastAccessUpdate().ToSpeedUp Then
+			If LastAccessUpdate().IsForAcceleration Then
 				Break;
 			Else
-				LastAccessUpdate.ToSpeedUp = False;
+				LastAccessUpdate.IsForAcceleration = False;
 			EndIf;
 		EndIf;
 	EndDo;
@@ -14418,7 +14871,7 @@ Function AccessUpdateNewContext()
 	
 EndFunction
 
-// For the procedure, perform an access Update.
+// For the ExecuteAccessUpdate procedure.
 Procedure ScheduleObsoleteItemsProcessing(PlanningErrorText,
 			LastObsoleteItemsProcessingPlanning)
 	
@@ -14460,7 +14913,7 @@ Procedure ScheduleObsoleteItemsProcessing(PlanningErrorText,
 	
 EndProcedure
 
-// Intended for procedure "StartListAccessUpdate".
+// For the StartListAccessUpdate procedure.
 Function MaxMillisecondsToGetBatches(Context)
 	
 	If Not ValueIsFilled(Context.MaxSecondsCountOfQuickDataItemsBatchReceipt) Then
@@ -15350,8 +15803,8 @@ Procedure FillCommonUpdateParameters(Context)
 	
 EndProcedure
 
-// For the AddAccessUpdateJob, StartListAccessUpdate,
-// UpdateListAccess procedures.
+// For the AddAccessUpdateJobs, StartListAccessUpdate,
+// ExecuteUpdateListAccess procedures.
 //
 Function UpdatePeriodToDataPeriod(StartDate, LatestUpdatedItemDate)
 	
@@ -15363,7 +15816,7 @@ Function UpdatePeriodToDataPeriod(StartDate, LatestUpdatedItemDate)
 	
 EndFunction
 
-// Intended for procedure "ExecuteAccessUpdate".
+// For the ExecuteAccessUpdate procedure.
 Procedure ProcessJobsWithErrors(Context)
 	
 	Filter = New Structure("ThereWasMistake", True);
@@ -15447,9 +15900,9 @@ Procedure CompleteAccessUpdate(Context)
 			WaitBoundary = CurrentSessionDate() + 15;
 		EndIf;
 		While Context.LockedThreads.Count() > 0 Do
-			// @skip-check query-in-loop 
+			// @skip-check query-in-loop - Batch-wise data processing
 			WaitForThreadToUnlock(Context);
-			// @skip-check query-in-loop 
+			// @skip-check query-in-loop - Batch-wise data processing
 			ProcessExecutedJobs(Context);
 			If CurrentSessionDate() > WaitBoundary Then
 				Break;
@@ -15549,6 +16002,7 @@ Procedure DisableScheduledJobIfNoNewJobs(Context)
 		Try
 			Context.DataLockWaitError = True;
 			If Common.FileInfobase() Then
+				LockRegistersSchedulingUpdateAccessKeysInFileIB();
 				ScheduledJobsServer.BlockARoutineTask(New UUID);
 			EndIf;
 			Block.Lock();
@@ -15745,7 +16199,9 @@ Function StartListAccessUpdate(Job, Context)
 			FreeThread = NewThread();
 			Parameters = New Array;
 			Parameters.Add(Context.MainSessionDetails);
-			FreeThread.BackgroundJob = BackgroundJobs.Execute(AccessUpdateThreadMethodName(), Parameters,,
+			// The procedure name must be as specified in the AccessUpdateThreadMethodName function.
+			FreeThread.BackgroundJob = BackgroundJobs.Execute(
+				"AccessManagementInternal.UpdateListAccessInBackground", Parameters,,
 				NStr("en = 'Access management: Record-level update access thread'",
 					Common.DefaultLanguageCode()));
 			FreeThread.ThreadID = FreeThread.BackgroundJob.UUID;
@@ -15811,7 +16267,7 @@ Function NameOfTheAccessUpdateTaskMethod()
 	
 EndFunction
 
-// For the RunAccessUpdate, EndAccessUpdate procedure.
+// For the ExecuteAccessUpdate and CompleteAccessUpdate procedures.
 Procedure WaitForThreadToUnlock(Context, WaitForJobToComplete = False)
 	
 	If Context.UpdateInThisSession Then
@@ -15874,7 +16330,7 @@ Procedure WaitForThreadToUnlock(Context, WaitForJobToComplete = False)
 		 Or Context.LockedThreads.Count() = 0 Then
 			Break;
 		EndIf;
-		// @skip-check query-in-loop 
+		// @skip-check query-in-loop - Batch-wise data processing
 		If Not Query.Execute().IsEmpty() Then
 			Break;
 		EndIf;
@@ -15917,7 +16373,7 @@ Procedure UpdateBackgroundJobProperties(Stream, Context)
 	
 EndProcedure
 
-// Intended for procedure "ProcessCompletedJobs".
+// For the ProcessExecutedJobs procedure.
 Procedure CancelThreadBackgroundJob(Stream, Context)
 	
 	UpdateBackgroundJobProperties(Stream, Context);
@@ -15943,7 +16399,7 @@ Procedure CancelThreadBackgroundJob(Stream, Context)
 	
 EndProcedure
 
-// For the ExecuteAccessUpdate and ProcessJobResult procedure.
+// For the ExecuteAccessUpdate and ProcessJobResult procedures.
 Procedure ProcessExecutedJobs(Context, LockedThreads = Undefined)
 	
 	If Context.UpdateInThisSession Then
@@ -16140,7 +16596,7 @@ Function IsLongRunningJobToGetBatches(Job)
 	
 EndFunction
 
-// For the ProcessCompletedJobs, RunListAccessUpdateWithRetryAttempts procedures.
+// For the ProcessExecutedJobs, UpdateListAccessWithRetryAttempts procedures.
 Function AccessUpdateCanceled()
 	
 	Query = New Query;
@@ -16157,7 +16613,7 @@ Function AccessUpdateCanceled()
 	
 EndFunction
 
-// For the ProcessCompletedJobs procedure.
+// For the ProcessExecutedJobs procedure.
 Procedure ProcessCompletedJobResult(Stream, ResultDetails, Context, QueryDelay)
 	
 	If Not Stream.CancelJob
@@ -16316,7 +16772,7 @@ Procedure DeleteStoppedThreads(Context, ThreadsDetails)
 	
 EndProcedure
 
-// For the ProcessCompletedJobs procedure.
+// For the ProcessExecutedJobs procedure.
 Procedure DeleteNotUsedFreeThreads(Context)
 	
 	Count = Context.FreeThreads.Count();
@@ -16537,13 +16993,11 @@ Procedure UpdateListAccessInBackground(ParentSessionDetails) Export
 		WriteResultOfListAccessUpdateInBackground(Result, Selection.Parameters, Context);
 	EndDo;
 	
-	If RegisterAccessUpdateIndicators() Then
-		RegisterActiveThreadUpdateIndicators(Context);
-	EndIf;
+	RegisterActiveThreadUpdateIndicators(Context);
 	
 EndProcedure
 
-// For the RunListAccessUpdateInBackground procedure.
+// For the UpdateListAccessInBackground procedure.
 Function PerformingThreadStarted(Context)
 	
 	CurrentSession = GetCurrentInfoBaseSession();
@@ -16605,7 +17059,7 @@ Function PerformingThreadStarted(Context)
 	
 EndFunction
 
-// For the RunListAccessUpdateInBackground procedure.
+// For the UpdateListAccessInBackground procedure.
 Function ContinueWaitForNewJob(Context)
 	
 	If CurrentUniversalDateInMilliseconds() > Context.ParentSessionCheckBoundary Then
@@ -16669,7 +17123,7 @@ Function SessionExists(SessionDetails)
 	
 EndFunction
 
-// For the RunListAccessUpdateInBackground procedure.
+// For the UpdateListAccessInBackground procedure.
 Procedure WriteResultOfListAccessUpdateInBackground(Result, InitialParameters, Context)
 	
 	BeginTransaction();
@@ -16695,18 +17149,19 @@ Procedure WriteResultOfListAccessUpdateInBackground(Result, InitialParameters, C
 	
 EndProcedure
 
-// For the procedure, perform an access Update.
-Function MainSessionUpdateMetrics()
+// For the ExecuteAccessUpdate procedure.
+Function MainSessionUpdateIndicators()
 	
-	If Not RegisterAccessUpdateIndicators() Then
+	If Not RegisterAccessUpdateIndicators()
+	 Or Not UsersInternal.IsInfoRecordToLogEnabled() Then
 		Return Undefined;
 	EndIf;
 	
 	Indicators = New Structure;
-	Indicators.Insert("TimeToCheckAndUpdateRestrictionParameters", 0);
-	Indicators.Insert("TimeToUpdateRestrictionParameters", 0);
+	Indicators.Insert("RestrictionParametersCheckAndUpdateTime", 0);
+	Indicators.Insert("RestrictionParametersUpdateTime", 0);
 	
-	// 
+	// Variables.
 	Indicators.Insert("WorkStartInMilliseconds", CurrentUniversalDateInMilliseconds());
 	Indicators.Insert("JobAssignmentStart");
 	
@@ -16714,14 +17169,13 @@ Function MainSessionUpdateMetrics()
 	
 EndFunction
 
-// For the procedure, perform an access Update.
-Procedure AddIndicatorsForUpdatingControlThread(Context)
-	
-	If Not RegisterAccessUpdateIndicators() Then
-		Return;
-	EndIf;
+// For the ExecuteAccessUpdate procedure.
+Procedure AddLeadingThreadUpdateIndicators(Context)
 	
 	Indicators = Context.Indicators;
+	If Indicators = Undefined Then
+		Return;
+	EndIf;
 	
 	If Context.UpdateInThisSession Then
 		AddJobsExecutionIndicators(Indicators);
@@ -16740,16 +17194,17 @@ Procedure AddIndicatorsForUpdatingControlThread(Context)
 		Indicators.Insert("ThreadsExceedingExecutionTimeCount", 0);
 		Indicators.Insert("ThreadsWithNonStandardCompletionCount", 0);
 		
-		// 
+		// Variables.
 		Indicators.Insert("JobProcessingStart", 0);
 	EndIf;
 	
 EndProcedure
 
-// For the RunListAccessUpdateInBackground procedure.
+// For the UpdateListAccessInBackground procedure.
 Function ActiveThreadUpdateIndicators()
 	
-	If Not RegisterAccessUpdateIndicators() Then
+	If Not RegisterAccessUpdateIndicators()
+	 Or Not UsersInternal.IsInfoRecordToLogEnabled() Then
 		Return Undefined;
 	EndIf;
 	
@@ -16836,7 +17291,7 @@ Procedure RemoveJobResultProcessingIndicators(Indicators)
 	
 EndProcedure
 
-// For the RunListAccessUpdateInBackground procedure.
+// For the UpdateListAccessInBackground procedure.
 Procedure RemoveJobExecutionIndicators(Indicators)
 	
 	JobExecutionTime = CurrentUniversalDateInMilliseconds() - Indicators.JobExecutionStart;
@@ -16879,7 +17334,7 @@ Procedure RemoveJobExecutionIndicators(Indicators)
 	
 EndProcedure
 
-// For the RunListAccessUpdateInBackground procedure.
+// For the UpdateListAccessInBackground procedure.
 Procedure RemoveJobExecutionErrorsIndicators(Indicators, ErrorsText, ErrorsCount);
 	
 	If ErrorsCount = 0 Then
@@ -16931,6 +17386,10 @@ EndFunction
 Procedure RegisterMainThreadUpdateIndicators(Context)
 	
 	Indicators = Context.Indicators;
+	If Indicators = Undefined Then
+		Return;
+	EndIf;
+	
 	SessionDetails = Context.MainSessionDetails; // See MainSessionDetails
 	
 	If Context.UpdateInThisSession Then
@@ -16986,10 +17445,13 @@ Procedure RegisterMainThreadUpdateIndicators(Context)
 		
 EndProcedure
 
-// For the RunListAccessUpdateInBackground procedure.
+// For the UpdateListAccessInBackground procedure.
 Procedure RegisterActiveThreadUpdateIndicators(Context)
 	
 	Indicators = Context.Indicators;
+	If Indicators = Undefined Then
+		Return;
+	EndIf;
 	
 	NewJobsWaitTime = Indicators.NewJobsWaitTime / 1000;
 	
@@ -17022,7 +17484,7 @@ EndProcedure
 // For the RegisterControlThreadUpdateFunctions and
 // RegisterExecutingThreadUpdateFunctions procedures.
 //
-Procedure AddSessionOperationIndicatorsValues(Comment, Indicators, SessionDetails, ThisIsExecutingThread = False)
+Procedure AddSessionOperationIndicatorsValues(Comment, Indicators, SessionDetails, IsActiveThread = False)
 	
 	OperationTime = (CurrentUniversalDateInMilliseconds()
 		- Indicators.WorkStartInMilliseconds) / 1000;
@@ -17035,15 +17497,15 @@ Procedure AddSessionOperationIndicatorsValues(Comment, Indicators, SessionDetail
 		SessionDetails.SessionStarted,
 		SecondsFormat(OperationTime));
 		
-	If ThisIsExecutingThread Then
+	If IsActiveThread Then
 		Return;
 	EndIf;
 	
 	Comment = Comment + Chars.LF + Chars.LF + StringFunctionsClientServer.SubstituteParametersToString(
-		NStr("en = 'Время проверки и обновления параметров ограничения: %1 сек
-		           |Время обновления параметров ограничения: %2 сек'"),
-		SecondsFormat(Indicators.TimeToCheckAndUpdateRestrictionParameters / 1000),
-		SecondsFormat(Indicators.TimeToUpdateRestrictionParameters / 1000));
+		NStr("en = 'Time to check and update restriction parameters: %1 sec
+		           |Time to update restriction parameters: %2 sec'"),
+		SecondsFormat(Indicators.RestrictionParametersCheckAndUpdateTime / 1000),
+		SecondsFormat(Indicators.RestrictionParametersUpdateTime / 1000));
 	
 EndProcedure
 
@@ -17128,8 +17590,8 @@ Procedure AddCompletionErrorText(CompletionErrorText, ErrorText)
 	
 EndProcedure
 
-// For the UpdateBackgroundJobProperties, CancelThreadBackgroundJob, ProcessCompletedJobs,
-// DeleteStoppedThreads, RunListAccessUpdateInBackground procedures.
+// For the UpdateBackgroundJobProperties, CancelThreadBackgroundJob, ProcessExecutedJobs,
+// DeleteStoppedThreads, UpdateListAccessInBackground procedures.
 //
 Function UpdateErrorTextWithContext(ErrorInfo, CommonUpdateParameters, ErrorToFix1 = False)
 	
@@ -17196,7 +17658,7 @@ Function UpdateErrorTextWithContext(ErrorInfo, CommonUpdateParameters, ErrorToFi
 	
 EndFunction
 
-// For the AccessUpdateOnRecordsLevel, CompleteBackgroundJobs,
+// For the AccessUpdateOnRecordsLevel, FinishBackgroundTasks,
 // ProcessCompletedJobResult, UpdateBackgroundJobProperties,
 // UpdateListAccessInBackground procedures.
 //
@@ -17217,7 +17679,7 @@ Procedure RegisterAccessUpdateError(ErrorText, Context)
 	
 EndProcedure
 
-// For the StartListAccessUpdate function and the RunListAccessUpdateInBackground procedure.
+// For the StartListAccessUpdate and UpdateListAccessInBackground procedures.
 Procedure UpdateListAccessWithRetryAttempts(CommonUpdateParameters, Context)
 	
 	Indicators = Context.Indicators;
@@ -17259,7 +17721,7 @@ Procedure UpdateListAccessWithRetryAttempts(CommonUpdateParameters, Context)
 			ExecutionAttempt = ExecutionAttempt + 1;
 			If ExecutionAttempt < 9 And Not ValueIsFilled(ErrorTextRestartRequired) Then
 				For Counter = 1 To ExecutionAttempt Do
-					// @skip-check query-in-loop 
+					// @skip-check query-in-loop - Batch-wise data processing
 					If AccessUpdateCanceled() Then
 						Break;
 					EndIf;
@@ -17272,7 +17734,7 @@ Procedure UpdateListAccessWithRetryAttempts(CommonUpdateParameters, Context)
 						EndDo;
 					EndIf;
 				EndDo;
-				// @skip-check query-in-loop 
+				// @skip-check query-in-loop - Batch-wise data processing
 				If Not AccessUpdateCanceled() Then
 					Continue;
 				EndIf;
@@ -17293,7 +17755,7 @@ Procedure UpdateListAccessWithRetryAttempts(CommonUpdateParameters, Context)
 	
 EndProcedure
 
-// For the RunListAccessUpdateWithRetryAttempts procedure.
+// For the UpdateListAccessWithRetryAttempts procedure.
 Procedure ExecuteUpdateListAccess(CommonUpdateParameters)
 	
 	If Not CommonUpdateParameters.Property("Cache") Then
@@ -17359,7 +17821,7 @@ Procedure ExecuteUpdateListAccess(CommonUpdateParameters)
 		ParametersOfUpdate.Insert("HasJobs", True);
 		ParametersOfUpdate.Insert("SpotJob", Undefined);
 		ParametersOfUpdate.Insert("LastUpdatedItem", InitialItem(ParametersOfUpdate));
-		// @skip-check query-in-loop 
+		// @skip-check query-in-loop - Batch-wise data processing
 		PrepareUpdatePlan(ParametersOfUpdate, PreparationCompleted);
 	EndDo;
 	
@@ -17543,7 +18005,7 @@ Function IsCatalogAccessGroupsSets(ParametersOfUpdate)
 	
 EndFunction
 
-// For the RunListAccessUpdate procedure.
+// For the ExecuteUpdateListAccess procedure.
 //
 // Returns:
 //   Structure:
@@ -17585,7 +18047,7 @@ EndFunction
 //     * UserGroupsUsers        - See NewUsersInUserGroups
 //     * UserGroupsAsAccessValues - See NewUserGroupsAsAccessVals
 //     * AccessGroupsMembers                 - See AccessGroupsNewMembers
-//     * AccessGroupsUserGroups       - See AccessGroupsNewUsersGroups
+//     * GroupUsersOfAccessGroups     - See NewGroupUsersOfAccessGroups
 //     * AccessGroupsValues                  - See AccessGroupsNewValues
 //     * RolesOfAccessGroupProfiles              - See NewRolesOfAccessGroupProfiles
 //     * ProfilesAccessGroups                 - See ProfilesNewAccessGroups
@@ -17630,7 +18092,7 @@ EndFunction
 //     * RightCalculationStructureUpdate    - See RightCalculationStructure
 //     * Context                          - See ParametersContextByRestrictionStructure
 //
-//    Properties added in procedure "AddQueryTextsToRestrictionParameters":
+//    Properties added in the AddQueryTextsToRestrictionParameters procedure.
 //     * ReadEditRightsCheckQueryText - String
 //     * ReadRightsCheckQueryText - String
 //     * OwnerObjectFieldInRightsValidationQuery - String
@@ -17691,7 +18153,7 @@ Function ParametersOfUpdate(CommonUpdateParameters, MetadataObject)
 	
 EndFunction
 
-// For the RunListAccessUpdate procedure.
+// For the ExecuteUpdateListAccess procedure.
 Procedure AddRestrictionParameters(ParametersOfUpdate)
 	
 	If IsCatalogAccessGroupsSets(ParametersOfUpdate) Then
@@ -17731,7 +18193,7 @@ Procedure AddRestrictionParameters(ParametersOfUpdate)
 	
 EndProcedure
 
-// For the ExecuteListAccessUpdate and PrepareUpdatePlan procedures.
+// For the ExecuteUpdateListAccess and PrepareUpdatePlan procedures.
 // 
 // Returns:
 //  Structure:
@@ -17787,7 +18249,7 @@ Function InitialItem(ParametersOfUpdate, DataKeyKind = Undefined,
 	
 EndFunction
 
-// For the RunListAccessUpdate procedure.
+// For the ExecuteUpdateListAccess procedure.
 Procedure PrepareUpdatePlan(ParametersOfUpdate, PreparationCompleted)
 	
 	ListID     = ParametersOfUpdate.ListID;
@@ -18348,9 +18810,9 @@ Function HasDataKeyProperties(JobParameters)
 	
 EndFunction
 
-// For the RunListAccessUpdate, UpdateItemsBatch,
-// SetQueryTextAndLastDataItemUpdateParameters, UpdateAccessGroupsSets procedures and
-// the ItemsToUpdate, LastItem, DataKey, AccessGroupsSetsToUpdate functions.
+// For the ExecuteUpdateListAccess, UpdateItemsBatch,
+// SetQueryTextAndLastUpdatedDataItemParameters, UpdateAccessGroupsSets procedures and
+// the ItemsForUpdate, LastItem, DataKey, AccessGroupsSetsForUpdate functions.
 //
 Function IsObsoleteItemsDataProcessor(ParametersOfUpdate)
 	
@@ -18484,7 +18946,7 @@ Function PreparedSpotJob(IsRightsUpdate, SpotJobToSave, UpdateRestart)
 	
 EndFunction
 
-// For the RunListAccessUpdate procedure.
+// For the ExecuteUpdateListAccess procedure.
 Function ItemsInBatchCount(ParametersOfUpdate)
 	
 	If IsCatalogAccessGroupsSets(ParametersOfUpdate) Then
@@ -18497,7 +18959,7 @@ Function ItemsInBatchCount(ParametersOfUpdate)
 	
 EndFunction
 
-// For the RunListAccessUpdate procedure.
+// For the ExecuteUpdateListAccess procedure.
 Function ItemsInQueryCount(IsRightsUpdate)
 	
 	If IsRightsUpdate Then
@@ -18508,7 +18970,7 @@ Function ItemsInQueryCount(IsRightsUpdate)
 	
 EndFunction
 
-// For the RunListAccessUpdate procedure.
+// For the ExecuteUpdateListAccess procedure.
 Procedure UpdateItemsBatch(Items, ParametersOfUpdate, IsSpotJob = False)
 	
 	ParametersOfUpdate.Insert("ProcessedItemsCount", 0);
@@ -18574,7 +19036,7 @@ Function ItemsProcessingAbortRequired(ParametersOfUpdate, ProcessedItemsOnStepCo
 	
 EndFunction
 
-// For the RunListAccessUpdate, CheckCompleteUpdateByBatches procedures.
+// For the ExecuteUpdateListAccess, CheckCompleteUpdateByBatches procedures.
 Procedure WriteLastUpdatedItem(CommonUpdateParameters, LastUpdatedItem)
 	
 	IsRightsUpdate       = CommonUpdateParameters.IsRightsUpdate;
@@ -18640,7 +19102,7 @@ Procedure WriteLastUpdatedItem(CommonUpdateParameters, LastUpdatedItem)
 	
 EndProcedure
 
-// For the RunListAccessUpdate procedure.
+// For the ExecuteUpdateListAccess procedure.
 Function ItemsForUpdate(ParametersOfUpdate, CountInQuery, SelectedAllItems)
 	
 	If IsCatalogAccessGroupsSets(ParametersOfUpdate) Then
@@ -18928,7 +19390,7 @@ Procedure SetQueryPlanClarification(QueryText, UniquePlan = False)
 	
 EndProcedure
 
-// For the RunListAccessUpdate procedure.
+// For the ExecuteUpdateListAccess procedure.
 Function SpotJobItemsForUpdate(ParametersOfUpdate, CountInQuery, SelectedAllItems)
 	
 	If IsCatalogAccessGroupsSets(ParametersOfUpdate)
@@ -19098,7 +19560,7 @@ Function SpotJobTable()
 	
 EndFunction
 
-// For the RunListAccessUpdate procedure.
+// For the ExecuteUpdateListAccess procedure.
 Procedure RestartUpdateAtNotCompletedSpotUpdate(ParametersOfUpdate)
 	
 	ParametersOfUpdate.UpdateRestart = True;
@@ -19119,7 +19581,7 @@ Procedure RestartUpdateAtNotCompletedSpotUpdate(ParametersOfUpdate)
 	
 EndProcedure
 
-// For the RunListAccessUpdate procedure.
+// For the ExecuteUpdateListAccess procedure.
 Function ItemsBatchesSet(ParametersOfUpdate, Items, SelectedAllItems, PortionSize = Undefined)
 	
 	BatchesSet = New Array;
@@ -19205,7 +19667,7 @@ Function BatchFromSet()
 	
 EndFunction
 
-// For the ExecuteListAccessUpdate, UpdateItemsBatch, and ItemsBatchesSet procedures.
+// For the ExecuteUpdateListAccess, UpdateItemsBatch, and ItemsBatchesSet procedures.
 Function LastItem(Items, ParametersOfUpdate, LastProcessedItem = False)
 	
 	LastItemNumber = ?(LastProcessedItem,
@@ -19242,7 +19704,7 @@ Function LastItem(Items, ParametersOfUpdate, LastProcessedItem = False)
 	
 EndFunction
 
-// For the RunListAccessUpdate procedure.
+// For the ExecuteUpdateListAccess procedure.
 Procedure ClarifyLastUpdatedItem(ParametersOfUpdate)
 	
 	If ParametersOfUpdate.List = "Catalog.SetsOfAccessGroups"
@@ -19263,7 +19725,7 @@ Procedure ClarifyLastUpdatedItem(ParametersOfUpdate)
 	
 EndProcedure
 
-// For the RunListAccessUpdate, UpdateItemsBatch procedures.
+// For the ExecuteUpdateListAccess, ItemsBatchesSet procedures.
 Procedure SetLastBlankItem(Item, ParametersOfUpdate, ItemDate = '00010101')
 	
 	ItemDate = '00010101';
@@ -19750,7 +20212,7 @@ Procedure UpdateAccessGroupsSets(DataItems, ParametersOfUpdate)
 	
 EndProcedure
 
-// For the RunListAccessUpdate procedure.
+// For the ExecuteUpdateListAccess procedure.
 Procedure ClearBlankAccessGroupsSetRights(ParametersOfUpdate)
 	
 	If ParametersOfUpdate.ForExternalUsers Then
@@ -19816,16 +20278,16 @@ Procedure UpdateGroupsSetsWithObsoleteParameters(DataItems, ParametersOfUpdate, 
 	
 	For Each DataElement In DataItems Do
 		If DataElement.IsAccessGroupsSet Then
-			// @skip-check query-in-loop 
+			// @skip-check query-in-loop - Batch-wise data processing
 			UpdateGroupsSetsAccessKeys(ParametersOfUpdate, DataElement.CurrentRef,
 				"AccessGroupSetsAccessKeys", "AccessGroups", "AccessGroupsSet");
 			
 		ElsIf Not ParametersOfUpdate.ForExternalUsers Then
-			// @skip-check query-in-loop 
+			// @skip-check query-in-loop - Batch-wise data processing
 			UpdateGroupsSetsAccessKeys(ParametersOfUpdate, DataElement.CurrentRef,
 				"UsersAccessKeys", "UserGroups", "User");
 		Else
-			// @skip-check query-in-loop 
+			// @skip-check query-in-loop - Batch-wise data processing
 			UpdateGroupsSetsAccessKeys(ParametersOfUpdate, DataElement.CurrentRef,
 				"ExternalUsersAccessKeys", "ExternalUsersGroups", "ExternalUser");
 		EndIf;
@@ -20127,7 +20589,7 @@ Procedure UpdateGroupsSetsAccessKeys(ParametersOfUpdate, AccessGroupsSet, Rights
 			BeginTransaction();
 			Try
 				Block.Lock();
-				// @skip-check query-in-loop 
+				// @skip-check query-in-loop - Batch-wise data processing
 				Selection = Query.Execute().Select();
 				
 				DeletionCompleted = False;
@@ -20170,7 +20632,7 @@ Procedure UpdateGroupsSetsAccessKeys(ParametersOfUpdate, AccessGroupsSet, Rights
 	
 EndProcedure
 
-// For the RunListAccessUpdate procedure.
+// For the ExecuteUpdateListAccess procedure.
 Procedure EliminateSetsDuplicatesFromOneUserInCatalog(ParametersOfUpdate)
 	
 	Query = New Query;
@@ -20279,7 +20741,7 @@ Procedure UpdateSetsOfOneUserInCatalog(DataItems, ParametersOfUpdate)
 	
 EndProcedure
 
-// For the RunListAccessUpdate procedure.
+// For the ExecuteUpdateListAccess procedure.
 Procedure FillBlankGroupsSetsHashes(ParametersOfUpdate)
 	
 	Query = New Query;
@@ -20330,7 +20792,8 @@ Function OneUserSetsToUpdateAssignedAccessGroupsSets(ParametersOfUpdate,
 	If Not ParametersOfUpdate.ForExternalUsers Then
 		GroupsQueryText =
 		"SELECT
-		|	AccessGroups.Ref AS GroupReference
+		|	AccessGroups.Ref AS Group
+		|INTO ActiveGroups
 		|FROM
 		|	Catalog.AccessGroups AS AccessGroups
 		|WHERE
@@ -20365,12 +20828,13 @@ Function OneUserSetsToUpdateAssignedAccessGroupsSets(ParametersOfUpdate,
 		|			ELSE FALSE
 		|		END
 		|
-		|ORDER BY
-		|	Ref";
+		|INDEX BY
+		|	AccessGroups.Ref";
 	Else
 		GroupsQueryText =
 		"SELECT
-		|	AccessGroups.Ref AS GroupReference
+		|	AccessGroups.Ref AS Group
+		|INTO ActiveGroups
 		|FROM
 		|	Catalog.AccessGroups AS AccessGroups
 		|WHERE
@@ -20394,39 +20858,34 @@ Function OneUserSetsToUpdateAssignedAccessGroupsSets(ParametersOfUpdate,
 		|				AND Purpose.UsersType <> UNDEFINED
 		|				AND VALUETYPE(Purpose.UsersType) <> TYPE(Catalog.Users))
 		|
-		|ORDER BY
-		|	Ref";
+		|INDEX BY
+		|	AccessGroups.Ref";
 	EndIf;
 	
 	NewGroupsSetsQueryText =
-	"SELECT
-	|	UserAccessGroups.User AS User,
-	|	SUM(GroupsNumbers.NumberPart1) AS NumberPart1
+	"SELECT DISTINCT
+	|	UserGroupCompositions.User AS User,
+	|	AccessGroupsUsers.Ref AS Group
 	|INTO NewGroupsSets
 	|FROM
-	|	(SELECT DISTINCT
-	|		UserGroupCompositions.User AS User,
-	|		AccessGroupsUsers.Ref AS AccessGroup
-	|	FROM
-	|		Catalog.AccessGroups.Users AS AccessGroupsUsers
-	|			INNER JOIN InformationRegister.UserGroupCompositions AS UserGroupCompositions
-	|			ON (UserGroupCompositions.UsersGroup = AccessGroupsUsers.User)
-	|				AND (VALUETYPE(UserGroupCompositions.User) = TYPE(Catalog.Users))
-	|				AND (CAST(UserGroupCompositions.User AS Catalog.Users).IBUserID <> &BlankUUID)
-	|				AND (UserGroupCompositions.Used)) AS UserAccessGroups
-	|		INNER JOIN GroupsNumbers AS GroupsNumbers
-	|		ON UserAccessGroups.AccessGroup = GroupsNumbers.Group
-	|
-	|GROUP BY
-	|	UserAccessGroups.User
+	|	InformationRegister.UserGroupCompositions AS UserGroupCompositions
+	|		INNER JOIN Catalog.AccessGroups.Users AS AccessGroupsUsers
+	|		ON UserGroupCompositions.UsersGroup = AccessGroupsUsers.User
+	|			AND (VALUETYPE(UserGroupCompositions.User) = TYPE(Catalog.Users))
+	|			AND (CAST(UserGroupCompositions.User AS Catalog.Users).IBUserID <> &BlankUUID)
+	|			AND (CAST(UserGroupCompositions.User AS Catalog.Users).IsInternal <> TRUE)
+	|			AND (UserGroupCompositions.Used)
+	|		INNER JOIN ActiveGroups AS ActiveGroups
+	|		ON (AccessGroupsUsers.Ref = ActiveGroups.Group)
 	|
 	|INDEX BY
-	|	UserAccessGroups.User";
+	|	User,
+	|	Group";
 	
 	DataItems = OneUserSetsToUpdateAssignedGroupsSets(ParametersOfUpdate,
 		GroupsQueryText, NewGroupsSetsQueryText, "AccessGroupsSet", "AccessGroups");
 	
-	CountInQuery = DataItems.Count();
+	CountInQuery = DataItems.Count() + 1;
 	Return DataItems;
 	
 EndFunction
@@ -20437,14 +20896,15 @@ Function OneUserSetsToUpdateAssignedUsersGroupsSets(ParametersOfUpdate,
 	
 	GroupsQueryText =
 	"SELECT DISTINCT
-	|	UserGroupCompositions.UsersGroup AS GroupReference
+	|	UserGroupCompositions.UsersGroup AS Group
+	|INTO ActiveGroups
 	|FROM
 	|	InformationRegister.UserGroupCompositions AS UserGroupCompositions
 	|WHERE
 	|	UserGroupCompositions.Used
 	|	AND VALUETYPE(UserGroupCompositions.UsersGroup) = TYPE(Catalog.UserGroups)
 	|
-	|ORDER BY
+	|INDEX BY
 	|	UserGroupCompositions.UsersGroup";
 	
 	If ParametersOfUpdate.ForExternalUsers Then
@@ -20453,23 +20913,22 @@ Function OneUserSetsToUpdateAssignedUsersGroupsSets(ParametersOfUpdate,
 	EndIf;
 	
 	NewGroupsSetsQueryText =
-	"SELECT
+	"SELECT DISTINCT
 	|	UserGroupCompositions.User AS User,
-	|	SUM(GroupsNumbers.NumberPart1) AS NumberPart1
+	|	UserGroupCompositions.UsersGroup AS Group
 	|INTO NewGroupsSets
 	|FROM
 	|	InformationRegister.UserGroupCompositions AS UserGroupCompositions
-	|		INNER JOIN GroupsNumbers AS GroupsNumbers
-	|		ON UserGroupCompositions.UsersGroup = GroupsNumbers.Group
+	|		INNER JOIN ActiveGroups AS ActiveGroups
+	|		ON UserGroupCompositions.UsersGroup = ActiveGroups.Group
 	|			AND (VALUETYPE(UserGroupCompositions.User) = TYPE(Catalog.Users))
 	|			AND (CAST(UserGroupCompositions.User AS Catalog.Users).IBUserID <> &BlankUUID)
+	|			AND (CAST(UserGroupCompositions.User AS Catalog.Users).IsInternal <> TRUE)
 	|			AND (UserGroupCompositions.Used)
 	|
-	|GROUP BY
-	|	UserGroupCompositions.User
-	|
 	|INDEX BY
-	|	UserGroupCompositions.User";
+	|	User,
+	|	Group";
 	
 	If ParametersOfUpdate.ForExternalUsers Then
 		GroupsCatalogName = "ExternalUsersGroups";
@@ -20480,7 +20939,7 @@ Function OneUserSetsToUpdateAssignedUsersGroupsSets(ParametersOfUpdate,
 	DataItems = OneUserSetsToUpdateAssignedGroupsSets(ParametersOfUpdate,
 		GroupsQueryText, NewGroupsSetsQueryText, "UserGroupsSet", GroupsCatalogName);
 	
-	CountInQuery = DataItems.Count();
+	CountInQuery = DataItems.Count() + 1;
 	Return DataItems;
 	
 EndFunction
@@ -20491,163 +20950,110 @@ EndFunction
 Function OneUserSetsToUpdateAssignedGroupsSets(ParametersOfUpdate,
 			GroupsQueryText, NewGroupsSetsQueryText, SetFieldName, GroupsCatalogName)
 	
+	QueryParts = New Array;
+	QueryParts.Add(GroupsQueryText);
+	QueryParts.Add(NewGroupsSetsQueryText);
+	
 	Query = New Query;
 	Query.SetParameter("ProfileAdministrator", AccessManagement.ProfileAdministrator());
-	Query.Text = GroupsQueryText;
-	GroupsNumbers = Query.Execute().Unload();
-	
-	NumberPartsNames = New Array;
-	MaxGroupNumberInNumberPart = 9223372036854775808; // 2^63.
-	FillGroupsNumbers(GroupsNumbers, NumberPartsNames, MaxGroupNumberInNumberPart);
-	
-	Query = New Query;
-	Query.SetParameter("GroupsNumbers", GroupsNumbers);
 	Query.SetParameter("ForExternalUsers", ParametersOfUpdate.ForExternalUsers);
 	Query.SetParameter("BlankUUID",
 		CommonClientServer.BlankUUID());
 	
-	Query.Text =
-	"SELECT
-	|	GroupsNumbers.GroupReference AS Group,
-	|	GroupsNumbers.NumberPart1 AS NumberPart1
-	|INTO GroupsNumbers
+	QueryText =
+	"SELECT DISTINCT
+	|	NewGroupsSets.User AS User,
+	|	NewGroupsSets.Group AS Group
 	|FROM
-	|	&GroupsNumbers AS GroupsNumbers
+	|	NewGroupsSets AS NewGroupsSets
+	|
+	|ORDER BY
+	|	User,
+	|	Group
+	|TOTALS BY
+	|	User
 	|;
 	|
 	|////////////////////////////////////////////////////////////////////////////////
 	|SELECT
-	|	UNDEFINED AS User,
-	|	SUM(GroupsNumbers.NumberPart1) AS NumberPart1
-	|INTO NewGroupsSets
-	|FROM
-	|	GroupsNumbers AS GroupsNumbers
-	|;
-	|
-	|////////////////////////////////////////////////////////////////////////////////
-	|SELECT
-	|	GroupsSets.Ref AS SingleUserSet,
+	|	GroupsSets.Ref AS CurrentRef,
 	|	GroupsSets.User AS User,
-	|	GroupsSets.AllowedAccessGroupsSet AS CurrentGroupsSet,
-	|	SUM(ISNULL(GroupsNumbers.NumberPart1, -1234567)) AS NumberPart1
-	|INTO OldGroupSets
+	|	CASE
+	|		WHEN GroupsSets.NewAccessGroupsSet = VALUE(Catalog.SetsOfAccessGroups.EmptyRef)
+	|			THEN GroupsSets.AllowedAccessGroupsSet
+	|		ELSE GroupsSets.NewAccessGroupsSet
+	|	END AS CurrentGroupsSet
 	|FROM
 	|	Catalog.SetsOfAccessGroups AS GroupsSets
-	|		LEFT JOIN Catalog.SetsOfAccessGroups.Groups AS SetGroups1
-	|		ON (SetGroups1.Ref = GroupsSets.AllowedAccessGroupsSet)
-	|		LEFT JOIN GroupsNumbers AS GroupsNumbers
-	|		ON (SetGroups1.Group = GroupsNumbers.Group)
 	|WHERE
 	|	GroupsSets.ForExternalUsers = &ForExternalUsers
 	|	AND GroupsSets.SetItemsType = VALUE(Catalog.Users.EmptyRef)
 	|	AND GroupsSets.NotUsedSince = DATETIME(1, 1, 1)
-	|	AND GroupsSets.NewAccessGroupsSet = VALUE(Catalog.SetsOfAccessGroups.EmptyRef)
+	|	AND NOT(GroupsSets.AllowedAccessGroupsSet = VALUE(Catalog.SetsOfAccessGroups.EmptyRef)
+	|				AND GroupsSets.NewAccessGroupsSet = VALUE(Catalog.SetsOfAccessGroups.EmptyRef)
+	|				AND NOT TRUE IN
+	|						(SELECT TOP 1
+	|							TRUE
+	|						FROM
+	|							NewGroupsSets AS NewGroupsSets
+	|						WHERE
+	|							NewGroupsSets.User = GroupsSets.User))
 	|	AND &QueryPlanClarification
-	|
-	|GROUP BY
-	|	GroupsSets.Ref,
-	|	GroupsSets.User,
-	|	GroupsSets.AllowedAccessGroupsSet
-	|
-	|UNION ALL
-	|
-	|SELECT
-	|	GroupsSets.Ref,
-	|	GroupsSets.User,
-	|	GroupsSets.NewAccessGroupsSet,
-	|	SUM(ISNULL(GroupsNumbers.NumberPart1, -1234567))
-	|FROM
-	|	Catalog.SetsOfAccessGroups AS GroupsSets
-	|		LEFT JOIN Catalog.SetsOfAccessGroups.Groups AS SetGroups1
-	|		ON (SetGroups1.Ref = GroupsSets.NewAccessGroupsSet)
-	|		LEFT JOIN GroupsNumbers AS GroupsNumbers
-	|		ON (SetGroups1.Group = GroupsNumbers.Group)
-	|WHERE
-	|	GroupsSets.ForExternalUsers = &ForExternalUsers
-	|	AND GroupsSets.SetItemsType = VALUE(Catalog.Users.EmptyRef)
-	|	AND GroupsSets.NotUsedSince = DATETIME(1, 1, 1)
-	|	AND GroupsSets.NewAccessGroupsSet <> VALUE(Catalog.SetsOfAccessGroups.EmptyRef)
-	|	AND &QueryPlanClarification
-	|
-	|GROUP BY
-	|	GroupsSets.Ref,
-	|	GroupsSets.User,
-	|	GroupsSets.NewAccessGroupsSet
 	|;
 	|
 	|////////////////////////////////////////////////////////////////////////////////
 	|SELECT
-	|	OldSets.SingleUserSet AS SingleUserSet,
-	|	NewSets.NumberPart1 AS NumberPart1
-	|INTO GroupSetsForUpdate
+	|	GroupsSets.Ref AS Ref
+	|INTO SetsWithActiveGroups
 	|FROM
-	|	OldGroupSets AS OldSets
-	|		LEFT JOIN NewGroupsSets AS NewSets
-	|		ON (NewSets.User = OldSets.User)
+	|	Catalog.SetsOfAccessGroups AS GroupsSets
 	|WHERE
-	|	(NewSets.User IS NULL
-	|				AND OldSets.CurrentGroupsSet <> VALUE(Catalog.SetsOfAccessGroups.EmptyRef)
-	|			OR OldSets.NumberPart1 <> ISNULL(NewSets.NumberPart1, -1234567))
+	|	GroupsSets.ForExternalUsers = &ForExternalUsers
+	|	AND GroupsSets.SetItemsType = VALUE(Catalog.AccessGroups.EmptyRef)
+	|	AND NOT FALSE IN
+	|				(SELECT TOP 1
+	|					FALSE
+	|				FROM
+	|					Catalog.SetsOfAccessGroups.Groups AS SetGroups1
+	|						LEFT JOIN ActiveGroups AS ActiveGroups
+	|						ON
+	|							SetGroups1.Group = ActiveGroups.Group
+	|				WHERE
+	|					SetGroups1.Ref = GroupsSets.Ref
+	|					AND ActiveGroups.Group IS NULL)
 	|;
 	|
 	|////////////////////////////////////////////////////////////////////////////////
 	|SELECT
 	|	GroupsSets.Ref AS GroupsSet,
-	|	SUM(ISNULL(GroupsNumbers.NumberPart1, -1234567)) AS NumberPart1
-	|INTO ExistingGroupSets
+	|	SetGroups1.Group AS Group
 	|FROM
-	|	Catalog.SetsOfAccessGroups AS GroupsSets
+	|	SetsWithActiveGroups AS GroupsSets
 	|		INNER JOIN Catalog.SetsOfAccessGroups.Groups AS SetGroups1
-	|		ON (GroupsSets.ForExternalUsers = &ForExternalUsers)
-	|			AND (GroupsSets.SetItemsType = VALUE(Catalog.AccessGroups.EmptyRef))
-	|			AND (SetGroups1.Ref = GroupsSets.Ref)
-	|		LEFT JOIN GroupsNumbers AS GroupsNumbers
-	|		ON (SetGroups1.Group = GroupsNumbers.Group)
-	|			AND (&QueryPlanClarification)
+	|		ON (SetGroups1.Ref = GroupsSets.Ref)
 	|
-	|GROUP BY
-	|	GroupsSets.Ref
-	|
-	|HAVING
-	|	SUM(ISNULL(GroupsNumbers.NumberPart1, -1234567)) >= 0
+	|ORDER BY
+	|	GroupsSet,
+	|	Group
+	|TOTALS BY
+	|	GroupsSet
 	|;
 	|
 	|////////////////////////////////////////////////////////////////////////////////
-	|SELECT
-	|	NewSets.SingleUserSet AS CurrentRef,
-	|	CASE
-	|		WHEN NewSets.NumberPart1 IS NULL
-	|			THEN VALUE(Catalog.SetsOfAccessGroups.EmptyRef)
-	|		ELSE ISNULL(ExistingSets.GroupsSet, UNDEFINED)
-	|	END AS GroupsSet,
-	|	TRUE IN
-	|		(SELECT TOP 1
-	|			TRUE
-	|		FROM
-	|			Catalog.SetsOfAccessGroups AS AllSets
-	|		WHERE
-	|			AllSets.ForExternalUsers = &ForExternalUsers
-	|			AND AllSets.NewAccessGroupsSet = ExistingSets.GroupsSet) AS NewGroupSet,
-	|	NewSets.NumberPart1 AS NumberPart1
+	|SELECT DISTINCT
+	|	SetsOfAccessGroups.NewAccessGroupsSet AS NewSet
 	|FROM
-	|	GroupSetsForUpdate AS NewSets
-	|		LEFT JOIN ExistingGroupSets AS ExistingSets
-	|		ON (ExistingSets.NumberPart1 = NewSets.NumberPart1)
-	|
-	|ORDER BY
-	|	CurrentRef,
-	|	GroupsSet";
+	|	Catalog.SetsOfAccessGroups AS SetsOfAccessGroups
+	|WHERE
+	|	SetsOfAccessGroups.ForExternalUsers = &ForExternalUsers
+	|	AND SetsOfAccessGroups.NewAccessGroupsSet <> VALUE(Catalog.SetsOfAccessGroups.EmptyRef)";
 	
-	Query.Text = StrReplace(Query.Text,
-		"SELECT
-		|	UNDEFINED AS User,
-		|	SUM(GroupsNumbers.NumberPart1) AS NumberPart1
-		|INTO NewGroupsSets
-		|FROM
-		|	GroupsNumbers AS GroupsNumbers",
-		NewGroupsSetsQueryText);
+	QueryParts.Add(QueryText);
+	Query.Text = StrConcat(QueryParts, Common.QueryBatchSeparator());
 	
 	If ParametersOfUpdate.ForExternalUsers Then
+		Query.Text = StrReplace(Query.Text,
+			"CAST(UserGroupCompositions.User AS Catalog.Users).IsInternal <> TRUE", "TRUE");
 		Query.Text = StrReplace(Query.Text, "Catalog.Users", "Catalog.ExternalUsers");
 	EndIf;
 	
@@ -20657,95 +21063,81 @@ Function OneUserSetsToUpdateAssignedGroupsSets(ParametersOfUpdate,
 	Query.Text = StrReplace(Query.Text, "NewAccessGroupsSet",       "New"       + SetFieldName);
 	Query.Text = StrReplace(Query.Text, "AllowedAccessGroupsSet", "Allowed" + SetFieldName);
 	
-	Query.Text = StrReplace(Query.Text,
-		"	GroupsNumbers.NumberPart1 AS NumberPart1",
-		"	GroupsNumbers." + StrConcat(NumberPartsNames, ",
-		|	GroupsNumbers.")); // @query-part-1
-	
-	Query.Text = StrReplace(Query.Text,
-		"	SUM(ISNULL(GroupsNumbers.NumberPart1, -1234567)) >= 0", 
-		"	SUM(ISNULL(GroupsNumbers." + StrConcat(NumberPartsNames, ", -1234567)) >= 0
-		|	AND SUM(ISNULL(GroupsNumbers.") + ", -1234567)) >= 0"); // @query-part-1, @query-part-2, @query-part-3
-	
-	Query.Text = StrReplace(Query.Text,
-		"	SUM(ISNULL(GroupsNumbers.NumberPart1, -1234567))
-		|", 
-		"	SUM(ISNULL(GroupsNumbers." + StrConcat(NumberPartsNames, ", -1234567)),
-		|	SUM(ISNULL(GroupsNumbers.") + ", -1234567))
-		|"); // @query-part-1, @query-part-2, @query-part-3
-	
-	Query.Text = StrReplace(Query.Text,
-		"	NewSets.NumberPart1 AS NumberPart1",
-		"	NewSets." + StrConcat(NumberPartsNames, ",
-		|	NewSets.")); // @query-part-1
-	
-	FilterCriterion = "";
-	ConnectionCondition = "";
-	OldOnesSumFields = "";
-	NewOnesSumFields = "";
-	For Each NumberPartName In NumberPartsNames Do
-		FilterCriterion = FilterCriterion + ?(FilterCriterion = "", "","
-		|			OR ") + "OldSets." + NumberPartName + " <> ISNULL(NewSets." + NumberPartName + ", -1234567)"; // @query-part-3, @query-part-5
-		ConnectionCondition = ConnectionCondition + ?(ConnectionCondition = "", "", "
-		|			AND ") + "(ExistingSets." + NumberPartName + " = NewSets." + NumberPartName + ")"; // @query-part-3
-		OldOnesSumFields = OldOnesSumFields + ?(OldOnesSumFields = "", "", ",
-		|	") + "SUM(ISNULL(GroupsNumbers." + NumberPartName + ", -1234567)) AS " + NumberPartName; // @query-part-4, @query-part-5
-		NewOnesSumFields = NewOnesSumFields + ?(NewOnesSumFields = "", "", ",
-		|	") + "SUM(GroupsNumbers." + NumberPartName + ") AS " + NumberPartName; // @query-part-4, @query-part-5
-	EndDo;
-	
-	Query.Text = StrReplace(Query.Text,
-		"OldSets.NumberPart1 <> ISNULL(NewSets.NumberPart1, -1234567)", FilterCriterion); // @query-part-1
-	Query.Text = StrReplace(Query.Text,
-		"(ExistingSets.NumberPart1 = NewSets.NumberPart1)", ConnectionCondition); // @query-part-1
-	
-	Query.Text = StrReplace(Query.Text,
-		"SUM(ISNULL(GroupsNumbers.NumberPart1, -1234567)) AS NumberPart1", OldOnesSumFields); // @query-part-1
-	Query.Text = StrReplace(Query.Text,
-		"SUM(GroupsNumbers.NumberPart1) AS NumberPart1", NewOnesSumFields); // @query-part-1
-	
-	Query.Text = StrReplace(Query.Text, "-1234567", Format(-MaxGroupNumberInNumberPart*2, "NG="));
-	
 	SetQueryPlanClarification(Query.Text);
 	
-	Result = Query.Execute().Unload();
+	QueryResults = Query.ExecuteBatch();
 	
-	SetPartsNamesList = StrConcat(NumberPartsNames, ", ");
-	NewGroupsSets = Result.Copy(New Array, SetPartsNamesList);
-	NewGroupsSets.Columns.Add("SetGroups");
-	NewGroupsSets.Columns.Add("GroupsID");
-	Filter = New Structure(SetPartsNamesList);
+	NewSets = QueryResults[6].Unload();
+	QueryResults[6] = Undefined;
+	NewSets.Indexes.Add("NewSet");
 	
-	DataItems = Result.Copy(New Array, "CurrentRef, GroupsSet, NewGroupSet");
+	ExistingGroupSets = New Map;
+	Upload0 = QueryResults[5].Unload(QueryResultIteration.ByGroups);
+	QueryResults[5] = Undefined;
+	For Each VTRow In Upload0.Rows Do
+		SetGroups = VTRow.Rows.UnloadColumn("Group");
+		ExistingGroupSets.Insert(DataStringForHashing(SetGroups),
+			New Structure("GroupsSet, NewGroupSet", VTRow.GroupsSet,
+				NewSets.Find(VTRow.GroupsSet, "NewSet") <> Undefined));
+	EndDo;
+	Upload0.Rows.Clear();
+	NewSets.Clear();
+	
+	NewGroupsSets = New Map;
+	Upload0 = QueryResults[2].Unload(QueryResultIteration.ByGroups);
+	QueryResults[2] = Undefined;
+	For Each VTRow In Upload0.Rows Do
+		SetGroups = VTRow.Rows.UnloadColumn("Group");
+		ExistingGroupsSet = ExistingGroupSets.Get(DataStringForHashing(SetGroups));
+		Properties = New Structure("GroupsSet, NewGroupSet, SetGroups, GroupsID");
+		If ExistingGroupsSet = Undefined Then
+			Properties.SetGroups       = SetGroups;
+			Properties.GroupsID = New UUID;
+		Else
+			Properties.GroupsSet      = ExistingGroupsSet.GroupsSet;
+			Properties.NewGroupSet = ExistingGroupsSet.NewGroupSet;
+		EndIf;
+		NewGroupsSets.Insert(VTRow.User, Properties);
+	EndDo;
+	Upload0.Rows.Clear();
+	ExistingGroupSets.Clear();
+	
+	Selection = QueryResults[3].Select();
+	QueryResults.Clear();
+	
+	DataItems = New ValueTable;
+	DataItems.Columns.Add("CurrentRef");
+	DataItems.Columns.Add("GroupsSet");
+	DataItems.Columns.Add("NewGroupSet", New TypeDescription("Boolean"));
 	DataItems.Columns.Add("SetGroups");
 	DataItems.Columns.Add("GroupsID");
+	IsEmptySet = PredefinedValue("Catalog.SetsOfAccessGroups.EmptyRef");
 	
-	For Each String In Result Do
-		NewRow = DataItems.Add();
-		FillPropertyValues(NewRow, String);
-		If String.GroupsSet <> Undefined Then
+	While Selection.Next() Do
+		NewGroupsSet = NewGroupsSets.Get(Selection.User);
+		If NewGroupsSet <> Undefined
+		   And NewGroupsSet.GroupsSet = Selection.CurrentGroupsSet Then
 			Continue;
 		EndIf;
-		FillPropertyValues(Filter, String);
-		FoundRows = NewGroupsSets.FindRows(Filter);
-		If FoundRows.Count() = 0 Then
-			NewSetProperties = NewGroupsSets.Add();
-			FillPropertyValues(NewSetProperties, String);
-			NewSetProperties.GroupsID = New UUID;
-			NewSetProperties.SetGroups =
-				SetGroupsByNumbers(GroupsNumbers, NumberPartsNames, NewSetProperties);
-		Else
-			NewSetProperties = FoundRows[0];
+		SpecificationRow = DataItems.Add();
+		SpecificationRow.CurrentRef = Selection.CurrentRef;
+		If NewGroupsSet = Undefined Then
+			SpecificationRow.GroupsSet = IsEmptySet;
+			Continue;
+		ElsIf NewGroupsSet.GroupsSet <> Undefined Then
+			SpecificationRow.GroupsSet      = NewGroupsSet.GroupsSet;
+			SpecificationRow.NewGroupSet = NewGroupsSet.NewGroupSet;
+			Continue;
 		EndIf;
-		NewRow.SetGroups       = NewSetProperties.SetGroups;
-		NewRow.GroupsID = NewSetProperties.GroupsID;
+		SpecificationRow.SetGroups       = NewGroupsSet.SetGroups;
+		SpecificationRow.GroupsID = NewGroupsSet.GroupsID;
 	EndDo;
 	
 	Return DataItems;
 	
 EndFunction
 
-// For the UpdateItemsBatch procedure.
+// For the UpdateAccessGroupsSets procedure.
 Procedure UpdateGroupsSetsAssingedToUsersInCatalog(DataItems,
 			ParametersOfUpdate, IsAssignedAccessGroupsSetsUpdate)
 	
@@ -20774,20 +21166,20 @@ Procedure UpdateGroupsSetsAssingedToUsersInCatalog(DataItems,
 	
 	For Each String In DataItems Do
 		If String.GroupsSet = Undefined Then
-			GroupsSet = NewGroupsSets.Get(String.GroupsID);
-			If GroupsSet = Undefined Then
-				// @skip-check query-in-loop 
-				String.GroupsSet = NewGroupsSet(String.SetGroups,
+			GroupsSetLongDesc = NewGroupsSets.Get(String.GroupsID);
+			If GroupsSetLongDesc = Undefined Then
+				GroupsSetLongDesc = New Structure("GroupsSet, NewGroupSet",, False);
+				// @skip-check query-in-loop - Batch-wise data processing
+				GroupsSetLongDesc.GroupsSet = NewGroupsSet(String.SetGroups,
 					ParametersOfUpdate.ForExternalUsers,
 					SetItemsType,
 					SetFieldName,
 					GroupsItemsPresentation,
-					String.NewGroupSet);
-				NewGroupsSets.Insert(String.GroupsID, String.GroupsSet);
-			Else
-				String.GroupsSet = GroupsSet;
-				String.NewGroupSet = True;
+					GroupsSetLongDesc.NewGroupSet);
+				NewGroupsSets.Insert(String.GroupsID, GroupsSetLongDesc);
 			EndIf;
+			String.GroupsSet      = GroupsSetLongDesc.GroupsSet;
+			String.NewGroupSet = GroupsSetLongDesc.NewGroupSet;
 		EndIf;
 		
 		Block = New DataLock;
@@ -20820,37 +21212,7 @@ Procedure UpdateGroupsSetsAssingedToUsersInCatalog(DataItems,
 	
 EndProcedure
 
-// For the UpdateGroupsSetsInCatalog procedure.
-Procedure FillGroupsNumbers(GroupsNumbers, NumberPartsNames, MaxGroupNumberInNumberPart)
-	
-	GroupCount = GroupsNumbers.Count();
-	NumberPartsCount = Int(GroupCount / 64) + 1;
-	NumberTypesDetails = New TypeDescription("Number",,,
-		New NumberQualifiers(31, 0, AllowedSign.Nonnegative));
-	
-	For Counter = 1 To NumberPartsCount Do
-		NumberPartName = "NumberPart" + Format(Counter, "NGS=");
-		NumberPartsNames.Add(NumberPartName);
-		GroupsNumbers.Columns.Add(NumberPartName, NumberTypesDetails);
-	EndDo;
-	
-	CurrentNumberPart = 1;
-	CurrentNumberPartName = NumberPartsNames[0];
-	CurrentGroupNumber = 1;
-
-	For Each String In GroupsNumbers Do
-		String[CurrentNumberPartName] = CurrentGroupNumber;
-		CurrentGroupNumber = CurrentGroupNumber * 2;
-		If CurrentGroupNumber > MaxGroupNumberInNumberPart Then
-			CurrentGroupNumber = 1;
-			CurrentNumberPartName = NumberPartsNames[CurrentNumberPart];
-			CurrentNumberPart = CurrentNumberPart + 1;
-		EndIf;
-	EndDo;
-	
-EndProcedure
-
-// For the UpdateGroupsSetsInCatalog procedure.
+// Intended for procedure UpdateGroupsSetsAssingedToUsersInCatalog.
 Function NewGroupsSet(SetGroups, ForExternalUsers, SetItemsType,
 			SetFieldName, GroupsItemsPresentation, NewGroupSet)
 	
@@ -20919,34 +21281,6 @@ Procedure FillGroupsSetHash(Object)
 	Object.Hash = Hashing.HashSum;
 	
 EndProcedure
-
-// For the NewGroupsSet function.
-Function SetGroupsByNumbers(GroupsNumbers, NumberPartsNames, NumberParts)
-	
-	SetGroups = New Array;
-	GroupIndex = 0;
-	Divisor = 4294967296; // 2^32.
-	
-	For Each NumberPartName In NumberPartsNames Do
-		NumberPart = NumberParts[NumberPartName];
-		For NumberPartBlockNumber = 1 To 2 Do
-			Integer = Int(NumberPart / Divisor);
-			NumberPartBlock = NumberPart - Integer * Divisor;
-			NumberPart = Integer;
-			If NumberPartBlock > 0 Then
-				For BitNumber = 0 To 31 Do
-					If CheckBit(NumberPartBlock, BitNumber) Then
-						SetGroups.Add(GroupsNumbers[GroupIndex + BitNumber].GroupReference);
-					EndIf;
-				EndDo;
-			EndIf;
-			GroupIndex = GroupIndex + 32;
-		EndDo;
-	EndDo;
-	
-	Return SetGroups;
-	
-EndFunction
 
 // For the NewGroupsSet function.
 Function GroupsSetExists(Object)
@@ -21035,7 +21369,7 @@ Procedure UpdateGroupsSetsAllowedForUsersInCatalog(DataItems, ParametersOfUpdate
 	
 EndProcedure
 
-// For the RunListAccessUpdate procedure.
+// For the ExecuteUpdateListAccess procedure.
 Procedure ClearNonExistentAccessGroupsSetsRights(ParametersOfUpdate)
 	
 	If ParametersOfUpdate.ForExternalUsers Then
@@ -21073,21 +21407,21 @@ Procedure ClearNonExistentAccessGroupsSetsRights(ParametersOfUpdate)
 	
 	Selection = QueryResults[0].Select();
 	While Selection.Next() Do
-		// @skip-check query-in-loop 
+		// @skip-check query-in-loop - Batch-wise data processing
 		DeleteRegisterRecordsForSet(Selection.Set,
 			"AccessGroupSetsAccessKeys", "AccessGroupsSet");
 	EndDo;
 	
 	Selection = QueryResults[1].Select();
 	While Selection.Next() Do
-		// @skip-check query-in-loop 
+		// @skip-check query-in-loop - Batch-wise data processing
 		DeleteRegisterRecordsForSet(Selection.Set,
 			"UsersAccessKeys", "User");
 	EndDo;
 	
 	Selection = QueryResults[2].Select();
 	While Selection.Next() Do
-		// @skip-check query-in-loop 
+		// @skip-check query-in-loop - Batch-wise data processing
 		DeleteRegisterRecordsForSet(Selection.Set,
 			"ExternalUsersAccessKeys", "ExternalUser");
 	EndDo;
@@ -21133,62 +21467,104 @@ Function ObsoleteAccessGroupsSetsInCatalog(ParametersOfUpdate, CountInQuery)
 	|
 	|UNION ALL
 	|
-	|SELECT DISTINCT
+	|SELECT
 	|	SetsOfAccessGroups.Ref,
 	|	SetsOfAccessGroups.SetItemsType,
-	|	NOT MIN(SetsWithSingleUser.Ref IS NULL),
-	|	MIN(SetsOfAccessGroups.NotUsedSince <> DATETIME(1, 1, 1)
-	|			AND SetsOfAccessGroups.NotUsedSince < &ExpirationDate)
+	|	TRUE IN
+	|			(SELECT TOP 1
+	|				TRUE
+	|			FROM
+	|				Catalog.SetsOfAccessGroups AS SetsWithSingleUser
+	|			WHERE
+	|				SetsWithSingleUser.AllowedAccessGroupsSet = SetsOfAccessGroups.Ref
+	|				AND SetsWithSingleUser.ForExternalUsers = &ForExternalUsers)
+	|		OR TRUE IN
+	|			(SELECT TOP 1
+	|				TRUE
+	|			FROM
+	|				Catalog.SetsOfAccessGroups AS SetsWithSingleUser
+	|			WHERE
+	|				SetsWithSingleUser.NewAccessGroupsSet = SetsOfAccessGroups.Ref
+	|				AND SetsWithSingleUser.ForExternalUsers = &ForExternalUsers),
+	|	SetsOfAccessGroups.NotUsedSince <> DATETIME(1, 1, 1)
+	|		AND SetsOfAccessGroups.NotUsedSince < &ExpirationDate
 	|FROM
 	|	Catalog.SetsOfAccessGroups AS SetsOfAccessGroups
-	|		LEFT JOIN Catalog.SetsOfAccessGroups AS SetsWithSingleUser
-	|		ON (SetsWithSingleUser.ForExternalUsers = &ForExternalUsers)
-	|			AND (SetsWithSingleUser.AllowedAccessGroupsSet = SetsOfAccessGroups.Ref
-	|				OR SetsWithSingleUser.NewAccessGroupsSet = SetsOfAccessGroups.Ref)
 	|WHERE
 	|	SetsOfAccessGroups.ForExternalUsers = &ForExternalUsers
 	|	AND SetsOfAccessGroups.SetItemsType = VALUE(Catalog.AccessGroups.EmptyRef)
 	|	AND SetsOfAccessGroups.Ref <> &AllowedBlankSet
-	|
-	|GROUP BY
-	|	SetsOfAccessGroups.Ref,
-	|	SetsOfAccessGroups.SetItemsType
-	|
-	|HAVING
-	|	(SetsOfAccessGroups.NotUsedSince = DATETIME(1, 1, 1)
-	|			AND MIN(SetsWithSingleUser.Ref IS NULL)
-	|		OR SetsOfAccessGroups.NotUsedSince <> DATETIME(1, 1, 1)
-	|			AND (NOT MIN(SetsWithSingleUser.Ref IS NULL)
-	|				OR SetsOfAccessGroups.NotUsedSince < &ExpirationDate))
+	|	AND CASE
+	|			WHEN TRUE IN
+	|						(SELECT TOP 1
+	|							TRUE
+	|						FROM
+	|							Catalog.SetsOfAccessGroups AS SetsWithSingleUser
+	|						WHERE
+	|							SetsWithSingleUser.AllowedAccessGroupsSet = SetsOfAccessGroups.Ref
+	|							AND SetsWithSingleUser.ForExternalUsers = &ForExternalUsers)
+	|					OR TRUE IN
+	|						(SELECT TOP 1
+	|							TRUE
+	|						FROM
+	|							Catalog.SetsOfAccessGroups AS SetsWithSingleUser
+	|						WHERE
+	|							SetsWithSingleUser.NewAccessGroupsSet = SetsOfAccessGroups.Ref
+	|							AND SetsWithSingleUser.ForExternalUsers = &ForExternalUsers)
+	|				THEN SetsOfAccessGroups.NotUsedSince <> DATETIME(1, 1, 1)
+	|			ELSE SetsOfAccessGroups.NotUsedSince = DATETIME(1, 1, 1)
+	|					OR SetsOfAccessGroups.NotUsedSince < &ExpirationDate
+	|		END
 	|
 	|UNION ALL
 	|
-	|SELECT DISTINCT
+	|SELECT
 	|	UsersGroupsSets.Ref,
 	|	UsersGroupsSets.SetItemsType,
-	|	NOT MIN(SetsWithSingleUser.Ref IS NULL),
-	|	MIN(UsersGroupsSets.NotUsedSince <> DATETIME(1, 1, 1)
-	|			AND UsersGroupsSets.NotUsedSince < &ExpirationDate)
+	|	TRUE IN
+	|			(SELECT TOP 1
+	|				TRUE
+	|			FROM
+	|				Catalog.SetsOfAccessGroups AS SetsWithSingleUser
+	|			WHERE
+	|				SetsWithSingleUser.AllowedUserGroupsSet = UsersGroupsSets.Ref
+	|				AND SetsWithSingleUser.ForExternalUsers = &ForExternalUsers)
+	|		OR TRUE IN
+	|			(SELECT TOP 1
+	|				TRUE
+	|			FROM
+	|				Catalog.SetsOfAccessGroups AS SetsWithSingleUser
+	|			WHERE
+	|				SetsWithSingleUser.NewUserGroupsSet = UsersGroupsSets.Ref
+	|				AND SetsWithSingleUser.ForExternalUsers = &ForExternalUsers),
+	|	UsersGroupsSets.NotUsedSince <> DATETIME(1, 1, 1)
+	|		AND UsersGroupsSets.NotUsedSince < &ExpirationDate
 	|FROM
 	|	Catalog.SetsOfAccessGroups AS UsersGroupsSets
-	|		LEFT JOIN Catalog.SetsOfAccessGroups AS SetsWithSingleUser
-	|		ON (SetsWithSingleUser.ForExternalUsers = &ForExternalUsers)
-	|			AND (SetsWithSingleUser.AllowedUserGroupsSet = UsersGroupsSets.Ref
-	|				OR SetsWithSingleUser.NewUserGroupsSet = UsersGroupsSets.Ref)
 	|WHERE
 	|	UsersGroupsSets.ForExternalUsers = &ForExternalUsers
 	|	AND UsersGroupsSets.SetItemsType = VALUE(Catalog.UserGroups.EmptyRef)
-	|
-	|GROUP BY
-	|	UsersGroupsSets.Ref,
-	|	UsersGroupsSets.SetItemsType
-	|
-	|HAVING
-	|	(UsersGroupsSets.NotUsedSince = DATETIME(1, 1, 1)
-	|			AND MIN(SetsWithSingleUser.Ref IS NULL)
-	|		OR UsersGroupsSets.NotUsedSince <> DATETIME(1, 1, 1)
-	|			AND (NOT MIN(SetsWithSingleUser.Ref IS NULL)
-	|				OR UsersGroupsSets.NotUsedSince < &ExpirationDate))";
+	|	AND CASE
+	|			WHEN TRUE IN
+	|						(SELECT TOP 1
+	|							TRUE
+	|						FROM
+	|							Catalog.SetsOfAccessGroups AS SetsWithSingleUser
+	|						WHERE
+	|							SetsWithSingleUser.AllowedUserGroupsSet = UsersGroupsSets.Ref
+	|							AND SetsWithSingleUser.ForExternalUsers = &ForExternalUsers)
+	|					OR TRUE IN
+	|						(SELECT TOP 1
+	|							TRUE
+	|						FROM
+	|							Catalog.SetsOfAccessGroups AS SetsWithSingleUser
+	|						WHERE
+	|							SetsWithSingleUser.NewUserGroupsSet = UsersGroupsSets.Ref
+	|							AND SetsWithSingleUser.ForExternalUsers = &ForExternalUsers)
+	|				THEN UsersGroupsSets.NotUsedSince <> DATETIME(1, 1, 1)
+	|			ELSE UsersGroupsSets.NotUsedSince = DATETIME(1, 1, 1)
+	|					OR UsersGroupsSets.NotUsedSince < &ExpirationDate
+	|		END";
 	
 	If ParametersOfUpdate.ForExternalUsers Then
 		Query.Text = StrReplace(Query.Text, "Catalog.Users", "Catalog.ExternalUsers");
@@ -21242,11 +21618,11 @@ Procedure ProcessObsoleteSetsInCatalog(DataItems, ParametersOfUpdate)
 		EndTry;
 		
 		If Not String.Used And String.Delete Then
-			// @skip-check query-in-loop 
+			// @skip-check query-in-loop - Batch-wise data processing
 			DeleteRegisterRecordsForSet(String.CurrentRef, "AccessGroupSetsAccessKeys",  "AccessGroupsSet");
-			// @skip-check query-in-loop 
+			// @skip-check query-in-loop - Batch-wise data processing
 			DeleteRegisterRecordsForSet(String.CurrentRef, "UsersAccessKeys",        "User");
-			// @skip-check query-in-loop 
+			// @skip-check query-in-loop - Batch-wise data processing
 			DeleteRegisterRecordsForSet(String.CurrentRef, "ExternalUsersAccessKeys", "ExternalUser");
 			
 			BeginTransaction();
@@ -21334,7 +21710,7 @@ Procedure DeleteRegisterRecordsForSet(Set, InformationRegisterName, SetFieldName
 	
 EndProcedure
 
-// For the RunListAccessUpdate procedure.
+// For the ExecuteUpdateListAccess procedure.
 Procedure UpdateRightsToAllowedAccessKey(HasChanges = False)
 	
 	UpdateAccessGroupsOfAllowedAccessKey( , HasChanges);
@@ -21343,6 +21719,10 @@ EndProcedure
 
 // For the UpdateRightsToAllowedAccessKey procedure.
 Procedure UpdateAccessGroupsOfAllowedAccessKey(AccessGroups = Undefined, HasChanges = False) Export
+	
+	If IsRecordLevelRestrictionDisabled() Then
+		Return;
+	EndIf;
 	
 	SetPrivilegedMode(True);
 	AllowedAccessKey = AccessManagementInternalCached.AllowedAccessKey();
@@ -21548,11 +21928,11 @@ Procedure DeleteObsoleteItemsOfReferenceTypeData(DataItems, ParametersOfUpdate)
 		Try
 			Block.Lock();
 			If ValueIsFilled(BatchToUpdate) Then
-				// @skip-check query-in-loop 
+				// @skip-check query-in-loop - Batch-wise data processing
 				DataForUpdate = QueryForUpdate.Execute().Unload();
 			EndIf;
 			If ValueIsFilled(BatchToCheck) Then
-				// @skip-check query-in-loop 
+				// @skip-check query-in-loop - Batch-wise data processing
 				DataToDelete = QueryForCheck.Execute().Unload();
 			EndIf;
 			For Each String In DataItemsBatch Do
@@ -21609,10 +21989,10 @@ Procedure DeleteObsoleteItemsOfReferenceTypeData(DataItems, ParametersOfUpdate)
 			RecordSet.Clear();
 			RecordSetToDelete.Clear();
 		EndIf;
-		ProcessedItemsCount = DataItemsBatch.Count();
+		ProcessedItemsCount_SSLyf = DataItemsBatch.Count();
 		DataItemsBatch = Undefined;
 		
-		If ItemsProcessingAbortRequired(ParametersOfUpdate, ProcessedItemsCount) Then
+		If ItemsProcessingAbortRequired(ParametersOfUpdate, ProcessedItemsCount_SSLyf) Then
 			Break;
 		EndIf;
 	EndDo;
@@ -21642,7 +22022,7 @@ Procedure DeleteObsoleteItemsOfRegistersData(DataItems, ParametersOfUpdate)
 	RecordSet            = ServiceRecordSet(InformationRegisters[RegisterName]);
 	RecordSetToDelete = ServiceRecordSet(InformationRegisters[RegisterName]);
 	
-	DimensionsOfListForLock = New ValueList;
+	DimensionsOfListForLock = New Array;
 	BasicFields = ParametersOfUpdate.BasicFields;
 	If BasicFields = Undefined Then
 		BasicFieldsUsedCount = 0;
@@ -21651,12 +22031,24 @@ Procedure DeleteObsoleteItemsOfRegistersData(DataItems, ParametersOfUpdate)
 	Else
 		BasicFieldsUsedCount = BasicFields.UsedItems.Count();
 		MaxBasicFieldsCount = BasicFields.MaxCount;
-		RecordKeyDetails = StandardSubsystemsServer.RecordKeyDetails(ParametersOfUpdate.List);
-		FieldsOfListWriteKey = StrSplit(RecordKeyDetails.FieldList, ",");
+		LockFieldsDetails = AccessManagementInternalCached.RegisterLockFieldsDetails(
+			ParametersOfUpdate.List);
+		ListLockFields = StrSplit(LockFieldsDetails.FieldList, ",");
+		ShouldLockListByRecorder = False;
 		Number = 1;
 		For Each BasicFieldName In BasicFields.UsedItems Do
-			If FieldsOfListWriteKey.Find(BasicFieldName) <> Undefined Then
-				DimensionsOfListForLock.Add(BasicFieldName, StrTemplate("Field%1", Number));
+			FieldIndex = ListLockFields.Find(BasicFieldName);
+			If FieldIndex <> Undefined Then
+				FieldDetails = LockFieldsDetails.FieldsDetails.Get(FieldIndex);
+				ListDimension = New Structure;
+				ListDimension.Insert("BasicFieldName", FieldDetails.Name);
+				ListDimension.Insert("Type",             FieldDetails.Type);
+				ListDimension.Insert("FieldName",         StrTemplate("Field%1", Number));
+				DimensionsOfListForLock.Add(ListDimension);
+				If FieldDetails.Name = "Recorder"
+				   And LockFieldsDetails.ShouldLockByRecorder Then
+					ShouldLockListByRecorder = True;
+				EndIf;
 			EndIf;
 			Number = Number + 1;
 		EndDo;
@@ -21696,7 +22088,15 @@ Procedure DeleteObsoleteItemsOfRegistersData(DataItems, ParametersOfUpdate)
 		If DataElement.Refresh Then
 			FillPropertyValues(BatchToUpdate.Add(), DataElement);
 		ElsIf Not DataElement.Delete Then // Not Refresh And Not Delete
-			FillPropertyValues(BatchToCheck.Add(), DataElement);
+			For Each ListDimension In DimensionsOfListForLock Do
+				If Not ListDimension.Type.ContainsType(TypeOf(DataElement[ListDimension.FieldName])) Then
+					DataElement.Delete = True;
+					Break;
+				EndIf;
+			EndDo;
+			If Not DataElement.Delete Then
+				FillPropertyValues(BatchToCheck.Add(), DataElement);
+			EndIf;
 		EndIf;
 		
 		IndexOf = IndexOf + 1;
@@ -21717,14 +22117,23 @@ Procedure DeleteObsoleteItemsOfRegistersData(DataItems, ParametersOfUpdate)
 			QueryForUpdate.SetParameter("DataItems", BatchToUpdate);
 		EndIf;
 		If ValueIsFilled(BatchToCheck) Then
-			LockItem = Block.Add(ParametersOfUpdate.List);
-			LockItem.Mode = DataLockMode.Shared;
-			If ValueIsFilled(DimensionsOfListForLock) Then
+			If ShouldLockListByRecorder Then
+				LockItem = Block.Add(ParametersOfUpdate.List + ".RecordSet");
+				LockItem.Mode = DataLockMode.Shared;
 				LockItem.DataSource = BatchToCheck;
-				For Each ListItem In DimensionsOfListForLock Do
-					LockItem.UseFromDataSource(ListItem.Value,
-						ListItem.Presentation);
-				EndDo;
+				LockItem.UseFromDataSource(
+					DimensionsOfListForLock[0].BasicFieldName,
+					DimensionsOfListForLock[0].FieldName);
+			Else
+				LockItem = Block.Add(ParametersOfUpdate.List);
+				LockItem.Mode = DataLockMode.Shared;
+				If ValueIsFilled(DimensionsOfListForLock) Then
+					LockItem.DataSource = BatchToCheck;
+					For Each ListDimension In DimensionsOfListForLock Do
+						LockItem.UseFromDataSource(ListDimension.BasicFieldName,
+							ListDimension.FieldName);
+					EndDo;
+				EndIf;
 			EndIf;
 			QueryForCheck = New Query;
 			QueryForCheck.Text = ParametersOfUpdate.ObsoleteDataItemsCheckQueryText;
@@ -21736,11 +22145,11 @@ Procedure DeleteObsoleteItemsOfRegistersData(DataItems, ParametersOfUpdate)
 		Try
 			Block.Lock();
 			If ValueIsFilled(BatchToUpdate) Then
-				// @skip-check query-in-loop 
+				// @skip-check query-in-loop - Batch-wise data processing
 				DataForUpdate = QueryForUpdate.Execute().Unload();
 			EndIf;
 			If ValueIsFilled(BatchToCheck) Then
-				// @skip-check query-in-loop 
+				// @skip-check query-in-loop - Batch-wise data processing
 				DataToDelete = QueryForCheck.Execute().Unload();
 			EndIf;
 			For Each String In DataItemsBatch Do
@@ -21814,17 +22223,17 @@ Procedure DeleteObsoleteItemsOfRegistersData(DataItems, ParametersOfUpdate)
 			RecordSet.Clear();
 			RecordSetToDelete.Clear();
 		EndIf;
-		ProcessedItemsCount = DataItemsBatch.Count();
+		ProcessedItemsCount_SSLyf = DataItemsBatch.Count();
 		DataItemsBatch = Undefined;
 		
-		If ItemsProcessingAbortRequired(ParametersOfUpdate, ProcessedItemsCount) Then
+		If ItemsProcessingAbortRequired(ParametersOfUpdate, ProcessedItemsCount_SSLyf) Then
 			Break;
 		EndIf;
 	EndDo;
 	
 EndProcedure
 
-// For the RunListAccessUpdate procedure.
+// For the ExecuteUpdateListAccess procedure.
 Procedure DeleteObjectsOfInvalidTypesInAccessKeysToObjectsRegister()
 	
 	Query = New Query;
@@ -21855,7 +22264,7 @@ Procedure DeleteObjectsOfInvalidTypesInAccessKeysToObjectsRegister()
 			Continue;
 		EndIf;
 		Query.SetParameter("Type", Selection.RefType);
-		// @skip-check query-in-loop 
+		// @skip-check query-in-loop - Batch-wise data processing
 		Objects = Query.Execute().Unload().UnloadColumn("Object");
 		For Each Object In Objects Do
 			RecordSet.Filter.Object.Set(Object);
@@ -21951,7 +22360,7 @@ Procedure UpdateListDataItemsWithObsoleteKeys(DataItems, ParametersOfUpdate)
 		EndIf;
 		
 		If DataItemsBatch.Count() > 0 Then
-			// @skip-check query-in-loop 
+			// @skip-check query-in-loop - Batch-wise data processing
 			UpdateAccessKeysOfListDataItemsBatch(DataItemsBatch, ParametersOfUpdate);
 		EndIf;
 		
@@ -22216,7 +22625,7 @@ EndProcedure
 Procedure UpdateAccessKeysRights(KeysDetails, ParametersOfUpdate, IsNewKeys = False, Context = Undefined)
 	
 	If ParametersOfUpdate.Property("ProcessedItemsCount") Then
-		ProcessedItemsCount = ParametersOfUpdate.ProcessedItemsCount;
+		ProcessedItemsCount_SSLyf = ParametersOfUpdate.ProcessedItemsCount;
 		ParametersOfUpdate.ProcessedItemsCount = 0;
 	EndIf;
 	
@@ -22274,7 +22683,7 @@ Procedure UpdateAccessKeysRights(KeysDetails, ParametersOfUpdate, IsNewKeys = Fa
 	UpdateRightsOfListAccessKeysBatch(AccessKeysDetails, ParametersOfUpdate, IsNewKeys);
 	
 	If ParametersOfUpdate.Property("ProcessedItemsCount") Then
-		ParametersOfUpdate.ProcessedItemsCount = ProcessedItemsCount;
+		ParametersOfUpdate.ProcessedItemsCount = ProcessedItemsCount_SSLyf;
 	EndIf;
 	
 EndProcedure
@@ -22367,7 +22776,7 @@ Procedure WriteObjectsAccessKeys(ParametersOfUpdate, Context)
 		AfterCurrentAccessKeysQuery(ParametersOfUpdate);
 	EndIf;
 	
-	ProcessedItemsCount = 0;
+	ProcessedItemsCount_SSLyf = 0;
 	ObjectsAccessKeysDetails = New Array;
 	
 	Block = New DataLock;
@@ -22379,7 +22788,7 @@ Procedure WriteObjectsAccessKeys(ParametersOfUpdate, Context)
 		If WriteOnlyChangedOnes Then
 			String = CurrentKeysBeforeLock.Find(ObjectAccessKeyDetails.CurrentRef, "Object");
 			If String <> Undefined And String[KeyToUpdateAttributeName] = AccessKey Then
-				ProcessedItemsCount = ProcessedItemsCount + 1;
+				ProcessedItemsCount_SSLyf = ProcessedItemsCount_SSLyf + 1;
 				Continue;
 			EndIf;
 		EndIf;
@@ -22389,7 +22798,7 @@ Procedure WriteObjectsAccessKeys(ParametersOfUpdate, Context)
 	EndDo;
 	
 	If ObjectsAccessKeysDetails.Count() = 0 Then
-		ItemsProcessingAbortRequired(ParametersOfUpdate, ProcessedItemsCount);
+		ItemsProcessingAbortRequired(ParametersOfUpdate, ProcessedItemsCount_SSLyf);
 		Return;
 	EndIf;
 	
@@ -22473,8 +22882,8 @@ Procedure WriteObjectsAccessKeys(ParametersOfUpdate, Context)
 		Raise;
 	EndTry;
 	
-	ProcessedItemsCount = ProcessedItemsCount + ObjectsAccessKeysDetails.Count();
-	If ItemsProcessingAbortRequired(ParametersOfUpdate, ProcessedItemsCount) Then
+	ProcessedItemsCount_SSLyf = ProcessedItemsCount_SSLyf + ObjectsAccessKeysDetails.Count();
+	If ItemsProcessingAbortRequired(ParametersOfUpdate, ProcessedItemsCount_SSLyf) Then
 		Return;
 	EndIf;
 	
@@ -22519,7 +22928,7 @@ Procedure WriteRegistersAccessKeys(ParametersOfUpdate, Context)
 		KeysRegisterName = ParametersOfUpdate.SeparateKeysRegisterName;
 	EndIf;
 	
-	ProcessedItemsCount = 0;
+	ProcessedItemsCount_SSLyf = 0;
 	ObjectsAccessKeysDetails = New Array;
 	
 	ResultIndex = -1;
@@ -22535,7 +22944,7 @@ Procedure WriteRegistersAccessKeys(ParametersOfUpdate, Context)
 			If Not QueryResult.IsEmpty() Then
 				Upload0 = QueryResult.Unload();
 				If Upload0.Count() = 1 And Upload0[0].AccessKey = AccessKey Then
-					ProcessedItemsCount = ProcessedItemsCount + 1;
+					ProcessedItemsCount_SSLyf = ProcessedItemsCount_SSLyf + 1;
 					Continue;
 				EndIf;
 			EndIf;
@@ -22554,7 +22963,7 @@ Procedure WriteRegistersAccessKeys(ParametersOfUpdate, Context)
 	EndDo;
 	
 	If ObjectsAccessKeysDetails.Count() = 0 Then
-		ItemsProcessingAbortRequired(ParametersOfUpdate, ProcessedItemsCount);
+		ItemsProcessingAbortRequired(ParametersOfUpdate, ProcessedItemsCount_SSLyf);
 		Return;
 	EndIf;
 	
@@ -22631,8 +23040,8 @@ Procedure WriteRegistersAccessKeys(ParametersOfUpdate, Context)
 		Raise;
 	EndTry;
 	
-	ProcessedItemsCount = ProcessedItemsCount + ObjectsAccessKeysDetails.Count();
-	If ItemsProcessingAbortRequired(ParametersOfUpdate, ProcessedItemsCount) Then
+	ProcessedItemsCount_SSLyf = ProcessedItemsCount_SSLyf + ObjectsAccessKeysDetails.Count();
+	If ItemsProcessingAbortRequired(ParametersOfUpdate, ProcessedItemsCount_SSLyf) Then
 		Return;
 	EndIf;
 	
@@ -22943,7 +23352,7 @@ Procedure UpdateRightsOfListAccessKeysBatch(AccessKeysDetails, ParametersOfUpdat
 		AccessKey = ValuesRow.Ref;
 		
 		RightsToKey = RightsToListAccessKey(KeyTablesValues, ParametersOfUpdate);
-		// @skip-check query-in-loop 
+		// @skip-check query-in-loop - Batch-wise data processing
 		UpdateRightsToListAccessKey(AccessKey, RightsToKey,
 			?(IsNewKeys, AccessKeysDetails, Undefined), ParametersOfUpdate);
 		
@@ -23045,7 +23454,7 @@ Procedure ProcessObsoleteListAccessKeys(DataItems, ParametersOfUpdate)
 		Ref = ValuesRow.Ref;
 		If Not ThisIsClearingSelectedKeys And String.Used Then
 			KeyUsageQuery.SetParameter("Ref", Ref);
-			// @skip-check query-in-loop 
+			// @skip-check query-in-loop - Batch-wise data processing
 			If Not KeyUsageQuery.Execute().IsEmpty() Then
 				If ItemsProcessingAbortRequired(ParametersOfUpdate, 1) Then
 					Break;
@@ -23090,7 +23499,7 @@ Procedure ProcessObsoleteListAccessKeys(DataItems, ParametersOfUpdate)
 			EndIf;
 			If DeleteKey Then
 				Query.SetParameter("AccessKey", Ref);
-				// @skip-check query-in-loop 
+				// @skip-check query-in-loop - Batch-wise data processing
 				QueryResults = Query.ExecuteBatch();
 				If Not QueryResults[0].IsEmpty() Then
 					KeyAccessGroupsRecordSet.Filter.AccessKey.Set(Ref);
@@ -23141,7 +23550,7 @@ EndProcedure
 //   * AccessGroupsValues                  - See AccessGroupsNewValues
 //   * AccessGroupsMembers                 - See AccessGroupsNewMembers
 //   * UserGroupsUsers        - See NewUsersInUserGroups
-//   * AccessGroupsUserGroups       - See AccessGroupsNewUsersGroups
+//   * GroupUsersOfAccessGroups     - See NewGroupUsersOfAccessGroups
 //   * UserGroupsAsAccessValues - See NewUserGroupsAsAccessVals
 //   * RolesOfAccessGroupProfiles              - See NewRolesOfAccessGroupProfiles
 //   * ProfilesAccessGroups                 - See ProfilesNewAccessGroups
@@ -23166,14 +23575,14 @@ Function CacheForCalculatingRightsForTheUserType(ForExternalUsers) Export
 	
 	If Cache.DataVersion.AccessGroupsMembers <> DataVersion.AccessGroupsMembers Then
 		ResetTheRightsCalculationCache(Cache, "AccessGroupsMembers");
-		ResetTheRightsCalculationCache(Cache, "AccessGroupsUserGroups");
+		ResetTheRightsCalculationCache(Cache, "GroupUsersOfAccessGroups");
 		Cache.DataVersion.AccessGroupsMembers = DataVersion.AccessGroupsMembers;
 	EndIf;
 	
 	If Cache.DataVersion.UserGroupCompositions <> DataVersion.UserGroupCompositions Then
 		ResetTheRightsCalculationCache(Cache, "UserGroupsUsers");
 		ResetTheRightsCalculationCache(Cache, "AccessGroupsMembers");
-		ResetTheRightsCalculationCache(Cache, "AccessGroupsUserGroups");
+		ResetTheRightsCalculationCache(Cache, "GroupUsersOfAccessGroups");
 		ResetTheRightsCalculationCache(Cache, "UserGroupsAsAccessValues");
 		Cache.DataVersion.UserGroupCompositions = DataVersion.UserGroupCompositions;
 	EndIf;
@@ -23432,30 +23841,27 @@ EndFunction
 //  Map of KeyAndValue:
 //   * Key - CatalogRef.AccessGroups
 //   * Value - Map of KeyAndValue:
-//      ** Key - CatalogRef.UserGroups
-//              - CatalogRef.ExternalUsersGroups
-//      ** Value - Map of KeyAndValue:
-//          *** Key - CatalogRef.Users
-//                   - CatalogRef.ExternalUsers
-//          *** Value - Boolean - True
+//      ** Key - CatalogRef.Users
+//              - CatalogRef.ExternalUsers
+//      ** Value - Boolean - True
 //
-Function AccessGroupsNewUsersGroups()
+Function NewGroupUsersOfAccessGroups()
 	Return New Map;
 EndFunction
 
 // For the UpdateRightsOfListAccessKeysBatch procedure.
 Procedure FillInTheListOfAccessGroupMembers(ParametersOfUpdate, Cache)
 	
-	ParametersOfUpdate.Insert("AccessGroupsMembers",           AccessGroupsNewMembers());
-	ParametersOfUpdate.Insert("AccessGroupsUserGroups", AccessGroupsNewUsersGroups());
+	ParametersOfUpdate.Insert("AccessGroupsMembers",             AccessGroupsNewMembers());
+	ParametersOfUpdate.Insert("GroupUsersOfAccessGroups", NewGroupUsersOfAccessGroups());
 	
 	If Not ParametersOfUpdate.CalculateUserRights Then
 		Return;
 	EndIf;
 	
 	If Cache.AccessGroupsMembers <> Undefined Then
-		ParametersOfUpdate.AccessGroupsMembers           = Cache.AccessGroupsMembers;
-		ParametersOfUpdate.AccessGroupsUserGroups = Cache.AccessGroupsUserGroups;
+		ParametersOfUpdate.AccessGroupsMembers             = Cache.AccessGroupsMembers;
+		ParametersOfUpdate.GroupUsersOfAccessGroups = Cache.GroupUsersOfAccessGroups;
 		Return;
 	EndIf;
 	
@@ -23501,35 +23907,37 @@ Procedure FillInTheListOfAccessGroupMembers(ParametersOfUpdate, Cache)
 	Query.SetParameter("BlankUUID",
 		CommonClientServer.BlankUUID());
 	
-	AccessGroupsMembers           = ParametersOfUpdate.AccessGroupsMembers;
-	AccessGroupsUserGroups = ParametersOfUpdate.AccessGroupsUserGroups;
-	UserGroupType          = ParametersOfUpdate.UserGroupType;
-	UserGroupsUsers  = ParametersOfUpdate.UserGroupsUsers;
+	AccessGroupsMembers             = ParametersOfUpdate.AccessGroupsMembers;
+	GroupUsersOfAccessGroups = ParametersOfUpdate.GroupUsersOfAccessGroups;
+	UserGroupType            = ParametersOfUpdate.UserGroupType;
+	UserGroupsUsers    = ParametersOfUpdate.UserGroupsUsers;
 	
 	Tree = Query.Execute().Unload(QueryResultIteration.ByGroups);
 	
 	For Each String In Tree.Rows Do
 		AccessGroupMembers = New Map;
-		AccessGroupUserGroups = New Map;
+		GroupUsersOfAccessGroup = New Map;
 		For Each Substring In String.Rows Do
 			AccessGroupMembers.Insert(Substring.Member, True);
 			If TypeOf(Substring.Member) = UserGroupType Then
 				GroupUsers = UserGroupsUsers.Get(Substring.Member);
 				If GroupUsers <> Undefined Then
-					AccessGroupUserGroups.Insert(Substring.Member, GroupUsers);
+					For Each UserDetails In GroupUsers Do
+						GroupUsersOfAccessGroup.Insert(UserDetails.Key, True);
+					EndDo;
 				EndIf;
 			EndIf;
 		EndDo;
 		If AccessGroupMembers.Count() > 0 Then
 			AccessGroupsMembers.Insert(String.AccessGroup, AccessGroupMembers);
 		EndIf;
-		If AccessGroupUserGroups.Count() > 0 Then
-			AccessGroupsUserGroups.Insert(String.AccessGroup, AccessGroupUserGroups);
+		If GroupUsersOfAccessGroup.Count() > 0 Then
+			GroupUsersOfAccessGroups.Insert(String.AccessGroup, GroupUsersOfAccessGroup);
 		EndIf;
 	EndDo;
 	
-	Cache.AccessGroupsMembers           = AccessGroupsMembers;
-	Cache.AccessGroupsUserGroups = AccessGroupsUserGroups;
+	Cache.AccessGroupsMembers             = AccessGroupsMembers;
+	Cache.GroupUsersOfAccessGroups = GroupUsersOfAccessGroups;
 	
 EndProcedure
 
@@ -23943,7 +24351,7 @@ EndProcedure
 //   * WithoutWriteReadRight - Boolean
 //   * KeyTablesAttributes                  - See KeyTableNewAttributes
 //   * AccessGroupsMembers                 - See AccessGroupsNewMembers
-//   * AccessGroupsUserGroups       - See AccessGroupsNewUsersGroups
+//   * GroupUsersOfAccessGroups     - See NewGroupUsersOfAccessGroups
 //   * UserGroupsAsAccessValues - See NewUserGroupsAsAccessVals
 //   * UserGroupsUsers        - See NewUsersInUserGroups
 //   * RightsToLeadingAccessKeysLists     - See NewRightsForListsOfMasterAccessKeys
@@ -23997,7 +24405,7 @@ Function RightsToListAccessKey(KeyTablesValues, ParametersOfUpdate)
 	Context.Insert("WithoutWriteReadRight",                  WithoutWriteReadRight);
 	Context.Insert("KeyTablesAttributes",                  ParametersOfUpdate.KeyTablesAttributes);
 	Context.Insert("AccessGroupsMembers",                 ParametersOfUpdate.AccessGroupsMembers);
-	Context.Insert("AccessGroupsUserGroups",       ParametersOfUpdate.AccessGroupsUserGroups);
+	Context.Insert("GroupUsersOfAccessGroups",     ParametersOfUpdate.GroupUsersOfAccessGroups);
 	Context.Insert("UserGroupsAsAccessValues", ParametersOfUpdate.UserGroupsAsAccessValues);
 	Context.Insert("UserGroupsUsers",        ParametersOfUpdate.UserGroupsUsers);
 	Context.Insert("RightsToLeadingAccessKeysLists",     ParametersOfUpdate.RightsToLeadingAccessKeysLists);
@@ -24659,7 +25067,19 @@ Function CalculatedCondition(Context, Condition, RootNode = False)
 				ElsIf ComparisonClarification.Key = "EmptyRef" Then
 					If Value = Enums.AdditionalAccessValues.EmptyRefAnyType
 					 Or Value.IsEmpty() Then
-						CurrentResult = ComparisonClarification.Value;
+						ValuesOfOneType = Null;
+						If Condition.Node = "ValueAllowed" Then
+							If Context.AccessGroupValues = Undefined Then
+								ValuesOfOneType = Undefined;
+							Else
+								ValuesOfOneType = Context.AccessGroupValues.Get(TypeOf(Value));
+							EndIf;
+						EndIf;
+						If ValuesOfOneType = Undefined Then
+							CurrentResult = "Empty";
+						Else
+							CurrentResult = ComparisonClarification.Value;
+						EndIf;
 						Break;
 					EndIf;
 				ElsIf ComparisonClarification.Key = TypeOf(Value) Then
@@ -24913,18 +25333,15 @@ Procedure FillResultForUser(Result, User, Context)
 		Return;
 	EndIf;
 	
-	AccessGroupUserGroups = Context.AccessGroupsUserGroups.Get(Context.AccessGroup);
-	If AccessGroupUserGroups = Undefined Then
+	GroupUsersOfAccessGroup = Context.GroupUsersOfAccessGroups.Get(Context.AccessGroup);
+	If GroupUsersOfAccessGroup = Undefined Then
 		Return;
 	EndIf;
 	
-	For Each GroupUsersDetails In AccessGroupUserGroups Do
-		If GroupUsersDetails.Value.Get(User) <> Undefined Then
-			Result = New Map;
-			Result.Insert(User, True);
-			Return;
-		EndIf;
-	EndDo;
+	If GroupUsersOfAccessGroup.Get(User) <> Undefined Then
+		Result = New Map;
+		Result.Insert(User, True);
+	EndIf;
 	
 EndProcedure
 
@@ -24944,29 +25361,48 @@ Procedure FillResultForUserGroup(Result, UsersGroup, Context)
 		Return;
 	EndIf;
 	
-	AccessGroupUserGroups = Context.AccessGroupsUserGroups.Get(Context.AccessGroup);
-	If AccessGroupUserGroups = Undefined Then
-		AccessGroupUserGroups = New Map;
-	EndIf;
-	
 	GroupUsers = Context.UserGroupsUsers.Get(UsersGroup);
 	If GroupUsers = Undefined Then
 		Return;
 	EndIf;
 	
+	GroupUsersOfAccessGroup = Context.GroupUsersOfAccessGroups.Get(Context.AccessGroup);
+	If GroupUsersOfAccessGroup = Undefined Then
+		GroupUsersOfAccessGroup = New Map;
+	EndIf;
+	
 	Result = New Map;
-	For Each UserDetails In GroupUsers Do
-		If AccessGroupMembers.Get(UserDetails.Key) <> Undefined Then
-			Result.Insert(UserDetails.Key, True);
-			Continue;
-		EndIf;
-		For Each GroupUsersDetails In AccessGroupUserGroups Do
-			If GroupUsersDetails.Value.Get(UserDetails.Key) <> Undefined Then
+	
+	If AccessGroupMembers.Count() > GroupUsers.Count() Then
+		For Each UserDetails In GroupUsers Do
+			If AccessGroupMembers.Get(UserDetails.Key) <> Undefined Then
 				Result.Insert(UserDetails.Key, True);
-				Break;
+				Continue;
+			EndIf;
+			If GroupUsersOfAccessGroup.Get(UserDetails.Key) <> Undefined Then
+				Result.Insert(UserDetails.Key, True);
 			EndIf;
 		EndDo;
-	EndDo;
+	Else
+		For Each DescriptionOfTheParticipant In AccessGroupMembers Do
+			If GroupUsers.Get(DescriptionOfTheParticipant.Key) <> Undefined Then
+				Result.Insert(DescriptionOfTheParticipant.Key, True);
+			EndIf;
+		EndDo;
+		If GroupUsersOfAccessGroup.Count() > GroupUsers.Count() Then
+			For Each UserDetails In GroupUsers Do
+				If GroupUsersOfAccessGroup.Get(UserDetails.Key) <> Undefined Then
+					Result.Insert(UserDetails.Key, True);
+				EndIf;
+			EndDo;
+		Else
+			For Each UserDetails In GroupUsersOfAccessGroup Do
+				If GroupUsers.Get(UserDetails.Key) <> Undefined Then
+					Result.Insert(UserDetails.Key, True);
+				EndIf;
+			EndDo;
+		EndIf;
+	EndIf;
 	
 	If Result.Count() = 0 Then
 		Result = "False";
@@ -25830,10 +26266,10 @@ Procedure RegisterAccessUpdatePlanningInLog(Lists, PlanningParameters)
 	Try
 		Raise NStr("en = 'Call stack'");
 	Except
-		CallStack = ErrorProcessing.DetailErrorDescription(ErrorInfo());
+		CallsStack = ErrorProcessing.DetailErrorDescription(ErrorInfo());
 	EndTry;
 	
-	CommentForLog = CommentForLog + Chars.LF + Chars.LF + CallStack;
+	CommentForLog = CommentForLog + Chars.LF + Chars.LF + CallsStack;
 	
 	WriteLogEvent(
 		NStr("en = 'Access management.Indicators.Schedule access update'",
@@ -25882,7 +26318,8 @@ EndFunction
 // To call from access update planning locations.
 Procedure RegisterAccessUpdatePlanning(ListsByIDs, PlanningParameters, AllLists = False)
 	
-	If Not RegisterAccessUpdatePlanningIndicators() Then
+	If Not RegisterAccessUpdatePlanningIndicators()
+	 Or Not UsersInternal.IsInfoRecordToLogEnabled() Then
 		Return;
 	EndIf;
 	
@@ -25893,11 +26330,17 @@ Procedure RegisterAccessUpdatePlanning(ListsByIDs, PlanningParameters, AllLists 
 	Lists = New Array;
 	
 	If Not AllLists Then
+		If PlanningParameters.AllListsIDs <> Undefined Then
+			AllFullNamesByIDs = New Map;
+			For Each KeyAndValue In PlanningParameters.AllListsIDs Do
+				AllFullNamesByIDs.Insert(KeyAndValue.Value, KeyAndValue.Key);
+			EndDo;
+		EndIf;
 		For Each ListDetails In ListsByIDs Do
 			If ValueIsFilled(ListDetails.Value) Then
 				Lists.Add(ListDetails.Value);
 			Else
-				Lists.Add(FullListName(ListDetails.Key));
+				Lists.Add(FullListName(ListDetails.Key, AllFullNamesByIDs));
 			EndIf;
 		EndDo;
 	Else
@@ -25909,15 +26352,22 @@ Procedure RegisterAccessUpdatePlanning(ListsByIDs, PlanningParameters, AllLists 
 EndProcedure
 
 // For the RegisterAccessUpdatePlanning procedure.
-Function FullListName(ListDetails)
+Function FullListName(ListDetails, AllFullNamesByIDs)
 	
 	If TypeOf(ListDetails) = Type("CatalogRef.MetadataObjectIDs")
 	 Or TypeOf(ListDetails) = Type("CatalogRef.ExtensionObjectIDs") Then
 		
-		MetadataObject = Common.MetadataObjectByID(ListDetails, False);
+		If AllFullNamesByIDs = Undefined Then
+			MetadataObject = Common.MetadataObjectByID(ListDetails, False);
+			If TypeOf(MetadataObject) = Type("MetadataObject") Then
+				Return MetadataObject.FullName();
+			EndIf;
+		Else
+			FullName = AllFullNamesByIDs.Get(ListDetails);
+		EndIf;
 		
-		If TypeOf(MetadataObject) = Type("MetadataObject") Then
-			Return MetadataObject.FullName();
+		If FullName <> Undefined Then
+			Return FullName;
 		Else
 			Return Common.ObjectAttributeValue(ListDetails, "FullName");
 		EndIf;
@@ -26094,9 +26544,15 @@ Function SecondsCountBeforeDisableScheduledJobAfterUpdateCompletion()
 	
 EndFunction
 
-Function LaunchAccessUpdatesToSpeedUpOnlyPointJobs(CheckAtStartup)
+Function ShouldRunAccessUpdateToAccelerateSpotJobsOnly(CheckOnStart)
 	
-	Return False;
+	Result = False;
+	
+	If Common.DataSeparationEnabled() Then
+		Result = True;
+	EndIf;
+	
+	Return Result;
 	
 EndFunction
 
@@ -26511,7 +26967,7 @@ Procedure FillRestrictionParameters(FullName, TransactionID, Parameters,
 			Raise;
 		EndIf;
 		Try
-			Value = Constants.LimitAccessAtRecordLevel.Get();
+			Value = ConstantLimitAccessAtRecordLevel();
 		Except
 			Value = Undefined;
 		EndTry;
@@ -26562,7 +27018,7 @@ Function CommonContextOfRestrictionParametersCalculation(FullName = Undefined,
 	UserTypes.Add(Type("CatalogRef.ExternalUsers"));
 	UserTypes.Add(Type("CatalogRef.ExternalUsersGroups"));
 	
-	AccessRestrictionEnabled = Constants.LimitAccessAtRecordLevel.Get();
+	AccessRestrictionEnabled = ConstantLimitAccessAtRecordLevel();
 	If AccessManagement.LimitAccessAtRecordLevel() <> AccessRestrictionEnabled Then
 		RefreshReusableValues();
 	EndIf;
@@ -26674,7 +27130,7 @@ Function UsedValuesTypes(AccessKindsProperties, FullName = Undefined, AllAccessK
 			UsedValuesTypes.FullTableName = FullName;
 		EndIf;
 		LineAccessRestrictionEnabled =
-			?(Constants.LimitAccessAtRecordLevel.Get(), "TRUE", "FALSE");
+			?(ConstantLimitAccessAtRecordLevel(), "TRUE", "FALSE");
 		Query.Text = StrReplace(Query.Text, "&LimitAccessAtRecordLevel",
 			LineAccessRestrictionEnabled);
 		
@@ -27631,7 +28087,7 @@ Function AllRightsRestrictionsKindsForAccessRightsReport()
 	
 EndFunction
 
-// This method is required by the NewVersionOfAccessRestrictionParameters function.
+// For the NewAccessRestrictionParametersVersion function.
 Function RecordingAccessRestrictionParametersInTheCurrentSession()
 	
 	SetPrivilegedMode(True);
@@ -27744,6 +28200,8 @@ EndFunction
 //
 Function NewAccessRestrictionParametersVersion(CommonContext, HasChanges = False)
 	
+	CheckIsAccessRestrictionDisabled();
+	
 	Try
 		CheckWhetherTheMetadataIsUpToDate();
 	Except
@@ -27776,6 +28234,7 @@ Function NewAccessRestrictionParametersVersion(CommonContext, HasChanges = False
 	
 	WriteParameters = New Structure;
 	WriteParameters.Insert("ListsRestrictionsVersions", ListsRestrictionsVersions);
+	WriteParameters.Insert("AllListsIDs");
 	WriteParameters.Insert("StoredParameters",        StoredParameters);
 	WriteParameters.Insert("AccessID",     AccessID());
 	WriteParameters.Insert("InfoForLogging",     CommonContext.InfoForLogging);
@@ -27833,6 +28292,8 @@ Function NewAccessRestrictionParametersVersion(CommonContext, HasChanges = False
 			EndIf;
 		EndDo;
 		If VersionDetails = Undefined Then
+			WriteParameters.AllListsIDs = AllListsIDs();
+			RecordingOptionsInTheStore = New ValueStorage(WriteParameters);
 			ProcedureName = NameOfTheProcedureForSettingTheRecordOfTheNewVersionOfTheAccessRestrictionParameters();
 			ResultAddress = PutToTempStorage(Undefined);
 			ProcedureParameters = New Array;
@@ -27844,7 +28305,11 @@ Function NewAccessRestrictionParametersVersion(CommonContext, HasChanges = False
 					Common.DefaultLanguageCode()),
 				Format(CurrentSession.SessionNumber, "NG="),
 				Format(CurrentSession.SessionStarted, "DLF=DT"));
-			BackgroundJob = BackgroundJobs.Execute(ProcedureName, ProcedureParameters,, JobDescription);
+			// The procedure name must be as specified in the
+			// NameOfTheProcedureForSettingTheRecordOfTheNewVersionOfTheAccessRestrictionParameters function.
+			BackgroundJob = BackgroundJobs.Execute(
+				"AccessManagementInternal.WriteANewVersionOfTheAccessRestrictionParametersInTheBackground",
+				ProcedureParameters,, JobDescription);
 			BackgroundJob = BackgroundJob.WaitForExecutionCompletion(60);
 			Result = GetFromTempStorage(ResultAddress);
 			ErrorTitle = NStr("en = 'Couldn''t save a new version of access restriction parameters due to:'");
@@ -27913,8 +28378,39 @@ Function NewAccessRestrictionParametersVersion(CommonContext, HasChanges = False
 	
 EndFunction
 
-// For the ActiveAccessRestrictionParameters and
-// NewAccessRestrictionParametersVersion functions.
+// For the NewAccessRestrictionParametersVersion function.
+Function AllListsIDs()
+	
+	Lists = New Array;
+	AddCollectionFullNames(Lists, Metadata.ExchangePlans);
+	AddCollectionFullNames(Lists, Metadata.Catalogs);
+	AddCollectionFullNames(Lists, Metadata.Documents);
+	AddCollectionFullNames(Lists, Metadata.DocumentJournals);
+	AddCollectionFullNames(Lists, Metadata.ChartsOfCharacteristicTypes);
+	AddCollectionFullNames(Lists, Metadata.ChartsOfAccounts);
+	AddCollectionFullNames(Lists, Metadata.ChartsOfCalculationTypes);
+	AddCollectionFullNames(Lists, Metadata.InformationRegisters);
+	AddCollectionFullNames(Lists, Metadata.AccumulationRegisters);
+	AddCollectionFullNames(Lists, Metadata.AccountingRegisters);
+	AddCollectionFullNames(Lists, Metadata.CalculationRegisters);
+	AddCollectionFullNames(Lists, Metadata.BusinessProcesses);
+	AddCollectionFullNames(Lists, Metadata.Tasks);
+	
+	Return Common.MetadataObjectIDs(Lists);
+	
+EndFunction
+
+// Intended for function AllListsIDs.
+Procedure AddCollectionFullNames(Lists, MetadataObjectCollection)
+	
+	For Each MetadataObject In MetadataObjectCollection Do
+		Lists.Add(MetadataObject.FullName());
+	EndDo;
+	
+EndProcedure
+
+// For the NewAccessRestrictionParametersVersion and
+// ActiveAccessRestrictionParameters functions.
 //
 Function TheTasksForRecordingTheNewVersionOfTheAccessRestrictionParametersHaveBeenCompleted()
 	
@@ -27935,7 +28431,7 @@ Function TheTasksForRecordingTheNewVersionOfTheAccessRestrictionParametersHaveBe
 EndFunction
 
 // For the NewAccessRestrictionParametersVersion and
-//  NewAccessRestrictionParametersVersionWriteJobsCompleted functions.
+//  TheTasksForRecordingTheNewVersionOfTheAccessRestrictionParametersHaveBeenCompleted functions.
 //
 Function NameOfTheProcedureForSettingTheRecordOfTheNewVersionOfTheAccessRestrictionParameters()
 	
@@ -27960,7 +28456,7 @@ Function NewParametersMismatchInfoForLogging()
 	
 EndFunction
 
-// This method is required by the NewVersionOfAccessRestrictionParameters function.
+// For the NewAccessRestrictionParametersVersion function.
 Procedure WriteANewVersionOfTheAccessRestrictionParametersInTheBackground(ResultAddress, StorageParametersSet) Export
 	
 	UsersInternal.CheckIfSafeModeOff(
@@ -27996,7 +28492,7 @@ Procedure WriteANewVersionOfTheAccessRestrictionParametersInTheBackground(Result
 EndProcedure
 
 // For the NewAccessRestrictionParametersVersion function and
-// the WriteNewAccessRestrictionParametersVersionInBackground procedure.
+// the WriteANewVersionOfTheAccessRestrictionParametersInTheBackground procedure.
 //
 Function AccessID()
 	
@@ -28005,7 +28501,7 @@ Function AccessID()
 EndFunction
 
 // For the NewAccessRestrictionParametersVersion function and
-// the WriteNewAccessRestrictionParametersVersionInBackground procedure.
+// the WriteANewVersionOfTheAccessRestrictionParametersInTheBackground procedure.
 // 
 Function DescriptionOfTheNewVersionOfAccessRestrictionParameters(Parameters, WithoutRecording = False, IsLockError = False)
 	
@@ -28159,8 +28655,9 @@ Procedure ScheduleAccessUpdatesWhenSettingsChange(OldVersion, Parameters)
 		Parameters.ListsRestrictionsVersions, UnavailableLists, OldCacheStructureVersion);
 	
 	PlanningParameters = AccessUpdatePlanningParameters();
-	PlanningParameters.ListsRestrictionsVersions = Parameters.ListsRestrictionsVersions;
-	PlanningParameters.IsUpdateContinuation = True;
+	PlanningParameters.ListsRestrictionsVersions  = Parameters.ListsRestrictionsVersions;
+	PlanningParameters.AllListsIDs = Parameters.AllListsIDs;
+	PlanningParameters.IsUpdateContinuation  = True;
 	PlanningParameters.LongDesc = "NewAccessRestrictionParametersVersion";
 	
 	ScheduleAccessUpdate(Lists, PlanningParameters);
@@ -28193,9 +28690,10 @@ Procedure ScheduleAccessUpdatesWhenSettingsChange(OldVersion, Parameters)
 		Return;
 	EndIf;
 	
+	NewParameters = New Structure(Parameters.StoredParameters.ForWritingObjectsAndCheckingRights.Get());
+	NewParameters.Insert("AllListsIDs", Parameters.AllListsIDs);
 	InformationRegisters.AccessRestrictionParameters.OnChangeCacheStructureVersion(
-		OldCacheStructureVersion,
-		Parameters.StoredParameters.ForWritingObjectsAndCheckingRights.Get());
+		OldCacheStructureVersion, NewParameters);
 	
 EndProcedure
 
@@ -28260,7 +28758,7 @@ Function ThisIsABackgroundAccessUpdateSession()
 	
 EndFunction
 
-// Intended for procedures "ExecuteAccessUpdateAtRecordLevel" and "UpdateListAccessInBackground".
+// For the ExecuteAccessUpdateAtRecordLevel and UpdateListAccessInBackground procedures.
 Procedure SetThisIsABackgroundAccessUpdateSession()
 	
 	If CurrentRunMode() <> Undefined Then
@@ -28280,7 +28778,7 @@ Procedure SetThisIsABackgroundAccessUpdateSession()
 	
 EndProcedure
 
-// Intended for function "NewVersionOfAccessRestrictionParameters".
+// For the NewAccessRestrictionParametersVersion function.
 Procedure DoLogParametersMismatch(Record, Comment, IsError = False)
 	
 	If Not ValueIsFilled(Comment) Then
@@ -28311,7 +28809,7 @@ Procedure DoLogParametersMismatch(Record, Comment, IsError = False)
 	
 EndProcedure
 
-// This method is required by the NewVersionOfAccessRestrictionParameters function.
+// For the NewAccessRestrictionParametersVersion function.
 Procedure RegisterAccessRestrictionParametersVersionString(Record, VersionStrings)
 	
 	Content = New Array;
@@ -28364,7 +28862,7 @@ Procedure RegisterAccessRestrictionParametersVersionString(Record, VersionString
 	
 EndProcedure
 
-// This method is required by the NewVersionOfAccessRestrictionParameters function.
+// For the NewAccessRestrictionParametersVersion function.
 Function ListsWithVersionsChange(Version, NewListsRestrictionsVersions, UnavailableLists,
 			OldCacheStructureVersion)
 	
@@ -28496,7 +28994,7 @@ Function CacheStructureVersion() Export
 	
 	// Increase the number if the cache parameters are modified.
 	// (This also applies when template versions change.)
-	Return "28.2" + TranslationVersion();
+	Return "29.2" + TranslationVersion();
 	
 EndFunction
 
@@ -28727,6 +29225,12 @@ Function SessionAccessRestrictionParameters(ParametersVersion, ForWritingObjects
 		RestrictionParameters.Insert("ThisIsABackgroundAccessUpdateSession");
 	EndIf;
 	
+	RestrictionParameters.Insert("IsRecordLevelRestrictionDisabled",
+		SessionParameters.AccessRestrictionParameters.IsRecordLevelRestrictionDisabled);
+	
+	RestrictionParameters.Insert("IsStandardOptionDisabled",
+		SessionParameters.AccessRestrictionParameters.IsStandardOptionDisabled);
+	
 	Return New FixedStructure(RestrictionParameters);
 	
 EndFunction
@@ -28891,7 +29395,7 @@ Procedure SetAllowedSetsInQueryParameters(Query, Val User = Undefined)
 	
 EndProcedure
 
-// This method is required by the NewVersionOfAccessRestrictionParameters function.
+// For the NewAccessRestrictionParametersVersion function.
 //
 // Parameters:
 //  CommonContext            - See CommonContextOfRestrictionParametersCalculation
@@ -30307,6 +30811,7 @@ Procedure FillInTheParametersForTemplates(Record, WriteParameters, VersionDetail
 	DataHashing = New DataHashing(HashFunction.SHA256);
 	
 	Parameters = NewStructureForFillingInTemplateParameters();
+	Parameters.Insert("AllListsIDs", WriteParameters.AllListsIDs);
 	If TypeOf(WriteParameters.ListsWithOutdatedAccessOptions) = Type("Array") Then
 		Parameters.Insert("DisableAdditionalAccessOptions");
 	Else
@@ -30363,6 +30868,11 @@ EndProcedure
 //   * NewListConstraintProperties - Map of KeyAndValue:
 //      ** Key     - String - a full list name
 //      ** Value - See NewListRestrictionProperties
+//   * AllListsIDs - Undefined
+//                               - Map of KeyAndValue:
+//      ** Key     - String - a full list name
+//      ** Value - CatalogRef.MetadataObjectIDs
+//                  - CatalogRef.ExtensionObjectIDs
 //
 Function NewStructureForFillingInTemplateParameters()
 	
@@ -30694,7 +31204,9 @@ Function DatabaseAccessOptions(Parameters)
 		EndIf;
 	EndDo;
 	
-	ListsIDs = Common.MetadataObjectIDs(FullNames, False);
+	ListsIDs = ?(Parameters.AllListsIDs = Undefined,
+		Common.MetadataObjectIDs(FullNames, False),
+		Parameters.AllListsIDs);
 	
 	Query = New Query;
 	AccessOption = KeyAndValue.Value[0].AccessOption;
@@ -30709,11 +31221,17 @@ Function DatabaseAccessOptions(Parameters)
 	For Each KeyAndValue In IndexesOfQueryResults Do
 		If KeyAndValue.Value = 0 Then
 			ListID = ListsIDs.Get(KeyAndValue.Key);
-			FoundRows = Upload0.FindRows(New Structure("Register", ListID));
 			AccessOptions = New Array;
-			For Each FoundRow In FoundRows Do
-				AccessOptions.Add(FoundRow.AccessOption);
-			EndDo;
+			If ListID <> Undefined And ListID <> Null Then
+				FoundRows = Upload0.FindRows(New Structure("Register", ListID));
+				For Each FoundRow In FoundRows Do
+					AccessOptions.Add(FoundRow.AccessOption);
+				EndDo;
+			Else
+				ErrorText = StringFunctionsClientServer.SubstituteParametersToString(
+					NStr("en = 'ID for metadata object ""%1"" not found.'"), KeyAndValue.Key);
+				Raise(ErrorText, ErrorCategory.ConfigurationError);
+			EndIf;
 			Result.Insert(KeyAndValue.Key, AccessOptions);
 		Else
 			Result.Insert(KeyAndValue.Key,
@@ -30753,12 +31271,15 @@ Procedure DisableTheUseOfVersionsOtherThanTheMainOneForUpdatedLists(
 	ListsIDs.Columns.Add("ListID", New TypeDescription(IDsTypes));
 	
 	ListsByIDs = New Map;
-	ObjectsIDs = Common.MetadataObjectIDs(Lists, False);
+	ObjectsIDs = ?(Parameters.AllListsIDs = Undefined,
+		Common.MetadataObjectIDs(Lists, False),
+		Parameters.AllListsIDs);
 	
-	For Each KeyAndValue In ObjectsIDs Do
-		If ValueIsFilled(KeyAndValue.Value) Then
-			ListsIDs.Add().ListID = KeyAndValue.Value;
-			ListsByIDs.Insert(KeyAndValue.Value, KeyAndValue.Key);
+	For Each List In Lists Do
+		ListID = ObjectsIDs.Get(List);
+		If ListID <> Undefined And ListID <> Null Then
+			ListsIDs.Add().ListID = ListID;
+			ListsByIDs.Insert(ListID, List);
 		EndIf;
 	EndDo;
 	
@@ -35779,7 +36300,7 @@ Procedure AddQueryTextsToRestrictionParameters(Result)
 	
 EndProcedure
 
-// Intended for procedure "RestrictionParametersByRestrictionStructure".
+// For the RestrictionParametersByRestrictionStructure procedure.
 Procedure FillBasicFieldsMissingTypes(Result, Context)
 	
 	If Context.IsReferenceType Or Context.UsesRestrictionByOwner Then
@@ -35834,7 +36355,7 @@ Procedure FillBasicFieldsMissingTypes(Result, Context)
 	
 EndProcedure
 
-// For the AddQueriesTextsToRestrictionParameters procedure.
+// For the AddQueryTextsToRestrictionParameters procedure.
 Procedure AddDateQueryTextOfNextDataItem(Result, Context)
 	
 	If Not Result.ListWithDate And Not Result.ListWithPeriod Then
@@ -35874,7 +36395,7 @@ Procedure AddDateQueryTextOfNextDataItem(Result, Context)
 	
 EndProcedure
 
-// For the AddQueriesTextsToRestrictionParameters procedure.
+// For the AddQueryTextsToRestrictionParameters procedure.
 Procedure AddQueryTextOfObsoleteDataItems(Result, Context)
 	
 	If Result.IsReferenceType Then
@@ -36312,7 +36833,7 @@ Procedure AddQueryTextOfObsoleteDataItems(Result, Context)
 	
 EndProcedure
 
-// Intended for procedure "AddQueriesTextsToRestrictionParameters".
+// For the AddQueryTextsToRestrictionParameters procedure.
 Procedure FillMainTableUsedFields(Context)
 	
 	If Not ValueIsFilled(Context.ObjectTablesFields.Result) Then
@@ -36344,7 +36865,7 @@ Procedure FillMainTableUsedFields(Context)
 	
 EndProcedure
 
-// For the AddQueriesTextsToRestrictionParameters procedure.
+// For the AddQueryTextsToRestrictionParameters procedure.
 Procedure FillTemplatesOfCheckQueryParts(Context)
 	
 	If Context.IsReferenceType Then
@@ -37158,7 +37679,7 @@ Procedure AddCheckQueriesByLeadingListsRefField(LaedingListKind, QueryTemplate, 
 	
 EndProcedure
 
-// For the AddQueriesTextsToRestrictionParameters procedure.
+// For the AddQueryTextsToRestrictionParameters procedure.
 Procedure ComposeCheckQueryParts(Result, Context)
 	
 	InsertCommonParametersIntoQuery(Context.QueryTextForDataItemsRange, Context);
@@ -37246,7 +37767,7 @@ Procedure AddQuerySegment(QueryParts, CheckConditionPart, Context,
 	
 EndProcedure
 
-// For the AddQueriesTextsToRestrictionParameters procedure.
+// For the AddQueryTextsToRestrictionParameters procedure.
 Procedure ComposeFillQueryParts(Result, Context)
 	
 	QueryText = StrConcat(Context.PartsOfValuesFromObjectsQuery,
@@ -37839,7 +38360,7 @@ Function ObsoleteAccessKeysQueryText(Context)
 	
 EndFunction
 
-// For the AddQueriesTextsToRestrictionParameters procedure.
+// For the AddQueryTextsToRestrictionParameters procedure.
 Procedure FillUserRightQueries(Result, Context)
 	
 	If Context.WithoutMetadataObject
@@ -38067,7 +38588,7 @@ Procedure SetDimensionsFieldsForSelectionAndGrouping(QueryText, FullRegisterName
 	
 EndProcedure
 
-// Intended for procedure "SetDimensionsFieldsForSelectionAndGrouping".
+// For the SetDimensionsFieldsForSelectionAndGrouping procedure.
 Function ClarifiedNameOfRecordKeyFieldToSelectDataAccessRights(FieldName)
 	
 	If Upper(FieldName) = Upper("UserWithRight")
@@ -38136,7 +38657,7 @@ Procedure AddUsersRightsQueryTextByRightsSettingsOwner(ForExternalUsers,
 	
 EndProcedure
 
-// For the AddQueriesTextsToRestrictionParameters procedure.
+// For the AddQueryTextsToRestrictionParameters procedure.
 Procedure FillReadUpdateRightsCheckQueries(Result, Context)
 	
 	If Context.TypeCollectionName = "DocumentJournals" Then
@@ -38595,7 +39116,7 @@ Procedure InsertCommonParametersIntoQuery(QueryText, Context)
 	
 EndProcedure
 
-// For the AddQueriesTextsToRestrictionParameters procedure.
+// For the AddQueryTextsToRestrictionParameters procedure.
 Procedure AddKeyHeaderCheck(Context, HeaderNumber)
 	
 	GroupOfFields = Context.FieldsGroups.Get(StrTemplate("Header%1", HeaderNumber));
@@ -38636,7 +39157,7 @@ Procedure AddKeyHeaderCheck(Context, HeaderNumber)
 	
 EndProcedure
 
-// For the AddQueriesTextsToRestrictionParameters procedure.
+// For the AddQueryTextsToRestrictionParameters procedure.
 Procedure AddKeyTabularSectionCheck(Context, KeyTabularSectionNumber)
 	
 	TablesByGroups  = Context.AdditionalTablesGroups.TablesByGroups;
@@ -38719,7 +39240,7 @@ Function CheckConditionPart(Joins, Condition, AdditionalFields, KeyTabularSectio
 	
 EndFunction
 
-// For the AddQueriesTextsToRestrictionParameters procedure.
+// For the AddQueryTextsToRestrictionParameters procedure.
 Procedure AddKeyHeaderFilling(Context, HeaderNumber)
 	
 	If Not Context.IsReferenceType And HeaderNumber = 0 Then
@@ -38996,7 +39517,7 @@ Procedure AddRightsFilterConditionForKeyHeader(Context, GroupOfFields, HeaderNum
 	
 EndProcedure
 
-// For the AddQueriesTextsToRestrictionParameters procedure.
+// For the AddQueryTextsToRestrictionParameters procedure.
 Procedure AddKeysChoiceWithoutFieldsInHeader(Context)
 	
 	If Context.FieldsGroups.Get("Header0") <> Undefined Then
@@ -39050,7 +39571,7 @@ Procedure AddKeysChoiceWithoutFieldsInHeader(Context)
 	
 EndProcedure
 
-// For the AddQueriesTextsToRestrictionParameters procedure.
+// For the AddQueryTextsToRestrictionParameters procedure.
 Procedure AddKeyTabularSectionFilling(Context, KeyTabularSectionNumber)
 	
 	TablesByGroups  = Context.AdditionalTablesGroups.TablesByGroups;
@@ -39986,20 +40507,20 @@ Function RestrictionStructure(ParsedRestriction) Export
 	If Table.Count() <> Table.FindRows(FilterRowsWithoutErrors).Count() Then
 		ErrorsDescription.HasErrors = True;
 		AdditionRequired = False;
-		RowNumberLength = StrLen(Format(StrLineCount(InternalData.RestrictionText), "NG="));
+		LineNumberLength = StrLen(Format(StrLineCount(InternalData.RestrictionText), "NG="));
 		For Each String In Table Do
 			If String.ErrorText = "" Then
 				Continue;
 			EndIf;
-			AddError(String, ErrorsDescription, InternalData, RowNumberLength);
+			AddError(String, ErrorsDescription, InternalData, LineNumberLength);
 			If String.ErrorPosition = -1 Then
 				AdditionRequired = True;
 			EndIf;
 		EndDo;
 		ErrorsDescription.Restriction = NumberedRestrictionTextWithErrorsMarks(
-			InternalData.RestrictionText, ErrorsDescription.Errors, RowNumberLength);
+			InternalData.RestrictionText, ErrorsDescription.Errors, LineNumberLength);
 		If AdditionRequired Then
-			ErrorsDescription.AddOn = AllowedTemplatesDetails();
+			ErrorsDescription.Supplement = AllowedTemplatesDetails();
 		EndIf;
 	EndIf;
 	
@@ -40042,7 +40563,7 @@ EndFunction
 //     * ErrorsText - String
 //     * Restriction - String
 //     * Errors      - Array of See ErrorProperties
-//     * AddOn  - String
+//     * Supplement  - String
 // 
 Function ErrorsDescription()
 	
@@ -40051,7 +40572,7 @@ Function ErrorsDescription()
 	ErrorsDescription.Insert("ErrorsText", "");
 	ErrorsDescription.Insert("Restriction", "");
 	ErrorsDescription.Insert("Errors",      New Array);
-	ErrorsDescription.Insert("AddOn",  "");
+	ErrorsDescription.Insert("Supplement",  "");
 	
 	Return ErrorsDescription;
 	
@@ -40159,8 +40680,8 @@ Function ErrorsTextToCallException(FullName, ErrorsDescription, ForExternalUsers
 	ErrorText = ErrorText + Chars.LF + Chars.LF + ErrorsDescription.ErrorsText;
 	ErrorText = ErrorText + Chars.LF + Chars.LF + ErrorsDescription.Restriction;
 	
-	If ValueIsFilled(ErrorsDescription.AddOn) Then
-		ErrorText = ErrorText + Chars.LF + Chars.LF + ErrorsDescription.AddOn;
+	If ValueIsFilled(ErrorsDescription.Supplement) Then
+		ErrorText = ErrorText + Chars.LF + Chars.LF + ErrorsDescription.Supplement;
 	EndIf;
 	
 	Return Chars.LF + ErrorText + Chars.LF;
@@ -40168,7 +40689,7 @@ Function ErrorsTextToCallException(FullName, ErrorsDescription, ForExternalUsers
 EndFunction
 
 // For the RestrictionStructure function.
-Procedure AddError(String, ErrorsDescription, InternalData, RowNumberLength)
+Procedure AddError(String, ErrorsDescription, InternalData, LineNumberLength)
 	
 	PositionInText = String.Position;
 	ErrorPositionInRowEnd = False;
@@ -40205,14 +40726,14 @@ Procedure AddError(String, ErrorsDescription, InternalData, RowNumberLength)
 	EndIf;
 	
 	ErrorsDescription.ErrorsText = ErrorsDescription.ErrorsText
-		+ "{(" + Format(Error.LineNumber, "ND=" + RowNumberLength + "; NLZ=; NG=")
+		+ "{(" + Format(Error.LineNumber, "ND=" + LineNumberLength + "; NLZ=; NG=")
 		+ ", " + Format(Error.PositionInRow, "NG=") + ")}:"
 		+ " " + Error.ErrorText + Chars.LF + Error.ErrorString;
 	
 EndProcedure
 
 // For the RestrictionStructure function.
-Function NumberedRestrictionTextWithErrorsMarks(RestrictionText, Errors, RowNumberLength)
+Function NumberedRestrictionTextWithErrorsMarks(RestrictionText, Errors, LineNumberLength)
 	
 	RowsCount = StrLineCount(RestrictionText);
 	RestrictionTextRows = New Array;
@@ -40237,7 +40758,7 @@ Function NumberedRestrictionTextWithErrorsMarks(RestrictionText, Errors, RowNumb
 	For Each String In RestrictionTextRows Do
 		Text = Text + ?(Text = "", "", Chars.LF)
 			+ ?(StrFind(String, "<<?>>") > 0, "*", " ")
-			+ " " + Format(LineNumber, "ND=" + RowNumberLength + "; NLZ=; NG=") + " " + String;
+			+ " " + Format(LineNumber, "ND=" + LineNumberLength + "; NLZ=; NG=") + " " + String;
 		LineNumber = LineNumber + 1;
 	EndDo;
 	
@@ -40813,7 +41334,7 @@ Function LanguageWords()
 	AddLanguageWord(Words, "Число",
 	                                          "Number",    "TypeName"); // @Non-NLS
 	AddLanguageWord(Words, "Дата",
-	                                          "Date",      "TypeName"); // @Non-NLS
+	                                          "GetSessions",      "TypeName"); // @Non-NLS
 	AddLanguageWord(Words, "Булево",
 	                                          "Boolean",   "TypeName"); // @Non-NLS
 	
@@ -46712,7 +47233,7 @@ Function ExecuteQueriesPackageByParts(QueryDetails)
 	QueriesBatchTexts = New Array;
 	For Each QueryText In QueryDetails.QueryPackageTexts Do
 		If QueriesBatchTexts.Count() = 200 Then
-			// @skip-check query-in-loop 
+			// @skip-check query-in-loop - Batch-wise data processing
 			AddQueryResults(QueriesPackageResults, QueriesBatchTexts, QueryDetails);
 			QueriesBatchTexts = New Array;
 		EndIf;
@@ -47306,5 +47827,24 @@ EndFunction
 #EndRegion
 
 #EndRegion
+
+// See StandardSubsystemsServer.WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode
+Procedure WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode(Methods) Export
+	
+	Methods.Insert("SessionParametersSetting");
+	Methods.Insert("UpdateAuxiliaryRegisterDataByConfigurationChanges");
+	Methods.Insert("UpdateProfileDataOpenExternalReportsAndDataProcessors");
+	Methods.Insert("FillSeparatedDataHandlers");
+	Methods.Insert("WriteANewVersionOfTheAccessRestrictionParametersInTheBackground", True);
+	Methods.Insert("UpdateProgressInBackground", True);
+	Methods.Insert("AccessUpdateOnRecordsLevel", True);
+	Methods.Insert("DataFillingForAccessRestrictionJobHandler", True);
+	Methods.Insert("EnableAccessUpdateScheduledJob", True);
+	Methods.Insert("DisableAccessUpdateScheduledJob", True);
+	Methods.Insert("RecordPlanningForUpdatingAccessRestrictionSettings", True);
+	Methods.Insert("UpdateAuxiliaryAccessGroupsData", True);
+	Methods.Insert("UpdateListAccessInBackground", True);
+	
+EndProcedure
 
 #EndRegion

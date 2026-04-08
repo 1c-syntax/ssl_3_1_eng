@@ -447,36 +447,36 @@
 				<ManualQuery>true</ManualQuery>
 				<DynamicDataRead>true</DynamicDataRead>
 				<QueryText>SELECT
-	BusinessProcessTask.Ref,
-	BusinessProcessTask.DeletionMark,
-	BusinessProcessTask.Number,
-	BusinessProcessTask.Date,
-	BusinessProcessTask.Completed,
-	BusinessProcessTask.HeadTask,
-	BusinessProcessTask.Started,
-	BusinessProcessTask.Author,
-	BusinessProcessTask.Importance,
-	BusinessProcessTask.Completed2,
-	BusinessProcessTask.CompletedOn,
-	BusinessProcessTask.Performer,
-	BusinessProcessTask.Description,
-	BusinessProcessTask.OnValidation,
-	BusinessProcessTask.IterationNumber,
-	BusinessProcessTask.Content,
-	BusinessProcessTask.Accepted,
-	BusinessProcessTask.SubjectOf,
-	BusinessProcessTask.Supervisor,
-	BusinessProcessTask.ExecutionResult,
-	BusinessProcessTask.TaskDueDate,
-	BusinessProcessTask.VerificationDueDate,
+	BusinessProcessJob.Ref,
+	BusinessProcessJob.DeletionMark,
+	BusinessProcessJob.Number,
+	BusinessProcessJob.Date,
+	BusinessProcessJob.Completed,
+	BusinessProcessJob.HeadTask,
+	BusinessProcessJob.Started,
+	BusinessProcessJob.Author,
+	BusinessProcessJob.Importance,
+	BusinessProcessJob.Completed2,
+	BusinessProcessJob.CompletedOn,
+	BusinessProcessJob.Performer,
+	BusinessProcessJob.Description,
+	BusinessProcessJob.OnValidation,
+	BusinessProcessJob.IterationNumber,
+	BusinessProcessJob.Content,
+	BusinessProcessJob.Accepted,
+	BusinessProcessJob.SubjectOf,
+	BusinessProcessJob.Supervisor,
+	BusinessProcessJob.ExecutionResult,
+	BusinessProcessJob.TaskDueDate,
+	BusinessProcessJob.VerificationDueDate,
 	CASE
-		WHEN BusinessProcessTask.DeletionMark
+		WHEN BusinessProcessJob.DeletionMark
 			THEN 6
-		WHEN BusinessProcessTask.Completed = TRUE
+		WHEN BusinessProcessJob.Completed = TRUE
 			THEN 5
-		WHEN BusinessProcessTask.State = VALUE(Enum.BusinessProcessStates.Suspended)
+		WHEN BusinessProcessJob.State = VALUE(Enum.BusinessProcessStates.Suspended)
 			THEN 4
-		WHEN BusinessProcessTask.Started = TRUE
+		WHEN BusinessProcessJob.Started = TRUE
 			THEN 3
 		WHEN ProcessesToStart.State = VALUE(Enum.ProcessesStatesForStart.ReadyToStart)
 				AND ProcessesToStart.DeferredStartDate &lt;&gt; DATETIME(1, 1, 1)
@@ -486,27 +486,27 @@
 		ELSE 0
 	END AS RowPicture,
 	CASE
-		WHEN BusinessProcessTask.Importance = VALUE(Enum.TaskImportanceOptions.Low)
+		WHEN BusinessProcessJob.Importance = VALUE(Enum.TaskImportanceOptions.Low)
 			THEN 0
-		WHEN BusinessProcessTask.Importance = VALUE(Enum.TaskImportanceOptions.High)
+		WHEN BusinessProcessJob.Importance = VALUE(Enum.TaskImportanceOptions.High)
 			THEN 2
 		ELSE 1
 	END AS ImportancePicture,
 	CASE
-		WHEN BusinessProcessTask.State = VALUE(Enum.BusinessProcessStates.Suspended)
+		WHEN BusinessProcessJob.State = VALUE(Enum.BusinessProcessStates.Suspended)
 			THEN TRUE
 		ELSE FALSE
 	END AS Suspended,
-	BusinessProcessTask.SourceTask,
+	BusinessProcessJob.SourceTask,
 	CASE
 		WHEN ProcessesToStart.State IS NULL 
 			THEN FALSE
 		ELSE TRUE
 	END AS Defer
 FROM
-	BusinessProcess.Job AS BusinessProcessTask
+	BusinessProcess.Job AS BusinessProcessJob
 		LEFT JOIN InformationRegister.ProcessesToStart AS ProcessesToStart
-		ON BusinessProcessTask.Ref = ProcessesToStart.Owner</QueryText>
+		ON BusinessProcessJob.Ref = ProcessesToStart.Owner</QueryText>
 				<MainTable>BusinessProcess.Job</MainTable>
 				<ListSettings>
 					<dcsset:filter>

@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Internal
@@ -78,7 +77,7 @@ Function UnavailableRoles(Purpose = "ForUsers", Service = Undefined) Export
 		 // For users.
 		 Or (Purpose = "ForUsers" Or Purpose = "ForAdministrators")
 		   And RolesAssignment.ForExternalUsersOnly.Get(Role.Name) <> Undefined
-		 // Shared by users and external users.
+		 // For users and external users.
 		 Or Purpose = "BothForUsersAndExternalUsers"
 		   And Not RolesAssignment.BothForUsersAndExternalUsers.Get(Role.Name) <> Undefined
 		 // With SaaS mode.
@@ -94,7 +93,7 @@ Function UnavailableRoles(Purpose = "ForUsers", Service = Undefined) Export
 EndFunction
 
 // Returns the role assignment defined by the developer.
-// See the "UsersOverridable .OnDetermineRoleAssignment" procedure.
+// See the UsersOverridable.OnDefineRoleAssignment procedure.
 //
 // Returns:
 //  FixedStructure:
@@ -151,6 +150,10 @@ Function TableFields(Val FullTableName) Export
 	
 EndFunction
 
+#EndRegion
+
+#Region Private
+
 // Returns:
 //  Boolean
 //
@@ -165,10 +168,6 @@ Function ShouldRegisterChangesInAccessRights() Export
 	Return ModuleUserMonitoringInternal.ShouldRegisterChangesInAccessRights();
 	
 EndFunction
-
-#EndRegion
-
-#Region Private
 
 // See Users.IsExternalUserSession.
 Function IsExternalUserSession() Export
@@ -210,7 +209,7 @@ Function IsExternalUserSession() Export
 EndFunction
 
 // Settings of the "Users" subsystem.
-// See the "UsersOverridable .OnDetermineSettings" procedure.
+// See the UsersOverridable.OnDefineSettings procedure.
 //
 // Returns:
 //  Structure:

@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Internal
@@ -133,7 +132,7 @@ Function AdditionalDataProcessorsPermissionRequests(Val FOValue = Undefined)
 		|WHERE
 		|	AdditionalReportsAndPermissionProcessing.Ref.Publication <> &Publication";
 	Query = New Query(QueryText);
-	Query.SetParameter("Publication", Enums.AdditionalReportsAndDataProcessorsPublicationOptions.isDisabled);
+	Query.SetParameter("Publication", Enums.AdditionalReportsAndDataProcessorsPublicationOptions.TurnedOff);
 	Selection = Query.Execute().Select();
 	While Selection.Next() Do
 		
@@ -174,7 +173,7 @@ Function AdditionalDataProcessorPermissionRequests(Val Object, Val FOValue = Und
 		ClearPermissions1 = True;
 	EndIf;
 	
-	If Object.Publication = Enums.AdditionalReportsAndDataProcessorsPublicationOptions.isDisabled Then
+	If Object.Publication = Enums.AdditionalReportsAndDataProcessorsPublicationOptions.TurnedOff Then
 		ClearPermissions1 = True;
 	EndIf;
 	

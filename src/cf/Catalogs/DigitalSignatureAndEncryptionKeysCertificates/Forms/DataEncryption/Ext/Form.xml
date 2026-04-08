@@ -462,10 +462,10 @@
 							</Title>
 							<ExtendedTooltip name="FormCloseExtendedTooltip" id="535"/>
 						</Button>
-						<Button name="FormHelp" id="536">
+						<Button name="FormHelp_SSLyf" id="536">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.StandardCommand.Help</CommandName>
-							<ExtendedTooltip name="FormHelpExtendedTooltip" id="537"/>
+							<ExtendedTooltip name="FormHelp_SSLyfExtendedTooltip" id="537"/>
 						</Button>
 					</ChildItems>
 				</CommandBar>

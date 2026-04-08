@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -16,7 +15,7 @@
 // 
 //
 // Parameters:
-//  Parameters - Structure - an internal parameter to pass to the InfobaseUpdate.MarkForProcessing procedure.
+//  Parameters - Structure - Internal parameter to pass to the InfobaseUpdate.MarkForProcessing procedure.
 //
 Procedure RegisterDataToProcessForMigrationToNewVersion(Parameters) Export
 	
@@ -272,7 +271,7 @@ Function ObjectsTemplates(MetadataObjectIDs) Export
 	TemplatesList.Columns.Add("IsPrintForm");
 	TemplatesList.Columns.Add("DefaultPrintForm");
 	TemplatesList.Columns.Add("PrintFormDescription");
-	TemplatesList.Columns.Add("AvailableCreate");
+	TemplatesList.Columns.Add("AvailableCreating");
 	TemplatesList.Columns.Add("TemplateMetadataObjectName");
 	TemplatesList.Columns.Add("TemplateForObjectExport", New TypeDescription("Boolean"));
 	TemplatesList.Columns.Add("ExportSaveFormat");
@@ -376,7 +375,7 @@ Procedure AddTemplatesFromMetadata(TemplatesList, MetadataObjectIDs)
 					Template.UsagePicture = Number(Template.Changed) + Number(Template.ChangedTemplateUsed);
 				EndIf;
 				Template.SearchString = Lower(Template.Presentation + " " + Template.TemplateType);
-				Template.AvailableCreate = MetadataObjectTemplateOwner <> Metadata.CommonTemplates 
+				Template.AvailableCreating = MetadataObjectTemplateOwner <> Metadata.CommonTemplates 
 					And Common.IsRefTypeObject(MetadataObjectTemplateOwner);
 				
 			EndDo;
@@ -567,7 +566,7 @@ Procedure AddUserTemplates(TemplatesList, Val Id = Undefined, Val DataSources = 
 		Template.SearchString = Lower(Template.Presentation + " " + Template.TemplateType);
 		If ValueIsFilled(Template.Owner) Then
 			MetadataObjectTemplateOwner = Common.MetadataObjectByID(Template.Owner);
-			Template.AvailableCreate = Common.IsRefTypeObject(MetadataObjectTemplateOwner);
+			Template.AvailableCreating = Common.IsRefTypeObject(MetadataObjectTemplateOwner);
 		EndIf;
 		Template.TemplateForObjectExport = TemplateForObjectExport;
 		Template.ExportSaveFormat = TableRow.ExportSaveFormat;
@@ -668,6 +667,14 @@ Function IndexOfFileIcon(Extension) Export
 	Return 0;
 	
 EndFunction
+
+// See StandardSubsystemsServer.WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode
+Procedure WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode(Methods) Export
+	
+	Methods.Insert("ProcessUserTemplates");
+	Methods.Insert("ObjectsTemplates", True);
+	
+EndProcedure
 
 #EndRegion
 

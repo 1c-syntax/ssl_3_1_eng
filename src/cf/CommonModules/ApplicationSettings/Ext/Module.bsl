@@ -1,16 +1,15 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//
 
 #Region Public
 
-#Region ForCallsFromOtherSubsystems
+#Region InterfaceImplementation
 
 // Called from the "OnCreateAtServer" handler of the SSL administration panel.
 // Sets up the visibility of the SSL library management elements.
@@ -158,6 +157,10 @@ EndProcedure
 //
 Procedure OnlineSupportAndServicesAllowSendDataOnChange(Form, Item, OperationParametersList) Export
 	Var RunResult;
+	
+	If Not Common.SubsystemExists("StandardSubsystems.MonitoringCenter") Then
+		Return;
+	EndIf;
 	
 	Items = Form.Items;
 	

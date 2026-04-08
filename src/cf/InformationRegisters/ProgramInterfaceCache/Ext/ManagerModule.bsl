@@ -1,16 +1,15 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
-#Region Internal
+#Region Private
 
 // Retrieves cache version data from the ValueStorage resource of the ProgramInterfaceCache register.
 //
@@ -22,221 +21,174 @@
 //      update before retrieving data if it is obsolete.
 //      True - always use cache data, if any. False - wait
 //      for the cache update if data is obsolete.
+//   IsDefaultSecureConnection - Boolean, Undefined
 //
 // Returns:
 //   FixedArray, BinaryData
 //
-Function VersionCacheData(Val Id, Val DataType, Val ReceivingParameters, Val UseObsoleteData = True) Export
+Function VersionCacheData(Val Id, Val DataType, Val ReceivingParameters,
+			Val UseObsoleteData = True, Val IsDefaultSecureConnection = Undefined) Export
+	
+	Selection = VersionCacheCurrentData(Id, DataType);
+	
+	UpdateRequired2 = False;
+	IsUpdatedDataRequired = False;
+	
+	If Selection = Undefined Then
+		UpdateRequired2 = True;
+		IsUpdatedDataRequired = True;
 		
+	ElsIf Not InterfaceCacheCurrent(Selection.UpdateDate) Then
+		UpdateRequired2 = True;
+		IsUpdatedDataRequired = Not UseObsoleteData;
+	EndIf;
+	
+	If Not UpdateRequired2 Then
+		Return Selection.Data.Get();
+	EndIf;
+	
+	UpdateInCurrentSession = IsUpdatedDataRequired
+		Or Common.FileInfobase()
+		Or ExclusiveMode()
+		Or Common.DebugMode()
+		Or CurrentRunMode() = Undefined
+		Or IsDefaultSecureConnection = False;
+	
+	ParametersOfUpdate = New Structure;
+	ParametersOfUpdate.Insert("Id", Id);
+	ParametersOfUpdate.Insert("DataType", DataType);
+	ParametersOfUpdate.Insert("ReceivingParameters", ReceivingParameters);
+	
+	If UpdateInCurrentSession Then
+		UpdateVersionCacheData(ParametersOfUpdate, Selection);
+	Else
+		If ReceivingParameters.Count() > 4 And ReceivingParameters[4] <> Undefined Then
+			ParametersOfUpdate.ReceivingParameters = New Array(New FixedArray(ReceivingParameters));
+			ParametersOfUpdate.ReceivingParameters[4] = Null;
+		EndIf;
+		ProcedureName = "InformationRegisters.ProgramInterfaceCache.UpdateVersionCacheData";
+		JobDescription = StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Version cache update. Entry ID: %1. Data type: %2.'"),
+			Id, DataType);
+		
+		JobsFilter = New Structure;
+		JobsFilter.Insert("MethodName",    ProcedureName);
+		JobsFilter.Insert("Description", JobDescription);
+		JobsFilter.Insert("State",    BackgroundJobState.Active);
+		
+		If BackgroundJobs.GetBackgroundJobs(JobsFilter).Count() = 0 Then
+			OperationParametersList = TimeConsumingOperations.BackgroundExecutionParameters(Undefined);
+			OperationParametersList.BackgroundJobDescription = JobDescription;
+			OperationParametersList.RunInBackground = True;
+			OperationParametersList.WaitCompletion = 0;
+			
+			TimeConsumingOperations.ExecuteInBackground(
+				"InformationRegisters.ProgramInterfaceCache.UpdateVersionCacheData",
+				ParametersOfUpdate,
+				OperationParametersList);
+		EndIf;
+	EndIf;
+	
+	Return Selection.Data.Get();
+	
+EndFunction
+
+// Called from VersionCacheData and UpdateVersionCacheData.
+Function VersionCacheCurrentData(Id, DataType)
+	
 	Query = New Query;
-	Query.Text =
-		"SELECT
-		|	CacheTable.UpdateDate AS UpdateDate,
-		|	CacheTable.Data AS Data,
-		|	CacheTable.DataType AS DataType
-		|FROM
-		|	InformationRegister.ProgramInterfaceCache AS CacheTable
-		|WHERE
-		|	CacheTable.Id = &Id
-		|	AND CacheTable.DataType = &DataType";
 	Query.SetParameter("Id", Id);
 	Query.SetParameter("DataType", DataType);
 	
-	BeginTransaction();
-	Try
-		// Managed lock is not set, so other sessions can change the value while this transaction is active.
-		SetPrivilegedMode(True);
-		Result = Query.Execute();
-		SetPrivilegedMode(False);
-		CommitTransaction();
-	Except
-		RollbackTransaction();
-		Raise;
-	EndTry;
+	Query.Text =
+	"SELECT
+	|	CacheTable.UpdateDate AS UpdateDate,
+	|	CacheTable.Data AS Data,
+	|	CacheTable.DataType AS DataType
+	|FROM
+	|	InformationRegister.ProgramInterfaceCache AS CacheTable
+	|WHERE
+	|	CacheTable.Id = &Id
+	|	AND CacheTable.DataType = &DataType";
 	
-	UpdateRequired2 = False;
-	RereadDataRequired = False;
+	SetPrivilegedMode(True);
+	Selection = Query.Execute().Select();
+	SetPrivilegedMode(False);
 	
-	If Result.IsEmpty() Then
-		
-		UpdateRequired2 = True;
-		RereadDataRequired = True;
-		
-	Else
-		
-		Selection = Result.Select();
-		Selection.Next();
-		If Not InterfaceCacheCurrent(Selection.UpdateDate) Then
-			UpdateRequired2 = True;
-			RereadDataRequired = Not UseObsoleteData;
-		EndIf;
+	If Selection.Next() Then
+		Return Selection;
 	EndIf;
 	
-	If UpdateRequired2 Then
-		
-		UpdateInCurrentSession = RereadDataRequired
-			Or Common.FileInfobase()
-			Or ExclusiveMode()
-			Or Common.DebugMode()
-			Or CurrentRunMode() = Undefined;
-		
-		If UpdateInCurrentSession Then
-			UpdateVersionCacheData(Id, DataType, ReceivingParameters);
-			RereadDataRequired = True;
-		Else
-			JobMethodName = "InformationRegisters.ProgramInterfaceCache.UpdateVersionCacheData";
-			JobDescription = StringFunctionsClientServer.SubstituteParametersToString(NStr("en = 'Version cache update. Entry ID: %1. Data type: %2.'"),
-				Id,
-				DataType);
-			JobParameters = New Array;
-			JobParameters.Add(Id);
-			JobParameters.Add(DataType);
-			JobParameters.Add(ReceivingParameters);
-			
-			JobsFilter = New Structure;
-			JobsFilter.Insert("MethodName", JobMethodName);
-			JobsFilter.Insert("Description", JobDescription);
-			JobsFilter.Insert("State", BackgroundJobState.Active);
-			
-			Jobs = BackgroundJobs.GetBackgroundJobs(JobsFilter);
-			If Jobs.Count() = 0 Then
-				// Start a new one.
-				ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(Undefined);
-				ExecutionParameters.BackgroundJobDescription = JobDescription;
-				SafeMode = SafeMode();
-				SetSafeModeDisabled(True);
-				TimeConsumingOperations.RunBackgroundJobWithClientContext(JobMethodName,
-					ExecutionParameters, JobParameters, SafeMode);
-				SetSafeModeDisabled(False);
-			EndIf;
-		EndIf;
-		
-		If RereadDataRequired Then
-			
-			BeginTransaction();
-			Try
-				// Managed lock is not set, so other sessions can change the value while this transaction is active.
-				SetPrivilegedMode(True);
-				Result = Query.Execute();
-				SetPrivilegedMode(False);
-				CommitTransaction();
-			Except
-				RollbackTransaction();
-				Raise;
-			EndTry;
-			
-			If Result.IsEmpty() Then
-				MessageTemplate = NStr("en = 'Version cache update error. The data is not received.
-					|Entry ID: %1
-					|Data type: %2'");
-				MessageText = StringFunctionsClientServer.SubstituteParametersToString(MessageTemplate, Id, DataType);
-					
-				Raise(MessageText);
-			EndIf;
-			
-			Selection = Result.Select();
-			Selection.Next();
-		EndIf;
-		
-	EndIf;
-		
-	Return Selection.Data.Get();
+	Return Undefined;
 	
 EndFunction
 
 // Updates data in the version cache.
 //
 // Parameters:
-//  Id      - String - cache record ID.
-//  DataType          - EnumRef.APICacheDataTypes - type of data to update.
-//  ReceivingParameters - Array - additional options of getting data to the cache.
+//  ParametersOfUpdate - Structure:
+//   * Id      - String - Cache record ID.
+//   * DataType          - EnumRef.APICacheDataTypes - Type of data to update.
+//   * ReceivingParameters - Array - Additional parameters for retrieving data into the cache.
+//  StorageAddress        - String - Obsolete.
+//                        - Undefined, QueryResultSelection - Return value.
 //
-Procedure UpdateVersionCacheData(Val Id, Val DataType, Val ReceivingParameters) Export
+Procedure UpdateVersionCacheData(ParametersOfUpdate, StorageAddress) Export
 	
 	SetPrivilegedMode(True);
 	
-	KeyStructure1 = New Structure("Id, DataType", Id, DataType);
-	Var_Key = CreateRecordKey(KeyStructure1);
+	Id      = ParametersOfUpdate.Id;
+	DataType          = ParametersOfUpdate.DataType;
+	ReceivingParameters = ParametersOfUpdate.ReceivingParameters;
 	
-	Try
-		LockDataForEdit(Var_Key);
-	Except
-		// The data is being updated from another session.
-		Return;
-	EndTry;
+	If ReceivingParameters.Count() > 4 And ReceivingParameters[4] = Null Then
+		ReceivingParameters[4] = CommonClientServer.NewSecureConnection();
+	EndIf;
 	
-	Query = New Query;
-	Query.Text =
-		"SELECT
-		|	CacheTable.UpdateDate AS UpdateDate,
-		|	CacheTable.Data AS Data,
-		|	CacheTable.DataType AS DataType
-		|FROM
-		|	InformationRegister.ProgramInterfaceCache AS CacheTable
-		|WHERE
-		|	CacheTable.Id = &Id
-		|	AND CacheTable.DataType = &DataType";
-	Query.SetParameter("Id", Id);
-	Query.SetParameter("DataType", DataType);
+	If TypeOf(StorageAddress) = Type("String") Then
+		Selection = VersionCacheCurrentData(Id, DataType);
+		If Selection <> Undefined
+		   And InterfaceCacheCurrent(Selection.UpdateDate) Then
+			Return;
+		EndIf;
+	EndIf;
+	
+	RecordSet = CreateRecordSet();
+	RecordSet.Filter.Id.Set(Id);
+	RecordSet.Filter.DataType.Set(DataType);
+	
+	NewRecord = RecordSet.Add();
+	NewRecord.Id = Id;
+	NewRecord.DataType = DataType;
+	NewRecord.UpdateDate = CurrentUniversalDate();
+	
+	RecordSet.AdditionalProperties.Insert("ReceivingParameters", ReceivingParameters);
+	RecordSet.PrepareDataToRecord(NewRecord.Data);
+	
+	Block = New DataLock;
+	LockItem = Block.Add("InformationRegister.ProgramInterfaceCache");
+	LockItem.SetValue("Id", Id);
+	LockItem.SetValue("DataType", DataType);
 	
 	BeginTransaction();
-	
 	Try
-		
-		Block = New DataLock;
-		LockItem = Block.Add("InformationRegister.ProgramInterfaceCache");
-		LockItem.SetValue("Id", Id);
-		LockItem.SetValue("DataType", DataType);
 		Block.Lock();
 		
-		Result = Query.Execute();
+		Selection = VersionCacheCurrentData(Id, DataType);
 		
-		// Committing the transaction so that other sessions can read data.
-		CommitTransaction();
-		
-	Except
-		
-		RollbackTransaction();
-		UnlockDataForEdit(Var_Key);
-		Raise;
-		
-	EndTry;
-	
-	Try
-		
-		// Making sure the data must be updated.
-		If Not Result.IsEmpty() Then
+		If Selection = Undefined
+		 Or Not InterfaceCacheCurrent(Selection.UpdateDate) Then
 			
-			Selection = Result.Select();
-			Selection.Next();
-			If InterfaceCacheCurrent(Selection.UpdateDate) Then
-				UnlockDataForEdit(Var_Key);
-				Return;
+			RecordSet.Write();
+			If TypeOf(StorageAddress) <> Type("String") Then
+				StorageAddress = NewRecord;
 			EndIf;
-			
 		EndIf;
 		
-		Set = CreateRecordSet();
-		Set.Filter.Id.Set(Id);
-		Set.Filter.DataType.Set(DataType);
-		
-		Record = Set.Add();
-		Record.Id = Id;
-		Record.DataType = DataType;
-		Record.UpdateDate = CurrentUniversalDate();
-		
-		Set.AdditionalProperties.Insert("ReceivingParameters", ReceivingParameters);
-		Set.PrepareDataToRecord();
-		
-		Set.Write();
-		
-		UnlockDataForEdit(Var_Key);
-		
+		CommitTransaction();
 	Except
-		
-		UnlockDataForEdit(Var_Key);
+		RollbackTransaction();
 		Raise;
-		
 	EndTry;
 	
 EndProcedure
@@ -290,12 +242,14 @@ Function InnerWSProxy(Parameters) Export
 	EndIf;
 		
 	SecureConnection = Parameters.SecureConnection;
+	IsDefaultSecureConnection = False;
 	If (Protocol = "https" Or Protocol = "ftps") And SecureConnection = Undefined Then
 		SecureConnection = CommonClientServer.NewSecureConnection();
+		IsDefaultSecureConnection = True;
 	EndIf;
 	
 	WSDefinitions = WSDefinitions(Parameters.WSDLAddress, Parameters.UserName, Parameters.Password,, 
-		SecureConnection);
+		SecureConnection, IsDefaultSecureConnection);
 	
 	EndpointName = Parameters.EndpointName;
 	If IsBlankString(EndpointName) Then
@@ -325,10 +279,6 @@ Function InnerWSProxy(Parameters) Export
 	Return Proxy;
 EndFunction
 
-#EndRegion
-
-#Region Private
-
 Function InterfaceCacheCurrent(UpdateDate)
 	
 	If ValueIsFilled(UpdateDate) Then
@@ -339,7 +289,8 @@ Function InterfaceCacheCurrent(UpdateDate)
 	
 EndFunction
 
-Function WSDefinitions(Val WSDLAddress, Val UserName, Val Password, Val Timeout = 10, Val SecureConnection = Undefined)
+Function WSDefinitions(Val WSDLAddress, Val UserName, Val Password, Val Timeout = 10,
+			Val SecureConnection = Undefined, IsDefaultSecureConnection = False)
 	
 	If Not Common.SubsystemExists("StandardSubsystems.GetFilesFromInternet") Then
 		Try
@@ -382,7 +333,8 @@ Function WSDefinitions(Val WSDLAddress, Val UserName, Val Password, Val Timeout 
 		WSDLAddress,
 		Enums.APICacheDataTypes.WebServiceDetails, 
 		ReceivingParameters,
-		False); // BinaryData
+		False,
+		IsDefaultSecureConnection); // BinaryData
 		
 	WSDLFileName = GetTempFileName("wsdl");
 	WSDLData.Write(WSDLFileName);
@@ -544,6 +496,13 @@ Function GetWSDL(Val Address, Val UserName, Val Password, Val Timeout, Val Secur
 	Return FileData;
 	
 EndFunction
+
+// See StandardSubsystemsServer.WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode
+Procedure WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode(Methods) Export
+	
+	Methods.Insert("UpdateVersionCacheData", True);
+	
+EndProcedure
 
 #EndRegion
 

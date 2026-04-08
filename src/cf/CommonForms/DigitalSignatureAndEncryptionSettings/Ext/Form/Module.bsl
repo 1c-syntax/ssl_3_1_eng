@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Variables
@@ -117,8 +116,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 		Items.AddCertificateIssueRequest.Visible = False;
 	EndIf;
 	
-	HasRightToAddCertificates =
-		AccessRight("Insert", Metadata.Catalogs.DigitalSignatureAndEncryptionKeysCertificates);
+	HasRightToAddCertificates = DigitalSignatureInternal.YouHaveRightToAddCertificatesToCatalog();
 	
 	ListProperties = Common.DynamicListPropertiesStructure();
 	ListProperties.QueryText = QueryText;
@@ -147,11 +145,16 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	Items.GroupCryptoProvidersHint.Visible = Common.IsWebClient();
 	Items.FormInstallExtension.Visible = Common.IsWebClient();
 	
-	Items.FormQuestionInSupport.Visible = 
+	Items.FormSupportTicket.Visible = 
 		Common.SubsystemExists("OnlineUserSupport.MessagesToTechSupportService");
 	
 	FillApplicationsAndSettings();
 	UpdateCurrentItemsVisibility();
+	
+	If DigitalSignature.UseMobileSignatureService() Then
+		CommonClientServer.SetFormItemProperty(Items,
+			"MobileSignatureServiceSignatories", "Visible", True);
+	EndIf;
 	
 	// StandardSubsystems.AttachableCommands
 	If Common.SubsystemExists("StandardSubsystems.AttachableCommands") Then
@@ -203,11 +206,15 @@ Procedure NotificationProcessing(EventName, Parameter, Source)
 		Return;
 	EndIf;
 	
+	ProgramSettingsChangeEvents = New Array;
+	ProgramSettingsChangeEvents.Add(Upper("Write_DigitalSignatureAndEncryptionApplications"));
+	ProgramSettingsChangeEvents.Add(Upper("Write_PathsToDigitalSignatureAndEncryptionApplicationsOnLinuxServers"));
+	ProgramSettingsChangeEvents.Add(Upper("WritePersonalSettingsForDigitalSignatureAndEncryption"));
+	
+	DigitalSignatureClientLocalization.WhenReceivingEventsForChangingProgramSettings(ProgramSettingsChangeEvents);
+			
 	// When changing application components or settings.
-	If Upper(EventName) = Upper("Write_DigitalSignatureAndEncryptionApplications")
-		Or Upper(EventName) = Upper("Write_PathsToDigitalSignatureAndEncryptionApplicationsOnLinuxServers")
-		Or Upper(EventName) = Upper("WritePersonalSettingsForDigitalSignatureAndEncryption") Then
-		
+	If ProgramSettingsChangeEvents.Find(Upper(EventName)) <> Undefined Then
 		AttachIdleHandler("OnChangeApplicationsCompositionOrSettings", 0.1, True);
 		Return;
 	EndIf;
@@ -462,7 +469,7 @@ Procedure CertificatesOnGetDataAtServer(TagName, Settings, Rows)
 		If Query = Undefined Then
 			Query = New Query;
 			Query.Text =
-			"SELECT
+			"SELECT ALLOWED
 			|	ElectronicSignatureAndEncryptionKeyCertificatesUsers.Ref AS Ref,
 			|	ElectronicSignatureAndEncryptionKeyCertificatesUsers.User AS User,
 			|	PRESENTATION(ElectronicSignatureAndEncryptionKeyCertificatesUsers.User) AS UserPresentation
@@ -476,7 +483,7 @@ Procedure CertificatesOnGetDataAtServer(TagName, Settings, Rows)
 			|BY
 			|	Ref";
 			Query.SetParameter("References", Rows.GetKeys());
-			QueryResult = Query.Execute(); // @skip-check query-in-loop - Запрос выполняется один раз
+			QueryResult = Query.Execute(); // @skip-check query-in-loop - 
 			If QueryResult.IsEmpty() Then
 				Return;
 			EndIf;
@@ -524,12 +531,15 @@ Procedure ProgramsBeforeAddRow(Item, Cancel, Copy, Parent, Var_Group, Parameter)
 	Cancel = True;
 	
 	If Items.Programs.ChangeRowSet Then
-		If DigitalSignatureInternalClient.UseCloudSignatureService() Then
-			TheDSSCryptographyServiceModuleClient = CommonClient.CommonModule("DSSCryptographyServiceClient");
-			TheDSSCryptographyServiceModuleClient.AddingElectronicSignatureProgram(Undefined);
-		Else
-			DigitalSignatureInternalClient.OpenAppForm();
+		
+		StandardProcessing = True;
+		DigitalSignatureClientLocalization.WhenAddingElectronicSignatureApplication(StandardProcessing);
+		If Not StandardProcessing Then
+			Return;
 		EndIf;
+		
+		DigitalSignatureInternalClient.OpenAppForm();
+		
 	EndIf;
 	
 EndProcedure
@@ -719,7 +729,7 @@ Procedure SetComponentExtraCryptoAPI(Command)
 EndProcedure
 
 &AtClient
-Procedure QuestionInSupport(Command)
+Procedure SupportTicket(Command)
 	
 	MessageParameters = New Structure("Subject, Message",
 		NStr("en = 'An issue occurred when configuring digital signing and encryption.'"), New Array);
@@ -729,7 +739,7 @@ Procedure QuestionInSupport(Command)
 EndProcedure
 
 &AtClient
-Procedure InformationToSendToSupport(Command)
+Procedure InfoForSupport(Command)
 	
 	DigitalSignatureInternalClient.GenerateTechnicalInformation(NStr("en = 'Digital signing and encryption settings'"));
 	
@@ -817,10 +827,10 @@ EndProcedure
 Procedure UpdateCertificatesList()
 
 	CertificatesInPersonalStorage = New ValueList;
-	NotifyDescription = New CallbackDescription(
+	CallbackDescription = New CallbackDescription(
 		"UpdateCertificateListAfterGettingCertificatePropertiesOnClient",
 		ThisObject, "UpdateAtServer");
-	DigitalSignatureInternalClient.GetCertificatesPropertiesAtClient(NotifyDescription, True, True, True);
+	DigitalSignatureInternalClient.GetCertificatesPropertiesAtClient(CallbackDescription, True, True, True);
 
 EndProcedure
 
@@ -957,7 +967,7 @@ Procedure CertificatesUpdateFilter(Form, StatusApplicationIsNotInOperation, Curr
 							
 	Items.CertificatesOnlyValid.Visible = SelectionByOperating;
 	CommonClientServer.SetDynamicListFilterItem(Form.Certificates,
-		"Valid_SSLyf", True, , , SelectionByOperating And Form.CertificatesOnlyValid);
+		"Valid", True, , , SelectionByOperating And Form.CertificatesOnlyValid);
 	
 	CommonClientServer.SetDynamicListFilterItem(Form.Certificates,
 		"DeadlineEndsSoon", True, , ,Form.CertificatesShow = "MyCertificatesWithexpiringValidity");
@@ -1014,42 +1024,43 @@ EndProcedure
 &AtServer
 Procedure ChangeApplicationDeletionMark(Application)
 	
-	If TypeOf(Application) = DigitalSignatureInternal.ServiceProgramTypeSignatures() Then
-		TheDSSCryptographyServiceModuleInternal = Common.CommonModule("DSSCryptographyServiceInternal");
-		TheDSSCryptographyServiceModuleInternal.ChangeApplicationDeletionMark(Application, UUID);
-		
-	Else
-		LockDataForEdit(Application, , UUID);
-		
-		Block = New DataLock;
-		LockItem = Block.Add("Catalog.DigitalSignatureAndEncryptionApplications");
-		LockItem.SetValue("Ref", Application);
-		
-		BeginTransaction();
-		Try
-			
-			Block.Lock();
-			
-			Object = Application.GetObject();
-			Object.DeletionMark = Not Object.DeletionMark;
-			If Object.DeletionMark Then
-				Object.UsageMode = Enums.DigitalSignatureAppUsageModes.NotUsed;
-			Else
-				Object.UsageMode = Enums.DigitalSignatureAppUsageModes.Configured;
-			EndIf;
-			Object.Write();
-			
-			CommitTransaction();
-			
-		Except
-			RollbackTransaction();
-			UnlockDataForEdit(Application, UUID);
-			Raise;
-		EndTry;
-		
-		UnlockDataForEdit(Application, UUID);
+	StandardProcessing = True;
+	DigitalSignatureLocalization.OnChangingAppDeletionTag(Application, UUID, StandardProcessing);
+	If StandardProcessing = False Then
+		FillApplicationsAndSettings(True);
+		Return;
 	EndIf;
-	
+		
+	LockDataForEdit(Application,, UUID);
+
+	Block = New DataLock;
+	LockItem = Block.Add("Catalog.DigitalSignatureAndEncryptionApplications");
+	LockItem.SetValue("Ref", Application);
+
+	BeginTransaction();
+	Try
+
+		Block.Lock();
+
+		Object = Application.GetObject();
+		Object.DeletionMark = Not Object.DeletionMark;
+		If Object.DeletionMark Then
+			Object.UsageMode = Enums.DigitalSignatureAppUsageModes.NotUsed;
+		Else
+			Object.UsageMode = Enums.DigitalSignatureAppUsageModes.Configured;
+		EndIf;
+		Object.Write();
+
+		CommitTransaction();
+
+	Except
+		RollbackTransaction();
+		UnlockDataForEdit(Application, UUID);
+		Raise;
+	EndTry;
+
+	UnlockDataForEdit(Application, UUID);
+		
 	FillApplicationsAndSettings(True);
 	
 EndProcedure
@@ -1150,8 +1161,8 @@ Async Procedure DefineInstalledApplicationsOnAttachExtension(Attached, Context) 
 			FormParameters.Insert("Components", Components);
 			FormParameters.Insert("RequiredAddInName", "CryptographicExtension");
 			FollowUpHandler = New CallbackDescription("DetermineApplicationsInstalledAfterAttachExtension", ThisObject, Context);
-			OpenForm("CommonForm.StartWorkWithDigitalSignature", FormParameters,
-				, , , , FollowUpHandler, FormWindowOpeningMode.LockOwnerWindow);
+			OpenForm("CommonForm.StartWorkWithDigitalSignature", FormParameters, ,
+				UUID, , , FollowUpHandler, FormWindowOpeningMode.LockOwnerWindow);
 			Return;
 		EndIf;
 #Else
@@ -1250,8 +1261,8 @@ Procedure TheHandlerIsWaitingToDetermineTheCurrentlyInstalledProgramsCycleAfterO
 		IdleHandlerDefineInstalledApplicationsLoopStart(Context);
 		Return;
 	ElsIf ApplicationDetails.IsBuiltInCryptoProvider
-		Or DigitalSignatureInternalClientServer.PlacementOfTheCertificate(ApplicationDetails.LocationType) = "CloudSignature" Then
-		
+		Or DigitalSignatureInternalClientServer.PlacementOfTheCertificate(ApplicationDetails.LocationType) = "CloudSignature"
+		Or ApplicationDetails.ApplicationName = "StateKey" Then
 		UpdateValue(ApplicationDetails.CheckResult, NStr("en = 'Available.'"));
 		UpdateValue(ApplicationDetails.Use, True);
 		IdleHandlerDefineInstalledApplicationsLoopStart(Context);
@@ -1381,10 +1392,19 @@ EndProcedure
 Procedure AfterCryptographyAppsChecked(Result, Notification) Export
 	
 	If Not Result.CheckCompleted Then
+#If MobileClient Or MobileAppClient Then
+		StandardProcessing = True;
+		DigitalSignatureClientLocalization.OnGettingTokens(
+			New CallbackDescription("AfterGettingTokensInMobileClient", ThisObject, Notification), False, StandardProcessing);
+		If Not StandardProcessing Then
+			Return;
+		EndIf;
+#Else
 		Items.GroupCryptoProvidersHint.Visible = True;
 		Items.DecorationCheckCryptoProviderInstallation.Title = StringFunctionsClient.FormattedString(
 			NStr("en = '<a href = ""%1"">Click here</a> to view all installed digital signing apps.'"),
 			"CheckCryptographyAppsInstallation");
+#EndIf
 	ElsIf Result.IsConflictPossible Then
 		DigitalSignatureClientLocalization.OnCheckCryptoAppsConflict(ThisObject, Result);
 	Else
@@ -1420,49 +1440,61 @@ Procedure AfterCryptographyAppsChecked(Result, Notification) Export
 			EndIf;
 			
 		EndDo;
-		
-		For Each Token In Result.Tokens Do
-			
-			Found4 = Programs.FindRows(New Structure("ApplicationName",Token.SerialNumber));
-			
-			If Found4.Count() = 0 Then 
-				NewRow = Programs.Add();
-			Else
-				NewRow = Found4[0];
-			EndIf;
-			
-			NewRow.LocationType = 1;
-			NewRow.AutoDetect = True;
-			NewRow.PictureUsageMode = -1;
-			NewRow.Description = Token.Presentation;
-			NewRow.IsToken = True;
-			NewRow.ApplicationName = Token.SerialNumber;
-			NewRow.Slot = Token.Slot;
-			NewRow.Action = "";
-			NewRow.Parameters = Undefined;
-			NewRow.MoreDetails = "";
-			NewRow.CheckResult = ?(ValueIsFilled(Token.Error), Token.Error, NStr("en = 'Available.'"));
-			
-			If ValueIsFilled(Token.Error) Then
-				If DigitalSignatureInternalClientServer.TokenLibraryLoadingError(Token.Error) Then
-					NewRow.MoreDetails = NStr("en = 'Install'") + "...";
-					NewRow.Action = DigitalSignatureInternalClientServer.ActionInstallLibrariesForTokens();
-					NewRow.Parameters = New Structure("TokenKind", Token.Token);
-				Else
-					NewRow.MoreDetails = NStr("en = 'Details'") + "...";
-				EndIf;
-			EndIf;
-			
-		EndDo;
-		
+		FillTokensList(Result.Tokens);
 		DigitalSignatureClientLocalization.OnCheckInstalledCryptoApps(ThisObject, Result, HasAppsToCheck);
-		
 	EndIf;
 	
 	If Notification <> Undefined Then
 		RunCallback(Notification);
 	EndIf;
 	
+EndProcedure
+
+&AtClient
+Procedure AfterGettingTokensInMobileClient(Tokens, Notification) Export
+	If ValueIsFilled(Tokens) Then
+		FillTokensList(Tokens);
+	EndIf;
+	If Notification <> Undefined Then
+		RunCallback(Notification);
+	EndIf;
+EndProcedure
+
+&AtClient
+Procedure FillTokensList(Tokens)
+	For Each Token In Tokens Do
+		
+		Found4 = Programs.FindRows(New Structure("Description",Token.Presentation));
+		
+		If Found4.Count() = 0 Then 
+			NewRow = Programs.Add();
+		Else
+			NewRow = Found4[0];
+		EndIf;
+		
+		NewRow.LocationType = 1;
+		NewRow.AutoDetect = True;
+		NewRow.PictureUsageMode = -1;
+		NewRow.Description = Token.Presentation;
+		NewRow.IsToken = True;
+		NewRow.ApplicationName = Token.SerialNumber;
+		NewRow.Slot = Token.Slot;
+		NewRow.Action = "";
+		NewRow.Parameters = Undefined;
+		NewRow.MoreDetails = "";
+		NewRow.CheckResult = ?(ValueIsFilled(Token.Error), Token.Error, NStr("en = 'Available.'"));
+		
+		If ValueIsFilled(Token.Error) Then
+			If DigitalSignatureInternalClientServer.TokenLibraryLoadingError(Token.Error) Then
+				NewRow.MoreDetails = NStr("en = 'Install'") + "...";
+				NewRow.Action = DigitalSignatureInternalClientServer.ActionInstallLibrariesForTokens();
+				NewRow.Parameters = New Structure("TokenKind", Token.Token);
+			Else
+				NewRow.MoreDetails = NStr("en = 'Details'") + "...";
+			EndIf;
+		EndIf;
+		
+	EndDo;
 EndProcedure
 
 &AtServer
@@ -1529,10 +1561,7 @@ Procedure FillApplicationsAndSettings(RefreshCached = False)
 	
 	TheSampleTable = Query.Execute().Unload();
 	
-	If DigitalSignatureInternal.UseCloudSignatureService() Then
-		TheDSSCryptographyServiceModuleInternal = Common.CommonModule("DSSCryptographyServiceInternal");
-		TheDSSCryptographyServiceModuleInternal.AddSelectionOfPrograms(TheSampleTable);
-	EndIf;
+	DigitalSignatureLocalization.WhenFillingOutElectronicSignatureApplications(TheSampleTable);
 	
 	TheSampleTable.Columns.Add("AppPathAtServerAuto", New TypeDescription("String"));
 	TheSampleTable.Columns.Add("CheckResultAtServer", New TypeDescription("String"));
@@ -1640,11 +1669,13 @@ Procedure FillApplicationsAndSettings(RefreshCached = False)
 			UpdateValue(String.PictureUsageMode, 0);
 		EndIf;
 		
-		If String.IsBuiltInCryptoProvider And Not String.DeletionMark Then
-			UpdateValue(String.CheckResult, NStr("en = 'Available.'"));
-			UpdateValue(String.Use, True);
-		ElsIf DigitalSignatureInternalClientServer.PlacementOfTheCertificate(SelectionString.LocationType) = "CloudSignature"
-				And Not String.DeletionMark Or SelectionString.LocationType = 5 Then
+		Structure = New Structure;
+		DigitalSignatureClientServerLocalization.WhenDeterminingAvailabilityOfApplication(SelectionString, Structure);
+		If ValueIsFilled(Structure) Then
+			For Each KeyAndValue In Structure Do
+				UpdateValue(String[KeyAndValue.Key], KeyAndValue.Value);
+			EndDo;
+		ElsIf String.IsBuiltInCryptoProvider And Not String.DeletionMark Then
 			UpdateValue(String.CheckResult, NStr("en = 'Available.'"));
 			UpdateValue(String.Use, True);
 		ElsIf String.LocationType = 1 And (Settings.VerifyDigitalSignaturesOnTheServer Or Settings.GenerateDigitalSignaturesAtServer) Then

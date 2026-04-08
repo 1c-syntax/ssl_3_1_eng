@@ -2986,7 +2986,7 @@
 														<v8:content>Select all</v8:content>
 													</v8:item>
 												</Title>
-												<ExtendedTooltip name="OptionStructure_CheckAll1ExtendedTooltip" id="770"/>
+												<ExtendedTooltip name="OptionStructure_SelectCheckBoxes1ExtendedTooltip" id="770"/>
 											</Button>
 											<Button name="OptionStructure_UncheckAll1" id="771">
 												<Type>CommandBarButton</Type>
@@ -2997,7 +2997,7 @@
 														<v8:content>Clear all</v8:content>
 													</v8:item>
 												</Title>
-												<ExtendedTooltip name="OptionStructure_UncheckAll1ExtendedTooltip" id="772"/>
+												<ExtendedTooltip name="OptionStructure_ClearCheckBoxes1ExtendedTooltip" id="772"/>
 											</Button>
 										</ChildItems>
 									</ButtonGroup>
@@ -3887,7 +3887,7 @@ In the Advanced mode, you can edit report structure. To save the changes, you ha
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="GroupSelectPeriod_1ExtendedTooltip" id="1376"/>
+							<ExtendedTooltip name="GroupSelectPeriod1ExtendedTooltip" id="1376"/>
 							<ChildItems>
 								<Button name="SelectPeriod1" id="1254">
 									<Type>UsualButton</Type>
@@ -4000,7 +4000,7 @@ In the Advanced mode, you can edit report structure. To save the changes, you ha
 							<Behavior>Usual</Behavior>
 							<Representation>None</Representation>
 							<ShowTitle>false</ShowTitle>
-							<ExtendedTooltip name="GroupSelectPeriod_2ExtendedTooltip" id="1378"/>
+							<ExtendedTooltip name="GroupSelectPeriod2ExtendedTooltip" id="1378"/>
 							<ChildItems>
 								<Button name="SelectPeriod2" id="1355">
 									<Type>UsualButton</Type>

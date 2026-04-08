@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -383,6 +382,136 @@ Procedure ChangeTransportOfPeerNodeOnWS(Node, Endpoint, CorrespondentEndpoint, D
 		
 	EndTry;
 		
+EndProcedure
+
+#EndRegion
+
+#Region LoadingPriorityDataToSubordinateRIBNode
+
+Procedure AtBeginningOfDownloadMessageExchangesDataWithUpdate(ImportParameters, HandlerParameters, ContinueWait = False) Export
+	
+	AtStartOfDataExchangeStartup(ImportParameters, HandlerParameters, "DataProcessors.DataExchangeCreationWizard.UploadPriorityDataToSubordinateRIBVNodeInBackground", ContinueWait);
+		
+EndProcedure   
+
+// For internal use.
+//
+Procedure WhileWaitingForUpdateDataExchangeMessageToLoad(HandlerParameters, ContinueWait) Export
+	
+	OnWaitTimeConsumingOperation(HandlerParameters, ContinueWait);
+	
+EndProcedure
+
+// For internal use.
+//
+Procedure WhenDownloadIsCompleteMessageExchangesDataWithUpdate(HandlerParameters, CompletionStatus) Export
+	
+	OnCompleteTimeConsumingOperation(HandlerParameters, CompletionStatus);
+	
+EndProcedure
+
+Procedure UploadPriorityDataToSubordinateRIBVNodeInBackground(ImportParameters, StorageAddress) Export
+	
+	Result = InitializeResultOfOperation();
+
+	Try
+		ImportPriorityDataToSubordinateDIBNode(ImportParameters);
+	Except
+		ErrorPresentation = ErrorProcessing.DetailErrorDescription(ErrorInfo());
+		
+		WriteLogEvent(DataExchangeServer.DataExchangeEventLogEvent(),
+			EventLogLevel.Error,,, ErrorPresentation);
+
+		Result.Cancel = True;
+		Result.ErrorMessage = ErrorPresentation;
+	EndTry;
+	
+	If ImportParameters.HasErrors Then
+		Result.Cancel = True;
+		Result.ErrorMessage = NStr("en = 'Errors importing data. See the event log.'")
+	EndIf;
+	
+	PutToTempStorage(Result, StorageAddress);
+	
+EndProcedure
+
+#EndRegion
+
+#Region LoadingMessageBeforeUpdatingInformationBase
+
+Procedure AtBeginningOfDownloadOfDataExchangeMessageWithoutUpdatingInfobase(ImportParameters, HandlerParameters, ContinueWait = False) Export
+	
+	AtStartOfDataExchangeStartup(ImportParameters, HandlerParameters, "DataProcessors.DataExchangeCreationWizard.UploadMessageBeforeUpdatingInformationBaseInBackground", ContinueWait);
+	
+EndProcedure
+
+// For internal use.
+//
+Procedure WhileWaitingForMessageToLoadBeforeUpdatingInformationBase(HandlerParameters, ContinueWait) Export
+	
+	OnWaitTimeConsumingOperation(HandlerParameters, ContinueWait);
+	
+EndProcedure
+
+// For internal use.
+//
+Procedure UponCompletionOfMessageDownloadBeforeUpdatingInformationBase(HandlerParameters, CompletionStatus) Export
+	
+	OnCompleteTimeConsumingOperation(HandlerParameters, CompletionStatus);
+	
+EndProcedure
+
+Procedure UploadMessageBeforeUpdatingInformationBaseInBackground(ProcedureParameters, StorageAddress) Export
+	
+	Result = InitializeResultOfOperation();
+	
+	Try
+		ImportMessageBeforeInfobaseUpdate(ProcedureParameters);
+	Except
+		ErrorPresentation = ErrorProcessing.DetailErrorDescription(ErrorInfo());
+
+		WriteLogEvent(DataExchangeServer.DataExchangeEventLogEvent(),
+			EventLogLevel.Error,,, ErrorPresentation);
+		
+		Result.Cancel = True;
+		Result.ErrorMessage = ErrorPresentation;
+	EndTry;
+	
+	If ProcedureParameters.HasErrors Then
+		Result.Cancel = True;
+		Result.ErrorMessage = NStr("en = 'Errors importing data. See the event log.'");
+	EndIf;
+	
+	PutToTempStorage(Result, StorageAddress);
+
+	If Result.Cancel Then
+		Return;
+	EndIf;
+	
+	SetPrivilegedMode(True);
+	
+	DataExchangeServer.SetDataExchangeMessageImportModeBeforeStart("ImportPermitted", False);
+	
+	// If the message is imported, reimporting is not required.
+	If Constants.LoadDataExchangeMessage.Get() Then
+		Constants.LoadDataExchangeMessage.Set(False);
+	EndIf;
+	
+	Constants.RetryDataExchangeMessageImportBeforeStart.Set(False);
+	
+	Try
+		ExportMessageAfterInfobaseUpdate(ProcedureParameters);
+	Except
+		// If import fails, resume the startup and
+		// run import in 1C:Enterprise mode.
+		EventLogMessageKey = DataExchangeServer.DataExchangeEventLogEvent();
+		
+		WriteLogEvent(EventLogMessageKey,
+			EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+	EndTry;
+	
+	SetPrivilegedMode(False);
+	
 EndProcedure
 
 #EndRegion
@@ -922,7 +1051,7 @@ Function SaveConnectionSettings1(ConnectionSettings) Export
 	
 	EndIf;
 		
-	// Export for offline exchange via IFDE
+	// Export for offline exchange via universal format
 	If Not TransportParameters.DirectConnection Then
 		If DataExchangeCached.IsXDTOExchangePlan(ConnectionSettings.ExchangePlanName) Then
 		
@@ -1514,6 +1643,236 @@ Function GettingCorrespondentParameters(ConnectionSettings) Export
 	Return CorrespondentParameters;
 	
 EndFunction
+
+Procedure AtStartOfDataExchangeStartup(ImportParameters, HandlerParameters, MethodName, ContinueWait = False)
+	
+	ExchangePlanName = DataExchangeCached.GetExchangePlanName(ImportParameters.InfobaseNode);
+	TransportID = ExchangeMessagesTransport.DefaultTransport(ImportParameters.InfobaseNode);
+	
+	BackgroundJobKey = DataExchangeServer.BackgroundJobKey(ExchangePlanName,
+		StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Importing exchange message: %1'"), TransportID));
+
+	If DataExchangeServer.HasActiveBackgroundJobs(BackgroundJobKey) Then
+		Raise StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Importing exchange message: %1 is running'"), TransportID);
+	EndIf;
+		
+	ExecutionParameters = TimeConsumingOperations.BackgroundExecutionParameters(New UUID);
+	ExecutionParameters.BackgroundJobDescription = StringFunctionsClientServer.SubstituteParametersToString(
+		NStr("en = 'Importing exchange message: %1.'"), TransportID);
+	ExecutionParameters.BackgroundJobKey = BackgroundJobKey;
+	ExecutionParameters.RunNotInBackground1    = False;
+	
+	BackgroundJob = TimeConsumingOperations.ExecuteInBackground(
+		MethodName,
+		ImportParameters,
+		ExecutionParameters);
+		
+	OnStartTimeConsumingOperation(BackgroundJob, HandlerParameters, ContinueWait);
+		
+EndProcedure
+
+// Returns:
+//  Structure:
+//   * Cancel - Boolean
+//   * ErrorMessage - String
+//
+Function InitializeResultOfOperation()
+	
+	Result = New Structure;
+	Result.Insert("Cancel",             False);
+	Result.Insert("ErrorMessage", "");
+	
+	Return Result;
+	
+EndFunction
+
+Procedure ImportMessageBeforeInfobaseUpdate(ImportParameters)
+	
+	If DataExchangeInternal.DataExchangeMessageImportModeBeforeStart(
+		"SkipImportDataExchangeMessageBeforeStart") Then
+		Return;
+	EndIf;
+	
+	If GetFunctionalOption("UseDataSynchronization") Then
+		
+		If ImportParameters.InfobaseNode <> Undefined Then
+			
+			SetPrivilegedMode(True);
+			DataExchangeServer.SetDataExchangeMessageImportModeBeforeStart("ImportPermitted", True);
+			SetPrivilegedMode(False);
+			
+			// Updating object registration rules before importing data.
+			DataExchangeServer.UpdateDataExchangeRules();
+			
+			TransportID = ExchangeMessagesTransport.DefaultTransport(ImportParameters.InfobaseNode);
+			
+			If ImportParameters.ContinueUploadingMessageFromArchive Then
+				DataExchangeServer.SaveMessageFromArchiveToCache(ImportParameters.InfobaseNode);
+			EndIf;
+			
+			// Import only.
+			ExchangeParameters = DataExchangeServer.ExchangeParameters();
+			ExchangeParameters.TransportID = TransportID;
+			ExchangeParameters.AuthenticationData = ImportParameters.AuthenticationData;
+			ExchangeParameters.ExecuteImport1 = True;
+			ExchangeParameters.ExecuteExport2 = False;
+			
+			DataExchangeServer.ExecuteDataExchangeForInfobaseNode(ImportParameters.InfobaseNode, ExchangeParameters, ImportParameters.HasErrors);
+			
+		EndIf;
+		
+	EndIf;
+	
+EndProcedure
+
+Procedure ExportMessageAfterInfobaseUpdate(ExportingParameters)
+	
+	// The repeat mode can be disabled if messages are imported and the infobase is updated successfully.
+	DataExchangeServer.DisableDataExchangeMessageImportRepeatBeforeStart();
+	
+	Try
+		If GetFunctionalOption("UseDataSynchronization") Then
+			
+			InfobaseNode = DataExchangeServer.MasterNode();
+			
+			If InfobaseNode <> Undefined Then
+				
+				ExecuteExport = True;
+				
+				TransportID = ExchangeMessagesTransport.DefaultTransport(InfobaseNode);
+				
+				If ExecuteExport Then
+					
+					// Export only.
+					Cancel = False;
+					
+					ExchangeParameters = DataExchangeServer.ExchangeParameters();
+					ExchangeParameters.TransportID = TransportID;
+					ExchangeParameters.AuthenticationData    = ExportingParameters.AuthenticationData;
+					ExchangeParameters.ExecuteImport1       = False;
+					ExchangeParameters.ExecuteExport2       = True;
+						
+					DataExchangeServer.ExecuteDataExchangeForInfobaseNode(InfobaseNode, ExchangeParameters, Cancel);
+
+				EndIf;
+				
+			EndIf;
+			
+		EndIf;
+		
+	Except
+		WriteLogEvent(DataExchangeServer.DataExchangeEventLogEvent(),
+			EventLogLevel.Error,,, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+	EndTry;
+	
+EndProcedure
+
+Procedure ImportPriorityDataToSubordinateDIBNode(ImportParameters)
+	
+	If DataExchangeInternal.DataExchangeMessageImportModeBeforeStart(
+		"SkipImportDataExchangeMessageBeforeStart") Then
+		Return;
+	EndIf;
+	
+	If DataExchangeInternal.DataExchangeMessageImportModeBeforeStart(
+		"SkipImportPriorityDataBeforeStart") Then
+		Return;
+	EndIf;
+	
+	SetPrivilegedMode(True);
+	DataExchangeServer.SetDataExchangeMessageImportModeBeforeStart("ImportPermitted", True);
+	SetPrivilegedMode(False);
+	
+	CheckDataSynchronizationEnabled();
+	
+	If GetFunctionalOption("UseDataSynchronization") Then
+		
+		InfobaseNode = DataExchangeServer.MasterNode();
+		
+		If InfobaseNode <> Undefined Then
+			
+			TransportID = ExchangeMessagesTransport.DefaultTransport(InfobaseNode);
+			If TransportID = Undefined Then
+				
+				Catalogs.ExchangeMessageTransportSettings.ProcessDataForMigrationToNewVersion();
+				TransportID = ExchangeMessagesTransport.DefaultTransport(InfobaseNode);
+				
+			EndIf;
+			
+			UpdatingRulesForDataExchange(ImportParameters.InfobaseNode);
+			
+			If ImportParameters.ContinueUploadingMessageFromArchive Then
+				DataExchangeServer.SaveMessageFromArchiveToCache(InfobaseNode);
+			EndIf;
+			
+			// Importing application parameters only.
+			ExchangeParameters = DataExchangeServer.ExchangeParameters();
+			ExchangeParameters.TransportID = TransportID;
+			ExchangeParameters.AuthenticationData = ImportParameters.AuthenticationData;
+			ExchangeParameters.ExecuteImport1 = True;
+			ExchangeParameters.ExecuteExport2 = False;
+			ExchangeParameters.ParametersOnly   = True;
+			
+			DataExchangeServer.ExecuteDataExchangeForInfobaseNode(InfobaseNode, ExchangeParameters, ImportParameters.HasErrors);
+			
+		EndIf;
+		
+	EndIf; 
+	
+EndProcedure
+
+Procedure UpdatingRulesForDataExchange(InfobaseNode)
+	
+	ParameterName = "StandardSubsystems.DataExchange.RecordRules."
+		+ DataExchangeCached.GetExchangePlanName(InfobaseNode);  
+		
+	RegistrationRulesUpdated = StandardSubsystemsServer.ApplicationParameter(ParameterName);
+	
+	If RegistrationRulesUpdated = Undefined Then
+		DataExchangeServer.UpdateDataExchangeRules();
+	EndIf;
+	
+	RegistrationRulesUpdated = StandardSubsystemsServer.ApplicationParameter(ParameterName);
+	
+	If RegistrationRulesUpdated = Undefined Then
+		Raise StringFunctionsClientServer.SubstituteParametersToString(
+			NStr("en = 'Cannot update data registration rules cache for exchange plan ""%1""'"),
+			DataExchangeCached.GetExchangePlanName(InfobaseNode));
+	EndIf;
+	
+EndProcedure  
+
+Procedure CheckDataSynchronizationEnabled()
+	
+	If Not GetFunctionalOption("UseDataSynchronization") Then
+		
+		If Common.DataSeparationEnabled() Then
+			
+			UseDataSynchronization = Constants.UseDataSynchronization.CreateValueManager();
+			UseDataSynchronization.AdditionalProperties.Insert("DisableObjectChangeRecordMechanism");
+			UseDataSynchronization.DataExchange.Load = True;
+			UseDataSynchronization.Value = True;
+			UseDataSynchronization.Write();
+			
+		Else
+			
+			If DataExchangeServer.GetExchangePlansInUse().Count() > 0 Then
+				
+				UseDataSynchronization = Constants.UseDataSynchronization.CreateValueManager();
+				UseDataSynchronization.AdditionalProperties.Insert("DisableObjectChangeRecordMechanism");
+				UseDataSynchronization.DataExchange.Load = True;
+				UseDataSynchronization.Value = True;
+				UseDataSynchronization.Write();
+				
+			EndIf;
+			
+		EndIf;
+		
+	EndIf;
+	
+EndProcedure
 
 #EndRegion
 

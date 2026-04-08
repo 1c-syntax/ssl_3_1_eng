@@ -66,6 +66,17 @@
 		</right>
 	</object>
 	<object>
+		<name>InformationRegister.BinaryDataStorageLocations</name>
+		<right>
+			<name>Read</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>Update</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
 		<name>Catalog.QuestionnaireTemplates</name>
 		<right>
 			<name>Read</name>
@@ -764,6 +775,44 @@
 	</object>
 	<object>
 		<name>InformationRegister.FileSynchronizationSettings</name>
+		<right>
+			<name>Read</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>Update</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
+		<name>Configuration.StandardSubsystemsLibrary</name>
+		<right>
+			<name>MainWindowModeNormal</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>MainWindowModeWorkplace</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>MainWindowModeEmbeddedWorkplace</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>MainWindowModeFullscreenWorkplace</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>MainWindowModeKiosk</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>AnalyticsSystemClient</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
+		<name>InformationRegister.FileArchiveWorkSettings</name>
 		<right>
 			<name>Read</name>
 			<value>true</value>
@@ -2552,6 +2601,13 @@
 		</right>
 	</object>
 	<object>
+		<name>Catalog.ExtensionObjectIDs</name>
+		<right>
+			<name>Read</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
 		<name>InformationRegister.EmailFolderStates</name>
 		<right>
 			<name>Read</name>
@@ -3221,33 +3277,6 @@
 		</right>
 	</object>
 	<object>
-		<name>Configuration.StandardSubsystemsLibrary</name>
-		<right>
-			<name>MainWindowModeNormal</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>MainWindowModeWorkplace</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>MainWindowModeEmbeddedWorkplace</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>MainWindowModeFullscreenWorkplace</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>MainWindowModeKiosk</name>
-			<value>true</value>
-		</right>
-		<right>
-			<name>AnalyticsSystemClient</name>
-			<value>true</value>
-		</right>
-	</object>
-	<object>
 		<name>SessionParameter.ORMCachedValuesRefreshDate</name>
 		<right>
 			<name>Get</name>
@@ -3270,6 +3299,13 @@
 		</right>
 		<right>
 			<name>Delete</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
+		<name>InformationRegister.ExtensionVersionObjectIDs</name>
+		<right>
+			<name>Read</name>
 			<value>true</value>
 		</right>
 	</object>
@@ -3450,6 +3486,17 @@
 	</object>
 	<object>
 		<name>InformationRegister.InteractionsContacts</name>
+		<right>
+			<name>Read</name>
+			<value>true</value>
+		</right>
+		<right>
+			<name>Update</name>
+			<value>true</value>
+		</right>
+	</object>
+	<object>
+		<name>InformationRegister.InformationAboutStoringDeduplicatedFiles</name>
 		<right>
 			<name>Read</name>
 			<value>true</value>

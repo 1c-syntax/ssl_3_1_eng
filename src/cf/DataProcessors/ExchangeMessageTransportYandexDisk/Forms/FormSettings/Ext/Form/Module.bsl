@@ -1,10 +1,11 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, ООО 1С-Софт
-// Все права защищены. Эта программа и сопроводительные материалы предоставляются 
-// в соответствии с условиями лицензии Attribution 4.0 International (CC BY 4.0)
-// Текст лицензии доступен по ссылке:
+// Copyright (c) 2025, OOO 1C-Soft
+// All rights reserved. This software and the related materials 
+// are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
+// To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //
 
 #Region FormEventHandlers
@@ -120,8 +121,8 @@ Procedure TestConnectionCompletion(Result, AdditionalParameters) Export
 		ConnectionIsSet = False;
 		TestConnectionAtServer(ConnectionIsSet);
 		
-		WarningText = ?(ConnectionIsSet, NStr("en = 'Подключение успешно установлено.'"),
-								NStr("en = 'Не удалось установить подключение.'"));
+		WarningText = ?(ConnectionIsSet, NStr("en = 'Connection established.'"),
+								NStr("en = 'Cannot establish connection.'"));
 		ShowMessageBox(, WarningText);
 		
 	EndIf;
@@ -135,14 +136,14 @@ Procedure TestConnectionAtServer(ConnectionIsSet)
 	
 	DataProcessorObject = FormAttributeToValue("Object");
 	
-	// Выполняем проверку подключения.
+	// Check the connection.
 	ConnectionIsSet = DataProcessorObject.ConnectionIsSet();
 	If Not ConnectionIsSet Then
 		
 		Cancel = True;
 		
 		ErrorMessage = DataProcessorObject.ErrorMessage
-			+ Chars.LF + NStr("en = 'Техническую информацию об ошибке см. в журнале регистрации.'");
+			+ Chars.LF + NStr("en = 'See the event log for details.'");
 					
 		Common.MessageToUser(ErrorMessage, , , , Cancel);
 			

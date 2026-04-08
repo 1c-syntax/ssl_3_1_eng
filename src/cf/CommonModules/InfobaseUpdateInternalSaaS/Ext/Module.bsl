@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Internal
@@ -796,9 +795,10 @@ Procedure AfterUpdateInfobase(Val PreviousVersion, Val CurrentVersion,
 	If Not ExclusiveMode() Then
 		MetadataObject = Metadata.ScheduledJobs.Find("DataAreasUpdate");
 		Job = ScheduledJobsServer.GetScheduledJob(MetadataObject);
+		JobName = MetadataObject.Name;
 		// ACC:280 Exception handling is not required.
 		Try
-			BackgroundJobs.Execute(Job.Metadata.MethodName, , Job.Key, Job.Description);
+			BackgroundJobs.Execute(Metadata.ScheduledJobs[JobName].MethodName,, Job.Key, Job.Description);
 		Except
 			// Meaning that the job is running. Do not handle exceptions.
 			// 
@@ -1392,5 +1392,12 @@ Function ExecuteQueryOutsideTransaction(Val Query)
 	Return Result;
 	
 EndFunction
+
+// See StandardSubsystemsServer.WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode
+Procedure WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode(Methods) Export
+	
+	Methods.Insert("DataAreasUpdate", True);
+	
+EndProcedure
 
 #EndRegion

@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Variables
@@ -214,8 +213,8 @@ Procedure SelectObjects()
 	FormParameters.ShouldSelectExternalDataSourceTables = True;
 	FormParameters.ObjectsGroupMethod = "ByKinds";
 	
-	NotifyDescription = New CallbackDescription("SelectObjectsCompletion", ThisObject);
-	StandardSubsystemsClient.ChooseMetadataObjects(FormParameters, NotifyDescription);
+	CallbackDescription = New CallbackDescription("SelectObjectsCompletion", ThisObject);
+	StandardSubsystemsClient.ChooseMetadataObjects(FormParameters, CallbackDescription);
 	
 EndProcedure
 
@@ -339,7 +338,7 @@ Procedure FillCurrentSettings()
 		EndIf;
 		ConfiguredFields = New Structure;
 		ConfiguredFields.Insert("AccessFields",      FieldsInLowerCase(EventSetting.AccessFields));
-		ConfiguredFields.Insert("RegistrationFields",  FieldsInLowerCase(EventSetting.RegistrationFields));
+		ConfiguredFields.Insert("LoggedFields",  FieldsInLowerCase(EventSetting.LoggedFields));
 		ConfiguredFields.Insert("AllFields",          TableFields.AllFields);
 		ConfiguredFields.Insert("FullTableName", FullTableName);
 		ConfiguredFields.Insert("Comments",      Comments);
@@ -446,7 +445,7 @@ Procedure AddFields(FieldsItems, FieldsDetails, AddedFields, ConfiguredFields,
 		If ConfiguredFields.AccessFields.Get(FieldNameForSearch) <> Undefined Then
 			FieldItem.ToControl = True;
 		EndIf;
-		If ConfiguredFields.RegistrationFields.Get(FieldNameForSearch) <> Undefined Then
+		If ConfiguredFields.LoggedFields.Get(FieldNameForSearch) <> Undefined Then
 			FieldItem.DoRegister = True;
 		EndIf;
 		FieldFullNameForSearch = Lower(ConfiguredFields.FullTableName + "." + FieldNameForSearch);
@@ -515,7 +514,7 @@ Function IsWrittenAtServer()
 		EndIf;
 		ItemsOfTabularSectionsAndFields = RowColumn.GetItems();
 		AccessFields = New Array;
-		RegistrationFields = New Array;
+		LoggedFields = New Array;
 		For Each FieldOrTabularSectionItem In ItemsOfTabularSectionsAndFields Do
 			If FieldOrTabularSectionItem.IsField Then
 				FieldsItems = CommonClientServer.ValueInArray(FieldOrTabularSectionItem);
@@ -539,7 +538,7 @@ Function IsWrittenAtServer()
 					AccessFields.Add(FieldName);
 				EndIf;
 				If FieldItem.DoRegister Then
-					RegistrationFields.Add(FieldName);
+					LoggedFields.Add(FieldName);
 				EndIf;
 				If ValueIsFilled(FieldItem.Comment)
 				   And (FieldItem.ToControl Or FieldItem.DoRegister) Then
@@ -548,7 +547,7 @@ Function IsWrittenAtServer()
 			EndDo;
 		EndDo;
 		If Not ValueIsFilled(AccessFields) Then
-			If ValueIsFilled(RegistrationFields) Then
+			If ValueIsFilled(LoggedFields) Then
 				Common.MessageToUser(StringFunctionsClientServer.SubstituteParametersToString(
 						NStr("en = 'The table ""%1"" specifies fields to include in the event but does not specify fields that trigger event recording upon access.'"),
 					RowColumn.Presentation), , "Settings");
@@ -559,7 +558,7 @@ Function IsWrittenAtServer()
 		NewSetting = New EventLogAccessEventUseDescription;
 		NewSetting.Object = RowColumn.Name;
 		NewSetting.AccessFields = AccessFields;
-		NewSetting.RegistrationFields = RegistrationFields;
+		NewSetting.LoggedFields = LoggedFields;
 		EventSettings.Add(NewSetting);
 	EndDo;
 	

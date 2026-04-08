@@ -31,6 +31,11 @@
 			<ContextMenu name="FileNameContextMenu" id="14"/>
 			<ExtendedTooltip name="FileNameExtendedTooltip" id="15"/>
 		</InputField>
+		<InputField name="TheHashSumOfTheFile" id="25">
+			<DataPath>Record.TheHashSumOfTheFile</DataPath>
+			<ContextMenu name="TheHashSumOfTheFileContextMenu" id="26"/>
+			<ExtendedTooltip name="TheHashSumOfTheFileExtendedTooltip" id="27"/>
+		</InputField>
 		<InputField name="FileExtention" id="16">
 			<DataPath>Record.FileExtention</DataPath>
 			<ContextMenu name="FileExtentionContextMenu" id="17"/>

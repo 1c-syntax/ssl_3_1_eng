@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Internal
@@ -30,6 +29,7 @@ Function IgnoreIssue(ReportDetailsData, SpreadsheetDocument, DetailsIndex) Expor
 	Query.SetParameter("ObjectWithIssue", Result.ObjectWithIssue);
 	Query.SetParameter("CheckRule", Result.CheckRule);
 	Query.SetParameter("CheckKind", Result.CheckKind);
+	Query.SetParameter("UniqueKey", Result.UniqueKey);
 	Query.Text = 
 		"SELECT
 		|	AccountingCheckResults.IgnoreIssue AS IgnoreIssue
@@ -38,7 +38,8 @@ Function IgnoreIssue(ReportDetailsData, SpreadsheetDocument, DetailsIndex) Expor
 		|WHERE
 		|	AccountingCheckResults.ObjectWithIssue = &ObjectWithIssue
 		|	AND AccountingCheckResults.CheckRule = &CheckRule
-		|	AND AccountingCheckResults.CheckKind = &CheckKind";
+		|	AND AccountingCheckResults.CheckKind = &CheckKind
+		|	AND AccountingCheckResults.UniqueKey = &UniqueKey";
 	Value = Query.Execute().Unload()[0].IgnoreIssue;
 	
 	AccountingAudit.IgnoreIssue(Result, Not Value);
@@ -109,6 +110,7 @@ Function SelectedCellDetails(ReportDetailsData, SpreadsheetDocument, DetailsInde
 	Result.Insert("CheckKind");
 	Result.Insert("IssueSummary");
 	Result.Insert("FullObjectName");
+	Result.Insert("UniqueKey");
 	
 	DetailsData = GetFromTempStorage(ReportDetailsData); // DataCompositionDetailsData
 	Details       = DetailsData.Items[DetailsIndex].GetFields();
@@ -125,6 +127,7 @@ Function SelectedCellDetails(ReportDetailsData, SpreadsheetDocument, DetailsInde
 	Result.CheckKind      = Catalogs.ChecksKinds.GetRef(New UUID(ValueInParts[3]));
 	Result.IssueSummary = ValueInParts[4];
 	Result.FullObjectName = ValueInParts[0];
+	Result.UniqueKey = New UUID(ValueInParts[5]);
 	
 	Return Result;
 EndFunction

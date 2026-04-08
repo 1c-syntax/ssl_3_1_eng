@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Internal
@@ -461,7 +460,7 @@ Function IndexOfTheReportStructure(Form) Export
 		DefineFieldRoles(IndexOfTheReportStructure, ResultProperties.FieldRoles);
 		DefineFormulaFields(ReportSettings.SchemaURL, Settings, IndexOfTheReportStructure);
 		SetTheReportStructureIndexIDs(IndexOfTheReportStructure);
-		DefineAvailableReportFieldActions(IndexOfTheReportStructure);
+		DefineAvailableReportFieldActions(Settings, IndexOfTheReportStructure);
 		
 		ResultProperties.AddressOfTheReportStructureIndex = PutToTempStorage(
 			IndexOfTheReportStructure, Form.UUID);
@@ -1070,7 +1069,7 @@ Procedure DefineFieldRoles(IndexOfTheReportStructure, FieldRoles)
 	
 	For Each Record In IndexOfTheReportStructure Do 
 		
-		Record.Period = (FieldRoles.TimeIntervals_[Record.Field] <> Undefined);
+		Record.Period = (FieldRoles.TimeIntervals[Record.Field] <> Undefined);
 		Record.Dimension = (FieldRoles.Dimensions[Record.Field] <> Undefined);
 		
 	EndDo;
@@ -1080,7 +1079,7 @@ EndProcedure
 Function ReportFieldRoles(SchemaURL)
 	
 	FieldRoles = New Structure;
-	FieldRoles.Insert("TimeIntervals_", New Map);
+	FieldRoles.Insert("TimeIntervals", New Map);
 	FieldRoles.Insert("Dimensions", New Map);
 	FieldRoles.Insert("Balance", New Map);
 	
@@ -1098,7 +1097,7 @@ Function ReportFieldRoles(SchemaURL)
 			
 			If Field.Role.PeriodNumber > 0 Then 
 				
-				FieldRoles.TimeIntervals_.Insert(New DataCompositionField(Field.Field), DescriptionOfTheReportFieldRole(Field.Role));
+				FieldRoles.TimeIntervals.Insert(New DataCompositionField(Field.Field), DescriptionOfTheReportFieldRole(Field.Role));
 				
 			ElsIf Field.Role.Dimension Then 
 				
@@ -1182,7 +1181,7 @@ Procedure SetTheReportStructureIndexIDs(IndexOfTheReportStructure)
 	
 EndProcedure
 
-Procedure DefineAvailableReportFieldActions(IndexOfTheReportStructure)
+Procedure DefineAvailableReportFieldActions(Settings, IndexOfTheReportStructure)
 	
 	Sections = IndexOfTheReportStructure.Copy();
 	Sections.GroupBy("SectionOrder");
@@ -1190,14 +1189,14 @@ Procedure DefineAvailableReportFieldActions(IndexOfTheReportStructure)
 	
 	For Each SectionOrder In OrderOfSections Do 
 		
-		DefineTheAvailableActionsOfTheReportSectionFields(IndexOfTheReportStructure, SectionOrder);
-		DefineTheAvailableActionsOfTheReportSectionFields(IndexOfTheReportStructure, SectionOrder, True);
+		DefineTheAvailableActionsOfTheReportSectionFields(Settings, IndexOfTheReportStructure, SectionOrder);
+		DefineTheAvailableActionsOfTheReportSectionFields(Settings, IndexOfTheReportStructure, SectionOrder, True);
 		
 	EndDo;
 	
 EndProcedure
 
-Procedure DefineTheAvailableActionsOfTheReportSectionFields(IndexOfTheReportStructure, SectionOrder, ThisIsAResource = False)
+Procedure DefineTheAvailableActionsOfTheReportSectionFields(Settings, IndexOfTheReportStructure, SectionOrder, ThisIsAResource = False)
 	
 	SearchForSectionFields = New Structure("SectionOrder, Resource", SectionOrder, ThisIsAResource);
 	GroupingFields = IndexOfTheReportStructure.Copy(SearchForSectionFields);
@@ -1234,12 +1233,24 @@ Procedure DefineTheAvailableActionsOfTheReportSectionFields(IndexOfTheReportStru
 			IndexOf.InsertGroupAbove = Not ThisIsTheColumnGroupingField And Not ThisIsAResource;
 			IndexOf.InsertGroupBelow = Not ThisIsTheColumnGroupingField And Not ThisIsAResource;
 			
+			HasAvailableGroupingFieldAbove = False;
+			If TheGroupingFieldsAreHigher <> Undefined Then
+				For Each GroupingFieldAbove In TheGroupingFieldsAreHigher Do
+					If Settings.SelectionAvailableFields.Items.Find(GroupingFieldAbove.Field) <> Undefined
+					   Or Settings.GroupAvailableFields.Items.Find(GroupingFieldAbove.Field) <> Undefined Then
+						HasAvailableGroupingFieldAbove = True;
+						Break;
+					EndIf;
+				EndDo;
+			EndIf;
+			
 			IndexOf.MoveFieldUp = Not ThisIsTheColumnGroupingField
 				And SectionOrder = 1
 				And Not ThisIsAResource
 				And IndexOf.ContainsTheParentGroup
 				And TheGroupingFieldsAreHigher <> Undefined
-				And TheGroupingFieldsAreHigher.Find(Not GroupingField.Period, "Period") = Undefined;
+				And TheGroupingFieldsAreHigher.Find(Not GroupingField.Period, "Period") = Undefined
+				And HasAvailableGroupingFieldAbove;
 			
 			IndexOf.MoveFieldDown = Not ThisIsTheColumnGroupingField
 				And SectionOrder = 1
@@ -2050,12 +2061,22 @@ Function DataOfTheDecryptionElement(Form, Details) Export
 	Parents = DetailsItem.GetParents();
 	Parent = ?(Parents.Count() = 0, Undefined, Parents[0]);
 	
+	DecryptionIsAvailable = True;
+	
 	If TypeOf(DetailsItem) = Type("DataCompositionGroupDetailsItem")
 		Or TypeOf(Parent) <> Type("DataCompositionGroupDetailsItem") Then 
 	
 		TypeOfTheDecryptionElement = ReportsOptionsInternalClientServer.TheTypeOfTheDecryptionElementIsGrouping();
 	Else
 		TypeOfTheDecryptionElement = ReportsOptionsInternalClientServer.TypeOfProps();
+		If TypeOf(Parent) = Type("DataCompositionGroupDetailsItem") Then
+			For Each Group In Data.Settings.Structure Do
+				If StrCompare(Parent.Group, Group.Id) = 0 Then
+					DecryptionIsAvailable = Group.GroupFields.Items.Count() > 0;
+					Break;
+				EndIf;
+			EndDo;
+		EndIf;
 	EndIf;
 	
 	DataOfTheDecryptionElement = New Structure;
@@ -2063,6 +2084,7 @@ Function DataOfTheDecryptionElement(Form, Details) Export
 	DataOfTheDecryptionElement.Insert("Settings", Data.Settings);
 	DataOfTheDecryptionElement.Insert("Filter", SelectingTheDecryptionElement(DetailsItem));
 	DataOfTheDecryptionElement.Insert("Filters", SelectionsOfSelectedDecryptionElements(Document, SelectedDocumentAreas, Data));
+	DataOfTheDecryptionElement.Insert("DecryptionIsAvailable", DecryptionIsAvailable);
 	
 	Fields = DetailsItem.GetFields();
 	
@@ -2588,5 +2610,12 @@ Function DecryptionHandlerSelectionPropertiesByDetailRecords() Export
 EndFunction
 
 #EndRegion
+
+// See StandardSubsystemsServer.WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode
+Procedure WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode(Methods) Export
+	
+	Methods.Insert("FillInTheFilterValues", True);
+	
+EndProcedure
 
 #EndRegion

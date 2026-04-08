@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -102,33 +101,38 @@ Procedure DoLogChanges(RecordSet, Replacing, OldRecords)
 	
 	RegisterMetadata = Metadata.InformationRegisters.PeriodClosingDates;
 	
-	Fields = New ValueList;
-	ColumnWidth_ = New Map;
-	AddAField(Fields, ColumnWidth_, RegisterMetadata.Dimensions.Section, 20);
-	AddAField(Fields, ColumnWidth_, RegisterMetadata.Dimensions.Object, 40);
-	AddAField(Fields, ColumnWidth_, RegisterMetadata.Dimensions.User, 40);
-	AddAField(Fields, ColumnWidth_, RegisterMetadata.Resources.PeriodEndClosingDate, 20);
-	AddAField(Fields, ColumnWidth_, RegisterMetadata.Attributes.PeriodEndClosingDateDetails, 22);
-	AddAField(Fields, ColumnWidth_, RegisterMetadata.Attributes.Comment, 20);
+	Fields = New Array;
+	Fields.Add(NewFieldDescription(RegisterMetadata.Dimensions.Section));
+	Fields.Add(NewFieldDescription(RegisterMetadata.Dimensions.Object));
+	Fields.Add(NewFieldDescription(RegisterMetadata.Dimensions.User));
+	Fields.Add(NewFieldDescription(RegisterMetadata.Resources.PeriodEndClosingDate));
+	Fields.Add(NewFieldDescription(RegisterMetadata.Attributes.PeriodEndClosingDateDetails));
+	Fields.Add(NewFieldDescription(RegisterMetadata.Attributes.Comment));
 	
 	Title = New Array;
 	Title.Add("");
 	For Each Field In Fields Do
-		Title.Add(AugmentedString(Field.Presentation,
-			ColumnWidth_.Get(Field.Value)));
+		Title.Add(AugmentedString(Field.Presentation, Fields, Field));
 	EndDo;
 	
 	CommentLines = New Array;
 	CommentLines.Add(StrConcat(Title, " | "));
 	
 	If ValueIsFilled(AddedRows) Then
-		AddLines(CommentLines, AddedRows, Fields, ColumnWidth_, "+");
+		AddLines(CommentLines, AddedRows, Fields, "+");
 	EndIf;
 	If ValueIsFilled(DeletedRows) Then
-		AddLines(CommentLines, DeletedRows, Fields, ColumnWidth_, "-");
+		AddLines(CommentLines, DeletedRows, Fields, "-");
 	EndIf;
 	
 	Comment = StrConcat(CommentLines, Chars.LF) + Chars.LF;
+	
+	SpacesByWidth = SpacesByWidth();
+	InitialWidth = StrLen(SpacesByWidth);
+	For Each Field In Fields Do
+		ReplacementString = Left(SpacesByWidth, InitialWidth - Field.Width) + "/" + Fields.Find(Field) + " | ";
+		Comment = StrReplace(Comment, ReplacementString, " | ");
+	EndDo;
 	
 	WriteLogEvent(
 		NStr("en = 'Period-end closing dates.Change registration'",
@@ -143,37 +147,60 @@ Procedure DoLogChanges(RecordSet, Replacing, OldRecords)
 	
 EndProcedure
 
-Procedure AddAField(Fields, ColumnWidth_, FieldMetadata, ColumnWidth);
+Function NewFieldDescription(FieldMetadata)
 	
-	Fields.Add(FieldMetadata.Name, FieldMetadata.Presentation());
-	ColumnWidth_.Insert(FieldMetadata.Name, ColumnWidth);
+	FieldDetails = New Structure;
+	FieldDetails.Insert("Name", FieldMetadata.Name);
+	FieldDetails.Insert("Presentation", FieldMetadata.Presentation());
+	FieldDetails.Insert("Width", 0);
 	
-EndProcedure
-
-Function AugmentedString(Value, ColumnWidth)
-	
-	String = String(Value);
-	If Not ValueIsFilled(String) 
-	   And TypeOf(Value) <> Type("String") Then
-		String = "<> (" + String(TypeOf(Value)) + ")";
-	EndIf;
-	StringLength = StrLen(String);
-	If TypeOf(ColumnWidth) <> Type("Number")
-	 Or ColumnWidth <= StringLength Then
-		Return String;
-	EndIf;
-	Spaces = "                                            ";
-	Return String + Left(Spaces, ColumnWidth - StringLength);
+	Return FieldDetails;
 	
 EndFunction
 
-Procedure AddLines(CommentLines, TableRows, Fields, ColumnWidth_, Operation)
+Function AugmentedString(Value, Fields, Field)
+	
+	Type = TypeOf(Value);
+	If Type = Type("Date") Then
+		String = Format(Value, "DLF=DT");
+	Else
+		String = String(Value);
+	EndIf;
+	If Not ValueIsFilled(String) And Type <> Type("String") Then
+		String = "<> (" + String(TypeOf(Value)) + ")";
+	EndIf;
+	String = StrReplace(TrimAll(String), Chars.LF, " ");
+	
+	FieldIndex = Fields.Find(Field);
+	If FieldIndex = Fields.UBound() Then
+		Return String;
+	EndIf;
+	
+	StringLength = StrLen(String);
+	SpacesByWidth = SpacesByWidth();
+	InitialWidth = StrLen(SpacesByWidth);
+	If StringLength >= InitialWidth Then
+		Return String;
+	EndIf;
+	
+	If Field.Width < StringLength Then
+		Field.Width = StringLength;
+	EndIf;
+	
+	Return String + Left(SpacesByWidth, InitialWidth - StringLength) + "/" + FieldIndex;
+	
+EndFunction
+
+Function SpacesByWidth()
+	Return "                                                                      ";
+EndFunction
+
+Procedure AddLines(CommentLines, TableRows, Fields, Operation)
 	
 	For Each TableRow In TableRows Do
 		CommentLine = New Array;
 		For Each Field In Fields Do
-			CommentLine.Add(AugmentedString(TableRow[Field.Value],
-				ColumnWidth_.Get(Field.Value)));
+			CommentLine.Add(AugmentedString(TableRow[Field.Name], Fields, Field));
 		EndDo;
 		CommentLines.Add(Operation + "| " + StrConcat(CommentLine, " | "));
 	EndDo;

@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -24,7 +23,13 @@ EndProcedure
 &AtClient
 Procedure OnOpen(Cancel)
 	
-	WorkOptionOnChange("");
+	SetCurrentRowOfTable();
+	
+	If Not Items.WorkOption.Visible Then
+		
+		WorkOptionOnChange("");
+		
+	EndIf;
 	
 EndProcedure
 
@@ -49,6 +54,10 @@ Procedure WorkOptionOnChange(Item)
 	
 EndProcedure
 
+#EndRegion
+
+#Region FormTableItemsEventHandlersNewSetupTable
+
 &AtClient
 Procedure NewSetupTableSelection(Item, RowSelected, Field, StandardProcessing)
 	
@@ -60,6 +69,10 @@ Procedure NewSetupTableSelection(Item, RowSelected, Field, StandardProcessing)
 	EndIf;
 	
 EndProcedure
+
+#EndRegion
+
+#Region FormTableItemsEventHandlersTableContinuedSettings
 
 &AtClient
 Procedure TableContinuedSettingsSelection(Item, RowSelected, Field, StandardProcessing)
@@ -145,6 +158,25 @@ EndProcedure
 
 #Region Private
 
+&AtClient
+Procedure SetCurrentRowOfTable()
+	
+	If IdOfNewRow <> 0
+		And Items.NewSetupTable.CheckRow(IdOfNewRow) = True Then
+		
+		Items.NewSetupTable.CurrentRow = IdOfNewRow;
+		
+	EndIf;
+	
+	If IdOfContinuationLine <> 0 
+		And Items.TableContinuedSettings.CheckRow(IdOfContinuationLine) = True Then
+		
+		Items.TableContinuedSettings.CurrentRow = IdOfContinuationLine;
+		
+	EndIf;
+	
+EndProcedure
+
 &AtServer
 Procedure SetConditionalAppearance()
 	
@@ -160,8 +192,8 @@ Procedure SetConditionalAppearance()
 	ItemFilter.LeftValue = New DataCompositionField("NewSetupTable.Selected");
 	ItemFilter.ComparisonType = DataCompositionComparisonType.Equal;
 	ItemFilter.RightValue = True;
-		
-	Item.Appearance.SetParameterValue("Font", New Font(,,True));
+	
+	Item.Appearance.SetParameterValue("Font", StyleFonts.DataSynchronizationBoldFont);
 	
 	// TableContinuedSettings
 	Item = ConditionalAppearance.Items.Add();
@@ -174,24 +206,24 @@ Procedure SetConditionalAppearance()
 	ItemFilter.ComparisonType = DataCompositionComparisonType.Equal;
 	ItemFilter.RightValue = True;
 		
-	Item.Appearance.SetParameterValue("Font", New Font(,,True));
+	Item.Appearance.SetParameterValue("Font", StyleFonts.DataSynchronizationBoldFont);
 	
 EndProcedure
 
 &AtServer
 Procedure InitializationOfFormAttributes()
 	
-	If Not Parameters.Property("ExchangePlanName") Then
+	If IsBlankString(Parameters.ExchangePlanName) Then
 		
 		Raise NStr("en = 'This is a dependent form and opens from a different form.'", 
 			Common.DefaultLanguageCode());
 		
 	EndIf;
 
-	Parameters.Property("ExchangePlanName", ExchangePlanName);
-	Parameters.Property("TransportID", TransportID);
-	Parameters.Property("SettingID", SettingID);
-	Parameters.Property("WizardRunOption", WizardRunOption);
+	ExchangePlanName = Parameters.ExchangePlanName;
+	TransportID = Parameters.TransportID;
+	SettingID = Parameters.SettingID;
+	WizardRunOption = Parameters.WizardRunOption;
 	
 	Peer = ExchangePlans[ExchangePlanName].EmptyRef();
 	
@@ -207,6 +239,7 @@ Procedure InitializationOfFormAttributes()
 			
 			If String.TransportID = TransportID Then
 				NewRow.Selected = True;
+				IdOfNewRow = NewRow.GetID();
 			EndIf;
 			
 		EndIf;
@@ -219,6 +252,7 @@ Procedure InitializationOfFormAttributes()
 			
 			If String.TransportID = TransportID Then
 				NewRow.Selected = True;
+				IdOfContinuationLine = NewRow.GetID();
 			EndIf;
 			
 		EndIf;
@@ -237,6 +271,12 @@ Procedure InitializingFormElements()
 	
 	DIBSetup = DataExchangeCached.IsDistributedInfobaseExchangePlan(ExchangePlanName);
 	Items.WorkOption.Visible = Not DIBSetup;
+	
+	If Items.WorkOption.Visible Then
+		
+		WorkOption = -1;
+		
+	EndIf;
 	
 EndProcedure
 
@@ -273,7 +313,7 @@ Procedure EndingSelectionOfSettingsFile(Result, AdditionalSettings) Export
 EndProcedure
 
 &AtServer
-Function ReadAndCheckConnectionSettings(SettingsFileName, Address, ErrorMessage)
+Function ReadAndCheckConnectionSettings(Val SettingsFileName, Val Address, ErrorMessage)
 	
 	TempFileName = GetTempFileName();
 	

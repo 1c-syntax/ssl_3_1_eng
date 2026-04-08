@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -424,7 +423,7 @@ Procedure PutMessageForDataMapping(ExchangeNode, MessageID) Export
 	
 EndProcedure
 
-Procedure SetLoop(ExchangeNode, IsLoopDetected = "", ExchangeDataRegistrationOnLoop = "") Export
+Procedure SetLoop(ExchangeNode, IsLoopDetected = "", ExchangeDataRegistrationOnLoop = "", DisableSynchronizationCircuitMonitoring = Undefined) Export
 	
 	RecordStructure = New Structure;
 	RecordStructure.Insert("InfobaseNode", ExchangeNode);
@@ -437,6 +436,12 @@ Procedure SetLoop(ExchangeNode, IsLoopDetected = "", ExchangeDataRegistrationOnL
 		RecordStructure.Insert("ExchangeDataRegistrationOnLoop", ExchangeDataRegistrationOnLoop);
 	EndIf;
 	
+	If DisableSynchronizationCircuitMonitoring <> Undefined Then
+		
+		RecordStructure.Insert("DisableSynchronizationCircuitMonitoring", DisableSynchronizationCircuitMonitoring);
+		
+	EndIf;
+	
 	UpdateRecord(RecordStructure);
 	
 EndProcedure
@@ -444,6 +449,8 @@ EndProcedure
 Function RegistrationWhileLooping(ExchangeNode) Export
 	
 	Query = New Query;
+	Query.SetParameter("ExchangeNode", ExchangeNode);
+	
 	Query.Text = 
 		"SELECT
 		|	Settings.InfobaseNode AS InfobaseNode
@@ -452,12 +459,10 @@ Function RegistrationWhileLooping(ExchangeNode) Export
 		|WHERE
 		|	Settings.InfobaseNode = &ExchangeNode
 		|	AND (NOT Settings.IsLoopDetected
+		|			OR NOT Settings.DisableSynchronizationCircuitMonitoring
 		|			OR Settings.ExchangeDataRegistrationOnLoop)";
 	
-	Query.SetParameter("ExchangeNode", ExchangeNode);
-	
 	Result = Query.Execute();
-	
 	Return Not Result.IsEmpty();
 	
 EndFunction

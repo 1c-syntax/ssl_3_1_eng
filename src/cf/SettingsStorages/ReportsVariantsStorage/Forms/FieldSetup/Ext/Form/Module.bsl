@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -117,18 +116,18 @@ Procedure RightValueStartChoice(Item, ChoiceData, StandardProcessing)
 		?(FilterDescription = Undefined, Undefined, FilterDescription.ChoiceFoldersAndItems), ComparisonType);
 	
 	If RightValue.Count() = 0 Then 
-		Marked = New ValueList;
+		Marked_SSLyf = New ValueList;
 		For Each Value In Values Do 
 			If Value.Check Then 
-				FillPropertyValues(Marked.Add(), Value);
+				FillPropertyValues(Marked_SSLyf.Add(), Value);
 			EndIf;
 		EndDo;
 	Else
-		Marked = CommonClient.CopyRecursive(RightValue);
+		Marked_SSLyf = CommonClient.CopyRecursive(RightValue);
 	EndIf;
 	
 	OpeningParameters = New Structure;
-	OpeningParameters.Insert("Marked", Marked);
+	OpeningParameters.Insert("Marked_SSLyf", Marked_SSLyf);
 	OpeningParameters.Insert("TypeDescription", RightValue.ValueType);
 	OpeningParameters.Insert("ValuesForSelection", Item.ChoiceList);
 	OpeningParameters.Insert("ValuesForSelectionFilled", Item.ChoiceList.Count() > 0);

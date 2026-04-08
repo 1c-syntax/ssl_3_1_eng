@@ -1,18 +1,17 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Public
 
-#Region ForCallsFromOtherSubsystems
+#Region InterfaceImplementation
 
 // StandardSubsystems.BatchEditObjects
 
@@ -36,7 +35,7 @@ EndFunction
 
 // End StandardSubsystems.BatchEditObjects
 
-// 
+// StandardSubsystems.AccessManagement
 
 // Parameters:
 //   Restriction - See AccessManagementOverridable.OnFillAccessRestriction.Restriction.
@@ -60,7 +59,7 @@ EndProcedure
 
 // End StandardSubsystems.AccessManagement
 
-// 
+// CloudTechnology.ExportImportData
 
 // Attached in ExportImportDataOverridable.OnRegisterDataExportHandlers.
 //
@@ -238,7 +237,7 @@ EndProcedure
 //
 Procedure UpdateNonSuppliedProfilesOnConfigurationChanges() Export
 	
-	Cache = AccessManagementInternalCached.DescriptionSuppliedSessionProfiles();
+	Cache = AccessManagementInternalCached.DescriptionStandardRolesSessionExtensions();
 	NewValue = Cache.HashSum;
 	
 	IsAlreadyModified = False;
@@ -379,22 +378,22 @@ Procedure OnFillToDoList(ToDoList) Export
 	For Each Section In Sections Do
 		
 		ProfileID = "IncompatibleWithCurrentVersion" + StrReplace(Section.FullName(), ".", "");
-		ToDoItem = ToDoList.Add();
-		ToDoItem.Id = ProfileID;
-		ToDoItem.HasToDoItems      = IncompatibleAccessGroupsProfilesCount > 0;
-		ToDoItem.Presentation = NStr("en = 'Profiles incompatible with the current version'");
-		ToDoItem.Count    = IncompatibleAccessGroupsProfilesCount;
-		ToDoItem.Owner      = Section;
+		CaseFile = ToDoList.Add();
+		CaseFile.Id = ProfileID;
+		CaseFile.HasToDoItems      = IncompatibleAccessGroupsProfilesCount > 0;
+		CaseFile.Presentation = NStr("en = 'Profiles incompatible with the current version'");
+		CaseFile.Count    = IncompatibleAccessGroupsProfilesCount;
+		CaseFile.Owner      = Section;
 		
-		ToDoItem = ToDoList.Add();
-		ToDoItem.Id = "AccessGroupProfiles";
-		ToDoItem.HasToDoItems      = IncompatibleAccessGroupsProfilesCount > 0;
-		ToDoItem.Important        = True;
-		ToDoItem.Presentation = NStr("en = 'Access group profiles'");
-		ToDoItem.Count    = IncompatibleAccessGroupsProfilesCount;
-		ToDoItem.Form         = "Catalog.AccessGroupProfiles.ListForm";
-		ToDoItem.FormParameters= New Structure("ProfilesWithRolesMarkedForDeletion", True);
-		ToDoItem.Owner      = ProfileID;
+		CaseFile = ToDoList.Add();
+		CaseFile.Id = "AccessGroupProfiles";
+		CaseFile.HasToDoItems      = IncompatibleAccessGroupsProfilesCount > 0;
+		CaseFile.Important        = True;
+		CaseFile.Presentation = NStr("en = 'Access group profiles'");
+		CaseFile.Count    = IncompatibleAccessGroupsProfilesCount;
+		CaseFile.Form         = "Catalog.AccessGroupProfiles.ListForm";
+		CaseFile.FormParameters= New Structure("ProfilesWithRolesMarkedForDeletion", True);
+		CaseFile.Owner      = ProfileID;
 		
 	EndDo;
 	
@@ -1581,12 +1580,18 @@ Function PreparedStandardRolesSessionExtensions(HashSum) Export
 	
 	VersionDetails = New Structure("VersionProperties", New Array);
 	AddVersionItem(VersionDetails, "Version", "1");
-	AddVersionItem(VersionDetails, "CommonRights", CommonRights);
-	AddVersionItem(VersionDetails, "BasicAccess", BasicAccess);
-	AddVersionItem(VersionDetails, "BasicAccessExternalUsers", BasicAccessExternalUsers);
-	AddVersionItem(VersionDetails, "SystemAdministrator", SystemAdministrator);
-	AddVersionItem(VersionDetails, "FullAccess", FullAccess);
-	AddVersionItem(VersionDetails, "AdditionalAdministratorRoles", AdditionalAdministratorRoles);
+	AddVersionItem(VersionDetails, "CommonRights",
+		RolesWithIDs(CommonRights));
+	AddVersionItem(VersionDetails, "BasicAccess",
+		RolesWithIDs(BasicAccess));
+	AddVersionItem(VersionDetails, "BasicAccessExternalUsers",
+		RolesWithIDs(BasicAccessExternalUsers));
+	AddVersionItem(VersionDetails, "SystemAdministrator",
+		RolesWithIDs(SystemAdministrator));
+	AddVersionItem(VersionDetails, "FullAccess",
+		RolesWithIDs(FullAccess));
+	AddVersionItem(VersionDetails, "AdditionalAdministratorRoles",
+		RolesWithIDs(AdditionalAdministratorRoles));
 	
 	Result = New FixedStructure(Properties);
 	
@@ -1614,8 +1619,10 @@ EndProcedure
 //         - CatalogObject.MetadataObjectIDs
 //         - CatalogObject.ExtensionObjectIDs
 //  PreviousValues1 - Structure
+//  MetadataObjectByID - See Common.MetadataObjectByID
 //
-Procedure RegisterChangeInProfilesRoles(Object, PreviousValues1) Export
+Procedure RegisterChangeInProfilesRoles(Object, PreviousValues1,
+			MetadataObjectByID = Undefined) Export
 	
 	Data = New Structure;
 	Data.Insert("DataStructureVersion", 1);
@@ -1746,7 +1753,7 @@ Procedure RegisterChangeInProfilesRoles(Object, PreviousValues1) Export
 		EndIf;
 		
 		RoleSerializedRef = SerializedRef(Object.Ref);
-		RoleMetadata = Common.MetadataObjectByID(Object.Ref, False);
+		RoleMetadata = MetadataObjectByID;
 		NameOfRole = ?(TypeOf(RoleMetadata) = Type("MetadataObject"), RoleMetadata.Name, Object.Name);
 		RoleSynonym = ?(TypeOf(RoleMetadata) = Type("MetadataObject"), RoleMetadata.Synonym, Object.Synonym);
 		
@@ -1792,11 +1799,12 @@ Procedure RegisterChangeInProfilesRoles(Object, PreviousValues1) Export
 	EndIf;
 	
 	EventName = AccessManagementInternal.NameOfLogEventProfilesRolesChanged();
+	DataForJournal = Common.ValueToXMLString(Data);
 	
 	WriteLogEvent(EventName,
 		EventLogLevel.Information,
 		Object.Metadata(),
-		Common.ValueToXMLString(Data),
+		DataForJournal,
 		,
 		EventLogEntryTransactionMode.Transactional);
 	
@@ -2166,7 +2174,7 @@ EndProcedure
 //
 // Parameters:
 //  AccessKindsProperties - See AccessManagementInternal.AccessKindsProperties
-//                       - Undefined.
+//                       - Undefined
 //  HashSum - String - Return value.
 //
 // Returns:
@@ -2285,6 +2293,10 @@ Function VerifiedSuppliedSessionProfiles(AccessKindsProperties = Undefined, Hash
 		
 		PrepareTheTypesOfAccessForTheSuppliedProfile(ProfileProperties, ProfileDetails, ProfileAssignment, AccessKindsProperties, ErrorTitle);
 		PrepareTheAccessValuesOfTheSuppliedProfile(ProfileProperties, ProfileDetails, AccessKindsProperties, ErrorTitle);
+		If AccessManagementInternal.IsRecordLevelRestrictionDisabled() Then
+			ProfileProperties.AccessKinds     = New FixedMap(New Map);
+			ProfileProperties.AccessValues = New FixedArray(New Array);
+		EndIf;
 	EndDo;
 	
 	For Each ProfileDetails In ProfilesDetails Do
@@ -2357,6 +2369,7 @@ Function VerifiedSuppliedSessionProfiles(AccessKindsProperties = Undefined, Hash
 	ProfilesProperties = New Map;
 	ProfilesDetailsArray = New Array;
 	DataSeparationEnabled = Common.DataSeparationEnabled();
+	AllRolesIDs = AllRolesIDs();
 	
 	For Each ProfileDetails In ProfileList Do
 		ProfileProperties = New FixedStructure(ProfileDetails.Value);
@@ -2371,7 +2384,9 @@ Function VerifiedSuppliedSessionProfiles(AccessKindsProperties = Undefined, Hash
 		If ProfileProperties.IsFolder Then
 			Continue;
 		EndIf;
-		AddVersionProperties(VersionDetails, ProfileProperties, "Purpose, Roles");
+		AddVersionProperties(VersionDetails, ProfileProperties, "Purpose");
+		RolesWithIDs = RolesWithIDs(ProfileProperties.Roles, AllRolesIDs);
+		AddVersionProperties(VersionDetails, New Structure("Roles", RolesWithIDs) , "Roles");
 		If DataSeparationEnabled Then
 			RolesUnavailableInService = New ValueList;
 			For Each RoleDetails In ProfileProperties.RolesUnavailableInService Do
@@ -2591,6 +2606,7 @@ Procedure PrepareTheTypesOfAccessForTheSuppliedProfile(ProfileProperties, Profil
 		EndIf;
 		AccessKinds.Insert(AccessKindName, AccessKindClarification);
 	EndDo;
+	
 	ProfileProperties.Insert("AccessKinds", New FixedMap(AccessKinds));
 	
 EndProcedure
@@ -2710,6 +2726,39 @@ Procedure PrepareTheAccessValuesOfTheSuppliedProfile(ProfileProperties, ProfileD
 
 EndProcedure
 
+// For the SuppliedProfiles function.
+Function AllRolesIDs()
+	
+	Result = New Map;
+	
+	For Each Role In Metadata.Roles Do
+		Result.Insert(Role.Name,
+			Catalogs.MetadataObjectIDs.RoleMetadataObjectKey(Role));
+	EndDo;
+	
+	Return Result;
+	
+EndFunction
+
+// For the SuppliedProfiles function.
+Function RolesWithIDs(RolesNames, AllRolesIDs = Undefined)
+	
+	Result = New Array;
+	
+	For Each NameOfRole In RolesNames Do
+		If AllRolesIDs = Undefined Then
+			RoleID = Catalogs.MetadataObjectIDs.RoleMetadataObjectKey(
+				Metadata.Roles[NameOfRole]);
+		Else
+			RoleID = AllRolesIDs.Get(NameOfRole);
+		EndIf;
+		Result.Add(NameOfRole + " " + String(RoleID));
+	EndDo;
+	
+	Return Result;
+	
+EndFunction
+
 // Returns the profile properties specified in the overridable module and
 // converted into the fixed save format in the database.
 // See the detailed property description in the NewAccessGroupProfileDescription
@@ -2817,11 +2866,11 @@ Procedure UpdateTheSuppliedProfileFolders(Parent, CurrentProfileFolders, Supplie
 		If LineOfTheCurrentFolder <> Undefined Then
 			LineOfTheCurrentFolder.Found = True;
 		EndIf;
-		// @skip-check query-in-loop  в транзакции
+		// @skip-check query-in-loop - Batch-wise data processing within a transaction
 		If UpdateTheProfileOrProfileFolder(ProfileProperties, Trash, True) Then
 			HasChanges = True;
 		EndIf;
-		// @skip-check query-in-loop  в транзакции
+		// @skip-check query-in-loop - Batch-wise data processing within a transaction
 		UpdateTheSuppliedProfileFolders(KeyAndValue.Key,
 			CurrentProfileFolders, SuppliedProfiles, Trash, HasChanges);
 	EndDo;
@@ -2889,11 +2938,11 @@ Procedure UpdateTheSuppliedProfilesWithoutFolders(UpdatedProfiles, CurrentProfil
 		If CurrentProfileRow = Undefined Then
 			// Create a 1C-supplied profile.
 // @skip-check query-in-loop - Batch-wise data processing within a transaction.
-			// @skip-check query-in-loop  в транзакции
+			// @skip-check query-in-loop - Batch-wise data processing within a transaction
 			If UpdateTheProfileOrProfileFolder(ProfileProperties, Trash, True) Then
 				HasChanges = True;
 			EndIf;
-			// @skip-check query-in-loop  в транзакции
+			// @skip-check query-in-loop - Batch-wise data processing within a transaction
 			Profile = SuppliedProfileByID(ProfileProperties.Id);
 			
 		Else
@@ -2904,7 +2953,7 @@ Procedure UpdateTheSuppliedProfilesWithoutFolders(UpdatedProfiles, CurrentProfil
 			 Or ParametersOfUpdate.UpdateModifiedProfiles Then
 				// Update the 1C-supplied profile.
 // @skip-check query-in-loop - Batch-wise data processing within a transaction.
-				// @skip-check query-in-loop  в транзакции
+				// @skip-check query-in-loop - Batch-wise data processing within a transaction
 				ProfileUpdated = UpdateTheProfileOrProfileFolder(ProfileProperties, Trash, True);
 			EndIf;
 		EndIf;

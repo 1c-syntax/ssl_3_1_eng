@@ -101,11 +101,6 @@
 				<xr:Common>false</xr:Common>
 			</Visibility>
 		</Command>
-		<Command name="DataProcessor.ImportDataFromFile.Command.ImportDataFromFile">
-			<Visibility>
-				<xr:Common>false</xr:Common>
-			</Visibility>
-		</Command>
 		<Command name="DataProcessor.ExportImportEnterpriseData.Command.EnterpriseDataLoading">
 			<Visibility>
 				<xr:Common>false</xr:Common>
@@ -197,6 +192,11 @@
 			</Visibility>
 		</Command>
 		<Command name="Catalog.AdditionalAttributesAndInfoSets.Command.Labels">
+			<Visibility>
+				<xr:Common>false</xr:Common>
+			</Visibility>
+		</Command>
+		<Command name="Catalog.FileStorageVolumes.Command.ArchiveStorageVolumes">
 			<Visibility>
 				<xr:Common>false</xr:Common>
 			</Visibility>
@@ -376,7 +376,7 @@
 				<xr:Common>false</xr:Common>
 			</Visibility>
 		</Command>
-		<Command name="DataProcessor.ImportDataFromFile.StandardCommand.Open">
+		<Command name="0">
 			<Visibility>
 				<xr:Common>false</xr:Common>
 			</Visibility>
@@ -822,6 +822,9 @@
 		<Command name="Catalog.AdditionalAttributesAndInfoSets.Command.Labels">
 			<CommandGroup>NavigationPanelOrdinary</CommandGroup>
 		</Command>
+		<Command name="Catalog.FileStorageVolumes.Command.ArchiveStorageVolumes">
+			<CommandGroup>NavigationPanelOrdinary</CommandGroup>
+		</Command>
 		<Command name="CommonCommand.StandaloneModeSaaS">
 			<CommandGroup>NavigationPanelSeeAlso</CommandGroup>
 		</Command>
@@ -948,7 +951,7 @@
 		<Command name="DataProcessor.EventLog.StandardCommand.Open">
 			<CommandGroup>ActionsPanelTools</CommandGroup>
 		</Command>
-		<Command name="DataProcessor.ImportDataFromFile.StandardCommand.Open">
+		<Command name="0">
 			<CommandGroup>ActionsPanelTools</CommandGroup>
 		</Command>
 		<Command name="0:f36150de-33af-4410-8a4c-8c9f4b545793">

@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -159,6 +158,52 @@ Procedure SetExtensionParameter(ParameterName, Value, IgnoreExtensionsVersion = 
 	NewRecord.ParameterStorage = New ValueStorage(Content, New Deflation(9));
 	
 	RecordSet.Write();
+	
+EndProcedure
+
+// See StandardSubsystemsServer.DeleteExtensionParameter.
+Procedure DeleteExtensionParameter(ParameterName, IgnoreExtensionsVersion = False, HasChanges = False) Export
+	
+	UsersInternal.CheckIfSafeModeOff(
+		"InformationRegisters.ExtensionVersionParameters.DeleteExtensionParameter");
+	
+	Query = New Query;
+	Query.SetParameter("ParameterName", ParameterName);
+	Query.Text =
+	"SELECT
+	|	ExtensionVersionParameters.ParameterStorage AS ParameterStorage
+	|FROM
+	|	InformationRegister.ExtensionVersionParameters AS ExtensionVersionParameters
+	|WHERE
+	|	ExtensionVersionParameters.ParameterName = &ParameterName
+	|	AND &FilterVersions";
+	
+	If IgnoreExtensionsVersion <> Undefined Then
+		ExtensionsVersion = ?(IgnoreExtensionsVersion,
+			Catalogs.ExtensionsVersions.EmptyRef(), SessionParameters.ExtensionsVersion);
+		Query.SetParameter("ExtensionsVersion", ExtensionsVersion);
+		Query.Text = StrReplace(Query.Text, "&FilterVersions",
+			"ExtensionVersionParameters.ExtensionsVersion = &ExtensionsVersion");
+	Else
+		Query.Text = StrReplace(Query.Text, "&FilterVersions", "TRUE");
+	EndIf;
+	
+	Selection = Query.Execute().Select();
+	If Not Selection.Next() Then
+		Return;
+	EndIf;
+	
+	RecordSet = InformationRegisters.ApplicationRuntimeParameters.ServiceRecordSet(
+		InformationRegisters.ExtensionVersionParameters);
+	
+	RecordSet.Filter.ParameterName.Set(ParameterName);
+	If IgnoreExtensionsVersion <> Undefined Then
+		RecordSet.Filter.ExtensionsVersion.Set(ExtensionsVersion);
+	EndIf;
+	
+	RecordSet.Write();
+	
+	HasChanges = True;
 	
 EndProcedure
 
@@ -721,8 +766,10 @@ Procedure ExecuteUpdateSplitDataInBackground(Parameters, FormIdentifier) Export
 	OperationParametersList.WithDatabaseExtensions = True;
 	OperationParametersList.WaitCompletion = Undefined;
 	
-	ProcedureName = "InformationRegisters.ExtensionVersionParameters.LongOperationHandlerPerformUpdateSplitData";
-	TimeConsumingOperation = TimeConsumingOperations.ExecuteInBackground(ProcedureName, Parameters, OperationParametersList);
+	TimeConsumingOperation = TimeConsumingOperations.ExecuteInBackground(
+		"InformationRegisters.ExtensionVersionParameters.LongOperationHandlerPerformUpdateSplitData",
+		Parameters,
+		OperationParametersList);
 	
 	If TimeConsumingOperation.Status <> "Completed2" Then
 		If TimeConsumingOperation.Status = "Error" Then
@@ -992,6 +1039,9 @@ Procedure EnableFillingExtensionsWorkParameters(Run = True, EnableDefinitely = F
 	BeginTransaction();
 	Try
 		Block.Lock();
+		If Common.FileInfobase() Then
+			ScheduledJobsServer.BlockARoutineTask(New UUID);
+		EndIf;
 		UpdateID = Catalogs.ExtensionsVersions.LastExtensionsVersion().UpdateID;
 		FillId = StandardSubsystemsServer.ExtensionParameter(ParameterName, True);
 		If EnableDefinitely Or UpdateID <> FillId Then
@@ -1051,6 +1101,9 @@ Procedure DisableFillingExtensionsWorkParameters(VersionOnStartup, Restart = Fal
 	BeginTransaction();
 	Try
 		Block.Lock();
+		If Common.FileInfobase() Then
+			ScheduledJobsServer.BlockARoutineTask(New UUID);
+		EndIf;
 		CurrentVersion = Catalogs.ExtensionsVersions.LastExtensionsVersion();
 		
 		If VersionOnStartup.ExtensionsVersion = CurrentVersion.ExtensionsVersion
@@ -1102,11 +1155,10 @@ Procedure StartFillingWorkParametersExtensions(Comment, WaitForCompletion = Fals
 	EndIf;
 	
 	CurrentSession = GetCurrentInfoBaseSession();
-	JobMetadata = Metadata.ScheduledJobs.FillExtensionsOperationParameters;
 	
 	JobDescription =
 		NStr("en = 'Autostart'", Common.DefaultLanguageCode())
-		+ ": " + JobMetadata.Synonym + " ("
+		+ ": " + Metadata.ScheduledJobs.FillExtensionsOperationParameters.Synonym + " ("
 		+ StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'from the %1 session started on %2'", Common.DefaultLanguageCode()),
 			Format(CurrentSession.SessionNumber, "NG="),
@@ -1116,7 +1168,7 @@ Procedure StartFillingWorkParametersExtensions(Comment, WaitForCompletion = Fals
 		EventLogLevel.Information,,, Comment);
 	
 	BackgroundJob = ConfigurationExtensions.ExecuteBackgroundJobWithDatabaseExtensions(
-		JobMetadata.MethodName,,, JobDescription);
+		Metadata.ScheduledJobs.FillExtensionsOperationParameters.MethodName,,, JobDescription);
 	
 	If WaitForCompletion
 	   And BackgroundJob <> Undefined
@@ -1176,6 +1228,13 @@ Function NewUpdateParameterProperties(ShouldUpdate)
 EndFunction
 
 #EndRegion
+
+// See StandardSubsystemsServer.WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode
+Procedure WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode(Methods) Export
+	
+	Methods.Insert("LongOperationHandlerPerformUpdateSplitData", True);
+	
+EndProcedure
 
 #EndRegion
 

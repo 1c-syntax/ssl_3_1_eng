@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -214,10 +213,10 @@ Procedure UpdateRemindersTable()
 			FillPropertyValues(Context, Reminder);
 			Context.Insert("URL", RepresentationOfTheReference.URL);
 			
-			NotifyDescription = New CallbackDescription("HandleOpenOfNotification", UserRemindersInternalClient, Context);
+			CallbackDescription = New CallbackDescription("HandleOpenOfNotification", UserRemindersInternalClient, Context);
 			
 			ShowUserNotification(
-				Reminder.LongDesc, NotifyDescription,
+				Reminder.LongDesc, CallbackDescription,
 				RepresentationOfTheReference.Text, RepresentationOfTheReference.Picture,
 				UserNotificationStatus.Important,
 				Reminder.URL);
@@ -339,7 +338,7 @@ Procedure SetVisibility1()
 		Close();
 	EndIf;
 	
-	Items.ButtonsPanel.Enabled = HasTableData;
+	Items.ButtonPanel.Enabled = HasTableData;
 EndProcedure
 
 &AtServer
@@ -347,9 +346,9 @@ Procedure FillRepeatedReminderPeriod()
 	
 	Items.RepeatedNotificationPeriod.ChoiceList.Clear();
 	SubsystemSettings = UserRemindersInternal.SubsystemSettings();
-	TimeIntervals = SubsystemSettings.StandardIntervals;
+	TimeIntervals_ = SubsystemSettings.StandardIntervals;
 	
-	For Each Interval In TimeIntervals Do
+	For Each Interval In TimeIntervals_ Do
 		Items.RepeatedNotificationPeriod.ChoiceList.Add(StringFunctionsClientServer.SubstituteParametersToString(
 			NStr("en = 'in %1'"), Interval));
 	EndDo;

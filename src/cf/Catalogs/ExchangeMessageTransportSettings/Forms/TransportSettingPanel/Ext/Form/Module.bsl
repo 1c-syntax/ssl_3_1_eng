@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -26,6 +25,24 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	
 	InitializingFormElements();
 	
+EndProcedure
+
+&AtClient
+Procedure NotificationProcessing(EventName, Parameter, Source)
+		
+	If EventName = "TransportSettingsChanged" Then
+		Filter = New Structure("TransportID", Parameter.TransportID);
+		SearchResult = TypesOfTransport.FindRows(Filter);
+		
+		If SearchResult.Count() = 0 Then
+			Return;
+		EndIf;
+		
+		String = SearchResult[0];
+		
+		String.RequiredAttributesOfSettingsAreFilledIn = Parameter.RequiredAttributesOfSettingsAreFilledIn;
+	EndIf;
+		
 EndProcedure
 
 #EndRegion
@@ -68,7 +85,7 @@ Procedure UseByDefault(Command)
 	
 	If Not CurrentData.HasSettings Then
 		
-		Text = NStr("en = 'Unconfigured transport type cannot be set as default.'",
+		Text = NStr("en = 'Cannot set a transport type that is not configured as the default.'",
 			CommonClient.DefaultLanguageCode());
 		
 		CommonClient.MessageToUser(Text);
@@ -192,6 +209,13 @@ Procedure InitializationOfFormAttributes()
 		String = SearchResult[0];
 		String.DefaultSetting = Selection.DefaultSetting;
 		String.HasSettings = Not Selection.Settings.IsEmpty();
+		If String.HasSettings Then
+			String.RequiredAttributesOfSettingsAreFilledIn = ExchangeMessagesTransport.RequiredAttributesOfTransportSettingsHaveBeenFilledIn(Selection.Settings, Selection.TransportID);
+		ElsIf String.DefaultSetting Then	
+			String.RequiredAttributesOfSettingsAreFilledIn = True;
+		Else
+			String.RequiredAttributesOfSettingsAreFilledIn = False;
+		EndIf;
 		
 		If Selection.DefaultSetting Then
 			String.PictureFlag = PictureLib.DefaultTransport;
@@ -223,17 +247,35 @@ EndProcedure
 Procedure SetConditionalAppearance()
 	
 	ConditionalAppearance.Items.Clear();
-		
+	
 	Item = ConditionalAppearance.Items.Add();
-		
+	
 	ItemField = Item.Fields.Items.Add();
 	ItemField.Field = New DataCompositionField("TypesOfTransportAlias");
-			
-	ItemFilter = Item.Filter.Items.Add(Type("DataCompositionFilterItem"));
+	
+	FilterGroup = Item.Filter.Items.Add(Type("DataCompositionFilterItemGroup"));
+	FilterGroup.GroupType = DataCompositionFilterItemsGroupType.OrGroup;
+    FilterGroup.Use = True;
+	
+	FilterGroup2 = FilterGroup.Items.Add(Type("DataCompositionFilterItemGroup"));
+	FilterGroup2.GroupType = DataCompositionFilterItemsGroupType.AndGroup;
+    FilterGroup2.Use = True;
+	
+	ItemFilter = FilterGroup2.Items.Add(Type("DataCompositionFilterItem"));
+	ItemFilter.LeftValue = New DataCompositionField("TypesOfTransport.RequiredAttributesOfSettingsAreFilledIn");
+	ItemFilter.ComparisonType = DataCompositionComparisonType.Equal;
+	ItemFilter.RightValue = True;
+	
+	ItemFilter = FilterGroup2.Items.Add(Type("DataCompositionFilterItem"));
 	ItemFilter.LeftValue = New DataCompositionField("TypesOfTransport.HasSettings");
 	ItemFilter.ComparisonType = DataCompositionComparisonType.Equal;
 	ItemFilter.RightValue = True;
-		
+
+	ItemFilter = FilterGroup.Items.Add(Type("DataCompositionFilterItem"));
+	ItemFilter.LeftValue = New DataCompositionField("TypesOfTransport.DefaultSetting");
+	ItemFilter.ComparisonType = DataCompositionComparisonType.Equal;
+	ItemFilter.RightValue = True;	
+	
 	Item.Appearance.SetParameterValue("Font", New Font(,,True));
 	
 EndProcedure
@@ -245,13 +287,17 @@ Procedure SaveTransportSettings(Result, AdditionalParameters) Export
 		Return;
 	EndIf;
 	
-	ExchangeMessageTransportServerCall.SaveTransportSettings(
+	RequiredAttributesOfSettingsAreFilledIn = True;
+	
+	ExchangeMessageTransportServerCall.ProcessChangesToTransportSettings(
 		AdditionalParameters.Peer,
 		AdditionalParameters.TransportID,
-		Result);
+		Result,
+		RequiredAttributesOfSettingsAreFilledIn);
 		
 	CurrentData = Items.TypesOfTransport.CurrentData;
 	CurrentData.HasSettings = True;
+	CurrentData.RequiredAttributesOfSettingsAreFilledIn = RequiredAttributesOfSettingsAreFilledIn;
 		
 EndProcedure
 

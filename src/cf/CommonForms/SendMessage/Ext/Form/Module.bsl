@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Variables
@@ -311,21 +310,13 @@ Procedure RecipientPostalAddressesBeforeEditEnd(Item, NewRow, CancelEdit, Cancel
 		Return;
 	EndIf;
 	
-	Address = EmailAddressFromPresentation(RowData.Presentation);
-	
-	If IsBlankString(Address) Then
-		Address = RowData.Presentation;
-	EndIf;
-	
-	If IsBlankString(Address) Then
-		Return;
-	EndIf;
-	
-	If Not CommonClientServer.EmailAddressMeetsRequirements(Address, True) Then
-		ShowMessageBox(, NStr("en = 'Please specify a correct email address.'"));
-		Cancel = True;
-		Return;
-	EndIf;
+	For Each Recipient In CommonClientServer.EmailsFromString(RowData.Presentation) Do
+		If Not IsBlankString(Recipient.ErrorDescription) Then
+			ShowMessageBox(, Recipient.ErrorDescription);
+			Cancel = True;
+			Return;
+		EndIf;
+	EndDo;
 	
 	Duplicates = New Map;
 	For Each EmailRecipient In RecipientsMailAddresses Do
@@ -406,11 +397,11 @@ Procedure AttachmentsDrag(Item, DragParameters, StandardProcessing, String, Fiel
 		Return;
 	EndIf;
 	
-	NotifyDescription = New CallbackDescription("OnImportAttachments", ThisObject);
+	CallbackDescription = New CallbackDescription("OnImportAttachments", ThisObject);
 	ImportParameters = FileSystemClient.FileImportParameters();
 	ImportParameters.FormIdentifier = UUID;
 	ImportParameters.Interactively = False;
-	FileSystemClient.ImportFiles(NotifyDescription, ImportParameters, FilesToUpload);
+	FileSystemClient.ImportFiles(CallbackDescription, ImportParameters, FilesToUpload);
 	
 EndProcedure
 
@@ -473,7 +464,7 @@ Procedure SendMail()
 		
 		ErrorInfo = ErrorInfo();
 		
-		If Not EmailOperationsInternalClientServer.ThisIsErrorInWorkOfInternetMail(ErrorInfo) Then
+		If Not EmailOperationsInternalClientServer.IsInternetMailError(ErrorInfo) Then
 			Raise;
 		EndIf;
 		
@@ -638,8 +629,8 @@ Procedure OpenAttachment()
 	
 #If Not WebClient Then
 	If StrEndsWith(SelectedAttachment.Presentation, ".mxl") Then
-		NotifyDescription = New CallbackDescription("ContinueOpeningMXLFileAfterCreateDirectory", ThisObject, SelectedAttachment);
-		FileSystemClient.CreateTemporaryDirectory(NotifyDescription);
+		CallbackDescription = New CallbackDescription("ContinueOpeningMXLFileAfterCreateDirectory", ThisObject, SelectedAttachment);
+		FileSystemClient.CreateTemporaryDirectory(CallbackDescription);
 		Return;
 	EndIf;
 #EndIf
@@ -717,11 +708,11 @@ EndFunction
 &AtClient
 Procedure AddFileToAttachments()
 	
-	NotifyDescription = New CallbackDescription("AddFileToAttachmentsOnPutFiles", ThisObject);
+	CallbackDescription = New CallbackDescription("AddFileToAttachmentsOnPutFiles", ThisObject);
 	
 	ImportParameters = FileSystemClient.FileImportParameters();
 	ImportParameters.FormIdentifier = UUID;
-	FileSystemClient.ImportFiles(NotifyDescription, ImportParameters);
+	FileSystemClient.ImportFiles(CallbackDescription, ImportParameters);
 	
 EndProcedure
 
@@ -1004,11 +995,11 @@ EndProcedure
 &AtClient
 Procedure ShowQueryBoxBeforeCloseForm()
 	QueryText = NStr("en = 'The message is not yet sent. Do you want to close the window?'");
-	NotifyDescription = New CallbackDescription("CloseFormConfirmed", ThisObject);
+	CallbackDescription = New CallbackDescription("CloseFormConfirmed", ThisObject);
 	Buttons = New ValueList;
 	Buttons.Add("Close", NStr("en = 'Close'"));
 	Buttons.Add(DialogReturnCode.Cancel, NStr("en = 'Do not close'"));
-	ShowQueryBox(NotifyDescription, QueryText, Buttons,,
+	ShowQueryBox(CallbackDescription, QueryText, Buttons,,
 		DialogReturnCode.Cancel, NStr("en = 'Send message'"));
 EndProcedure
 

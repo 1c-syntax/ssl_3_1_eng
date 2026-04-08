@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -217,10 +216,10 @@ Function SaveSettingsInCorrespondent(ConnectionSettings) Export
 	If DataExchangeCached.IsXDTOExchangePlan(ConnectionSettings.ExchangePlanName) Then
 		CorrespondentConnectionSettings.ExchangeFormatVersion = ConnectionSettings.ExchangeFormatVersion;
 		
-		ObjectsTable1 = DataExchangeXDTOServer.SupportedObjectsInFormat(
+		TableObjects = DataExchangeXDTOServer.SupportedObjectsInFormat(
 			ConnectionSettings.ExchangePlanName, "SendReceive", ConnectionSettings.InfobaseNode);
 		
-		CorrespondentConnectionSettings.SupportedObjectsInFormat = New ValueStorage(ObjectsTable1, New Deflation(9));
+		CorrespondentConnectionSettings.SupportedObjectsInFormat = New ValueStorage(TableObjects, New Deflation(9));
 	EndIf;
 	
 	XMLConnectionSettingsString = DataProcessors.ExchangeMessageTransportWS.ConnectionSettingsInXML(ConnectionSettings);
@@ -381,6 +380,7 @@ Function GetExchangeMessage()
 	ExchangeParameters = DataExchangeServer.ExchangeParameters();
 	ExchangeParameters.TimeConsumingOperationAllowed= True;
 	ExchangeParameters.TheTimeoutOnTheServer = 15;
+	
 	ExchangeSettingsStructure = DataExchangeServer.ExchangeSettingsForInfobaseNode(
 		Peer, Enums.ActionsOnExchange.DataImport);
 	

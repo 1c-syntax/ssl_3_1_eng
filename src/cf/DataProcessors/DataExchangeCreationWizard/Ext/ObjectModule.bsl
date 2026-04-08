@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -365,6 +364,7 @@ Procedure CreateUpdateExchangePlanNodes(NodeFiltersSetting, DefaultNodeValues, T
 		If CreateNewNode Then
 			NewNode = ManagerExchangePlan.CreateNode();
 			NewNode.Code = NewNodeCode;
+			NewNode.Fill(Undefined)
 		Else
 			Raise NStr("en = 'The first infobase prefix is not unique.
 				|A data synchronization for an infobase (application) with this prefix already exists.'");
@@ -529,7 +529,7 @@ EndFunction
 
 // Reads settings of data exchange wizard from an XML string.
 //
-Procedure ImportWizardParameters(Cancel, XMLLine, TrasportID = "") Export
+Procedure ImportWizardParameters(Cancel, XMLLine, TransportID = "") Export
 	
 	// Checking whether it is possible to use the exchange plan in SaaS.
 	If Common.DataSeparationEnabled()
@@ -545,7 +545,7 @@ Procedure ImportWizardParameters(Cancel, XMLLine, TrasportID = "") Export
 	
 	ModuleSetupWizard = DataExchangeServer.ModuleDataExchangeCreationWizard();
 	Try
-		ModuleSetupWizard.FillConnectionSettingsFromXMLString(ThisObject, XMLLine,,, TrasportID);
+		ModuleSetupWizard.FillConnectionSettingsFromXMLString(ThisObject, XMLLine,,, TransportID);
 	Except
 		InformAboutError(ErrorInfo(), Cancel);
 	EndTry;

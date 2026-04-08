@@ -48,14 +48,14 @@
 				</Title>
 				<ExtendedTooltip name="NextSectionExtendedTooltip" id="102"/>
 			</Button>
-			<Button name="FormHelp" id="95">
+			<Button name="FormHelp_SSLyf" id="95">
 				<Type>CommandBarButton</Type>
 				<Representation>Picture</Representation>
 				<Width>3</Width>
 				<GroupHorizontalAlign>Right</GroupHorizontalAlign>
 				<CommandName>Form.StandardCommand.Help</CommandName>
 				<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
-				<ExtendedTooltip name="FormHelpExtendedTooltip" id="97"/>
+				<ExtendedTooltip name="FormHelp_SSLyfExtendedTooltip" id="97"/>
 			</Button>
 			<Button name="Close" id="77">
 				<Type>CommandBarButton</Type>

@@ -183,6 +183,13 @@
 				<xr:Item xsi:type="xr:MDObjectRef">CommonPicture.DataExchangeSettingActive</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">XDTOPackage.EnterpriseData_1_17_3</xr:Item>
 				<xr:Item xsi:type="xr:MDObjectRef">DefinedType.ExchangePlansDSL</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">XDTOPackage.EnterpriseData_1_18_3</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">StyleItem.DataSynchronizationBoldFont</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">XDTOPackage.EnterpriseData_1_19_1</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">StyleItem.SynchronizationTooltip</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">CommonCommand.WarningAboutExchangeSettingCyclicity</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">XDTOPackage.EnterpriseData_1_20_2</xr:Item>
+				<xr:Item xsi:type="xr:MDObjectRef">XDTOPackage.EnterpriseData_1_21_1</xr:Item>
 			</Content>
 		</Properties>
 		<ChildObjects>

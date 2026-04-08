@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -337,35 +336,54 @@ Procedure DisableUnsafeContent(HTMLDocument, DisableExternalResources = True) Ex
 EndProcedure
 
 // Gets from ITS troubleshooting tips on how to fix a email server connection error.
-// 
+//
 // Parameters:
-//   ErrorText - String - Original error text.
-// 	
+//   ErrorText   - String - Original error text.
+//   Account - CatalogRef.EmailAccounts - The email account
+//                                                                    with an error.
+//
 // Returns:
 //  Structure:
 //   * PossibleReasons - Array of FormattedString
 //   * MethodsToFixError - Array of FormattedString
 //
-Function ExplanationOnError(ErrorText) Export
+Function ExplanationOnError(ErrorText, Account = Undefined) Export
 	
-	Return EmailOperationsInternal.ExplanationOnError(ErrorText);
+	IncomingMailServer = "";
+	OutgoingMailServer = "";
+	
+	If TypeOf(Account) = Type("CatalogRef.EmailAccounts") Then
+		UserAccountAttributes = Common.ObjectAttributesValues(Account, "IncomingMailServer, OutgoingMailServer");
+		IncomingMailServer = UserAccountAttributes.IncomingMailServer;
+		OutgoingMailServer = UserAccountAttributes.OutgoingMailServer;
+	EndIf;
+	
+	ExplanationParameters = EmailOperationsInternal.ExplanationParameters();
+	ExplanationParameters.ErrorText = ErrorText;
+	ExplanationParameters.Context = EmailOperationsInternal.ContextForClarification().SendingEmail;
+	ExplanationParameters.ServerNames = EmailOperationsInternal.ServerNamesForClarification(IncomingMailServer, OutgoingMailServer);
+	
+	Return EmailOperationsInternal.ExplanationOnError(ExplanationParameters);
 	
 EndFunction
 
 // Prepares an extended description of the email server connection error.
-// 
+//
 // Parameters:
-//  ErrorInfo - ErrorInfo
-//  LanguageCode - String - attribute language code. For example, "en".
+//  ErrorInfo                   - ErrorInfo
+//  LanguageCode                             - String - attribute language code. For example, "en".
 //  EnableVerboseRepresentationErrors - Boolean - Adds a stack to an error text.
-//  
+//  Account                        - CatalogRef.EmailAccounts - The email
+//      account with an error.
+//
 // Returns:
 //  String
 //
-Function ExtendedErrorPresentation(ErrorInfo, LanguageCode, EnableVerboseRepresentationErrors = True) Export
+Function ExtendedErrorPresentation(ErrorInfo, LanguageCode,
+	EnableVerboseRepresentationErrors = True, Account = Undefined) Export
 	
 	Return EmailOperationsInternal.ExtendedErrorPresentation(
-		ErrorInfo, LanguageCode, EnableVerboseRepresentationErrors);
+		ErrorInfo, LanguageCode, EnableVerboseRepresentationErrors, Account);
 	
 EndFunction
 

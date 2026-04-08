@@ -12,6 +12,7 @@
 			<Comment/>
 			<Source>
 				<v8:Type>cfg:InformationRegisterRecordSet.BusinessCalendarData</v8:Type>
+				<v8:Type>cfg:InformationRegisterRecordSet.BackupHistoryOfBuiltInBinaryDataStorage</v8:Type>
 				<v8:Type>cfg:InformationRegisterRecordSet.DataExchangeRules</v8:Type>
 				<v8:Type>cfg:InformationRegisterRecordSet.RequestsForPermissionsToUseExternalResources</v8:Type>
 				<v8:Type>cfg:InformationRegisterRecordSet.PermissionsToUseExternalResources</v8:Type>

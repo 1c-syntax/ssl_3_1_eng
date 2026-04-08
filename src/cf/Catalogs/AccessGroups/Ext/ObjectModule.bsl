@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -26,12 +25,10 @@ Procedure BeforeWrite(Cancel)
 		Return;
 	EndIf;
 	
-	If UsersInternalCached.ShouldRegisterChangesInAccessRights()
+	If UsersInternal.ShouldRegisterChangesInAccessRights()
 	 Or Not DataExchange.Load Then
 		
-		If Common.FileInfobase() Then
-			AccessManagementInternal.LockRegistersBeforeWritingAccessConfigurationObjectToFileInformationSystem();
-		EndIf;
+		AccessManagement.SetLockBeforeWriteToFileIB(, True);
 		PreviousValues1 = PreviousValues1();
 	EndIf;
 	// ACC:75-on
@@ -41,7 +38,7 @@ Procedure BeforeWrite(Cancel)
 	EndIf;
 	
 	If AccessManagementInternal.SimplifiedAccessRightsSetupInterface()
-		And IsCTLUserRightsSetupSupported() Then
+		And AccessManagementInternal.IsCTLUserRightsSetupSupported() Then
 		
 		// Intended for "AccessManagementInternalSaaS.MembersByProfile"
 		Block = New DataLock();
@@ -164,7 +161,7 @@ Procedure OnWrite(Cancel)
 		Return;
 	EndIf;
 	
-	If UsersInternalCached.ShouldRegisterChangesInAccessRights() Then
+	If UsersInternal.ShouldRegisterChangesInAccessRights() Then
 		SetSafeModeDisabled(True);
 		SetPrivilegedMode(True);
 		
@@ -234,7 +231,7 @@ Procedure SendMessageAboutAccessGroupChanges(ThisIsRemoval = False)
 		Return;
 	EndIf;
 	
-	If IsAccessManagementSaaSSupported() Then
+	If AccessManagementInternal.IsAccessManagementSaaSSupported() Then
 		ModuleAccessManagementInternalSaaS = Common.CommonModule(
 			"AccessManagementInternalSaaS");
 		ModuleAccessManagementInternalSaaS.SendMessageAboutAccessGroupChanges(ThisObject, ThisIsRemoval);
@@ -383,26 +380,6 @@ Procedure UpdateUsersRolesOnChangeAccessGroup()
 	AccessManagement.UpdateUserRoles(UsersForUpdate, ServiceUserPassword);
 	
 EndProcedure
-
-Function IsAccessManagementSaaSSupported()
-	
-	Return Common.SubsystemExists(
-		"StandardSubsystems.SaaSOperations.AccessManagementSaaS");
-	
-EndFunction
-
-Function IsCTLUserRightsSetupSupported()
-	
-	If Not IsAccessManagementSaaSSupported() Then
-		Return False;
-	EndIf;
-	
-	ModuleAccessManagementInternalSaaS = Common.CommonModule(
-		"AccessManagementInternalSaaS");
-	
-	Return ModuleAccessManagementInternalSaaS.IsCTLUserRightsSetupSupported();
-	
-EndFunction
 
 #EndRegion
 

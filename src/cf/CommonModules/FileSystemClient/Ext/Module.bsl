@@ -1,16 +1,15 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//
 
 #Region Public
 
-#Region FilesImport
+#Region LoadFiles
 
 // Shows a file selection dialog box and places the selected file into a temporary storage.
 // This method provides the functionality of both BeginPutFile and BeginPuttingFiles global context methods.
@@ -381,10 +380,10 @@ Procedure OpenFile(FileLocation1, CompletionHandler = Undefined, FileName = "",
 	SavingParameters = FileSavingParameters();
 	SavingParameters.Interactively = False;
 	
-	NotifyDescription = New CallbackDescription(
+	CallbackDescription = New CallbackDescription(
 		"OpenFileAfterSaving", FileSystemInternalClient, OpeningParameters);
 	
-	SaveFile(NotifyDescription, FileLocation1, PathToFile, SavingParameters);
+	SaveFile(CallbackDescription, FileLocation1, PathToFile, SavingParameters);
 	
 EndProcedure
 
@@ -589,7 +588,7 @@ EndFunction
 //  Startup with waiting for exit and obtaining the return code:
 //
 //  ApplicationStartupParameters = FileSystemClient.ApplicationStartupParameters ();
-//  ApplicationStartupParameters .WaitForCompletion = True;
+//  ApplicationStartupParameters.WaitForCompletion = True;
 //  ApplicationStartupParameters.GetOutputStream = True;
 //  ApplicationStartupParameters.GetErrorStream = True;
 //  ApplicationStartupParameters.Notification = New NotifyDescription("OnGetAppStartupResult", ThisObject);
@@ -602,7 +601,7 @@ EndFunction
 //  ReturnCode = Result.ReturnCode;
 //      ErrorStream = Result.OutputStream;
 //      ErrorStream = Result.ErrorStream;
-//      EndProcedure
+//      EndProcedure 
 //  
 //
 Procedure StartApplication(Val StartupCommand, Val ApplicationStartupParameters = Undefined) Export
@@ -674,9 +673,16 @@ Procedure PrintFromApplicationByFileName(FileToOpenName) Export
 	ElsIf CommonClient.IsLinuxClient() Then
 		AdditionalParameters = New Structure;
 		AdditionalParameters.Insert("FileToOpenName", FileToOpenName);
-		NotifyDescription = New CallbackDescription("PrintFromTheApplicationByTheLinuxFileName", 
+		CallbackDescription = New CallbackDescription("PrintFromTheApplicationByTheLinuxFileName", 
 			ThisObject, AdditionalParameters);
-		CheckIfTheLinuxProgramIsInstalled("Unoconv", NotifyDescription);
+		SystemProperties  = New SystemInfo();
+		If StrFind(Upper(SystemProperties.OSVersion), "UBUNTU") > 0 Or StrFind(Upper(SystemProperties.OSVersion), "ASTRA") > 0 Then
+			CheckIfTheLinuxProgramIsInstalled("Unoconv", CallbackDescription);
+		Else
+			CallbackDescription = New CallbackDescription("PrintFromTheApplicationByTheLinuxFileNameRunningUnoconv", 
+				ThisObject, AdditionalParameters);
+			GetTheFullNameOfTheTemporaryFile(CallbackDescription);
+		EndIf;
 	Else
 		ShowMessageBox(, NStr("en = 'You can print this type of files only from an application for Windows or Linux.'"));
 		Return;
@@ -707,9 +713,9 @@ Procedure SelectDirectory(CompletionHandler, Title = "", Directory = "") Export
 	Context.Insert("Title", Title);
 	Context.Insert("Directory", Directory);
 	
-	NotifyDescription = New CallbackDescription(
+	CallbackDescription = New CallbackDescription(
 		"SelectDirectoryOnAttach1CEnterpriseExtension", FileSystemInternalClient, Context);
-	Attach1CEnterpriseExtension(NotifyDescription);
+	Attach1CEnterpriseExtension(CallbackDescription);
 	
 EndProcedure
 
@@ -732,9 +738,9 @@ Procedure ShowSelectionDialog(CompletionHandler, Dialog) Export
 	Context.Insert("CompletionHandler", CompletionHandler);
 	Context.Insert("Dialog", Dialog);
 	
-	NotifyDescription = New CallbackDescription(
+	CallbackDescription = New CallbackDescription(
 		"ShowSelectionDialogOnAttach1CEnterpriseExtension", FileSystemInternalClient, Context);
-	Attach1CEnterpriseExtension(NotifyDescription);
+	Attach1CEnterpriseExtension(CallbackDescription);
 	
 EndProcedure
 
@@ -789,18 +795,18 @@ EndProcedure
 Procedure Attach1CEnterpriseExtension(OnCloseNotifyDescription, SuggestionText = "",
 	CanContinueWithoutInstalling = True) Export
 	
-	NotifyDescriptionCompletion = New CallbackDescription(
+	CallbackDescriptionCompletion = New CallbackDescription(
 		"StartAttach1CEnterpriseExtensionWhenAnsweringToInstallationQuestion", FileSystemInternalClient,
 		OnCloseNotifyDescription);
 	
 #If Not WebClient Then
 	// In thin, thick, and web clients, the extension is always attached.
-	RunCallback(NotifyDescriptionCompletion, "AttachmentNotRequired");
+	RunCallback(CallbackDescriptionCompletion, "AttachmentNotRequired");
 	Return;
 #EndIf
 	
 	Context = New Structure;
-	Context.Insert("NotifyDescriptionCompletion", NotifyDescriptionCompletion);
+	Context.Insert("CallbackDescriptionCompletion", CallbackDescriptionCompletion);
 	Context.Insert("SuggestionText",             SuggestionText);
 	Context.Insert("CanContinueWithoutInstalling", CanContinueWithoutInstalling);
 	
@@ -860,18 +866,18 @@ EndFunction
 Procedure AttachFileOperationsExtension(OnCloseNotifyDescription, SuggestionText = "",
 	CanContinueWithoutInstalling = True) Export
 	
-	NotifyDescriptionCompletion = New CallbackDescription(
+	CallbackDescriptionCompletion = New CallbackDescription(
 		"StartAttach1CEnterpriseExtensionWhenAnsweringToInstallationQuestion", FileSystemInternalClient,
 		OnCloseNotifyDescription);
 	
 #If Not WebClient Then
 	// In thin, thick, and web clients, the extension is always attached.
-	RunCallback(NotifyDescriptionCompletion, "AttachmentNotRequired");
+	RunCallback(CallbackDescriptionCompletion, "AttachmentNotRequired");
 	Return;
 #EndIf
 	
 	Context = New Structure;
-	Context.Insert("NotifyDescriptionCompletion", NotifyDescriptionCompletion);
+	Context.Insert("CallbackDescriptionCompletion", CallbackDescriptionCompletion);
 	Context.Insert("SuggestionText",             SuggestionText);
 	Context.Insert("CanContinueWithoutInstalling", CanContinueWithoutInstalling);
 	
@@ -916,9 +922,9 @@ EndFunction
 Procedure ShowPutFile(CompletionHandler, PutParameters)
 	
 	PutParameters.Insert("CompletionHandler", CompletionHandler);
-	NotifyDescription = New CallbackDescription(
+	CallbackDescription = New CallbackDescription(
 		"ShowPutFileOnAttach1CEnterpriseExtension", FileSystemInternalClient, PutParameters);
-	Attach1CEnterpriseExtension(NotifyDescription, PutParameters.SuggestionText);
+	Attach1CEnterpriseExtension(CallbackDescription, PutParameters.SuggestionText);
 	
 EndProcedure
 
@@ -931,9 +937,9 @@ Procedure ShowDownloadFiles(CompletionHandler, FilesToSave, ReceivingParameters)
 	ReceivingParameters.Insert("FilesToObtain",      FilesToSave);
 	ReceivingParameters.Insert("CompletionHandler", CompletionHandler);
 	
-	NotifyDescription = New CallbackDescription(
+	CallbackDescription = New CallbackDescription(
 		"ShowDownloadFilesOnAttach1CEnterpriseExtension", FileSystemInternalClient, ReceivingParameters);
-	Attach1CEnterpriseExtension(NotifyDescription, ReceivingParameters.SuggestionText);
+	Attach1CEnterpriseExtension(CallbackDescription, ReceivingParameters.SuggestionText);
 	
 EndProcedure
 
@@ -1045,9 +1051,9 @@ Procedure PrintFromTheApplicationByTheLinuxFileName(Result, Parameters) Export
 		Return;
 	EndIf;
 	
-	NotifyDescription = New CallbackDescription("PrintFromTheApplicationByTheLinuxFileNameRunningUnoconv", 
+	CallbackDescription = New CallbackDescription("PrintFromTheApplicationByTheLinuxFileNameRunningUnoconv", 
 		ThisObject, Parameters);
-	GetTheFullNameOfTheTemporaryFile(NotifyDescription);
+	GetTheFullNameOfTheTemporaryFile(CallbackDescription);
 		
 EndProcedure
 
@@ -1056,13 +1062,13 @@ Procedure PrintFromTheApplicationByTheLinuxFileNameRunningUnoconv(TempFileName, 
 	AdditionalParameters = New Structure;
 	AdditionalParameters.Insert("TheFileOfTheConvertedData", TempFileName);
 	
-	NotifyDescription = New CallbackDescription("PrintFromTheApplicationByTheLinuxFileNameRunningLpr", 
+	CallbackDescription = New CallbackDescription("PrintFromTheApplicationByTheLinuxFileNameRunningLpr", 
 		ThisObject, AdditionalParameters);
 	
 	ApplicationStartupParameters = ApplicationStartupParameters();
 	ApplicationStartupParameters.Insert("WaitForCompletion", True);
 	ApplicationStartupParameters.Insert("GetErrorStream", True);
-	ApplicationStartupParameters.Insert("Notification", NotifyDescription);
+	ApplicationStartupParameters.Insert("Notification", CallbackDescription);
 	
 	CommandString = StringFunctionsClientServer.SubstituteParametersToString("unoconv --stdout '%1' >""%2""",
 		Parameters.FileToOpenName, TempFileName);
@@ -1083,11 +1089,11 @@ Procedure PrintFromTheApplicationByTheLinuxFileNameRunningLpr(Result, Parameters
 		
 	Parameters.Insert("ErrorDescription", Result.ErrorDescription);
 		
-	NotifyDescription = New CallbackDescription("PrintFromTheApplicationByTheLinuxFileNameCompletion", ThisObject, Parameters);
+	CallbackDescription = New CallbackDescription("PrintFromTheApplicationByTheLinuxFileNameCompletion", ThisObject, Parameters);
 	ApplicationStartupParameters = ApplicationStartupParameters();
 	ApplicationStartupParameters.Insert("WaitForCompletion", True);
 	ApplicationStartupParameters.Insert("GetErrorStream", True);
-	ApplicationStartupParameters.Insert("Notification", NotifyDescription);
+	ApplicationStartupParameters.Insert("Notification", CallbackDescription);
 	
 	StartApplication(
 		StringFunctionsClientServer.SubstituteParametersToString("lpr %1", Parameters.TheFileOfTheConvertedData), 

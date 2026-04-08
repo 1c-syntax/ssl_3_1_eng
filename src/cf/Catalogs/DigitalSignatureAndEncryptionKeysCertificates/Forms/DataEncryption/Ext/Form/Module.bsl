@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Variables
@@ -402,7 +401,7 @@ Procedure FillEncryptionCertificatesFromSet(CertificatesSetDetails)
 	Query.SetParameter("References", References);
 	Query.SetParameter("Thumbprints", Thumbprints);
 	Query.Text =
-	"SELECT
+	"SELECT ALLOWED
 	|	Certificates.Ref AS Ref,
 	|	Certificates.Thumbprint AS Thumbprint,
 	|	Certificates.Description AS Presentation,
@@ -548,7 +547,7 @@ Procedure FillEncryptionApplicationAtServer()
 	
 	If DigitalSignatureInternalClientServer.AreCertificateAdditionalPropertiesAvailable() Then
 		SignAlgorithm = DigitalSignatureInternalClientServer.SignAlgorithmPresentation(
-				CryptoCertificate.AlgorithmOfPublicKey, True, False);
+				CryptoCertificate.PublicKeyAlgorithm, True, False);
 	Else
 		SignAlgorithm = DigitalSignatureInternalClientServer.CertificateSignAlgorithm(CertificateBinaryData);
 	EndIf;
@@ -724,13 +723,16 @@ EndProcedure
 
 // Continues the CreateCryptoManager procedure.
 &AtClient
-Async Procedure FillEncryptionApplicationAfterLoop(Context)
+Procedure FillEncryptionApplicationAfterLoop(Context)
 	
 	If ValueIsFilled(Certificate) And Not ValueIsFilled(CertificateApp)
 		And Not ValueIsFilled(AppAuto) Then
-		Token = Await DigitalSignatureInternalClient.GetTokenByCertificate(Context.EncryptionCertificate);
-		If Token <> Undefined Then
-			AppAuto = Token;
+		StandardProcessing = True;
+		DigitalSignatureClientLocalization.OnGettingTokenByCertificate(
+			New CallbackDescription("FillEncryptionProgramAfterReceivingTokenByCertificate", ThisObject, Context),
+			Context.EncryptionCertificate, StandardProcessing, True);
+		If Not StandardProcessing Then
+			Return;
 		EndIf;
 	EndIf;
 	
@@ -738,6 +740,17 @@ Async Procedure FillEncryptionApplicationAfterLoop(Context)
 		RunCallback(Context.Notification);
 	EndIf;
 	
+EndProcedure
+
+// Continues the CreateCryptoManager procedure.
+&AtClient
+Procedure FillEncryptionProgramAfterReceivingTokenByCertificate(Token, Context) Export
+	If ValueIsFilled(Token) Then
+		AppAuto = Token;
+	EndIf;
+	If Context.Notification <> Undefined Then
+		RunCallback(Context.Notification);
+	EndIf;
 EndProcedure
 
 &AtClient
@@ -1086,7 +1099,7 @@ Function CertificatesProperties(Val References, Val FormIdentifier)
 	Query = New Query;
 	Query.SetParameter("References", References);
 	Query.Text =
-	"SELECT
+	"SELECT ALLOWED
 	|	Certificates.Ref AS Ref,
 	|	Certificates.Description AS Description,
 	|	Certificates.Application,

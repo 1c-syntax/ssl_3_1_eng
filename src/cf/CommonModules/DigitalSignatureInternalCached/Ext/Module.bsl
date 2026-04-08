@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Private
@@ -53,6 +52,8 @@ Function CommonSettings() Export
 		CommonSettings.Insert("GenerateDigitalSignaturesAtServer",
 			Constants.GenerateDigitalSignaturesAtServer.Get());
 	EndIf;
+	CommonSettings.Insert("UseMobileSignatureService",
+			DigitalSignature.UseMobileSignatureService());
 	
 	CommonSettings.Insert("CertificateIssueRequestAvailable", 
 		Metadata.DataProcessors.Find("ApplicationForNewQualifiedCertificateIssue") <> Undefined);
@@ -163,7 +164,7 @@ Function CommonSettings() Export
 	
 	TimestampServersAddresses = Constants.TimestampServersAddresses.Get();
 	If Not IsBlankString(TimestampServersAddresses) Then
-		CommonSettings.Insert("TimestampServersAddresses", StrSplit(TimestampServersAddresses, ", ;" + Chars.LF));
+		CommonSettings.Insert("TimestampServersAddresses", DigitalSignatureInternal.TimestampServersAddresses(TimestampServersAddresses));
 	Else
 		CommonSettings.Insert("TimestampServersAddresses", New Array);
 	EndIf;

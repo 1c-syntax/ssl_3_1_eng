@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -35,7 +34,8 @@ Procedure StartCommandExecution(Form, Command, Val Source = Undefined) Export
 	ExecutionParameters.IsObjectForm = TypeOf(Source) = Type("FormDataStructure");
 	// Service parameters.
 	ExecutionParameters.WritingRequired         = ExecutionParameters.IsObjectForm And CommandDetails.WriteMode <> "NotWrite";
-	ExecutionParameters.PostingRequired     = (CommandDetails.WriteMode = "Post");
+	ExecutionParameters.PostingRequired = CommandDetails.WriteMode = "Post"
+		And (Not ExecutionParameters.IsObjectForm Or Source.Property("Posted"));
 	ExecutionParameters.FilesOperationsRequired = CommandDetails.FilesOperationsRequired;
 	ExecutionParameters.CallServerThroughNotificationProcessing = True;
 	
@@ -65,7 +65,8 @@ Procedure ExecuteCommand(Form, Command, Source) Export
 	ExecutionParameters.IsObjectForm = TypeOf(Source) = Type("FormDataStructure");
 	// Service parameters.
 	ExecutionParameters.WritingRequired  = ExecutionParameters.IsObjectForm And CommandDetails.WriteMode <> "NotWrite";
-	ExecutionParameters.PostingRequired = (CommandDetails.WriteMode = "Post");
+	ExecutionParameters.PostingRequired = CommandDetails.WriteMode = "Post"
+		And (Not ExecutionParameters.IsObjectForm Or Source.Property("Posted"));
 	ExecutionParameters.FilesOperationsRequired = CommandDetails.FilesOperationsRequired;
 	
 	ContinueCommandExecution(ExecutionParameters);
@@ -184,9 +185,28 @@ Procedure ContinueCommandExecution(ExecutionParameters)
 		Return;
 	EndIf;
 	
+	ExecutionParameters.ReferencesArrray = ?(TypeOf(Source) = Type("FormDataStructure"),
+		CommonClientServer.ValueInArray(Source.Ref),
+		SelectedObjects(Source, CommandDetails));
+	
+	If CommandDetails.MultipleChoice Then
+		CommandParameter = ExecutionParameters.ReferencesArrray;
+	ElsIf ExecutionParameters.ReferencesArrray.Count() = 0 Then
+		CommandParameter = Undefined;
+	Else
+		CommandParameter = ExecutionParameters.ReferencesArrray[0];
+	EndIf;
+	
+	If CommonClient.SubsystemExists("StandardSubsystems.Print") Then
+		ModulePrintManagerInternalClient = CommonClient.CommonModule("PrintManagementInternalClient");
+		ModulePrintManagerInternalClient.BeforeExecutingCommand(CommandParameter, ExecutionParameters);
+	EndIf;
+	
 	// Writing in the object form.
 	If ExecutionParameters.WritingRequired Then
 		ExecutionParameters.WritingRequired = False;
+		ExecutionParameters.PostingRequired = ExecutionParameters.PostingRequired And Source.Property("Posted");
+		
 		If Source.Ref.IsEmpty()
 			Or (CommandDetails.WriteMode <> "WriteNewOnly" And ExecutionParameters.Form.Modified)
 			Or ExecutionParameters.PostingRequired And Not Source.Posted Then
@@ -209,10 +229,6 @@ Procedure ContinueCommandExecution(ExecutionParameters)
 			ShowQueryBox(Handler, QueryText, Buttons);
 			Return;
 		EndIf;
-	EndIf;
-	
-	If ExecutionParameters.ReferencesArrray.Count() = 0 Then
-		ExecutionParameters.ReferencesArrray = SelectedObjects(Source, CommandDetails);
 	EndIf;
 	
 	// Post documents.
@@ -246,13 +262,6 @@ Procedure ContinueCommandExecution(ExecutionParameters)
 	EndIf;
 	
 	// Command runtime.
-	If CommandDetails.MultipleChoice Then
-		CommandParameter = ExecutionParameters.ReferencesArrray;
-	ElsIf ExecutionParameters.ReferencesArrray.Count() = 0 Then
-		CommandParameter = Undefined;
-	Else
-		CommandParameter = ExecutionParameters.ReferencesArrray[0];
-	EndIf;
 	If CommandDetails.ServerRoom Then
 		Result = New Structure;
 		
@@ -262,8 +271,8 @@ Procedure ContinueCommandExecution(ExecutionParameters)
 		ServerContext.Insert("Result", Result);
 		
 		If ExecutionParameters.CallServerThroughNotificationProcessing Then
-			NotifyDescription = New CallbackDescription("Attachable_ContinueCommandExecutionAtServer", ExecutionParameters.Form);
-			RunCallback(NotifyDescription, ServerContext);
+			CallbackDescription = New CallbackDescription("Attachable_ContinueCommandExecutionAtServer", ExecutionParameters.Form);
+			RunCallback(CallbackDescription, ServerContext);
 			Result = ServerContext.Result;
 		Else
 			ExecutionParameters.Form.Attachable_ExecuteCommandAtServer(ServerContext, Result);

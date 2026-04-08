@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -133,7 +132,7 @@ EndProcedure
 //                       will be called, similar to the first two parameters of the ReportsClientOverridable.CommandHandler procedure.
 //                     - Array - Set of commands (FormCommand) that will be output to the given group.
 //   GroupType - String - Conditional name of the group that will host the button.
-//               "Main" - Group with the "Generate" and "Generate on open" buttons.
+//               "Main" - Group with the "Generate" and "Generate on opening" buttons.
 //               "Settings" - Group with buttons "Settings", "Change report options", and so on.
 //               "SpreadsheetDocumentOperations" - Group with buttons "Find", "Expand all groups", and so on.
 //               "Integration" - Group with such buttons as "Print," "Save", and "Send".
@@ -217,7 +216,7 @@ Procedure OutputCommand(ReportForm, CommandOrCommands, GroupType, ToGroupBeginni
 			Continue;
 		EndIf;
 		
-		Button = ReportForm.Items.Insert(Command.Name + "More", Type("FormButton"), MoreGroup);
+		Button = ReportForm.Items.Insert(Command.Name + "SeeMore", Type("FormButton"), MoreGroup);
 		Button.CommandName = Command.Name;
 		Button.LocationInCommandBar = ButtonLocationInCommandBar.InAdditionalSubmenu;
 	EndDo;
@@ -666,13 +665,13 @@ Procedure SetAvailableValues(Report, Form) Export
 			
 			SettingDetails = ReportsClientServer.FindAvailableSetting(
 				SettingsComposer.Settings, MainSettingItem);
-			// @skip-check query-in-loop - запрос к разным таблицам.
+			// @skip-check query-in-loop 
 			SetValidSettingsValues(Form, Report, SettingsComposer, UserSettingItem, MainSettingItem, SettingDetails);
 			
 			If TypeOf(MainSettingItem) = Type("DataCompositionFilterItem") Then
 				SettingDetails = SettingsComposer.Settings.StructureItemsFilterAvailableFields.FindField(MainSettingItem.LeftValue);
 				If SettingDetails <> Undefined Then
-					// @skip-check query-in-loop - запрос к разным таблицам.
+					// @skip-check query-in-loop 
 					SetValidSettingsValues(Form, Report, SettingsComposer, UserSettingItem, MainSettingItem, SettingDetails);
 				EndIf;
 			EndIf;
@@ -942,6 +941,12 @@ Procedure RestoreFiltersValues(Form)
 		
 		List = Form[ListName];
 		If List = Undefined Then 
+			Continue;
+		EndIf;
+		
+		ListValue = Form.Items.Find(ListName + "Value");
+		If List.Count() > 0 And ListValue <> Undefined
+			And ListValue.ChoiceParameters.Count() > 0 Then 
 			Continue;
 		EndIf;
 		
@@ -1227,7 +1232,7 @@ Function ReportObject(Id) Export
 	If Kind = "REPORT" Then
 		Return Reports[Name].Create();
 	ElsIf Kind = "EXTERNALREPORT" Then
-		Return ExternalReports.Create(Name); // ACC:553 Only for external reports, which are not attached to the "Additional reports and data processors" subsystem. The call is safe as all external reports go through security checks when being attached.
+		Return ExternalReports.Create(Name); // ACC:552 Only for external reports, which are not attached to the "Additional reports and data processors" subsystem. The call is safe as all external reports go through security checks when being attached.
 	Else
 		Raise StrReplace(NStr("en = '%1 is not a report.'"), "%1", FullName);
 	EndIf;
@@ -3518,7 +3523,7 @@ EndProcedure
 // Adds the selected data composition field.
 //
 // Parameters:
-//   Where - DataCompositionSettingsComposer
+//   Var_To - DataCompositionSettingsComposer
 //        - DataCompositionSettings
 //        - DataCompositionSelectedFields -
 //       Collection to add the selected field to.
@@ -3529,14 +3534,14 @@ EndProcedure
 // Returns:
 //   DataCompositionSelectedField - Selected added field.
 //
-Function AddSelectedField(Where, DCNameOrField, Title = "") Export
+Function AddSelectedField(Var_To, DCNameOrField, Title = "") Export
 	
-	If TypeOf(Where) = Type("DataCompositionSettingsComposer") Then
-		SelectedDCFields = Where.Settings.Selection;
-	ElsIf TypeOf(Where) = Type("DataCompositionSettings") Then
-		SelectedDCFields = Where.Selection;
+	If TypeOf(Var_To) = Type("DataCompositionSettingsComposer") Then
+		SelectedDCFields = Var_To.Settings.Selection;
+	ElsIf TypeOf(Var_To) = Type("DataCompositionSettings") Then
+		SelectedDCFields = Var_To.Selection;
 	Else
-		SelectedDCFields = Where;
+		SelectedDCFields = Var_To;
 	EndIf;
 	
 	If TypeOf(DCNameOrField) = Type("String") Then
@@ -3805,7 +3810,7 @@ Procedure SetValidSettingsValues(Form, Report, SettingsComposer, UserSettingItem
 	
 	// Populate automatically.
 	If SettingProperties.SelectionValuesQuery.Text <> "" Then
-		// @skip-check query-in-loop - запрос к разным таблицам.
+		// @skip-check query-in-loop 
 		ValuesToAdd = SettingProperties.SelectionValuesQuery.Execute().Unload().UnloadColumn(0);
 		For Each Item In ValuesToAdd Do
 			ReportsClientServer.AddUniqueValueToList(

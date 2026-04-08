@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
@@ -107,7 +106,7 @@ Procedure DoLogChanges(PreviousSettings1)
 	NewSettings1.Settings = New Array;
 	
 	For Each Setting In Settings Do
-		SettingDetails = New Structure("Object, AccessFields, RegistrationFields");
+		SettingDetails = New Structure("Object, AccessFields, LoggedFields");
 		FillPropertyValues(SettingDetails, Setting);
 		NewSettings1.Settings.Add(SettingDetails);
 	EndDo;

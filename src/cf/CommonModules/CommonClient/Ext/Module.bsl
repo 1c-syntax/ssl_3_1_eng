@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -787,7 +786,7 @@ EndProcedure
 // Opens an attachment format selection form.
 //
 // Parameters:
-//  NotifyDescription  - CallbackDescription - a choice result handler.
+//  CallbackDescription  - CallbackDescription - a choice result handler.
 //  FormatSettings - Structure - default settings in the form of:
 //   * PackToArchive   - Boolean - shows whether it is necessary to archive attachments.
 //   * SaveFormats - Array of String - a list of the selected save formats.
@@ -795,7 +794,7 @@ EndProcedure
 //   * Sign - Boolean - Sign the file with a digital signature.
 //  Owner - ClientApplicationForm - the form from which the attachment selection form is called.
 //
-Procedure ShowAttachmentsFormatSelection(NotifyDescription, FormatSettings = Undefined, Owner = Undefined) Export
+Procedure ShowAttachmentsFormatSelection(CallbackDescription, FormatSettings = Undefined, Owner = Undefined) Export
 	If FormatSettings <> Undefined Then
 		FormParameters = New Structure;
 		FormParameters.Insert("PackToArchive", FormatSettings.PackToArchive);
@@ -806,7 +805,7 @@ Procedure ShowAttachmentsFormatSelection(NotifyDescription, FormatSettings = Und
 		FormParameters = Undefined;
 	EndIf;	
 	OpenForm("CommonForm.SelectAttachmentFormat", FormParameters, , , , ,
-		NotifyDescription, FormWindowOpeningMode.LockOwnerWindow);
+		CallbackDescription, FormWindowOpeningMode.LockOwnerWindow);
 EndProcedure
 
 #EndRegion
@@ -1157,7 +1156,7 @@ EndProcedure
 
 #EndRegion
 
-#Region ForCallsFromOtherSubsystems
+#Region InterfaceImplementation
 
 // ConnectedHardwareLibrary
 // 
@@ -1181,10 +1180,10 @@ Async Function InstallAddInFromTemplateAsync(FullTemplateName, InstallationParam
 		FillPropertyValues(Parameters, InstallationParameters);
 	EndIf;
 	
-	Context = New Structure;
-	Context.Insert("Location", FullTemplateName);
-	Context.Insert("ExplanationText", Parameters.ExplanationText);
-	Context.Insert("Id", FullTemplateName);
+	Context = CommonInternalClient.AddInAttachmentContext();
+	Context.Location = FullTemplateName;
+	Context.ExplanationText = Parameters.ExplanationText;
+	Context.Id = FullTemplateName;
 	
 	Return Await CommonInternalClient.InstallAddInSSLAsync(Context);
 	

@@ -131,11 +131,11 @@ You can release the lock later in &lt;b&gt;Administration&lt;/&gt;&lt;b&gt; &gt;
 										</Button>
 									</ChildItems>
 								</Popup>
-								<Button name="FormHelp" id="16">
+								<Button name="FormHelp_SSLyf" id="16">
 									<Type>CommandBarButton</Type>
 									<CommandName>Form.StandardCommand.Help</CommandName>
 									<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
-									<ExtendedTooltip name="FormHelpExtendedTooltip" id="17"/>
+									<ExtendedTooltip name="FormHelp_SSLyfExtendedTooltip" id="17"/>
 								</Button>
 							</ChildItems>
 						</CommandBar>

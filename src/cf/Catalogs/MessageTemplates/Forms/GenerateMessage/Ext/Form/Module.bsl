@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -119,8 +118,8 @@ Procedure AttachmentFormatClick(Item, StandardProcessing)
 	
 	StandardProcessing = False;
 	
-	NotifyDescription = New CallbackDescription("OnSelectAttachmentFormat", ThisObject);
-	CommonClient.ShowAttachmentsFormatSelection(NotifyDescription, SelectedFormatSettings(), ThisObject);
+	CallbackDescription = New CallbackDescription("OnSelectAttachmentFormat", ThisObject);
+	CommonClient.ShowAttachmentsFormatSelection(CallbackDescription, SelectedFormatSettings(), ThisObject);
 	
 EndProcedure
 
@@ -401,9 +400,9 @@ Procedure SendMessage1(Val MessageSendOptions)
 	
 	If MessageKind = "MailMessage" Then
 		If CommonClient.SubsystemExists("StandardSubsystems.EmailOperations") Then
-			NotifyDescription = New CallbackDescription("SendMessageAccountCheckCompleted", ThisObject, MessageSendOptions);
+			CallbackDescription = New CallbackDescription("SendMessageAccountCheckCompleted", ThisObject, MessageSendOptions);
 			ModuleEmailOperationsClient = CommonClient.CommonModule("EmailOperationsClient");
-			ModuleEmailOperationsClient.CheckAccountForSendingEmailExists(NotifyDescription);
+			ModuleEmailOperationsClient.CheckAccountForSendingEmailExists(CallbackDescription);
 		EndIf;
 	ElsIf MessageKind = "SMSMessage" Then
 		GenerateMessageToSend(MessageSendOptions);
@@ -805,10 +804,8 @@ EndProcedure
 &AtServer 
 Procedure FillPrintFormsList(AttachmentTree, PrintCommands)
 	
-	If PrintCommands.Count() = 0 Then
-		
+	If Not ValueIsFilled(PrintCommands) Then
 		Return;
-		
 	EndIf;
 	
 	AttachmentKindIndexes = IndexAttachmentKindMap(AttachmentsKinds);
@@ -989,7 +986,7 @@ Procedure SIgnFiles(Result, SendOptions)
 	Context.Insert("Result", Result);
 	Context.Insert("SendOptions", SendOptions);
 	
-	NotifyDescription = New CallbackDescription("GenerateMessageToSendFollowUp", ThisObject, Context);
+	CallbackDescription = New CallbackDescription("GenerateMessageToSendFollowUp", ThisObject, Context);
 	
 	If CommonClient.SubsystemExists("StandardSubsystems.DigitalSignature") Then
 		DataDetails = New Structure;
@@ -1021,7 +1018,7 @@ Procedure SIgnFiles(Result, SendOptions)
 		ModuleDigitalSignatureClient = CommonClient.CommonModule("DigitalSignatureClient");
 		SignatureParameters = ModuleDigitalSignatureClient.NewSignatureType();
 		SignatureParameters.CanSelectLetterOfAuthority = True;
-		ModuleDigitalSignatureClient.Sign(DataDetails,,NotifyDescription, SignatureParameters);
+		ModuleDigitalSignatureClient.Sign(DataDetails,,CallbackDescription, SignatureParameters);
 	EndIf;
 	
 EndProcedure

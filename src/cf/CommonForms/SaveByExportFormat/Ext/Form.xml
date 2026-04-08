@@ -234,7 +234,7 @@
 			<ToolTip>
 				<v8:item>
 					<v8:lang>en</v8:lang>
-					<v8:content>Run</v8:content>
+					<v8:content>Run the selected option</v8:content>
 				</v8:item>
 			</ToolTip>
 			<Action>ExecuteSelectedOption</Action>

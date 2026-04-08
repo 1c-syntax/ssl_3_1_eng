@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Variables
@@ -426,8 +425,8 @@ Procedure Timeout2()
 	DetachIdleHandler("CheckForSingleConnection");
 	QueryText = NStr("en = 'Cannot terminate all user sessions. Are you sure you still want to back up the data? The backup might contain errors.'");
 	ExplanationText = NStr("en = 'Cannot terminate the user session.'");
-	NotifyDescription = New CallbackDescription("Timeout2Completion", ThisObject);
-	ShowQueryBox(NotifyDescription, QueryText, QuestionDialogMode.YesNo, 30, DialogReturnCode.No, ExplanationText, DialogReturnCode.No);
+	CallbackDescription = New CallbackDescription("Timeout2Completion", ThisObject);
+	ShowQueryBox(CallbackDescription, QueryText, QuestionDialogMode.YesNo, 30, DialogReturnCode.No, ExplanationText, DialogReturnCode.No);
 	
 EndProcedure
 
@@ -529,7 +528,7 @@ Procedure StartBackup()
 	BackupInProgress = True;
 	ForceCloseForm = True;
 	
-	ApplicationParameters.Insert("StandardSubsystems.SkipExitConfirmation", True);
+	StandardSubsystemsClient.SkipExitConfirmation();
 	
 	PathToLauncher = StandardSubsystemsClient.SystemApplicationsDirectory() + "mshta.exe";
 	

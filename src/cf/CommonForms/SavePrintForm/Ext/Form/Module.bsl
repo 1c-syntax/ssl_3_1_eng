@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -70,7 +69,7 @@ Procedure OnCreateAtServer(Cancel, StandardProcessing)
 	If Parameters.PrintObjects.Count() > 1 Then
 		Item = Items.SavingOption.ChoiceList.FindByValue("Join");
 		If Item <> Undefined Then
-			Item.Presentation = NStr("en = 'Присоединить к документам'")
+			Item.Presentation = NStr("en = 'Attach to documents'")
 				+ " (" + Format(Parameters.PrintObjects.Count(), "NFD=0;") + ")";
 		EndIf;
 	EndIf;
@@ -108,6 +107,17 @@ Procedure BeforeLoadDataFromSettingsAtServer(Settings)
 	If Common.IsMobileClient() Then
 		Settings["Sign"] = False;
 	EndIf;
+	
+	If Not Items.SavingOption.Visible Then
+		Settings["SavingOption"] = "SaveToFolder"; 
+	EndIf;
+	
+EndProcedure
+
+&AtServer
+Procedure OnLoadDataFromSettingsAtServer(Settings)
+	
+	Items.FilesSaveDirectory.Enabled = SavingOption <> "Join";
 	
 EndProcedure
 
@@ -217,8 +227,8 @@ Procedure Save(Command)
 	QuestionParameters.LockWholeInterface = True;
 	QuestionParameters.PromptDontAskAgain = False;
 	
-	NotifyDescription = New CallbackDescription("SaveAfterConfirm", ThisObject, SelectionResult);
-	StandardSubsystemsClient.ShowQuestionToUser(NotifyDescription, QueryText, Buttons, QuestionParameters);
+	CallbackDescription = New CallbackDescription("SaveAfterConfirm", ThisObject, SelectionResult);
+	StandardSubsystemsClient.ShowQuestionToUser(CallbackDescription, QueryText, Buttons, QuestionParameters);
 	
 EndProcedure
 

@@ -578,6 +578,11 @@ Please wait…</v8:content>
 		<Attribute name="AuthenticationData" id="11">
 			<Type/>
 		</Attribute>
+		<Attribute name="PasswordFilled" id="20">
+			<Type>
+				<v8:Type>xs:boolean</v8:Type>
+			</Type>
+		</Attribute>
 	</Attributes>
 	<Commands>
 		<Command name="NextCommand" id="1">

@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -734,13 +733,13 @@ Function CreateEmail(Message, Account, SendImmediately = True) Export
 	Except
 		ErrorInfo = ErrorInfo();
 		
-		If Not EmailOperationsInternalClientServer.ThisIsErrorInWorkOfInternetMail(ErrorInfo) Then
+		If Not EmailOperationsInternalClientServer.IsInternetMailError(ErrorInfo) Then
 			Raise;
 		EndIf;
 		
 		MessageTextTemplate = NStr("en = 'Cannot send the mail. Reason:
 				|%1'");
-		ErrorText = EmailOperations.ExtendedErrorPresentation(ErrorInfo, Common.DefaultLanguageCode());
+		ErrorText = EmailOperations.ExtendedErrorPresentation(ErrorInfo, Common.DefaultLanguageCode(), , Account);
 		WriteLogEvent(InfobaseUpdate.EventLogEvent(),
 			EventLogLevel.Error,, MailMessage,
 			StringFunctionsClientServer.SubstituteParametersToString(MessageTextTemplate, ErrorText));
@@ -900,7 +899,7 @@ Procedure CreateAndSendSMSMessage(Message) Export
 	
 	For Each SMSMessageAddressee In Message.Recipient Do
 		
-		NewRow = SMSMessage.SMSMessageRecipients.Add();
+		NewRow = SMSMessage.Recipients.Add();
 		If TypeOf(SMSMessageAddressee) = Type("Structure") Then
 			NewRow.Contact                = SMSMessageAddressee.ContactInformationSource;
 			NewRow.ContactPresentation  = SMSMessageAddressee.Presentation;
@@ -943,7 +942,7 @@ EndProcedure
 //
 Procedure SetStateOutgoingDocumentSMSMessage(Object) Export
 	
-	For Each Addressee In Object.SMSMessageRecipients Do
+	For Each Addressee In Object.Recipients Do
 		Addressee.MessageState = PredefinedValue("Enum.SMSMessagesState.Outgoing");
 	EndDo;
 	Object.State = PredefinedValue("Enum.SMSDocumentStatuses.Outgoing");
@@ -1189,12 +1188,12 @@ Procedure OnFillToDoList(ToDoList) Export
 		For Each NewEmailsByAccount In NewEmailsByAccounts Do
 		
 			EmailsIDByAccount = InteractionID + "Account" + IndexOf;
-			ToDoItem = ToDoList.Add();
-			ToDoItem.Id  = EmailsIDByAccount;
-			ToDoItem.HasToDoItems       = NewEmailsByAccount.EmailsCount > 0;
-			ToDoItem.Count     = NewEmailsByAccount.EmailsCount;
-			ToDoItem.Presentation  = NewEmailsByAccount.Account;
-			ToDoItem.Owner       = InteractionID;
+			CaseFile = ToDoList.Add();
+			CaseFile.Id  = EmailsIDByAccount;
+			CaseFile.HasToDoItems       = NewEmailsByAccount.EmailsCount > 0;
+			CaseFile.Count     = NewEmailsByAccount.EmailsCount;
+			CaseFile.Presentation  = NewEmailsByAccount.Account;
+			CaseFile.Owner       = InteractionID;
 			
 			IndexOf = IndexOf + 1;
 			EmailsCount = EmailsCount + NewEmailsByAccount.EmailsCount;
@@ -1708,10 +1707,10 @@ Function ContactsBySubjectOrChain(SubjectOf, IncludeEmail)
 		InteractionsOverridable.OnSearchForContacts(ContactsTableName, QueryTextForSearch);
 		
 		If IsBlankString(QueryTextForSearch) Then
-			// ACC:223-off For backward compatibility.
+			// ACC:222-off For backward compatibility.
 			QueryTextForSearch = InteractionsOverridable.QueryTextContactsSearchBySubject(False, 
 				ContactsTableName, True);
-			// ACC:223-on
+			// ACC:222-on
 		EndIf;
 		
 		QueryText = QueryText + QueryTextForSearch;
@@ -2629,7 +2628,7 @@ EndProcedure
 Function GetParticipantsByTable(Ref) Export
 	
 	FullObjectName = Ref.Metadata().FullName();
-	TableName = ?(TypeOf(Ref) = Type("DocumentRef.SMSMessage"), "SMSMessageRecipients", "Attendees");
+	TableName = ?(TypeOf(Ref) = Type("DocumentRef.SMSMessage"), "Recipients", "Attendees");
 	
 	QueryText =
 	"SELECT
@@ -2805,7 +2804,7 @@ EndProcedure
 Procedure GenerateParticipantsList(Object) Export
 	
 	If  TypeOf(Object) = Type("DocumentObject.SMSMessage") Then
-		TableName = "SMSMessageRecipients";
+		TableName = "Recipients";
 	Else 
 		TableName = "Attendees";
 	EndIf;
@@ -3166,12 +3165,12 @@ Procedure AddToAddresseesParameter(Source, EmailParameters, ParameterName, Table
 		Return;
 	EndIf;
 	
-	SMSMessageRecipients = New Array;
+	Recipients = New Array;
 	For Each TableRow In Table Do
-		SMSMessageRecipients.Add(New Structure("Address,Presentation", TableRow.Address, TableRow.Presentation));
+		Recipients.Add(New Structure("Address,Presentation", TableRow.Address, TableRow.Presentation));
 	EndDo;
 	
-	EmailParameters.Insert(ParameterName, SMSMessageRecipients);
+	EmailParameters.Insert(ParameterName, Recipients);
 	
 EndProcedure
 
@@ -3204,9 +3203,9 @@ Function EmailObjectAttachedFilesData(EmailObject)
 		
 	InteractionsOverridable.OnReceiveAttachedFiles(EmailObject.Ref, Result);
 	
-	// ACC:223-off For backward compatibility.
+	// ACC:222-off For backward compatibility.
 	AttachedEmailFilesData = InteractionsOverridable.AttachedEmailFilesMetadataObjectData(EmailObject);
-	// ACC:223-on
+	// ACC:222-on
 	If AttachedEmailFilesData <> Undefined Then
 		Result.AttachedFilesCatalogName = AttachedEmailFilesData.CatalogNameAttachedFiles;
 		Result.FilesOwner = AttachedEmailFilesData.Owner;
@@ -3224,9 +3223,9 @@ Function AttachedEmailFilesData(EmailRef) Export
 		
 	InteractionsOverridable.OnReceiveAttachedFiles(EmailRef, Result);
 	
-	// ACC:223-off For backward compatibility.
+	// ACC:222-off For backward compatibility.
 	AttachedEmailFilesData = InteractionsOverridable.AttachedEmailFilesMetadataObjectData(EmailRef);
-	// ACC:223-on
+	// ACC:222-on
 	If AttachedEmailFilesData <> Undefined Then
 		Result.AttachedFilesCatalogName = AttachedEmailFilesData.CatalogNameAttachedFiles;
 		Result.FilesOwner = AttachedEmailFilesData.Owner;
@@ -3234,6 +3233,31 @@ Function AttachedEmailFilesData(EmailRef) Export
 	Return Result;
 	
 EndFunction
+
+Procedure ProcessLetterGrounds(IDString1)
+	
+	IDString1 = StrReplace(IDString1, " ", Chars.LF);
+	
+	StringsBeforeProcessing = StrSplit(IDString1, Chars.LF, False);
+	StringsAfterProcessing = New Array;
+	
+	For Each GroundsString In StringsBeforeProcessing Do
+		
+		If Not StrStartsWith(GroundsString, "<") Then
+			GroundsString = "<" + GroundsString;
+		EndIf;
+		
+		If Not StrEndsWith(GroundsString, ">") Then
+			GroundsString = GroundsString + ">";
+		EndIf;
+		
+		StringsAfterProcessing.Add(GroundsString);
+		
+	EndDo;
+	
+	IDString1 = StrConcat(StringsAfterProcessing, " ");
+	
+EndProcedure
 
 Function EmailSendingParameters(Object) Export
 	
@@ -3258,10 +3282,12 @@ Function EmailSendingParameters(Object) Export
 	EmailParameters.Insert("TextType", Object.TextType);
 	
 	If Not IsBlankString(Object.BasisID) Then
+		ProcessLetterGrounds(Object.BasisID);
 		EmailParameters.Insert("BasisID", Object.BasisID);
 	EndIf;
 	
 	If Not IsBlankString(Object.BasisIDs) Then
+		ProcessLetterGrounds(Object.BasisIDs);
 		EmailParameters.Insert("BasisIDs", Object.BasisIDs);
 	EndIf;
 	
@@ -3283,6 +3309,8 @@ Function EmailSendingParameters(Object) Export
 	|	&NameOfTheReferenceTable AS Files
 	|WHERE
 	|	Files.FileOwner = &FileOwner
+	|AND
+	|	NOT Files.DeletionMark
 	|;
 	|
 	|//////////////////////////////////////////////////////////////////////
@@ -4436,7 +4464,19 @@ Function ProcessHTMLText(MailMessage, DisableExternalResources = True, HasExtern
 		TableOfFiles = GetEmailAttachmentsWithNonBlankIDs(MailMessage);
 		
 		If TableOfFiles.Count() Then
-			HTMLText = HTMLTagContent(HTMLText, "html", True);
+			HtmlPartCount = StrOccurrenceCount(HTMLText, "<html");
+			If HtmlPartCount > 1 Then
+				HtmlParts = New Array;
+				HtmlPartNumber = 1;
+				While HtmlPartNumber <= HtmlPartCount Do
+					HtmlPart = HTMLTagContent(HTMLText, "html", True, HtmlPartNumber);
+					HtmlParts.Add(HtmlPart);
+					HtmlPartNumber = HtmlPartNumber + 1;
+				EndDo;
+				HTMLText = StrConcat(HtmlParts, Chars.LF + "<br>");
+			Else
+				HTMLText = HTMLTagContent(HTMLText, "html", True);
+			EndIf;
 			HTMLDocument = ReplacePicturesIDsWithPathToFiles(HTMLText, TableOfFiles, Encoding);
 			
 			Return GetHTMLTextFromHTMLDocumentObject(HTMLDocument);
@@ -5308,7 +5348,7 @@ Procedure CheckSMSMessagesDeliveryStatuses(SMSMessage, Modified) Export
 	|	MessageSMSAddressees.MessageID,
 	|	MessageSMSAddressees.MessageState
 	|FROM
-	|	Document.SMSMessage.SMSMessageRecipients AS MessageSMSAddressees
+	|	Document.SMSMessage.Recipients AS MessageSMSAddressees
 	|WHERE
 	|	MessageSMSAddressees.Ref = &SMSMessage
 	|	AND MessageSMSAddressees.MessageID <> """"
@@ -5319,16 +5359,16 @@ Procedure CheckSMSMessagesDeliveryStatuses(SMSMessage, Modified) Export
 	Query.SetParameter("SMSMessage", SMSMessage.Ref);
 	
 	HasChanges = False;
-	SMSMessageRecipients = Query.Execute().Unload();
-	MessagesIDs = SMSMessageRecipients.UnloadColumn("MessageID");
+	Recipients = Query.Execute().Unload();
+	MessagesIDs = Recipients.UnloadColumn("MessageID");
 	DeliveryStatuses = SendSMSMessage.DeliveryStatuses(MessagesIDs);
 	
-	For Each Addressee In SMSMessageRecipients Do
+	For Each Addressee In Recipients Do
 		
 		MessageState = SMSMessageStateAccordingToDeliveryStatus(DeliveryStatuses[Addressee.MessageID]);
 		
 		If MessageState <> Addressee.MessageState Then
-			SMSMessage.SMSMessageRecipients[Addressee.LineNumber - 1].MessageState = MessageState;
+			SMSMessage.Recipients[Addressee.LineNumber - 1].MessageState = MessageState;
 			HasChanges = True;
 		EndIf;
 		
@@ -5351,7 +5391,7 @@ EndProcedure
 //
 Function SMSMessageDocumentState(SMSMessage)
 	
-	StatusesOfMessagesToAddressees = SMSMessage.SMSMessageRecipients.Unload(, "MessageState").UnloadColumn("MessageState");
+	StatusesOfMessagesToAddressees = SMSMessage.Recipients.Unload(, "MessageState").UnloadColumn("MessageState");
 	If StatusesOfMessagesToAddressees.Count() = 0 Then
 		Return Enums.SMSDocumentStatuses.Draft;
 	EndIf;
@@ -5455,7 +5495,7 @@ Function SendSMSMessageByDocument(Document) Export
 		Return 0;
 	EndIf;
 	
-	NumbersForSend = Document.SMSMessageRecipients.Unload(,"SendingNumber").UnloadColumn("SendingNumber");
+	NumbersForSend = Document.Recipients.Unload(,"SendingNumber").UnloadColumn("SendingNumber");
 	SendingResult = SendSMSMessage.SendSMS(NumbersForSend, Document.MessageText, Undefined, 
 		Document.SendInTransliteration);
 	
@@ -5481,7 +5521,7 @@ Function SMSMessagesToSend()
 	|	MessageSMSAddressees.SendingNumber,
 	|	MessageSMSAddressees.HowToContact
 	|FROM
-	|	Document.SMSMessage.SMSMessageRecipients AS MessageSMSAddressees
+	|	Document.SMSMessage.Recipients AS MessageSMSAddressees
 	|		INNER JOIN Document.SMSMessage AS SMSMessage
 	|		ON MessageSMSAddressees.Ref = SMSMessage.Ref
 	|WHERE
@@ -5552,7 +5592,8 @@ Procedure SendSMS() Export
 		// Send outside of transaction.
 		NumbersForSend = MessageAddresseesTable.UnloadColumn("SendingNumber");
 		Try
-			SendingResult = SendSMSMessage.SendSMS(NumbersForSend, MessageText, "", SendInTransliteration);
+			SendingResult = SendSMSMessage.SendSMS(NumbersForSend, MessageText, Undefined,
+				SendInTransliteration);
 		Except
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Cannot send %1 due to: 
@@ -5574,7 +5615,7 @@ Procedure SendSMS() Export
 				MessageText);
 		EndIf;
 		
-		DocumentPresentation_ = String(DocumentsSelection.Ref);
+		PresentationOfDocument = String(DocumentsSelection.Ref);
 		BeginTransaction();
 		Try
 			Block = New DataLock;
@@ -5583,7 +5624,7 @@ Procedure SendSMS() Export
 			Block.Lock();
 		
 			DocumentObject = DocumentsSelection.Ref.GetObject();
-			// @skip-check query-in-loop - Запрос для поэлементной записи данных. 
+			// @skip-check query-in-loop -  
 			ReportSMSMessageSendingResultsInDocument(DocumentObject, SendingResult);
 			DocumentObject.AdditionalProperties.Insert("DoNotSaveContacts", True);
 			DocumentObject.Write();
@@ -5594,7 +5635,7 @@ Procedure SendSMS() Export
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(MessageText, 
 				NStr("en = 'Cannot record sending of %1 due to: 
 				|%2'"),
-				DocumentPresentation_, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+				PresentationOfDocument, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 			WriteLogEvent(EmailManagement.EventLogEvent(),
 				EventLogLevel.Error, MetadataOfDocument, DocumentsSelection.Ref,
 				MessageText);
@@ -5614,7 +5655,7 @@ Function SMSMessagesForStatusCheck()
 	|	MessageSMSAddressees.MessageID,
 	|	MessageSMSAddressees.MessageState
 	|FROM
-	|	Document.SMSMessage.SMSMessageRecipients AS MessageSMSAddressees
+	|	Document.SMSMessage.Recipients AS MessageSMSAddressees
 	|WHERE
 	|	MessageSMSAddressees.MessageID <> """"
 	|	AND (MessageSMSAddressees.MessageState = VALUE(Enum.SMSMessagesState.BeingSentByProvider)
@@ -5663,13 +5704,13 @@ Procedure SMSDeliveryStatusUpdate() Export
 		ProcessedDocuments_[DocumentsSelection.Ref] = New Array;
 		IDsSelection = DocumentsSelection.Select();
 		While IDsSelection.Next() Do
-			SMSMessageRecipients = New Structure;
-			SMSMessageRecipients.Insert("LineNumber");
-			SMSMessageRecipients.Insert("MessageID");
-			SMSMessageRecipients.Insert("MessageState");
-			FillPropertyValues(SMSMessageRecipients, IDsSelection);
-			ProcessedDocuments_[DocumentsSelection.Ref].Add(SMSMessageRecipients);
-			MessagesIDs.Add(SMSMessageRecipients.MessageID);
+			Recipients = New Structure;
+			Recipients.Insert("LineNumber");
+			Recipients.Insert("MessageID");
+			Recipients.Insert("MessageState");
+			FillPropertyValues(Recipients, IDsSelection);
+			ProcessedDocuments_[DocumentsSelection.Ref].Add(Recipients);
+			MessagesIDs.Add(Recipients.MessageID);
 		EndDo;
 	EndDo;
 	
@@ -5677,10 +5718,10 @@ Procedure SMSDeliveryStatusUpdate() Export
 	
 	For Each DocumentToProcess In ProcessedDocuments_ Do
 		Ref = DocumentToProcess.Key;
-		SMSMessageRecipients = DocumentToProcess.Value;
+		Recipients = DocumentToProcess.Value;
 		
 		ChangedStatusesTable.Clear();
-		DocumentPresentation_ = Common.SubjectString(Ref);
+		PresentationOfDocument = Common.SubjectString(Ref);
 		
 		BeginTransaction();
 		Try
@@ -5690,7 +5731,7 @@ Procedure SMSDeliveryStatusUpdate() Export
 			LockItem.SetValue("Ref", Ref);
 			Block.Lock();
 		
-			For Each Addressee In SMSMessageRecipients Do
+			For Each Addressee In Recipients Do
 				
 				MessageState = SMSMessageStateAccordingToDeliveryStatus(DeliveryStatuses[Addressee.MessageID]);
 				
@@ -5710,7 +5751,7 @@ Procedure SMSDeliveryStatusUpdate() Export
 			DocumentObject = Ref.GetObject();
 			
 			For Each ChangedStatus In ChangedStatusesTable Do
-				DocumentObject.SMSMessageRecipients[ChangedStatus.LineNumber - 1].MessageState = ChangedStatus.MessageState;
+				DocumentObject.Recipients[ChangedStatus.LineNumber - 1].MessageState = ChangedStatus.MessageState;
 			EndDo;
 			
 			DocumentObject.State = SMSMessageDocumentState(DocumentObject);
@@ -5724,7 +5765,7 @@ Procedure SMSDeliveryStatusUpdate() Export
 			RollbackTransaction();
 			MessageText = StringFunctionsClientServer.SubstituteParametersToString(
 				NStr("en = 'Failed to update delivery status: %1. Reason: %2'"),
-				DocumentPresentation_, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
+				PresentationOfDocument, ErrorProcessing.DetailErrorDescription(ErrorInfo()));
 			WriteLogEvent(EmailManagement.EventLogEvent(),
 				EventLogLevel.Warning, MetadataOfDocument, Ref,
 				MessageText);
@@ -5748,7 +5789,7 @@ Procedure ReportSMSMessageSendingResultsInDocument(DocumentObject, SendingResult
 		SentMessages[SentMessage.RecipientNumber] = SentMessage.MessageID;
 	EndDo;
 	
-	For Each Addressee In DocumentObject.SMSMessageRecipients Do
+	For Each Addressee In DocumentObject.Recipients Do
 		Addressee.MessageID = SentMessages[Addressee.SendingNumber];
 		If ValueIsFilled(Addressee.MessageID) Then
 			Addressee.MessageState = Enums.SMSMessagesState.BeingSentByProvider;
@@ -6232,7 +6273,7 @@ Function DefineFolderForEmail(MailMessage) Export
 				QueryRule.Parameters.Insert(Parameter.Name, Parameter.Value);
 			EndDo;
 			
-			// @skip-check query-in-loop - Последовательное выполнение правил обработки писем до первого подходящего.
+			// @skip-check query-in-loop - 
 			Result = QueryRule.Execute();
 
 		Except
@@ -6562,7 +6603,7 @@ Function DefineEmailFolders(Emails)
 						QueryRule.Parameters.Insert(Parameter.Name, Parameter.Value);
 					EndDo;
 					
-					// @skip-check query-in-loop
+					// @skip-check query-in-loop - Batch processing of email messages by user accounts.
 					EmailResult = QueryRule.Execute();
 					
 				Except
@@ -7643,7 +7684,7 @@ Procedure OnWriteDocument(DocumentObject) Export
 		
 	ElsIf TypeOf(DocumentObject) = Type("DocumentObject.SMSMessage") Then
 		
-		For Each Subscriber In DocumentObject.SMSMessageRecipients Do
+		For Each Subscriber In DocumentObject.Recipients Do
 			
 			NewRow = Table.Add();
 			NewRow.Contact        = Subscriber.Contact;
@@ -7800,7 +7841,7 @@ Procedure FillInteractionsArrayContacts(InteractionsArray, CalculateReviewedItem
 	|	MessageSMSAddressees.Contact,
 	|	MessageSMSAddressees.ContactPresentation
 	|FROM
-	|	Document.SMSMessage.SMSMessageRecipients AS MessageSMSAddressees
+	|	Document.SMSMessage.Recipients AS MessageSMSAddressees
 	|		LEFT JOIN InformationRegister.InteractionsContacts AS InteractionsContacts
 	|		ON MessageSMSAddressees.Ref = InteractionsContacts.Interaction
 	|WHERE
@@ -9004,5 +9045,14 @@ Function ChildNodesWithHTML(Item)
 EndFunction
 
 #EndRegion
+
+// See StandardSubsystemsServer.WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode
+Procedure WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode(Methods) Export
+	
+	Methods.Insert("DisableSubsystemSaaS");
+	Methods.Insert("SMSDeliveryStatusUpdate", True);
+	Methods.Insert("SendSMS", True);
+	
+EndProcedure
 
 #EndRegion

@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -159,7 +158,7 @@ Procedure ReadReportSnapshot()
 			EndIf;
 			UpdateDate = RecordManager.UpdateDate;
 		Else
-			Common.MessageToUser(NStr("en = 'The report snippet does not exist. The report was deleted.'"));
+			Common.MessageToUser(NStr("en = 'The report snapshot does not exist. The report was deleted.'"));
 		EndIf;
 		CommitTransaction();
 	Except

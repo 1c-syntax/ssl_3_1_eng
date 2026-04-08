@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Public
@@ -1231,14 +1230,14 @@ Procedure OnFillToDoList(ToDoList) Export
 	For Each Section In Sections Do
 		ObsoleteObjectsID = "ObsoleteObjectVersions" + StrReplace(Section.FullName(), ".", "");
 		// Add a to-do item.
-		ToDoItem = ToDoList.Add();
-		ToDoItem.Id = ObsoleteObjectsID;
+		CaseFile = ToDoList.Add();
+		CaseFile.Id = ObsoleteObjectsID;
 		// Displaying a user task if the obsolete data exceeds 1 GB.
-		ToDoItem.HasToDoItems      = ObsoleteVersionsInformation.DataSize > (1024 * 1024 * 1024);
-		ToDoItem.Presentation = NStr("en = 'Obsolete object versions'");
-		ToDoItem.Form         = "InformationRegister.ObjectVersioningSettings.Form.HistoryStorageSettings";
-		ToDoItem.ToolTip     = StringFunctionsClientServer.SubstituteParametersToString(ToolTip, ObsoleteVersionsInformation.VersionsCount, ObsoleteDataSize);
-		ToDoItem.Owner      = Section;
+		CaseFile.HasToDoItems      = ObsoleteVersionsInformation.DataSize > (1024 * 1024 * 1024);
+		CaseFile.Presentation = NStr("en = 'Obsolete object versions'");
+		CaseFile.Form         = "InformationRegister.ObjectVersioningSettings.Form.HistoryStorageSettings";
+		CaseFile.ToolTip     = StringFunctionsClientServer.SubstituteParametersToString(ToolTip, ObsoleteVersionsInformation.VersionsCount, ObsoleteDataSize);
+		CaseFile.Owner      = Section;
 	EndDo;
 	
 EndProcedure
@@ -1931,28 +1930,44 @@ Procedure ClearObsoleteObjectVersions() Export
 	
 	SetPrivilegedMode(True);
 	
-	QueryTemplate =
+	ObjectsTypesQueryTemplate =
+	"SELECT
+	|	ObjectsTypes.Ref
+	|INTO ObjectsTypes
+	|FROM
+	|	&ObjectsTypes AS ObjectsTypes
+	|;";
+	
+	VersionsQueryTemplate =
 	"SELECT TOP 1000
 	|	ObjectsVersions.Object,
 	|	ObjectsVersions.VersionNumber
 	|FROM
 	|	InformationRegister.ObjectsVersions AS ObjectsVersions
+	|		INNER JOIN ObjectsTypes AS ObjectsTypes
+	|		ON VALUETYPE(ObjectsVersions.Object) = VALUETYPE(ObjectsTypes.Ref)
 	|WHERE
 	|	ObjectsVersions.HasVersionData
-	|	AND ObjectsVersions.VersionDate < &DeletionBoundary
-	|	AND VALUETYPE(ObjectsVersions.Object) IN (&TypesList)";
-
+	|	AND ObjectsVersions.VersionDate < &DeletionBoundary";
+	
+	ParametersDescriptions = QueryParametersLongDescByObjectsVersions();
+	
 	Query = New Query;
-	ObjectDeletionBoundaries = ObjectDeletionBoundaries();
-	QueriesTexts = New Array;
 	
-	PrepareRequestParameters(Query, QueryTemplate, QueriesTexts);
+	QueriesTextsOnObjectsTypes = New Array;
+	PrepareRequestParameters(Query, ObjectsTypesQueryTemplate, QueriesTextsOnObjectsTypes, ParametersDescriptions);
+
+	VersionsQueriesTexts = New Array;
+	PrepareRequestParameters(Query, VersionsQueryTemplate, VersionsQueriesTexts, ParametersDescriptions);
 	
-	If Not ValueIsFilled(QueriesTexts) Then
+	If Not ValueIsFilled(QueriesTextsOnObjectsTypes) Then
 		Return;
 	EndIf;
 	
-	Query.Text = StrConcat(QueriesTexts, Chars.LF + Chars.LF + "UNION ALL" + Chars.LF + Chars.LF); // @Query-part-1
+	Query.Text = StrConcat(QueriesTextsOnObjectsTypes, Chars.LF + Chars.LF) // @Query-part-1
+		+ Chars.LF + Chars.LF
+		+ StrConcat(VersionsQueriesTexts, Chars.LF + Chars.LF + "UNION ALL" + Chars.LF + Chars.LF); // @Query-part-1
+		
 	QueryResult = Query.Execute();
 	
 	While Not QueryResult.IsEmpty() Do
@@ -1967,7 +1982,7 @@ Procedure ClearObsoleteObjectVersions() Export
 			RecordManager.Write();
 		EndDo;
 		
-		//@skip-check query-in-loop
+		//@skip-check query-in-loop - порционная выборка большого объема данных
 		QueryResult = Query.Execute();
 	EndDo;
 	
@@ -2203,9 +2218,52 @@ Function ObsoleteVersionsInformation() Export
 	
 EndFunction
 
-Procedure PrepareRequestParameters(Query, QueryTemplate, QueriesTexts)
+Procedure PrepareRequestParameters(Query, QueryTemplate, QueriesTexts, ParametersDescriptions = Undefined)
+	
+	If ParametersDescriptions = Undefined Then
+		ParametersDescriptions = QueryParametersLongDescByObjectsVersions();
+	EndIf;
+	
+	For Each ParametersDetails In ParametersDescriptions Do
+		QueryText = TrimR(QueryTemplate);
+		
+		If QueriesTexts.Count() > 0 Then
+			QueryText = StrReplace(QueryText, "INTO ResultsByPeriod", ""); // @Query-part-1
+		EndIf;
+		
+		For Each ParameterRenaming In ParametersDetails.ParametersRenamings Do
+			QueryText = StrReplace(QueryText, "&" + ParameterRenaming.Key, "&" + ParameterRenaming.Value);
+			QueryText = StrReplace(QueryText, "INTO" + " "+ ParameterRenaming.Key, "INTO" + " " + ParameterRenaming.Value);
+			QueryText = StrReplace(QueryText, "INNER JOIN" + " "+ ParameterRenaming.Key, "INNER JOIN" + " " + ParameterRenaming.Value);
+		EndDo;
+		
+		For Each Parameter In ParametersDetails.ParameterValues Do
+			Query.SetParameter(Parameter.Key, Parameter.Value);
+		EndDo;
+		
+		QueryStrings = StrSplit(QueryText, Chars.LF);
+		If Not StrEndsWith(QueryStrings[QueryStrings.UBound()], ";") Then
+			QueryStrings.Add();
+			
+			If ParametersDetails.ParameterValues.Property("VersionTypes") Then
+				QueryStrings[QueryStrings.UBound()] = Chars.Tab + "AND ObjectsVersions.ObjectVersionType IN(&VersionTypes)"; // @Query-part-1
+			Else
+				QueryStrings[QueryStrings.UBound()] = Chars.Tab + "AND ObjectsVersions.ObjectVersionType = VALUE(Enum.ObjectVersionTypes.ChangedByUser)"; // @Query-part-1
+			EndIf;
+		
+			QueryText = StrConcat(QueryStrings, Chars.LF);
+		EndIf;
+		
+		QueriesTexts.Add(QueryText);
+	EndDo;
+	
+EndProcedure
+
+Function QueryParametersLongDescByObjectsVersions()
 	
 	ObjectDeletionBoundaries = ObjectDeletionBoundaries();
+	
+	ParametersDescriptions = New Array;
 	
 	For IndexOf = 0 To ObjectDeletionBoundaries.Count() - 1 Do
 		IndexAsString = Format(IndexOf, "NZ=0; NG=0");
@@ -2215,39 +2273,52 @@ Procedure PrepareRequestParameters(Query, QueryTemplate, QueriesTexts)
 			Continue;
 		EndIf;
 		
-		QueryText = TrimR(QueryTemplate);
+		ObjectsTypes = New ValueTable;
+		ObjectsTypes.Columns.Add("Ref", New TypeDescription(ObjectDeletionBoundaries[IndexOf].TypesList));
 		
-		If QueriesTexts.Count() > 0 Then
-			QueryText = StrReplace(QueryText, "INTO ResultsByPeriod", ""); // @Query-part-1
-		EndIf;
+		For Each Type In ObjectDeletionBoundaries[IndexOf].TypesList Do
+			ObjectManager = Common.ObjectManagerByFullName(Metadata.FindByType(Type).FullName());
+			EmptyRef = ObjectManager.EmptyRef();
+			ObjectsTypes.Add().Ref = EmptyRef;
+		EndDo;
 		
-		QueryText = StrReplace(QueryText, "&DeletionBoundary", "&DeletionBoundary" + IndexAsString);
-		QueryText = StrReplace(QueryText, "&TypesList", "&TypesList" + IndexAsString);
-		
-		Query.SetParameter("DeletionBoundary" + IndexAsString, ObjectDeletionBoundaries[IndexOf].DeletionBoundary);
-		Query.SetParameter("TypesList" + IndexAsString, ObjectDeletionBoundaries[IndexOf].TypesList);
+		ParametersRenamings = New Map;
+		ParametersRenamings["DeletionBoundary"] = "DeletionBoundary" + IndexAsString;
+		ParametersRenamings["TypesList"] = "TypesList" + IndexAsString;
+		ParametersRenamings["ObjectsTypes"] = "ObjectsTypes" + IndexAsString;
+
+		ParameterValues = New Structure;
+		ParameterValues.Insert("DeletionBoundary" + IndexAsString, ObjectDeletionBoundaries[IndexOf].DeletionBoundary);
+		ParameterValues.Insert("TypesList" + IndexAsString, ObjectDeletionBoundaries[IndexOf].TypesList);
+		ParameterValues.Insert("ObjectsTypes" + IndexAsString, ObjectsTypes);
 		
 		If ObjectDeletionBoundaries[IndexOf].VersionTypesDataExchange Then
-			QueryStrings = StrSplit(QueryText, Chars.LF);
-			QueryStrings[QueryStrings.UBound()] = Chars.Tab + "AND ObjectsVersions.ObjectVersionType IN(&VersionTypes)"; // @Query-part-1
-			QueryText = StrConcat(QueryStrings, Chars.LF);
+			AdditionalCondition = Chars.Tab + "AND ObjectsVersions.ObjectVersionType IN(&VersionTypes)"; // @Query-part-1
 			
 			VersionTypes = New Array;
 			VersionTypes.Add(Enums.ObjectVersionTypes.RejectedConflictData);
 			VersionTypes.Add(Enums.ObjectVersionTypes.RejectedDueToPeriodEndClosingDateObjectDoesNotExistInInfobase);
 			VersionTypes.Add(Enums.ObjectVersionTypes.RejectedDueToPeriodEndClosingDateObjectExistsInInfobase);
 			VersionTypes.Add(Enums.ObjectVersionTypes.ConflictDataAccepted);
-			
-			Query.SetParameter("VersionTypes", VersionTypes);
+
+			ParameterValues.Insert("VersionTypes", VersionTypes);
 		Else
-			QueryText = QueryText + Chars.LF + Chars.Tab 
+			AdditionalCondition = Chars.Tab 
 				+ "AND ObjectsVersions.ObjectVersionType = VALUE(Enum.ObjectVersionTypes.ChangedByUser)"; // @Query-part-1
 		EndIf;
 		
-		QueriesTexts.Add(QueryText);
+		ParametersDetails = New Structure;
+		ParametersDetails.Insert("IndexOf", IndexAsString);
+		ParametersDetails.Insert("AdditionalCondition", AdditionalCondition);
+		ParametersDetails.Insert("ParameterValues", ParameterValues);
+		ParametersDetails.Insert("ParametersRenamings", ParametersRenamings);
+		
+		ParametersDescriptions.Add(ParametersDetails);
 	EndDo;
 	
-EndProcedure
+	Return ParametersDescriptions;
+	
+EndFunction
 
 // String presentation of data volumes. For example: "1.23 GB".
 Function DataSizeString(Val DataSize)
@@ -2765,14 +2836,14 @@ Procedure OutputHeaderForVersion(Result, Val Text, Val LineNumber, Val ColumnNum
 		
 		Result.Area("C" + String(ColumnNumber)).ColumnWidth = 50;
 		
-		State_SSLym = "R" + Format(LineNumber, "NG=0") + "C" + Format(ColumnNumber, "NG=0");
-		Result.Area(State_SSLym).Text = Text;
-		Result.Area(State_SSLym).BackColor = StyleColors.InaccessibleCellTextColor;
-		Result.Area(State_SSLym).Font = StyleFonts.ImportantLabelFont;
-		Result.Area(State_SSLym).TopBorder = New Line(SpreadsheetDocumentCellLineType.Solid);
-		Result.Area(State_SSLym).BottomBorder  = New Line(SpreadsheetDocumentCellLineType.Solid);
-		Result.Area(State_SSLym).LeftBorder  = New Line(SpreadsheetDocumentCellLineType.Solid);
-		Result.Area(State_SSLym).RightBorder = New Line(SpreadsheetDocumentCellLineType.Solid);
+		State = "R" + Format(LineNumber, "NG=0") + "C" + Format(ColumnNumber, "NG=0");
+		Result.Area(State).Text = Text;
+		Result.Area(State).BackColor = StyleColors.InaccessibleCellTextColor;
+		Result.Area(State).Font = StyleFonts.ImportantLabelFont;
+		Result.Area(State).TopBorder = New Line(SpreadsheetDocumentCellLineType.Solid);
+		Result.Area(State).BottomBorder  = New Line(SpreadsheetDocumentCellLineType.Solid);
+		Result.Area(State).LeftBorder  = New Line(SpreadsheetDocumentCellLineType.Solid);
+		Result.Area(State).RightBorder = New Line(SpreadsheetDocumentCellLineType.Solid);
 		
 	EndIf;
 	
@@ -2928,13 +2999,13 @@ Procedure OutputParsedObjectTabularSections(Result, ObjectVersion, OutputRowNumb
 	
 EndProcedure
 
-Function OutputTextToReport(Result, Val Section3, Val State_SSLym, Val Text, Val Font = Undefined)
+Function OutputTextToReport(Result, Val Section3, Val State, Val Text, Val Font = Undefined)
 	
 	If Font = Undefined Then
 		Font = StyleFonts.TextFont;
 	EndIf;
 	
-	SectionArea1 = Section3.Area(State_SSLym);
+	SectionArea1 = Section3.Area(State);
 	
 	If TypeOf(SectionArea1) = Type("SpreadsheetDocumentRange") Then
 	
@@ -3647,5 +3718,15 @@ Procedure EnableAutoPurgeOfObsoleteObjectVersions()
 EndProcedure
 
 #EndRegion
+
+// See StandardSubsystemsServer.WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode
+Procedure WhenDefiningMethodsThatAreAllowedToBeCalledAsArbitraryCode(Methods) Export
+	
+	Methods.Insert("SessionParametersSetting");
+	Methods.Insert("SetSettingsForObsoleteObjectVersionsCleanupScheduledJob");
+	Methods.Insert("ObsoleteVersionsInformation", True);
+	Methods.Insert("ClearObsoleteObjectVersions", True);
+	
+EndProcedure
 
 #EndRegion

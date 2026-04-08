@@ -333,7 +333,7 @@
 		<expression>Int(((Sum(TotalObjectCount) - Sum(ObjectCount))/Sum(TotalObjectCount)*100)*100)/100</expression>
 	</totalField>
 	<parameter>
-		<name>Cache</name>
+		<name>Cache_SSLyf</name>
 		<title xsi:type="v8:LocalStringType">
 			<v8:item>
 				<v8:lang>en</v8:lang>

@@ -70,7 +70,7 @@
 						<Button name="FormTree" id="42">
 							<Type>CommandBarButton</Type>
 							<CommandName>Form.StandardCommand.Tree</CommandName>
-							<ExtendedTooltip name="FormTree_ExtendedTooltip" id="43"/>
+							<ExtendedTooltip name="FormTreeExtendedTooltip" id="43"/>
 						</Button>
 					</ChildItems>
 				</Popup>
@@ -114,10 +114,10 @@
 					<CommandName>Form.StandardCommand.CustomizeForm</CommandName>
 					<ExtendedTooltip name="FormCustomizeFormExtendedTooltip" id="63"/>
 				</Button>
-				<Button name="FormHelp" id="60">
+				<Button name="FormHelp_SSLyf" id="60">
 					<Type>CommandBarButton</Type>
 					<CommandName>Form.StandardCommand.Help</CommandName>
-					<ExtendedTooltip name="FormHelpExtendedTooltip" id="61"/>
+					<ExtendedTooltip name="FormHelp_SSLyfExtendedTooltip" id="61"/>
 				</Button>
 				<SearchStringAddition name="SearchList" id="74">
 					<AdditionSource>

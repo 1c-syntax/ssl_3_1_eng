@@ -1,18 +1,17 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//
 
 #If Server Or ThickClientOrdinaryApplication Or ExternalConnection Then
 
 #Region Public
 
-#Region ForCallsFromOtherSubsystems
+#Region InterfaceImplementation
 
 // Set report form settings.
 //
@@ -431,7 +430,8 @@ Procedure HideExcessDataFields(Variant, DCSettings, DCUserSettings)
 	RightsSettings = New Array;
 	
 	If Variant = "UserRightsToTable" Then
-		If SettingsRightsByTableInselection(DCSettings, DCUserSettings) <> Undefined Then
+		If Not VariantWithRestrictedAccess()
+		 Or SettingsRightsByTableInselection(DCSettings, DCUserSettings) <> Undefined Then
 			RightsSettings = "*";
 		EndIf;
 		Groups = New Map;
@@ -805,7 +805,7 @@ EndFunction
 
 Function QueryTextShared()
 	
-	Return
+	QueryText =
 	"SELECT
 	|	RolesRights.MetadataObject AS MetadataObject,
 	|	RolesRights.Role AS Role,
@@ -897,6 +897,20 @@ Function QueryTextShared()
 	|
 	|INDEX BY
 	|	Table";
+	
+	If AccessManagementInternal.IsRecordLevelRestrictionDisabled() Then
+		QueryText = StrReplace(QueryText,
+			"MAX(RolesRights.UnrestrictedReadRight)",     // @query-part-1
+			"MAX(RolesRights.ReadRight)");                  // @query-part-1
+		QueryText = StrReplace(QueryText,
+			"MAX(RolesRights.UnrestrictedUpdateRight)",  // @query-part-1
+			"MAX(RolesRights.RightUpdate)");               // @query-part-1
+		QueryText = StrReplace(QueryText,
+			"MAX(RolesRights.UnrestrictedAddRight)", // @query-part-1
+			"MAX(RolesRights.AddRight)");              // @query-part-1
+	EndIf;
+	
+	Return QueryText;
 	
 EndFunction
 
@@ -2380,6 +2394,10 @@ EndFunction
 //    * EmptyRef - AnyRef
 //
 Function SettingsRightsByTableInselection(DCSettings = Undefined, DCUserSettings = Undefined)
+	
+	If Not AccessManagement.LimitAccessAtRecordLevel() Then
+		Return Undefined;
+	EndIf;
 	
 	Tables = FilterByTables(, DCSettings, DCUserSettings);
 	If Not ValueIsFilled(Tables)

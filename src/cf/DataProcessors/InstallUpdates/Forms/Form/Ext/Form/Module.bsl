@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region Variables
@@ -112,8 +111,9 @@ Procedure OnOpen(Cancel)
 	If Not Result.Supported
 		And Not Result.InstallationOfPatchesIsSupported Then
 		
-		ShowMessageBox(, Result.ErrorDescription);
-		Cancel = True;
+		Items.PageGroupMain.CurrentPage = Items.PageUnavailable;
+		Items.FormClose.Visible = True;
+		Items.LabelUnavailable.Title = Result.ErrorDescription;
 		Return;
 	EndIf;
 	
@@ -237,8 +237,8 @@ Procedure BackupLabelClick(Item)
 	BackupParameters.Insert("IBBackupDirectoryName",       Object.IBBackupDirectoryName);
 	BackupParameters.Insert("RestoreInfobase", Object.RestoreInfobase);
 	
-	NotifyDescription = New CallbackDescription("AfterCloseBackupForm", ThisObject);
-	ConfigurationUpdateClient.ShowBackup(BackupParameters, NotifyDescription);
+	CallbackDescription = New CallbackDescription("AfterCloseBackupForm", ThisObject);
+	ConfigurationUpdateClient.ShowBackup(BackupParameters, CallbackDescription);
 	
 EndProcedure
 
@@ -912,7 +912,7 @@ EndFunction
 &AtClient
 Procedure ProceedToPatchesInstallation()
 	
-	NotifyDescription = New CallbackDescription("ContinueInstallUpdates", ThisObject);
+	CallbackDescription = New CallbackDescription("ContinueInstallUpdates", ThisObject);
 	
 	ImportParameters = FileSystemClient.FileImportParameters();
 	ImportParameters.FormIdentifier = UUID;
@@ -920,7 +920,7 @@ Procedure ProceedToPatchesInstallation()
 	
 	FilesToUpload = CommonClient.CopyRecursive(PatchesFiles);
 	
-	FileSystemClient.ImportFiles(NotifyDescription, ImportParameters, FilesToUpload);
+	FileSystemClient.ImportFiles(CallbackDescription, ImportParameters, FilesToUpload);
 	
 EndProcedure
 
@@ -983,7 +983,7 @@ Procedure ProceedToUpdateModeSelection(IsMoveNext = False)
 	
 	If AdministrationParameters = Undefined Then
 		
-		NotifyDescription = New CallbackDescription("AfterGetAdministrationParameters", ThisObject, IsMoveNext);
+		CallbackDescription = New CallbackDescription("AfterGetAdministrationParameters", ThisObject, IsMoveNext);
 		FormCaption = NStr("en = 'Install update'");
 		If IsFileInfobase Then
 			NoteLabel = NStr("en = 'To install the update, enter
@@ -995,7 +995,7 @@ Procedure ProceedToUpdateModeSelection(IsMoveNext = False)
 			PromptForClusterAdministrationParameters = True;
 		EndIf;
 		
-		IBConnectionsClient.ShowAdministrationParameters(NotifyDescription, True, PromptForClusterAdministrationParameters,
+		IBConnectionsClient.ShowAdministrationParameters(CallbackDescription, True, PromptForClusterAdministrationParameters,
 			AdministrationParameters, FormCaption, NoteLabel);
 		
 	Else

@@ -1,11 +1,10 @@
 ﻿///////////////////////////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2024, OOO 1C-Soft
+// Copyright (c) 2025, OOO 1C-Soft
 // All rights reserved. This software and the related materials 
 // are licensed under a Creative Commons Attribution 4.0 International license (CC BY 4.0).
 // To view the license terms, follow the link:
 // https://creativecommons.org/licenses/by/4.0/legalcode
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //
 
 #Region FormEventHandlers
@@ -363,7 +362,7 @@ Procedure SetListFilter(List, FilterParameters)
 				List, "Use", Enums.AddInUsageOptions.Used, , , True);
 		ElsIf FilterParameters["UseFilter"] = 2 Then
 			CommonClientServer.SetDynamicListFilterItem(
-				List, "Use", Enums.AddInUsageOptions.isDisabled, , , True);
+				List, "Use", Enums.AddInUsageOptions.TurnedOff, , , True);
 		EndIf;
 	EndIf;
 	
@@ -401,7 +400,7 @@ Procedure SetConditionalAppearance()
 	ItemFilter = ConditionalAppearanceItem.Filter.Items.Add(Type("DataCompositionFilterItem"));
 	ItemFilter.LeftValue  = New DataCompositionField("Use");
 	ItemFilter.ComparisonType   = DataCompositionComparisonType.Equal;
-	ItemFilter.RightValue = Enums.AddInUsageOptions.isDisabled;
+	ItemFilter.RightValue = Enums.AddInUsageOptions.TurnedOff;
 	
 	ConditionalAppearanceItem.Appearance.SetParameterValue(
 		"TextColor", Metadata.StyleItems.InaccessibleCellTextColor.Value);

@@ -181,10 +181,10 @@
 				<CommandName>Form.StandardCommand.CustomizeForm</CommandName>
 				<ExtendedTooltip name="FormCustomizeFormExtendedTooltip" id="119"/>
 			</Button>
-			<Button name="FormHelp" id="78">
+			<Button name="FormHelp_SSLyf" id="78">
 				<Type>CommandBarButton</Type>
 				<CommandName>Form.StandardCommand.Help</CommandName>
-				<ExtendedTooltip name="FormHelpExtendedTooltip" id="120"/>
+				<ExtendedTooltip name="FormHelp_SSLyfExtendedTooltip" id="120"/>
 			</Button>
 		</ChildItems>
 	</AutoCommandBar>
@@ -249,7 +249,7 @@
 			<ContextMenu name="PropertyKindContextMenu" id="72"/>
 			<ExtendedTooltip name="PropertyKindExtendedTooltip" id="103"/>
 			<Events>
-				<Event name="OnChange">PropertyKindOnChange</Event>
+				<Event name="OnChange">PropertiesKindOnChange</Event>
 			</Events>
 		</InputField>
 		<UsualGroup name="CustomSettingsFolder" id="145">
